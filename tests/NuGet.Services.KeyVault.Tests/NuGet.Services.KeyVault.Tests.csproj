@@ -75,8 +75,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CachingSecretReaderFacts.cs" />
     <Compile Include="KeyVaultReaderFormatterTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RefreshingArgumentsDictionaryTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

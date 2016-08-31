@@ -36,6 +36,8 @@ namespace NuGet.Services.KeyVault
 
         public async Task<string> InjectAsync(string input)
         {
+            if (input == null) return null;
+
             var output = new StringBuilder(input);
             var secretNames = GetSecretNames(input);
 
