@@ -43,13 +43,13 @@ namespace NuGet.Services.KeyVault
         /// <returns>The argument associated with the given key.</returns>
         /// <exception cref="KeyNotFoundException">Thrown when the key is not found in the list of arguments.</exception>
         /// <exception cref="ArgumentNullException">Thrown when the argument associated with the given key is null or empty.</exception>
-        private async Task<string> Get(string key)
+        protected async Task<string> Get(string key)
         {
             if (!_unprocessedArguments.ContainsKey(key)) throw new KeyNotFoundException();
 
             if (!_injectedArguments.ContainsKey(key) || DateTime.UtcNow.Subtract(_injectedArguments[key].Item2).TotalSeconds >= _refreshArgsIntervalSec)
             {
-                await processArgument(key);
+                await injectAndUpdateArgument(key);
             }
 
             var argumentValue = _injectedArguments[key].Item1;
@@ -103,7 +103,7 @@ namespace NuGet.Services.KeyVault
         /// </summary>
         /// <param name="key">The key associated with the desired argument.</param>
         /// <returns>The argument, freshly updated from KeyVault.</returns>
-        private async Task<string> processArgument(string key)
+        private async Task<string> injectAndUpdateArgument(string key)
         {
             var processedArgument = await _secretInjector.InjectAsync(_unprocessedArguments[key]);
             Set(key, processedArgument);
