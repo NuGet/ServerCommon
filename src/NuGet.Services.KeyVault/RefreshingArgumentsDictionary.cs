@@ -17,10 +17,10 @@ namespace NuGet.Services.KeyVault
         private int _refreshArgsIntervalSec;
         private ISecretInjector _secretInjector;
 
-        private Dictionary<string, string> _unprocessedArguments;
-        private Dictionary<string, Tuple<string, DateTime>> _injectedArguments;
+        private IDictionary<string, string> _unprocessedArguments;
+        private IDictionary<string, Tuple<string, DateTime>> _injectedArguments;
 
-        public RefreshingArgumentsDictionary(ISecretInjector secretInjector, Dictionary<string, string> unprocessedArguments)
+        public RefreshingArgumentsDictionary(ISecretInjector secretInjector, IDictionary<string, string> unprocessedArguments)
         {
             _secretInjector = secretInjector;
             _unprocessedArguments = unprocessedArguments;
@@ -43,7 +43,7 @@ namespace NuGet.Services.KeyVault
         /// <returns>The argument associated with the given key.</returns>
         /// <exception cref="KeyNotFoundException">Thrown when the key is not found in the list of arguments.</exception>
         /// <exception cref="ArgumentNullException">Thrown when the argument associated with the given key is null or empty.</exception>
-        protected async Task<string> Get(string key)
+        protected virtual async Task<string> Get(string key)
         {
             if (!_unprocessedArguments.ContainsKey(key)) throw new KeyNotFoundException();
 
