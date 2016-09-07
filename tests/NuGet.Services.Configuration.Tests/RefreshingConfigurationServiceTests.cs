@@ -9,9 +9,9 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xunit;
 
-namespace NuGet.Services.KeyVaultUnitTests
+namespace NuGet.Services.Configuration.Tests
 {
-    public class RefreshingArgumentsDictionaryTests
+    public class RefreshingConfigurationServiceTests
     {
         [Fact]
         public async void RefreshesArgumentsAfterIntervalPasses()
@@ -28,11 +28,11 @@ namespace NuGet.Services.KeyVaultUnitTests
 
             var unprocessedDictionary = new Dictionary<string, string>()
             {
-                {RefreshingArgumentsDictionary.RefreshArgsIntervalSec, refreshIntervalSec.ToString()},
+                {RefreshingConfigurationService.RefreshArgsIntervalSec, refreshIntervalSec.ToString()},
                 {nameOfSecret, "fetch me from KeyVault pls"}
             };
 
-            var refreshingArgumentsDictionary = new RefreshingArgumentsDictionary(mockSecretInjector.Object, unprocessedDictionary);
+            var refreshingArgumentsDictionary = new RefreshingConfigurationService(mockSecretInjector.Object, unprocessedDictionary);
 
             // Act
             string value1 = await refreshingArgumentsDictionary.GetOrThrow<string>(nameOfSecret);
@@ -59,7 +59,7 @@ namespace NuGet.Services.KeyVaultUnitTests
         public async void HandlesKeyNotFound()
         {
             var fakeKey = "not a real key";
-            IArgumentsDictionary dummy = CreateDummyArgumentsDictionary();
+            IConfigurationService dummy = CreateDummyConfigService();
 
             await Assert.ThrowsAsync<KeyNotFoundException>(() => dummy.GetOrThrow<string>(fakeKey));
             await Assert.ThrowsAsync<KeyNotFoundException>(() => dummy.GetOrThrow<int>(fakeKey));
@@ -80,10 +80,10 @@ namespace NuGet.Services.KeyVaultUnitTests
         public async void HandlesNullOrEmptyArgument(Type type)
         {
             // Arrange
-            IArgumentsDictionary dummy = CreateDummyArgumentsDictionary();
+            IConfigurationService dummy = CreateDummyConfigService();
 
-            var getOrThrowMI = typeof(IArgumentsDictionary).GetMethod("GetOrThrow").MakeGenericMethod(type);
-            var getOrDefaultMI = typeof(IArgumentsDictionary).GetMethod("GetOrDefault").MakeGenericMethod(type);
+            var getOrThrowMI = typeof(IConfigurationService).GetMethod("GetOrThrow").MakeGenericMethod(type);
+            var getOrDefaultMI = typeof(IConfigurationService).GetMethod("GetOrDefault").MakeGenericMethod(type);
 
             Type[] taskTypeArgs = { type };
             var taskType = typeof(Task<>).MakeGenericType(taskTypeArgs);
@@ -119,9 +119,9 @@ namespace NuGet.Services.KeyVaultUnitTests
             return default(T);
         }
 
-        private IArgumentsDictionary CreateDummyArgumentsDictionary()
+        private IConfigurationService CreateDummyConfigService()
         {
-            return new RefreshingArgumentsDictionary(new SecretInjector(new EmptySecretReader()), new Dictionary<string, string>());
+            return new RefreshingConfigurationService(new SecretInjector(new EmptySecretReader()), new Dictionary<string, string>());
         }
     }
 }

@@ -1,12 +1,15 @@
-﻿using System.Collections.Generic;
+﻿// Copyright (c) .NET Foundation. All rights reserved. 
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information. 
+
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace NuGet.Services.KeyVault
+namespace NuGet.Services.Configuration
 {
     /// <summary>
     /// A dictionary of configuration or command line arguments.
     /// </summary>
-    public interface IArgumentsDictionary
+    public interface IConfigurationService
     {
         /// <summary>
         /// Gets an argument from the dictionary.

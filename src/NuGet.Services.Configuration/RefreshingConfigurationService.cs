@@ -1,15 +1,18 @@
-﻿using NuGet.Services.KeyVault;
+﻿// Copyright (c) .NET Foundation. All rights reserved. 
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information. 
+
+using NuGet.Services.KeyVault;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading.Tasks;
 
-namespace NuGet.Services.KeyVault
+namespace NuGet.Services.Configuration
 {
     /// <summary>
     /// Maintains a cache of configuration or command line arguments injected with secrets using an ISecretInjector and refreshes itself at a specified interval.
     /// </summary>
-    public class RefreshingArgumentsDictionary : IArgumentsDictionary
+    public class RefreshingConfigurationService : IConfigurationService
     {
         public const string RefreshArgsIntervalSec = "CacheRefreshInterval";
         private const int DefaultRefreshIntervalSec = 60 * 60 * 24; // 1 day (24 hrs)
@@ -20,7 +23,7 @@ namespace NuGet.Services.KeyVault
         private IDictionary<string, string> _unprocessedArguments;
         private IDictionary<string, Tuple<string, DateTime>> _injectedArguments;
 
-        public RefreshingArgumentsDictionary(ISecretInjector secretInjector, IDictionary<string, string> unprocessedArguments)
+        public RefreshingConfigurationService(ISecretInjector secretInjector, IDictionary<string, string> unprocessedArguments)
         {
             _secretInjector = secretInjector;
             _unprocessedArguments = unprocessedArguments;
@@ -30,7 +33,10 @@ namespace NuGet.Services.KeyVault
             if (_unprocessedArguments.ContainsKey(RefreshArgsIntervalSec))
             {
                 int parsedRefreshInterval;
-                if (int.TryParse(_unprocessedArguments[RefreshArgsIntervalSec], out parsedRefreshInterval)) refreshArgsIntervalSec = parsedRefreshInterval;
+                if (int.TryParse(_unprocessedArguments[RefreshArgsIntervalSec], out parsedRefreshInterval))
+                {
+                    refreshArgsIntervalSec = parsedRefreshInterval;
+                }
             }
             _refreshArgsIntervalSec = refreshArgsIntervalSec;
         }
@@ -45,15 +51,15 @@ namespace NuGet.Services.KeyVault
         /// <exception cref="ArgumentNullException">Thrown when the argument associated with the given key is null or empty.</exception>
         protected virtual async Task<string> Get(string key)
         {
-            if (!_unprocessedArguments.ContainsKey(key)) throw new KeyNotFoundException();
+            if (!_unprocessedArguments.ContainsKey(key)) throw new KeyNotFoundException("Could not find key " + key + "!");
 
             if (!_injectedArguments.ContainsKey(key) || DateTime.UtcNow.Subtract(_injectedArguments[key].Item2).TotalSeconds >= _refreshArgsIntervalSec)
             {
-                await injectAndUpdateArgument(key);
+                await InjectArgument(key);
             }
 
             var argumentValue = _injectedArguments[key].Item1;
-            if (string.IsNullOrEmpty(argumentValue)) throw new ArgumentNullException();
+            if (string.IsNullOrEmpty(argumentValue)) throw new ArgumentNullException("Value for key " + key + " is null or empty!");
 
             return argumentValue;
         }
@@ -69,7 +75,7 @@ namespace NuGet.Services.KeyVault
                 return (T)converter.ConvertFromString(argumentString);
             }
             // If there is no converter, no conversion is possible, so throw a NotSupportedException.
-            throw new NotSupportedException();
+            throw new NotSupportedException("No converter exists from string to " + typeof(T).Name + "!");
         }
 
         public async Task<T> GetOrDefault<T>(string key, T defaultValue = default(T))
@@ -95,7 +101,12 @@ namespace NuGet.Services.KeyVault
 
         public void Set(string key, string value)
         {
-            _injectedArguments[key] = new Tuple<string, DateTime>(value, DateTime.UtcNow);
+            _unprocessedArguments[key] = value;
+
+            if (_injectedArguments.ContainsKey(key))
+            {
+                _injectedArguments.Remove(key);
+            }
         }
 
         /// <summary>
@@ -103,10 +114,10 @@ namespace NuGet.Services.KeyVault
         /// </summary>
         /// <param name="key">The key associated with the desired argument.</param>
         /// <returns>The argument, freshly updated from KeyVault.</returns>
-        private async Task<string> injectAndUpdateArgument(string key)
+        private async Task<string> InjectArgument(string key)
         {
             var processedArgument = await _secretInjector.InjectAsync(_unprocessedArguments[key]);
-            Set(key, processedArgument);
+            _injectedArguments[key] = new Tuple<string, DateTime>(processedArgument, DateTime.UtcNow);
             return processedArgument;
         }
 

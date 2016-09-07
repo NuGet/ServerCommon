@@ -1,0 +1,42 @@
+﻿{
+  "version": "1.0.0-*",
+
+  "dependencies": {
+    "Castle.Core":  "4.0.0-alpha001",
+    "FluentAssertions": "4.9.0",
+    "Moq": "4.6.25-alpha",
+    "Microsoft.Extensions.Configuration.FileExtensions": "1.0.0",
+    "Microsoft.Extensions.Configuration.Json": "1.0.0",
+    "xunit": "2.1.0",
+    "xunit.abstractions": "2.0.0",
+    "xunit.assert": "2.1.0",
+    "xunit.core": "2.1.0",
+    "xunit.extensibility.core": "2.1.0",
+    "xunit.extensibility.execution": "2.1.0",
+    "xunit.runner.visualstudio": "2.1.0"
+  },
+
+  "frameworks": {
+    "net452": {
+      "frameworkAssemblies": {
+        "System.Data": "",
+        "System.Threading.Tasks": "",
+        "System.Runtime": ""
+      },
+      "dependencies": {
+        "NuGet.Services.Configuration": {
+          "target": "project",
+          "type": "build"
+        },
+        "NuGet.Services.KeyVault": {
+          "target": "project",
+          "type": "build"
+        }
+      }
+    }
+  },
+  "packOptions": {
+    "owners": [ "nuget" ],
+    "licenseUrl": "https://github.com/NuGet/ServerCommon/blob/master/License.md"
+  }
+}

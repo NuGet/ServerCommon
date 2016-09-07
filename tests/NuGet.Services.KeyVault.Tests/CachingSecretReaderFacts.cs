@@ -3,7 +3,6 @@
 
 using System.Threading.Tasks;
 using Moq;
-using NuGet.Services.KeyVault;
 using Xunit;
 using System.Threading;
 
