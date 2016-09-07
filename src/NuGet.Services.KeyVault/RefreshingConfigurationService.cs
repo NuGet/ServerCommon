@@ -1,13 +1,12 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved. 
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information. 
 
-using NuGet.Services.KeyVault;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading.Tasks;
 
-namespace NuGet.Services.Configuration
+namespace NuGet.Services.KeyVault
 {
     /// <summary>
     /// Maintains a cache of configuration or command line arguments injected with secrets using an ISecretInjector and refreshes itself at a specified interval.

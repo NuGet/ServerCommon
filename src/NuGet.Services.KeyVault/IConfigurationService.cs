@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
-namespace NuGet.Services.Configuration
+namespace NuGet.Services.KeyVault
 {
     /// <summary>
     /// A dictionary of configuration or command line arguments.
