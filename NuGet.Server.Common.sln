@@ -15,8 +15,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{7783A106
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.Services.KeyVault.Tests", "tests\NuGet.Services.KeyVault.Tests\NuGet.Services.KeyVault.Tests.csproj", "{BA1FB5F1-8F6B-4558-862B-F47C3995B06A}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "NuGet.Services.Configuration.Tests", "tests\NuGet.Services.Configuration.Tests\NuGet.Services.Configuration.Tests.xproj", "{8B9D4D85-31FC-42C3-B825-6657A343B14A}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{57928C18-FA11-4C82-A062-64C098EDDF99}"
 	ProjectSection(SolutionItems) = preProject
 		global.json = global.json
@@ -44,10 +42,6 @@ Global
 		{BA1FB5F1-8F6B-4558-862B-F47C3995B06A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BA1FB5F1-8F6B-4558-862B-F47C3995B06A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BA1FB5F1-8F6B-4558-862B-F47C3995B06A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{8B9D4D85-31FC-42C3-B825-6657A343B14A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{8B9D4D85-31FC-42C3-B825-6657A343B14A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{8B9D4D85-31FC-42C3-B825-6657A343B14A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{8B9D4D85-31FC-42C3-B825-6657A343B14A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -57,6 +51,5 @@ Global
 		{E2D65F09-81A6-4D69-B128-C47C2DC43D36} = {8415FED7-1BED-4227-8B4F-BB7C24E041CD}
 		{C87D0EF1-54AA-4B0B-89DE-CFF2DC941D11} = {8415FED7-1BED-4227-8B4F-BB7C24E041CD}
 		{BA1FB5F1-8F6B-4558-862B-F47C3995B06A} = {7783A106-0F4C-4055-9AB4-413FB2C7B8F0}
-		{8B9D4D85-31FC-42C3-B825-6657A343B14A} = {7783A106-0F4C-4055-9AB4-413FB2C7B8F0}
 	EndGlobalSection
 EndGlobal
