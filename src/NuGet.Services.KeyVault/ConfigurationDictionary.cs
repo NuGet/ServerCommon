@@ -7,13 +7,13 @@ namespace NuGet.Services.KeyVault
 {
     public class ConfigurationDictionary : Dictionary<string, string>
     {
-        private ISecretInjector _secretInjector;
+        private readonly ISecretInjector _secretInjector;
 
         public ConfigurationDictionary(ISecretInjector secretInjector, IDictionary<string, string> unprocessedArguments)
         {
             _secretInjector = secretInjector;
 
-            foreach (string key in unprocessedArguments.Keys)
+            foreach (var key in unprocessedArguments.Keys)
             {
                 base[key] = unprocessedArguments[key];
             }

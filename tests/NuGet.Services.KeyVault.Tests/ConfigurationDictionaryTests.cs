@@ -29,23 +29,25 @@ namespace NuGet.Services.KeyVault.Tests
             var configDict = new ConfigurationDictionary(mockSecretInjector.Object, unprocessedDictionary);
 
             // Act
-            string value1 = configDict[nameOfSecret];
-            value1 = configDict[nameOfSecret];
+            var value1 = configDict[nameOfSecret];
+            var value2 = configDict[nameOfSecret];
 
             // Assert
             mockSecretInjector.Verify(x => x.InjectAsync(It.IsAny<string>()), Times.Exactly(2));
             Assert.Equal(firstSecret, value1);
+            Assert.Equal(value1, value2);
 
             // Arrange 2
             mockSecretInjector.Setup(x => x.InjectAsync(It.IsAny<string>())).Returns(Task.FromResult(secondSecret));
 
             // Act 2
-            string value2 = configDict[nameOfSecret];
-            value2 = configDict[nameOfSecret];
+            var value3 = configDict[nameOfSecret];
+            var value4 = configDict[nameOfSecret];
 
             // Assert 2
             mockSecretInjector.Verify(x => x.InjectAsync(It.IsAny<string>()), Times.Exactly(4));
-            Assert.Equal(secondSecret, value2);
+            Assert.Equal(secondSecret, value3);
+            Assert.Equal(value3, value4);
         }
 
         [Fact]

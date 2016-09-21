@@ -34,41 +34,55 @@ namespace NuGet.Services.KeyVault.Tests
             var refreshingArgumentsDictionary = new RefreshingConfigurationService(mockSecretInjector.Object, unprocessedDictionary);
 
             // Act
-            string value1 = await refreshingArgumentsDictionary.GetOrThrow<string>(nameOfSecret);
-            value1 = await refreshingArgumentsDictionary.GetOrThrow<string>(nameOfSecret);
+            var value1 = await refreshingArgumentsDictionary.GetOrThrow<string>(nameOfSecret);
+            var value2 = await refreshingArgumentsDictionary.GetOrThrow<string>(nameOfSecret);
 
             // Assert
             mockSecretInjector.Verify(x => x.InjectAsync(It.IsAny<string>()), Times.Once);
             Assert.Equal(firstSecret, value1);
+            Assert.Equal(value1, value2);
 
             // Arrange 2
             Thread.Sleep(delayBeforeRefreshingMs);
             mockSecretInjector.Setup(x => x.InjectAsync(It.IsAny<string>())).Returns(Task.FromResult(secondSecret));
 
             // Act 2
-            string value2 = await refreshingArgumentsDictionary.GetOrThrow<string>(nameOfSecret);
-            value2 = await refreshingArgumentsDictionary.GetOrThrow<string>(nameOfSecret);
+            var value3 = await refreshingArgumentsDictionary.GetOrThrow<string>(nameOfSecret);
+            var value4 = await refreshingArgumentsDictionary.GetOrThrow<string>(nameOfSecret);
 
             // Assert 2
             mockSecretInjector.Verify(x => x.InjectAsync(It.IsAny<string>()), Times.Exactly(2));
-            Assert.Equal(secondSecret, value2);
+            Assert.Equal(secondSecret, value3);
+            Assert.Equal(value3, value4);
         }
 
         [Fact]
         public async void HandlesKeyNotFound()
         {
             var fakeKey = "not a real key";
-            IConfigurationService dummy = CreateDummyConfigService();
+            var dummy = CreateDummyConfigService();
 
+            // GetOrThrow throws KeyNotFoundException
             await Assert.ThrowsAsync<KeyNotFoundException>(() => dummy.GetOrThrow<string>(fakeKey));
             await Assert.ThrowsAsync<KeyNotFoundException>(() => dummy.GetOrThrow<int>(fakeKey));
             await Assert.ThrowsAsync<KeyNotFoundException>(() => dummy.GetOrThrow<bool>(fakeKey));
             await Assert.ThrowsAsync<KeyNotFoundException>(() => dummy.GetOrThrow<DateTime>(fakeKey));
 
+            // GetOrDefault returns default(type)
             Assert.Equal(default(string), await dummy.GetOrDefault<string>(fakeKey));
             Assert.Equal(default(int), await dummy.GetOrDefault<int>(fakeKey));
             Assert.Equal(default(bool), await dummy.GetOrDefault<bool>(fakeKey));
             Assert.Equal(default(DateTime), await dummy.GetOrDefault<DateTime>(fakeKey));
+
+            // GetOrDefault returns default passed in
+            var randomDefaultString = "i'm a string";
+            Assert.Equal(randomDefaultString, await dummy.GetOrDefault<string>(fakeKey, randomDefaultString));
+            var randomDefaultInt = 58;
+            Assert.Equal(randomDefaultInt, await dummy.GetOrDefault<int>(fakeKey, randomDefaultInt));
+            var randomDefaultBool = !default(bool);
+            Assert.Equal(randomDefaultBool, await dummy.GetOrDefault<bool>(fakeKey, randomDefaultBool));
+            var randomDefaultDateTime = DateTime.Now.Subtract(new TimeSpan(1, 0, 0));
+            Assert.Equal(randomDefaultDateTime, await dummy.GetOrDefault<DateTime>(fakeKey, randomDefaultDateTime));
         }
 
         [Theory]
@@ -79,10 +93,10 @@ namespace NuGet.Services.KeyVault.Tests
         public async void HandlesNullOrEmptyArgument(Type type)
         {
             // Arrange
-            IConfigurationService dummy = CreateDummyConfigService();
+            var dummy = CreateDummyConfigService();
 
-            var getOrThrowMI = typeof(IConfigurationService).GetMethod("GetOrThrow").MakeGenericMethod(type);
-            var getOrDefaultMI = typeof(IConfigurationService).GetMethod("GetOrDefault").MakeGenericMethod(type);
+            var getOrThrowMethod = typeof(IConfigurationService).GetMethod("GetOrThrow").MakeGenericMethod(type);
+            var getOrDefaultMethod = typeof(IConfigurationService).GetMethod("GetOrDefault").MakeGenericMethod(type);
 
             Type[] taskTypeArgs = { type };
             var taskType = typeof(Task<>).MakeGenericType(taskTypeArgs);
@@ -101,11 +115,11 @@ namespace NuGet.Services.KeyVault.Tests
 
             // Act and Assert
 
-            await Assert.ThrowsAsync<ArgumentNullException>(() => (Task)getOrThrowMI.Invoke(dummy, nullKeyThrowArgs));
-            Assert.Equal(defaultOfType, await (dynamic)getOrDefaultMI.Invoke(dummy, nullKeyDefaultArgs));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => (Task)getOrThrowMethod.Invoke(dummy, nullKeyThrowArgs));
+            Assert.Equal(defaultOfType, await (dynamic)getOrDefaultMethod.Invoke(dummy, nullKeyDefaultArgs));
 
-            await Assert.ThrowsAsync<ArgumentNullException>(() => (Task)getOrThrowMI.Invoke(dummy, emptyKeyThrowArgs));
-            Assert.Equal(defaultOfType, await (dynamic)getOrDefaultMI.Invoke(dummy, emptyKeyDefaultArgs));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => (Task)getOrThrowMethod.Invoke(dummy, emptyKeyThrowArgs));
+            Assert.Equal(defaultOfType, await (dynamic)getOrDefaultMethod.Invoke(dummy, emptyKeyDefaultArgs));
         }
 
         public dynamic GetDefault(Type t)
