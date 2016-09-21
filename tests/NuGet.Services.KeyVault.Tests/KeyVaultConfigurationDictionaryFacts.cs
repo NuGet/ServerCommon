@@ -8,7 +8,7 @@ using Xunit;
 
 namespace NuGet.Services.KeyVault.Tests
 {
-    public class KeyVaultConfigurationDictionaryTests
+    public class KeyVaultConfigurationDictionaryFacts
     {
         [Fact]
         public void RefreshesSecretWhenItChanges()

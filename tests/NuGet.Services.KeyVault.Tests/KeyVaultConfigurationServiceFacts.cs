@@ -10,7 +10,7 @@ using Xunit;
 
 namespace NuGet.Services.KeyVault.Tests
 {
-    public class KeyVaultConfigurationServiceTests
+    public class KeyVaultConfigurationServiceFacts
     {
         [Fact]
         public async void RefreshesArgumentsIfKeyVaultChanges()
