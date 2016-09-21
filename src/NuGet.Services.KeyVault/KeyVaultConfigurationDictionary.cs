@@ -5,11 +5,11 @@ using System.Collections.Generic;
 
 namespace NuGet.Services.KeyVault
 {
-    public class ConfigurationDictionary : Dictionary<string, string>
+    public class KeyVaultConfigurationDictionary : Dictionary<string, string>
     {
         private readonly ISecretInjector _secretInjector;
 
-        public ConfigurationDictionary(ISecretInjector secretInjector, IDictionary<string, string> unprocessedArguments)
+        public KeyVaultConfigurationDictionary(ISecretInjector secretInjector, IDictionary<string, string> unprocessedArguments)
         {
             _secretInjector = secretInjector;
 

@@ -10,48 +10,45 @@ using Xunit;
 
 namespace NuGet.Services.KeyVault.Tests
 {
-    public class RefreshingConfigurationServiceTests
+    public class KeyVaultConfigurationServiceTests
     {
         [Fact]
-        public async void RefreshesArgumentsAfterIntervalPasses()
+        public async void RefreshesArgumentsIfKeyVaultChanges()
         {
             // Arrange
-            const string nameOfSecret = "hello i'm a secret";
+            const string secretName = "hello i'm a secret";
+            const string secretKey = "fetch me from KeyVault pls";
             const string firstSecret = "secret1";
             const string secondSecret = "secret2";
-            const int refreshIntervalSec = 1;
-            const int delayBeforeRefreshingMs = (refreshIntervalSec + 1) * 1000;
 
             var mockSecretInjector = new Mock<ISecretInjector>();
             mockSecretInjector.Setup(x => x.InjectAsync(It.IsAny<string>())).Returns(Task.FromResult(firstSecret));
 
-            var unprocessedDictionary = new Dictionary<string, string>()
+            var arguments = new Dictionary<string, string>()
             {
-                {RefreshingConfigurationService.RefreshArgsIntervalSec, refreshIntervalSec.ToString()},
-                {nameOfSecret, "fetch me from KeyVault pls"}
+                {secretName, secretKey}
             };
 
-            var refreshingArgumentsDictionary = new RefreshingConfigurationService(mockSecretInjector.Object, unprocessedDictionary);
+            var configService = new KeyVaultConfigurationService(mockSecretInjector.Object, arguments);
 
             // Act
-            var value1 = await refreshingArgumentsDictionary.GetOrThrow<string>(nameOfSecret);
-            var value2 = await refreshingArgumentsDictionary.GetOrThrow<string>(nameOfSecret);
+            var value1 = await configService.GetOrThrow<string>(secretName);
+            var value2 = await configService.GetOrThrow<string>(secretName);
 
             // Assert
-            mockSecretInjector.Verify(x => x.InjectAsync(It.IsAny<string>()), Times.Once);
+            mockSecretInjector.Verify(x => x.InjectAsync(It.IsAny<string>()), Times.Exactly(2));
             Assert.Equal(firstSecret, value1);
             Assert.Equal(value1, value2);
 
             // Arrange 2
-            Thread.Sleep(delayBeforeRefreshingMs);
             mockSecretInjector.Setup(x => x.InjectAsync(It.IsAny<string>())).Returns(Task.FromResult(secondSecret));
 
             // Act 2
-            var value3 = await refreshingArgumentsDictionary.GetOrThrow<string>(nameOfSecret);
-            var value4 = await refreshingArgumentsDictionary.GetOrThrow<string>(nameOfSecret);
+            var value3 = await configService.GetOrThrow<string>(secretName);
+            var value4 = await configService.GetOrThrow<string>(secretName);
 
             // Assert 2
-            mockSecretInjector.Verify(x => x.InjectAsync(It.IsAny<string>()), Times.Exactly(2));
+            mockSecretInjector.Verify(x => x.InjectAsync(It.IsAny<string>()), Times.Exactly(4));
             Assert.Equal(secondSecret, value3);
             Assert.Equal(value3, value4);
         }
@@ -95,8 +92,8 @@ namespace NuGet.Services.KeyVault.Tests
             // Arrange
             var dummy = CreateDummyConfigService();
 
-            var getOrThrowMethod = typeof(IConfigurationService).GetMethod("GetOrThrow").MakeGenericMethod(type);
-            var getOrDefaultMethod = typeof(IConfigurationService).GetMethod("GetOrDefault").MakeGenericMethod(type);
+            var getOrThrowMethod = typeof(IKeyVaultConfigurationService).GetMethod("GetOrThrow").MakeGenericMethod(type);
+            var getOrDefaultMethod = typeof(IKeyVaultConfigurationService).GetMethod("GetOrDefault").MakeGenericMethod(type);
 
             Type[] taskTypeArgs = { type };
             var taskType = typeof(Task<>).MakeGenericType(taskTypeArgs);
@@ -132,9 +129,9 @@ namespace NuGet.Services.KeyVault.Tests
             return default(T);
         }
 
-        private IConfigurationService CreateDummyConfigService()
+        private IKeyVaultConfigurationService CreateDummyConfigService()
         {
-            return new RefreshingConfigurationService(new SecretInjector(new EmptySecretReader()), new Dictionary<string, string>());
+            return new KeyVaultConfigurationService(new SecretInjector(new EmptySecretReader()), new Dictionary<string, string>());
         }
     }
 }

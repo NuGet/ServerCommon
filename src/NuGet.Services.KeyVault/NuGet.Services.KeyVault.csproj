@@ -92,14 +92,14 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CachingSecretReader.cs" />
-    <Compile Include="ConfigurationDictionary.cs" />
+    <Compile Include="KeyVaultConfigurationDictionary.cs" />
     <Compile Include="EmptySecretReader.cs" />
-    <Compile Include="IConfigurationService.cs" />
+    <Compile Include="IKeyVaultConfigurationService.cs" />
     <Compile Include="ISecretInjector.cs" />
     <Compile Include="ISecretReader.cs" />
     <Compile Include="KeyVaultConfiguration.cs" />
     <Compile Include="KeyVaultReader.cs" />
-    <Compile Include="RefreshingConfigurationService.cs" />
+    <Compile Include="KeyVaultConfigurationService.cs" />
     <Compile Include="SecretInjector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

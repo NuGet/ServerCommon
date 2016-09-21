@@ -10,7 +10,7 @@ namespace NuGet.Services.KeyVault
     /// <summary>
     /// A dictionary of configuration or command line arguments.
     /// </summary>
-    public interface IConfigurationService
+    public interface IKeyVaultConfigurationService
     {
         /// <summary>
         /// Gets an argument from the dictionary.
@@ -36,13 +36,13 @@ namespace NuGet.Services.KeyVault
 
         bool ContainsKey(string key);
 
-        bool Contains(KeyValuePair<string, string> item);
+        Task<bool> Contains(KeyValuePair<string, string> item);
 
         void Add(KeyValuePair<string, string> item);
 
         void Add(string key, string value);
 
-        bool Remove(KeyValuePair<string, string> item);
+        Task<bool> Remove(KeyValuePair<string, string> item);
 
         bool Remove(string key);
 

@@ -8,7 +8,7 @@ using Xunit;
 
 namespace NuGet.Services.KeyVault.Tests
 {
-    public class ConfigurationDictionaryTests
+    public class KeyVaultConfigurationDictionaryTests
     {
         [Fact]
         public void RefreshesSecretWhenItChanges()
@@ -26,7 +26,7 @@ namespace NuGet.Services.KeyVault.Tests
                 {nameOfSecret, "fetch me from KeyVault pls"}
             };
 
-            var configDict = new ConfigurationDictionary(mockSecretInjector.Object, unprocessedDictionary);
+            var configDict = new KeyVaultConfigurationDictionary(mockSecretInjector.Object, unprocessedDictionary);
 
             // Act
             var value1 = configDict[nameOfSecret];
@@ -54,7 +54,7 @@ namespace NuGet.Services.KeyVault.Tests
         public void HandlesKeyNotFound()
         {
             var fakeKey = "not a real key";
-            ConfigurationDictionary dummy = CreateDummyConfigurationDictionary();
+            var dummy = CreateDummyConfigurationDictionary();
             Assert.Throws<KeyNotFoundException>(() => dummy[fakeKey]);
         }
 
@@ -62,7 +62,7 @@ namespace NuGet.Services.KeyVault.Tests
         public void HandlesNullOrEmptyArgument()
         {
             // Arrange
-            ConfigurationDictionary dummy = CreateDummyConfigurationDictionary();
+            var dummy = CreateDummyConfigurationDictionary();
 
             var nullKey = "this key has a null value";
             string nullValue = null;
@@ -77,9 +77,9 @@ namespace NuGet.Services.KeyVault.Tests
             Assert.Equal(emptyValue, dummy[emptyKey]);
         }
 
-        private ConfigurationDictionary CreateDummyConfigurationDictionary()
+        private KeyVaultConfigurationDictionary CreateDummyConfigurationDictionary()
         {
-            return new ConfigurationDictionary(new SecretInjector(new EmptySecretReader()), new Dictionary<string, string>());
+            return new KeyVaultConfigurationDictionary(new SecretInjector(new EmptySecretReader()), new Dictionary<string, string>());
         }
     }
 }
