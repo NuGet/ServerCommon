@@ -11,14 +11,13 @@ namespace NuGet.Services.KeyVault
     /// <summary>
     /// Maintains a dictionary of configuration or command line arguments and injects them with secrets using an ISecretInjector on every access to refresh them.
     /// </summary>
-    public class KeyVaultConfigurationService : IKeyVaultConfigurationService
+    public class SecretService : ISecretService
     {
         private readonly ISecretInjector _secretInjector;
         private readonly IDictionary<string, string> _arguments;
+        private readonly IDictionary<string, string> _cachedArgumentValues = new Dictionary<string, string>();
 
-        private IDictionary<string, string> _cachedArgumentValues = new Dictionary<string, string>();
-
-        public KeyVaultConfigurationService(ISecretInjector secretInjector, IDictionary<string, string> arguments)
+        public SecretService(ISecretInjector secretInjector, IDictionary<string, string> arguments)
         {
             _secretInjector = secretInjector;
             _arguments = arguments;
@@ -123,50 +122,6 @@ namespace NuGet.Services.KeyVault
                 // Could not convert an object of type string into an object of type T.
             }
             return defaultValue;
-        }
-
-        public void Set(string key, string value)
-        {
-            _arguments[key] = value;
-        }
-
-        public bool ContainsKey(string key)
-        {
-            return _arguments.ContainsKey(key);
-        }
-
-        public async Task<bool> Contains(KeyValuePair<string, string> item)
-        {
-            return ContainsKey(item.Key) && item.Value.Equals(await Get(item.Key));
-        }
-
-        public void Add(KeyValuePair<string, string> item)
-        {
-            Add(item.Key, item.Value);
-        }
-
-        public void Add(string key, string value)
-        {
-            _arguments.Add(key, value);
-
-            // Cache the argument immediately.
-            _cachedArgumentValues[key] = value;
-            Task.Run(async () => _cachedArgumentValues[key] = await _secretInjector.InjectAsync(_arguments[key]));
-        }
-
-        public async Task<bool> Remove(KeyValuePair<string, string> item)
-        {
-            return await Contains(item) && Remove(item.Key);
-        }
-
-        public bool Remove(string key)
-        {
-            return ContainsKey(key) && _arguments.Remove(key);
-        }
-
-        public void Clear()
-        {
-            _arguments.Clear();
         }
     }
 }

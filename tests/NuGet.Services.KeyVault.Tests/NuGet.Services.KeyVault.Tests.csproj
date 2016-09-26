@@ -76,10 +76,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CachingSecretReaderFacts.cs" />
-    <Compile Include="KeyVaultConfigurationDictionaryFacts.cs" />
+    <Compile Include="SecretDictionaryFacts.cs" />
     <Compile Include="KeyVaultReaderFormatterFacts.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="KeyVaultConfigurationServiceFacts.cs" />
+    <Compile Include="SecretServiceFacts.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

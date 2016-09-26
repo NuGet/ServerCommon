@@ -9,7 +9,7 @@ using NuGet.Services.KeyVault;
 
 namespace NuGet.Services.Configuration
 {
-    public class KeyVaultConfigurationReader : IConfigurationRoot
+    public class SecretConfigurationReader : IConfigurationRoot
     {
         private IConfigurationRoot _configuration;
         private ISecretReaderFactory _secretReaderFactory;
@@ -33,7 +33,7 @@ namespace NuGet.Services.Configuration
             }
         }
 
-        public KeyVaultConfigurationReader(IConfigurationRoot config, ISecretReaderFactory secretReaderFactory)
+        public SecretConfigurationReader(IConfigurationRoot config, ISecretReaderFactory secretReaderFactory)
         {
             _configuration = config;
             _secretReaderFactory = secretReaderFactory;

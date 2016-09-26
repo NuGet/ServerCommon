@@ -11,7 +11,7 @@ using Xunit;
 
 namespace NuGet.Services.KeyVault.Tests
 {
-    public class KeyVaultConfigurationServiceFacts
+    public class SecretServiceFacts
     {
         [Fact]
         public void HandlesSyncCalledFirst()
@@ -21,37 +21,21 @@ namespace NuGet.Services.KeyVault.Tests
             const string secretKey = "fetch me from KeyVault pls";
             const string secretValue = "oohmysterious";
 
-            const string secretName2 = "hello i'm another secret";
-            const string secretKey2 = "fetch me from KeyVault too pls";
-            const string secretValue2 = "oohevenmoremysterious";
-
             var mockSecretInjector = new Mock<ISecretInjector>();
             mockSecretInjector.Setup(x => x.InjectAsync(It.Is<string>(v => v == secretKey))).Returns(Task.FromResult(secretValue));
-            mockSecretInjector.Setup(x => x.InjectAsync(It.Is<string>(v => v == secretKey2))).Returns(Task.FromResult(secretValue2));
 
             var arguments = new Dictionary<string, string>()
             {
                 {secretName, secretKey}
             };
 
-            var configService = new KeyVaultConfigurationService(mockSecretInjector.Object, arguments);
+            var configService = new SecretService(mockSecretInjector.Object, arguments);
 
             // Act
             var value = configService.GetOrThrowSync<string>(secretName);
 
             // Assert
             Assert.Equal(secretValue, value);
-
-            // Arrange 2
-            configService.Add(secretName2, secretKey2);
-            // Wait for the cache to update.
-            Thread.Sleep(100);
-            
-            // Act 2
-            var value2 = configService.GetOrDefaultSync<string>(secretName2);
-
-            // Assert
-            Assert.Equal(secretValue2, value2);
         }
 
         [Fact]
@@ -71,7 +55,7 @@ namespace NuGet.Services.KeyVault.Tests
                 {secretName, secretKey}
             };
 
-            var configService = new KeyVaultConfigurationService(mockSecretInjector.Object, arguments);
+            var configService = new SecretService(mockSecretInjector.Object, arguments);
 
             // Act
             var value1 = await configService.GetOrThrow<string>(secretName);
@@ -113,10 +97,10 @@ namespace NuGet.Services.KeyVault.Tests
             // Arrange
             var dummy = CreateDummyConfigService();
 
-            var getOrThrowMethod = typeof(IKeyVaultConfigurationService).GetMethod("GetOrThrow").MakeGenericMethod(type);
-            var getOrDefaultMethod = typeof(IKeyVaultConfigurationService).GetMethod("GetOrDefault").MakeGenericMethod(type);
-            var getOrThrowSyncMethod = typeof(IKeyVaultConfigurationService).GetMethod("GetOrThrowSync").MakeGenericMethod(type);
-            var getOrDefaultSyncMethod = typeof(IKeyVaultConfigurationService).GetMethod("GetOrDefaultSync").MakeGenericMethod(type);
+            var getOrThrowMethod = typeof(ISecretService).GetMethod("GetOrThrow").MakeGenericMethod(type);
+            var getOrDefaultMethod = typeof(ISecretService).GetMethod("GetOrDefault").MakeGenericMethod(type);
+            var getOrThrowSyncMethod = typeof(ISecretService).GetMethod("GetOrThrowSync").MakeGenericMethod(type);
+            var getOrDefaultSyncMethod = typeof(ISecretService).GetMethod("GetOrDefaultSync").MakeGenericMethod(type);
             
             var defaultOfType = GetDefault(type);
             var memberOfType = _typeToObject[type];
@@ -137,34 +121,6 @@ namespace NuGet.Services.KeyVault.Tests
             // GetOrDefault with default specified
             Assert.Equal(memberOfType, await (dynamic)getOrDefaultMethod.Invoke(dummy, notFoundKeyDefaultSpecifiedArgs));
             Assert.Equal(memberOfType, (dynamic)getOrDefaultSyncMethod.Invoke(dummy, notFoundKeyDefaultSpecifiedArgs));
-
-            /*
-            // GetOrThrow throws KeyNotFoundException
-            await Assert.ThrowsAsync<KeyNotFoundException>(() => dummy.GetOrThrow<string>(fakeKey));
-            await Assert.ThrowsAsync<KeyNotFoundException>(() => dummy.GetOrThrow<int>(fakeKey));
-            await Assert.ThrowsAsync<KeyNotFoundException>(() => dummy.GetOrThrow<bool>(fakeKey));
-            await Assert.ThrowsAsync<KeyNotFoundException>(() => dummy.GetOrThrow<DateTime>(fakeKey));
-            Assert.Throws<KeyNotFoundException>(() => dummy.GetOrThrowSync<string>(fakeKey));
-            Assert.Throws<KeyNotFoundException>(() => dummy.GetOrThrowSync<int>(fakeKey));
-            Assert.Throws<KeyNotFoundException>(() => dummy.GetOrThrowSync<bool>(fakeKey));
-            Assert.Throws<KeyNotFoundException>(() => dummy.GetOrThrowSync<DateTime>(fakeKey));
-
-            // GetOrDefault returns default(type)
-            Assert.Equal(default(string), await dummy.GetOrDefault<string>(fakeKey));
-            Assert.Equal(default(int), await dummy.GetOrDefault<int>(fakeKey));
-            Assert.Equal(default(bool), await dummy.GetOrDefault<bool>(fakeKey));
-            Assert.Equal(default(DateTime), await dummy.GetOrDefault<DateTime>(fakeKey));
-
-            // GetOrDefault returns default passed in
-            var randomDefaultString = "i'm a string";
-            Assert.Equal(randomDefaultString, await dummy.GetOrDefault<string>(fakeKey, randomDefaultString));
-            var randomDefaultInt = 58;
-            Assert.Equal(randomDefaultInt, await dummy.GetOrDefault<int>(fakeKey, randomDefaultInt));
-            var randomDefaultBool = !default(bool);
-            Assert.Equal(randomDefaultBool, await dummy.GetOrDefault<bool>(fakeKey, randomDefaultBool));
-            var randomDefaultDateTime = DateTime.Now.Subtract(new TimeSpan(1, 0, 0));
-            Assert.Equal(randomDefaultDateTime, await dummy.GetOrDefault<DateTime>(fakeKey, randomDefaultDateTime));
-            */
         }
         
         [Theory]
@@ -175,53 +131,60 @@ namespace NuGet.Services.KeyVault.Tests
         public async void HandlesNullOrEmptyArgument(Type type)
         {
             // Arrange
-            var dummy = CreateDummyConfigService();
-
-            var getOrThrowMethod = typeof(IKeyVaultConfigurationService).GetMethod("GetOrThrow").MakeGenericMethod(type);
-            var getOrDefaultMethod = typeof(IKeyVaultConfigurationService).GetMethod("GetOrDefault").MakeGenericMethod(type);
-            var getOrThrowSyncMethod = typeof(IKeyVaultConfigurationService).GetMethod("GetOrThrowSync").MakeGenericMethod(type);
-            var getOrDefaultSyncMethod = typeof(IKeyVaultConfigurationService).GetMethod("GetOrDefaultSync").MakeGenericMethod(type);
-            
             var defaultOfType = GetDefault(type);
             var memberOfType = _typeToObject[type];
 
             var nullKey = "this key has a null value";
-            dummy.Add(nullKey, null);
             object[] nullKeyThrowArgs = { nullKey };
             object[] nullKeyDefaultArgs = { nullKey, null };
             object[] nullKeyDefaultSpecifiedArgs = { nullKey, memberOfType };
 
             var emptyKey = "this key has an empty value";
-            dummy.Add(emptyKey, "");
             object[] emptyKeyThrowArgs = { emptyKey };
             object[] emptyKeyDefaultArgs = { emptyKey, null };
             object[] emptyKeyDefaultSpecifiedArgs = { emptyKey, memberOfType };
+
+            var mockSecretInjector = new Mock<ISecretInjector>();
+            mockSecretInjector.Setup(x => x.InjectAsync(It.IsAny<string>())).Returns<string>(Task.FromResult);
+
+            var arguments = new Dictionary<string, string>()
+            {
+                {nullKey, null},
+                {emptyKey, "" }
+            };
+
+            var configService = new SecretService(mockSecretInjector.Object, arguments);
+
+            var getOrThrowMethod = typeof(ISecretService).GetMethod("GetOrThrow").MakeGenericMethod(type);
+            var getOrDefaultMethod = typeof(ISecretService).GetMethod("GetOrDefault").MakeGenericMethod(type);
+            var getOrThrowSyncMethod = typeof(ISecretService).GetMethod("GetOrThrowSync").MakeGenericMethod(type);
+            var getOrDefaultSyncMethod = typeof(ISecretService).GetMethod("GetOrDefaultSync").MakeGenericMethod(type);
 
             ////// Act and Assert
             
             //// Null Key
 
             // GetOrThrow
-            await Assert.ThrowsAsync<ArgumentNullException>(() => (Task)getOrThrowMethod.Invoke(dummy, nullKeyThrowArgs));
-            Assert.Throws<TargetInvocationException>(() => getOrThrowSyncMethod.Invoke(dummy, nullKeyThrowArgs));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => (Task)getOrThrowMethod.Invoke(configService, nullKeyThrowArgs));
+            Assert.Throws<TargetInvocationException>(() => getOrThrowSyncMethod.Invoke(configService, nullKeyThrowArgs));
             // GetOrDefault
-            Assert.Equal(defaultOfType, await (dynamic)getOrDefaultMethod.Invoke(dummy, nullKeyDefaultArgs));
-            Assert.Equal(defaultOfType, (dynamic)getOrDefaultSyncMethod.Invoke(dummy, nullKeyDefaultArgs));
+            Assert.Equal(defaultOfType, await (dynamic)getOrDefaultMethod.Invoke(configService, nullKeyDefaultArgs));
+            Assert.Equal(defaultOfType, (dynamic)getOrDefaultSyncMethod.Invoke(configService, nullKeyDefaultArgs));
             // GetOrDefault with default specified
-            Assert.Equal(memberOfType, await (dynamic)getOrDefaultMethod.Invoke(dummy, nullKeyDefaultSpecifiedArgs));
-            Assert.Equal(memberOfType, (dynamic)getOrDefaultSyncMethod.Invoke(dummy, nullKeyDefaultSpecifiedArgs));
+            Assert.Equal(memberOfType, await (dynamic)getOrDefaultMethod.Invoke(configService, nullKeyDefaultSpecifiedArgs));
+            Assert.Equal(memberOfType, (dynamic)getOrDefaultSyncMethod.Invoke(configService, nullKeyDefaultSpecifiedArgs));
 
             //// Empty Key
             
             // GetOrThrow
-            await Assert.ThrowsAsync<ArgumentNullException>(() => (Task)getOrThrowMethod.Invoke(dummy, emptyKeyThrowArgs));
-            Assert.Throws<TargetInvocationException>(() => getOrThrowSyncMethod.Invoke(dummy, emptyKeyThrowArgs));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => (Task)getOrThrowMethod.Invoke(configService, emptyKeyThrowArgs));
+            Assert.Throws<TargetInvocationException>(() => getOrThrowSyncMethod.Invoke(configService, emptyKeyThrowArgs));
             // GetOrDefault
-            Assert.Equal(defaultOfType, await (dynamic)getOrDefaultMethod.Invoke(dummy, emptyKeyDefaultArgs));
-            Assert.Equal(defaultOfType, (dynamic)getOrDefaultSyncMethod.Invoke(dummy, emptyKeyDefaultArgs));
+            Assert.Equal(defaultOfType, await (dynamic)getOrDefaultMethod.Invoke(configService, emptyKeyDefaultArgs));
+            Assert.Equal(defaultOfType, (dynamic)getOrDefaultSyncMethod.Invoke(configService, emptyKeyDefaultArgs));
             // GetOrDefault with default specified
-            Assert.Equal(memberOfType, await (dynamic)getOrDefaultMethod.Invoke(dummy, emptyKeyDefaultSpecifiedArgs));
-            Assert.Equal(memberOfType, (dynamic)getOrDefaultSyncMethod.Invoke(dummy, emptyKeyDefaultSpecifiedArgs));
+            Assert.Equal(memberOfType, await (dynamic)getOrDefaultMethod.Invoke(configService, emptyKeyDefaultSpecifiedArgs));
+            Assert.Equal(memberOfType, (dynamic)getOrDefaultSyncMethod.Invoke(configService, emptyKeyDefaultSpecifiedArgs));
         }
 
         public dynamic GetDefault(Type t)
@@ -245,9 +208,9 @@ namespace NuGet.Services.KeyVault.Tests
             { typeof(DateTime), DateTime.Now }
         };
 
-        private static KeyVaultConfigurationService CreateDummyConfigService()
+        private static SecretService CreateDummyConfigService()
         {
-            return new KeyVaultConfigurationService(new SecretInjector(new EmptySecretReader()), new Dictionary<string, string>());
+            return new SecretService(new SecretInjector(new EmptySecretReader()), new Dictionary<string, string>());
         }
     }
 }

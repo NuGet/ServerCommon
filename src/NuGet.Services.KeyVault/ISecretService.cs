@@ -10,7 +10,7 @@ namespace NuGet.Services.KeyVault
     /// <summary>
     /// A dictionary of configuration or command line arguments.
     /// </summary>
-    public interface IKeyVaultConfigurationService
+    public interface ISecretService
     {
         /// <summary>
         /// Gets an argument from the dictionary.
@@ -53,21 +53,5 @@ namespace NuGet.Services.KeyVault
         /// <returns>The argument mapped to by the key converted to type T or defaultValue if the argument could not be acquired and converted.</returns>
         [Obsolete("Use GetOrDefault unless a synchronous context is completely necessary.")]
         T GetOrDefaultSync<T>(string key, T defaultValue = default(T));
-
-        void Set(string key, string value);
-
-        bool ContainsKey(string key);
-
-        Task<bool> Contains(KeyValuePair<string, string> item);
-
-        void Add(KeyValuePair<string, string> item);
-
-        void Add(string key, string value);
-
-        Task<bool> Remove(KeyValuePair<string, string> item);
-
-        bool Remove(string key);
-
-        void Clear();
     }
 }
