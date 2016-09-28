@@ -80,6 +80,16 @@ namespace NuGet.Services.KeyVault
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
+        public bool Contains(KeyValuePair<string, string> item)
+        {
+            return ContainsKey(item.Key) && Inject(_unprocessedArguments[item.Key]) == item.Value;
+        }
+
+        public bool Remove(KeyValuePair<string, string> item)
+        {
+            return Contains(item) && _unprocessedArguments.Remove(item.Key);
+        }
+
         #region Wrapper interface methods
 
         public int Count => _unprocessedArguments.Count;
@@ -96,14 +106,10 @@ namespace NuGet.Services.KeyVault
 
         public bool ContainsKey(string key) => _unprocessedArguments.ContainsKey(key);
 
-        public bool Contains(KeyValuePair<string, string> item) => _unprocessedArguments.Contains(item);
-
         public void CopyTo(KeyValuePair<string, string>[] array, int arrayIndex)
             => _unprocessedArguments.CopyTo(array, arrayIndex);
 
         public bool Remove(string key) => _unprocessedArguments.Remove(key);
-
-        public bool Remove(KeyValuePair<string, string> item) => _unprocessedArguments.Remove(item);
 
         #endregion
 

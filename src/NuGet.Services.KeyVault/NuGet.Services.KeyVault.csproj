@@ -94,12 +94,10 @@
     <Compile Include="CachingSecretReader.cs" />
     <Compile Include="SecretDictionary.cs" />
     <Compile Include="EmptySecretReader.cs" />
-    <Compile Include="ISecretService.cs" />
     <Compile Include="ISecretInjector.cs" />
     <Compile Include="ISecretReader.cs" />
     <Compile Include="KeyVaultConfiguration.cs" />
     <Compile Include="KeyVaultReader.cs" />
-    <Compile Include="SecretService.cs" />
     <Compile Include="SecretInjector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
