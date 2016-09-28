@@ -28,6 +28,17 @@ namespace NuGet.Services.Configuration
             _validateCertificate = bool.Parse(config[Constants.KeyVaultValidateCertificateKey]);
         }
 
+        public KeyVaultConfiguration CreateKeyVaultConfiguration()
+        {
+            return new KeyVaultConfiguration(
+                _vaultName,
+                _clientId,
+                _certificateThumbprint,
+                !string.IsNullOrEmpty(_storeName) ? (StoreName)Enum.Parse(typeof(StoreName), _storeName) : StoreName.My,
+                !string.IsNullOrEmpty(_storeLocation) ? (StoreLocation)Enum.Parse(typeof(StoreLocation), _storeLocation) : StoreLocation.LocalMachine,
+                _validateCertificate);
+        }
+
         public ISecretReader CreateSecretReader()
         {
             if (string.IsNullOrEmpty(_vaultName))
@@ -35,15 +46,7 @@ namespace NuGet.Services.Configuration
                 return new EmptySecretReader();
             }
 
-            var keyVaultConfiguration = new KeyVaultConfiguration(
-                _vaultName,
-                _clientId,
-                _certificateThumbprint,
-                !string.IsNullOrEmpty(_storeName) ? (StoreName)Enum.Parse(typeof(StoreName), _storeName) : StoreName.My,
-                !string.IsNullOrEmpty(_storeLocation) ? (StoreLocation)Enum.Parse(typeof(StoreLocation), _storeLocation) : StoreLocation.LocalMachine,
-                _validateCertificate);
-
-            return new KeyVaultReader(keyVaultConfiguration);
+            return new KeyVaultReader(CreateKeyVaultConfiguration());
         }
 
         public ISecretInjector CreateSecretInjector(ISecretReader secretReader)
