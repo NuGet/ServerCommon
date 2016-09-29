@@ -7,6 +7,8 @@ namespace NuGet.Services.Configuration
 {
     public interface ISecretReaderFactory
     {
+        KeyVaultConfiguration CreateKeyVaultConfiguration();
+
         ISecretReader CreateSecretReader();
 
         ISecretInjector CreateSecretInjector(ISecretReader secretReader);
