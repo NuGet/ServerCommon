@@ -52,7 +52,7 @@ namespace NuGet.Services.KeyVault.Tests
         public void HandlesTryGet()
         {
             // Arrange
-            var secretDict = CreateSecretDictionary(new List<Secret> { Secret1 }, new List<string> { Secret1.Key });
+            var secretDict = CreateSecretDictionary(new List<Secret> { Secret1 }, new List<Secret> { Secret1 });
 
             // Act
             string value, notFoundValue;
@@ -69,14 +69,14 @@ namespace NuGet.Services.KeyVault.Tests
         public void HandlesEnumerators()
         {
             // Arrange
-            var secrets = new List<Secret> {Secret1, Secret2, Secret3};
-
-            var secretDict = CreateSecretDictionary(secrets, secrets.Select(secret => secret.Key).ToList());
-
-            // Act-Assert
+            var secrets = AllSecrets;
+            var secretDict = CreateSecretDictionary(secrets, secrets);
             var pairsToVerify = secrets.Select(secret => new KeyValuePair<string, string>(secret.Key, secret.InjectedValue)).ToList();
+
+            // Act
             foreach (var pair in secretDict)
             {
+                // Assert
                 Assert.Contains(pair, pairsToVerify);
                 pairsToVerify.Remove(pair);
             }
@@ -87,14 +87,13 @@ namespace NuGet.Services.KeyVault.Tests
         public void HandlesKeys()
         {
             // Arrange
-            var secrets = new List<Secret> { Secret1, Secret2, Secret3 };
+            var secretDict = CreateSecretDictionary(AllSecrets, AllSecrets);
+            var keysToVerify = AllSecrets.Select(secret => secret.Key).ToList();
 
-            var secretDict = CreateSecretDictionary(secrets, secrets.Select(secret => secret.Key).ToList());
-
-            // Act-Assert
-            var keysToVerify = secrets.Select(secret => secret.Key).ToList();
+            // Act
             foreach (var secretKey in secretDict.Keys)
             {
+                // Assert
                 Assert.Contains(secretKey, keysToVerify);
                 keysToVerify.Remove(secretKey);
             }
@@ -105,14 +104,13 @@ namespace NuGet.Services.KeyVault.Tests
         public void HandlesValues()
         {
             // Arrange
-            var secrets = new List<Secret> { Secret1, Secret2, Secret3 };
+            var secretDict = CreateSecretDictionary(AllSecrets, AllSecrets);
+            var secretsToVerify = AllSecrets.Select(secret => secret.InjectedValue).ToList();
 
-            var secretDict = CreateSecretDictionary(secrets, secrets.Select(secret => secret.Key).ToList());
-
-            // Act-Assert
-            var secretsToVerify = secrets.Select(secret => secret.InjectedValue).ToList();
+            // Act
             foreach (var secretValue in secretDict.Values)
             {
+                // Assert
                 Assert.Contains(secretValue, secretsToVerify);
                 secretsToVerify.Remove(secretValue);
             }
@@ -122,12 +120,17 @@ namespace NuGet.Services.KeyVault.Tests
         [Fact]
         public void HandlesKeyNotFound()
         {
+            // Arrange
             const string notFoundKey = "not a real key";
             var dummy = CreateSecretDictionary();
-            Assert.Throws<KeyNotFoundException>(() => dummy[notFoundKey]);
 
+            // Act
             string output;
-            Assert.Equal(false, dummy.TryGetValue(notFoundKey, out output));
+            var result = dummy.TryGetValue(notFoundKey, out output);
+
+            // Assert
+            Assert.Throws<KeyNotFoundException>(() => dummy[notFoundKey]);
+            Assert.Equal(false, result);
         }
 
         [Fact]
@@ -147,7 +150,7 @@ namespace NuGet.Services.KeyVault.Tests
         }
 
         [Fact]
-        public void HandlesNullOrEmptyArgument()
+        public void HandlesEmptyArgument()
         {
             // Arrange
             var dummy = CreateSecretDictionary();
@@ -166,7 +169,7 @@ namespace NuGet.Services.KeyVault.Tests
         public void AddToEmptyDictionary()
         {
             // Arrange
-            var secretDict = CreateSecretDictionary(new List<Secret> { Secret1 }, new List<string>());
+            var secretDict = CreateSecretDictionary(new List<Secret> { Secret1 }, new List<Secret>());
 
             // Act
             secretDict.Add(Secret1.Key, Secret1.Value);
@@ -193,7 +196,7 @@ namespace NuGet.Services.KeyVault.Tests
         public void AddToNonEmptyDictionary()
         {
             // Arrange
-            var secretDict = CreateSecretDictionary(new List<Secret> { Secret1, Secret2 }, new List<string> { Secret1.Key });
+            var secretDict = CreateSecretDictionary(new List<Secret> { Secret1, Secret2 }, new List<Secret> { Secret1 });
 
             // Act
             secretDict.Add(new KeyValuePair<string, string>(Secret2.Key, Secret2.Value));
@@ -219,8 +222,10 @@ namespace NuGet.Services.KeyVault.Tests
         [Fact]
         public void AddAlreadyExistingSameValue()
         {
-            var secretDict = CreateSecretDictionary(new List<Secret> { Secret1 }, new List<string> { Secret1.Key });
+            // Arrange
+            var secretDict = CreateSecretDictionary(new List<Secret> { Secret1 }, new List<Secret> { Secret1 });
             
+            // Act / Assert
             Assert.Throws<ArgumentException>(() => secretDict.Add(Secret1.Key, Secret1.Value));
             Assert.Throws<ArgumentException>(() => secretDict.Add(new KeyValuePair<string, string>(Secret1.Key, Secret1.Value)));
         }
@@ -228,8 +233,10 @@ namespace NuGet.Services.KeyVault.Tests
         [Fact]
         public void AddAlreadyExistingDifferentValue()
         {
-            var secretDict = CreateSecretDictionary(new List<Secret> { Secret1 }, new List<string> { Secret1.Key });
+            // Arrange
+            var secretDict = CreateSecretDictionary(new List<Secret> { Secret1 }, new List<Secret> { Secret1 });
             
+            // Act / Assert
             Assert.Throws<ArgumentException>(() => secretDict.Add(Secret1.Key, Secret1.InjectedValue));
             Assert.Throws<ArgumentException>(() => secretDict.Add(new KeyValuePair<string, string>(Secret1.Key, Secret1.InjectedValue)));
         }
@@ -237,33 +244,53 @@ namespace NuGet.Services.KeyVault.Tests
         [Fact]
         public void RemoveNotFoundByKey()
         {
-            var secretDict = CreateSecretDictionary(new List<Secret> { Secret1 }, new List<string> { Secret1.Key });
+            // Arrange
+            var secretDict = CreateSecretDictionary(new List<Secret> { Secret1 }, new List<Secret> { Secret1 });
 
-            Assert.False(secretDict.Remove(Secret2.Key));
+            // Act
+            var result = secretDict.Remove(Secret2.Key);
+
+            // Assert
+            Assert.False(result);
         }
 
         [Fact]
         public void RemoveNotFoundByPair()
         {
-            var secretDict = CreateSecretDictionary(new List<Secret> { Secret1 }, new List<string> { Secret1.Key });
+            // Arrange
+            var secretDict = CreateSecretDictionary(new List<Secret> { Secret1 }, new List<Secret> { Secret1 });
 
-            Assert.False(secretDict.Remove(new KeyValuePair<string, string>(Secret2.Key, Secret2.Value)));
+            // Act
+            var result = secretDict.Remove(new KeyValuePair<string, string>(Secret2.Key, Secret2.Value));
+
+            // Assert
+            Assert.False(result);
         }
 
         [Fact]
         public void RemoveNotFoundByPairWithUninjectedValue()
         {
-            var secretDict = CreateSecretDictionary(new List<Secret> { Secret1 }, new List<string> { Secret1.Key });
+            // Arrange
+            var secretDict = CreateSecretDictionary(new List<Secret> { Secret1 }, new List<Secret> { Secret1 });
 
-            Assert.False(secretDict.Remove(new KeyValuePair<string, string>(Secret1.Key, Secret1.Value)));
+            // Act
+            var result = secretDict.Remove(new KeyValuePair<string, string>(Secret1.Key, Secret1.Value));
+
+            // Assert
+            Assert.False(result);
         }
 
         [Fact]
         public void RemoveByKey()
         {
-            var secretDict = CreateSecretDictionary(new List<Secret> { Secret1, Secret2 }, new List<string> { Secret1.Key, Secret2.Key });
+            // Arrange
+            var secretDict = CreateSecretDictionary(new List<Secret> { Secret1, Secret2 }, new List<Secret> { Secret1, Secret2 });
 
-            Assert.True(secretDict.Remove(Secret2.Key));
+            // Act
+            var result = secretDict.Remove(Secret2.Key);
+
+            // Assert
+            Assert.True(result);
 
             Assert.Equal(1, secretDict.Count);
             Assert.False(secretDict.ContainsKey(Secret2.Key));
@@ -284,9 +311,14 @@ namespace NuGet.Services.KeyVault.Tests
         [Fact]
         public void RemoveByPair()
         {
-            var secretDict = CreateSecretDictionary(new List<Secret> { Secret1 }, new List<string> { Secret1.Key });
+            // Arrange
+            var secretDict = CreateSecretDictionary(new List<Secret> { Secret1 }, new List<Secret> { Secret1 });
 
-            Assert.True(secretDict.Remove(new KeyValuePair<string, string>(Secret1.Key, Secret1.InjectedValue)));
+            // Act
+            var result = secretDict.Remove(new KeyValuePair<string, string>(Secret1.Key, Secret1.InjectedValue));
+
+            // Assert
+            Assert.True(result);
 
             Assert.Equal(0, secretDict.Count);
             Assert.False(secretDict.ContainsKey(Secret1.Key));
@@ -302,6 +334,9 @@ namespace NuGet.Services.KeyVault.Tests
             Assert.DoesNotContain(Secret1.InjectedValue, secretDict.Values);
         }
 
+        /// <summary>
+        /// Utility class that allows construction of tests more easily.
+        /// </summary>
         private class Secret
         {
             public string Key { get; }
@@ -318,10 +353,11 @@ namespace NuGet.Services.KeyVault.Tests
             }
         }
 
-        // Constants for tests
+        // Constant Secrets for tests
         private static Secret Secret1 => new Secret("a", "1", "!");
         private static Secret Secret2 => new Secret("b", "2", "@");
         private static Secret Secret3 => new Secret("c", "3", "#");
+        private static ICollection<Secret> AllSecrets => new List<Secret> {Secret1, Secret2, Secret3};
 
         private static IDictionary<string, string> CreateSecretDictionary()
         {
@@ -339,12 +375,12 @@ namespace NuGet.Services.KeyVault.Tests
             mockSecretInjector.Setup(x => x.InjectAsync(It.IsAny<string>())).Returns<string>(key => Task.FromResult(keyToValue[key]));
             return mockSecretInjector;
         }
-
-        private static IDictionary<string, string> CreateSecretDictionary(IList<Secret> secretsToMap,
-            ICollection<string> secretsToInclude)
+        
+        private static IDictionary<string, string> CreateSecretDictionary(ICollection<Secret> secretsToMap,
+            ICollection<Secret> secretsToInclude)
         {
             var unprocessedDictionary = secretsToMap
-                .Where(secret => secretsToInclude.Contains(secret.Key))
+                .Where(secret => secretsToInclude.Select(secretToInclude => secretToInclude.Key).Any(key => key == secret.Key))
                 .ToDictionary(secret => secret.Key, secret => secret.Value);
 
             var valueToInjectedValue = secretsToMap.ToDictionary(secret => secret.Value, secret => secret.InjectedValue);
