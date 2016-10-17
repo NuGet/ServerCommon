@@ -12,8 +12,8 @@ namespace NuGet.Services.KeyVault
         public const int DefaultRefreshIntervalSec = 60 * 60 * 24; // 1 day
         private readonly int _refreshIntervalSec;
 
-        private ISecretReader _internalReader;
-        private Dictionary<string, Tuple<string, DateTime>> _cache;
+        private readonly ISecretReader _internalReader;
+        private readonly Dictionary<string, Tuple<string, DateTime>> _cache;
 
         public CachingSecretReader(ISecretReader secretReader, int refreshIntervalSec = DefaultRefreshIntervalSec)
         {
