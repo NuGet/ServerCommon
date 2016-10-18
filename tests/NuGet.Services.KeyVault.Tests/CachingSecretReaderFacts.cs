@@ -72,7 +72,7 @@ namespace NuGet.Services.KeyVault.Tests
             var hasIntervalPassed = false;
             cachingSecretReaderMock.Setup(x => x.IsSecretOutdated(It.IsAny<Tuple<string, DateTime>>())).Returns(() =>
             {
-                // If the interval hasn't passed, the secret we have stored is outdated.
+                // If the interval hasn't passed, the secret we have stored is not outdated.
                 if (!hasIntervalPassed)
                 {
                     return false;

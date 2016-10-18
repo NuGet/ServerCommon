@@ -42,12 +42,25 @@ namespace NuGet.Services.KeyVault
 
         private KeyVaultClient InitializeClient()
         {
-            _clientAssertionCertificate = new ClientAssertionCertificate(_configuration.ClientId, GetCertificate());
+            _clientAssertionCertificate = new ClientAssertionCertificate(_configuration.ClientId, FindCertificateByThumbprint());
 
             return new KeyVaultClient(GetTokenAsync);
         }
 
-        public X509Certificate2 GetCertificate()
+        private async Task<string> GetTokenAsync(string authority, string resource, string scope)
+        {
+            var authContext = new AuthenticationContext(authority);
+            var result = await authContext.AcquireTokenAsync(resource, _clientAssertionCertificate);
+
+            if (result == null)
+            {
+                throw new InvalidOperationException("Bearer token acquisition needed to call the KeyVault service failed");
+            }
+
+            return result.AccessToken;
+        }
+
+        public X509Certificate2 FindCertificateByThumbprint()
         {
             var store = new X509Store(_configuration.StoreName, _configuration.StoreLocation);
             try
@@ -67,19 +80,6 @@ namespace NuGet.Services.KeyVault
             {
                 store.Close();
             }
-        }
-
-        private async Task<string> GetTokenAsync(string authority, string resource, string scope)
-        {
-            var authContext = new AuthenticationContext(authority);
-            var result = await authContext.AcquireTokenAsync(resource, _clientAssertionCertificate);
-
-            if (result == null)
-            {
-                throw new InvalidOperationException("Bearer token acquisition needed to call the KeyVault service failed");
-            }
-
-            return result.AccessToken;
         }
     }
 }
