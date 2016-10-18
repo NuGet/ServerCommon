@@ -40,30 +40,5 @@ namespace NuGet.Services.KeyVault
             StoreName = storeName;
             StoreLocation = storeLocation;
         }
-        
-        public X509Certificate2 GetCertificate()
-        {
-            var store = new X509Store(StoreName, StoreLocation);
-            try
-            {
-                store.Open(OpenFlags.ReadOnly);
-                var col = store.Certificates.Find(X509FindType.FindByThumbprint, CertificateThumbprint, ValidateCertificate);
-                if (col.Count == 0)
-                {
-                    throw new ArgumentException($"Certificate with thumbprint {CertificateThumbprint} was not found in store {StoreLocation} {StoreName} ");
-                }
-
-                return col[0];
-            }
-            finally
-            {
-                store.Close();
-            }
-        }
-
-        public ClientAssertionCertificate GetClientAssertionCertificate()
-        {
-            return new ClientAssertionCertificate(ClientId, GetCertificate());
-        }
     }
 }

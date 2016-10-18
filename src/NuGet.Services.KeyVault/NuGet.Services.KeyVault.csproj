@@ -93,7 +93,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CachingSecretReader.cs" />
-    <Compile Include="SecretDictionary.cs" />
+    <Compile Include="ISecretReaderFactory.cs" />
     <Compile Include="EmptySecretReader.cs" />
     <Compile Include="ISecretInjector.cs" />
     <Compile Include="ISecretReader.cs" />

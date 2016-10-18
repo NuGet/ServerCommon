@@ -2,14 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Specialized;
 using Microsoft.Extensions.Configuration;
 using System.Security.Cryptography.X509Certificates;
 using NuGet.Services.KeyVault;
 
 namespace NuGet.Services.Configuration
 {
-    public class SecretReaderFactory : ISecretReaderFactory
+    public class ConfigurationRootSecretReaderFactory : ISecretReaderFactory
     {
         private string _vaultName;
         private string _clientId;
@@ -18,7 +17,7 @@ namespace NuGet.Services.Configuration
         private string _storeLocation;
         private bool _validateCertificate;
 
-        public SecretReaderFactory(IConfigurationRoot config)
+        public ConfigurationRootSecretReaderFactory(IConfigurationRoot config)
         {
             _vaultName = config[Constants.KeyVaultVaultNameKey];
             _clientId = config[Constants.KeyVaultClientIdKey];

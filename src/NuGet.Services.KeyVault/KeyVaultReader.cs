@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Microsoft.Azure.KeyVault;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
@@ -41,9 +42,31 @@ namespace NuGet.Services.KeyVault
 
         private KeyVaultClient InitializeClient()
         {
-            _clientAssertionCertificate = _configuration.GetClientAssertionCertificate();
+            _clientAssertionCertificate = new ClientAssertionCertificate(_configuration.ClientId, GetCertificate());
 
             return new KeyVaultClient(GetTokenAsync);
+        }
+
+        public X509Certificate2 GetCertificate()
+        {
+            var store = new X509Store(_configuration.StoreName, _configuration.StoreLocation);
+            try
+            {
+                store.Open(OpenFlags.ReadOnly);
+                var col = store.Certificates.Find(X509FindType.FindByThumbprint, _configuration.CertificateThumbprint,
+                    _configuration.ValidateCertificate);
+                if (col.Count == 0)
+                {
+                    throw new ArgumentException(
+                        $"Certificate with thumbprint {_configuration.CertificateThumbprint} was not found in store {_configuration.StoreLocation} {_configuration.StoreName} ");
+                }
+
+                return col[0];
+            }
+            finally
+            {
+                store.Close();
+            }
         }
 
         private async Task<string> GetTokenAsync(string authority, string resource, string scope)

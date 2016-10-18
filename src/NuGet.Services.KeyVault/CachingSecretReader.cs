@@ -28,13 +28,18 @@ namespace NuGet.Services.KeyVault
             _refreshIntervalSec = refreshIntervalSec;
         }
 
+        public virtual bool IsSecretOutdated(Tuple<string, DateTime> cachedSecret)
+        {
+            return DateTime.UtcNow.Subtract(cachedSecret.Item2).TotalSeconds >= _refreshIntervalSec;
+        }
+
         public async Task<string> GetSecretAsync(string secretName)
         {
-            if (!_cache.ContainsKey(secretName) || DateTime.UtcNow.Subtract(_cache[secretName].Item2).TotalSeconds >= _refreshIntervalSec)
+            if (!_cache.ContainsKey(secretName) || IsSecretOutdated(_cache[secretName]))
             {
                 // Get the secret if it is not yet in the cache or it is outdated.
                 var secretValue = await _internalReader.GetSecretAsync(secretName);
-                _cache[secretName] = Tuple.Create<string, DateTime>(secretValue, DateTime.UtcNow);
+                _cache[secretName] = Tuple.Create(secretValue, DateTime.UtcNow);
             }
 
             return _cache[secretName].Item1;

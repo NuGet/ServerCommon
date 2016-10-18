@@ -6,9 +6,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NuGet.Services.KeyVault;
 using Xunit;
 
-namespace NuGet.Services.KeyVault.Tests
+namespace NuGet.Services.Configuration.Tests
 {
     public class SecretDictionaryFacts
     {
