@@ -34,15 +34,19 @@ namespace NuGet.Services.Configuration
                 return new EmptySecretReader();
             }
 
-            return new KeyVaultReader(new KeyVaultConfiguration(
+            var keyVaultConfiguration = new KeyVaultConfiguration(
                 _vaultName,
                 _clientId,
                 _certificateThumbprint,
-                !string.IsNullOrEmpty(_storeName) ? (StoreName) Enum.Parse(typeof(StoreName), _storeName) : StoreName.My,
+                !string.IsNullOrEmpty(_storeName) 
+                    ? (StoreName) Enum.Parse(typeof(StoreName), _storeName)
+                    : StoreName.My,
                 !string.IsNullOrEmpty(_storeLocation)
                     ? (StoreLocation) Enum.Parse(typeof(StoreLocation), _storeLocation)
                     : StoreLocation.LocalMachine,
-                _validateCertificate));
+                _validateCertificate);
+
+            return new KeyVaultReader(keyVaultConfiguration);
         }
 
         public ISecretInjector CreateSecretInjector(ISecretReader secretReader)
