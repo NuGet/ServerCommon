@@ -20,8 +20,6 @@ namespace NuGet.Services.KeyVault
         private readonly Lazy<KeyVaultClient> _keyVaultClient;
         private ClientAssertionCertificate _clientAssertionCertificate;
 
-        public KeyVaultClient KeyVaultClient => _keyVaultClient.Value;
-
         public KeyVaultReader(KeyVaultConfiguration configuration)
         {
             if (configuration == null)
@@ -42,7 +40,12 @@ namespace NuGet.Services.KeyVault
 
         private KeyVaultClient InitializeClient()
         {
-            _clientAssertionCertificate = new ClientAssertionCertificate(_configuration.ClientId, FindCertificateByThumbprint());
+            var certificate = FindCertificateByThumbprint(
+                _configuration.StoreName,
+                _configuration.StoreLocation,
+                _configuration.CertificateThumbprint,
+                _configuration.ValidateCertificate);
+            _clientAssertionCertificate = new ClientAssertionCertificate(_configuration.ClientId, certificate);
 
             return new KeyVaultClient(GetTokenAsync);
         }
@@ -60,18 +63,16 @@ namespace NuGet.Services.KeyVault
             return result.AccessToken;
         }
 
-        public X509Certificate2 FindCertificateByThumbprint()
+        private static X509Certificate2 FindCertificateByThumbprint(StoreName storeName, StoreLocation storeLocation, string thumbprint, bool validationRequired)
         {
-            var store = new X509Store(_configuration.StoreName, _configuration.StoreLocation);
+            var store = new X509Store(storeName, storeLocation);
             try
             {
                 store.Open(OpenFlags.ReadOnly);
-                var col = store.Certificates.Find(X509FindType.FindByThumbprint, _configuration.CertificateThumbprint,
-                    _configuration.ValidateCertificate);
+                var col = store.Certificates.Find(X509FindType.FindByThumbprint, thumbprint, validationRequired);
                 if (col.Count == 0)
                 {
-                    throw new ArgumentException(
-                        $"Certificate with thumbprint {_configuration.CertificateThumbprint} was not found in store {_configuration.StoreLocation} {_configuration.StoreName} ");
+                    throw new ArgumentException($"Certificate with thumbprint {thumbprint} was not found in store {storeLocation} {storeName} ");
                 }
 
                 return col[0];
