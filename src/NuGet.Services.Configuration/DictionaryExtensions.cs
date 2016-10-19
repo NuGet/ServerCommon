@@ -7,6 +7,13 @@ namespace NuGet.Services.Configuration
 {
     public static class DictionaryExtensions
     {
+        public static string TryGetValue(this IDictionary<string, string> dictionary, string key)
+        {
+            string value;
+            dictionary.TryGetValue(key, out value);
+            return value;
+        }
+
         public static T? TryGetValue<T>(this IDictionary<string, string> dictionary, string key) where T : struct
         {
             string valueString;

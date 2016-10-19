@@ -19,6 +19,27 @@ namespace NuGet.Services.Configuration.Tests
             new object[] {DateTime.MinValue.AddYears(100).AddDays(50).AddHours(5).AddSeconds(62)} 
         };
 
+        [Fact]
+        public void TryGetValueStringReturnsAndDoesNotThrow()
+        {
+            // Arrange
+            const string key = "key";
+            const string value = "value";
+            const string notKey = "notAKey";
+            IDictionary<string, string> dictionary = new Dictionary<string, string>
+            {
+                {key, value}
+            };
+
+            // Act
+            var valueFromDictionary = dictionary.TryGetValue(key);
+            var notFoundFromDictionary = dictionary.TryGetValue(notKey);
+
+            // Assert
+            Assert.Equal(value, valueFromDictionary);
+            Assert.Equal(default(string), notFoundFromDictionary);
+        }
+
         [Theory]
         [MemberData(nameof(ValueData))]
         public void TryGetValueConvertsAndDoesNotThrow<T>(T value) where T : struct
