@@ -20,7 +20,7 @@ namespace NuGet.Services.Configuration.Tests
         };
 
         [Fact]
-        public void GetOrDefaultStringReturnsAndDoesNotThrow()
+        public void GetOrNullStringReturnsAndDoesNotThrow()
         {
             // Arrange
             const string key = "key";
@@ -32,8 +32,8 @@ namespace NuGet.Services.Configuration.Tests
             };
 
             // Act
-            var valueFromDictionary = dictionary.GetOrDefault(key);
-            var notFoundFromDictionary = dictionary.GetOrDefault(notKey);
+            var valueFromDictionary = dictionary.GetOrNull(key);
+            var notFoundFromDictionary = dictionary.GetOrNull(notKey);
 
             // Assert
             Assert.Equal(value, valueFromDictionary);
@@ -42,7 +42,7 @@ namespace NuGet.Services.Configuration.Tests
 
         [Theory]
         [MemberData(nameof(ValueData))]
-        public void GetOrDefaultConvertsAndDoesNotThrow<T>(T value) where T : struct
+        public void GetOrNullConvertsAndDoesNotThrow<T>(T value) where T : struct
         {
             // Arrange
             const string key = "key";
@@ -53,8 +53,8 @@ namespace NuGet.Services.Configuration.Tests
             };
 
             // Act
-            var valueFromDictionary = dictionary.GetOrDefault<T>(key);
-            var notFoundFromDictionary = dictionary.GetOrDefault<T>(notKey);
+            var valueFromDictionary = dictionary.GetOrNull<T>(key);
+            var notFoundFromDictionary = dictionary.GetOrNull<T>(notKey);
 
             // Assert
             Assert.True(valueFromDictionary.HasValue);

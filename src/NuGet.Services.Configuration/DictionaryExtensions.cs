@@ -7,14 +7,14 @@ namespace NuGet.Services.Configuration
 {
     public static class DictionaryExtensions
     {
-        public static string GetOrDefault(this IDictionary<string, string> dictionary, string key)
+        public static string GetOrNull(this IDictionary<string, string> dictionary, string key)
         {
             string value;
             dictionary.TryGetValue(key, out value);
             return value;
         }
 
-        public static T? GetOrDefault<T>(this IDictionary<string, string> dictionary, string key) where T : struct
+        public static T? GetOrNull<T>(this IDictionary<string, string> dictionary, string key) where T : struct
         {
             string valueString;
             if (!dictionary.TryGetValue(key, out valueString))
