@@ -8,12 +8,12 @@ using System.Threading.Tasks;
 namespace NuGet.Services.Configuration
 {
     /// <summary>
-    /// A dictionary of configuration or command line arguments.
+    /// A service that returns configuration or command line arguments.
     /// </summary>
     public interface ISecretService
     {
         /// <summary>
-        /// Gets an argument from the dictionary.
+        /// Gets an argument from the service.
         /// </summary>
         /// <typeparam name="T">Converts the argument from a string into this type.</typeparam>
         /// <param name="key">The key mapping to the desired argument.</param>
@@ -24,7 +24,7 @@ namespace NuGet.Services.Configuration
         Task<T> GetOrThrow<T>(string key);
 
         /// <summary>
-        /// Gets an argument from the dictionary.
+        /// Gets an argument from the service.
         /// </summary>
         /// <typeparam name="T">Converts the argument from a string into this type.</typeparam>
         /// <param name="key">The key mapping to the desired argument.</param>
@@ -33,7 +33,7 @@ namespace NuGet.Services.Configuration
         Task<T> GetOrDefault<T>(string key, T defaultValue = default(T));
 
         /// <summary>
-        /// Gets an argument from the dictionary synchronously.
+        /// Gets an argument from the service synchronously.
         /// </summary>
         /// <typeparam name="T">Converts the argument from a string into this type.</typeparam>
         /// <param name="key">The key mapping to the desired argument.</param>
@@ -45,7 +45,7 @@ namespace NuGet.Services.Configuration
         T GetOrThrowSync<T>(string key);
 
         /// <summary>
-        /// Gets an argument from the dictionary synchronously.
+        /// Gets an argument from the service synchronously.
         /// </summary>
         /// <typeparam name="T">Converts the argument from a string into this type.</typeparam>
         /// <param name="key">The key mapping to the desired argument.</param>
