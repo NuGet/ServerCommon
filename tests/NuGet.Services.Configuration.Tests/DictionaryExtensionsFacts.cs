@@ -20,7 +20,7 @@ namespace NuGet.Services.Configuration.Tests
         };
 
         [Fact]
-        public void TryGetValueStringReturnsAndDoesNotThrow()
+        public void GetOrDefaultStringReturnsAndDoesNotThrow()
         {
             // Arrange
             const string key = "key";
@@ -32,8 +32,8 @@ namespace NuGet.Services.Configuration.Tests
             };
 
             // Act
-            var valueFromDictionary = dictionary.TryGetValue(key);
-            var notFoundFromDictionary = dictionary.TryGetValue(notKey);
+            var valueFromDictionary = dictionary.GetOrDefault(key);
+            var notFoundFromDictionary = dictionary.GetOrDefault(notKey);
 
             // Assert
             Assert.Equal(value, valueFromDictionary);
@@ -42,7 +42,7 @@ namespace NuGet.Services.Configuration.Tests
 
         [Theory]
         [MemberData(nameof(ValueData))]
-        public void TryGetValueConvertsAndDoesNotThrow<T>(T value) where T : struct
+        public void GetOrDefaultConvertsAndDoesNotThrow<T>(T value) where T : struct
         {
             // Arrange
             const string key = "key";
@@ -53,8 +53,8 @@ namespace NuGet.Services.Configuration.Tests
             };
 
             // Act
-            var valueFromDictionary = dictionary.TryGetValue<T>(key);
-            var notFoundFromDictionary = dictionary.TryGetValue<T>(notKey);
+            var valueFromDictionary = dictionary.GetOrDefault<T>(key);
+            var notFoundFromDictionary = dictionary.GetOrDefault<T>(notKey);
 
             // Assert
             Assert.True(valueFromDictionary.HasValue);
@@ -64,7 +64,7 @@ namespace NuGet.Services.Configuration.Tests
 
         [Theory]
         [MemberData(nameof(ValueData))]
-        public void GetConvertsValueAndThrows<T>(T value) where T : struct
+        public void GetOrThrowConvertsValueAndThrows<T>(T value) where T : struct
         {
             // Arrange
             const string key = "key";
@@ -75,11 +75,11 @@ namespace NuGet.Services.Configuration.Tests
             };
 
             // Act
-            var valueFromDictionary = dictionary.Get<T>(key);
+            var valueFromDictionary = dictionary.GetOrThrow<T>(key);
 
             // Assert
             Assert.Equal(value, valueFromDictionary);
-            Assert.Throws<KeyNotFoundException>(() => dictionary.Get<T>(notKey));
+            Assert.Throws<KeyNotFoundException>(() => dictionary.GetOrThrow<T>(notKey));
         }
     }
 }
