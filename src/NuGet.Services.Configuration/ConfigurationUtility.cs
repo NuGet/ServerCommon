@@ -8,15 +8,21 @@ namespace NuGet.Services.Configuration
 {
     public static class ConfigurationUtility
     {
+        /// <summary>
+        /// Converts a string into T.
+        /// </summary>
+        /// <typeparam name="T">Type that value will be converted into.</typeparam>
+        /// <param name="value">String to convert.</param>
+        /// <returns>Value converted into T.</returns>
+        /// <exception cref="NotSupportedException">Thrown when a conversion from string to T is impossible.</exception>
         public static T ConvertFromString<T>(string value)
         {
             var converter = TypeDescriptor.GetConverter(typeof(T));
             if (converter != null)
             {
-                // This will throw a NotSupportedException if no conversion is possible.
                 return (T)converter.ConvertFromString(value);
             }
-            // If there is no converter, no conversion is possible, so throw a NotSupportedException.
+
             throw new NotSupportedException("No converter exists from string to " + typeof(T).Name + "!");
         }
     }
