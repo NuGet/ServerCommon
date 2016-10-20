@@ -19,6 +19,10 @@ namespace NuGet.Services.Configuration.Tests
             new object[] {DateTime.MinValue.AddYears(100).AddDays(50).AddHours(5).AddSeconds(62)} 
         };
 
+        private struct NoConversionFromStringToThisStruct
+        {
+        }
+
         [Fact]
         public void GetOrNullStringReturnsAndDoesNotThrow()
         {
@@ -55,11 +59,13 @@ namespace NuGet.Services.Configuration.Tests
             // Act
             var valueFromDictionary = dictionary.GetOrNull<T>(key);
             var notFoundFromDictionary = dictionary.GetOrNull<T>(notKey);
+            var notSupportedFromDictionary = dictionary.GetOrNull<NoConversionFromStringToThisStruct>(key);
 
             // Assert
             Assert.True(valueFromDictionary.HasValue);
             Assert.Equal(value, valueFromDictionary.Value);
             Assert.False(notFoundFromDictionary.HasValue);
+            Assert.False(notSupportedFromDictionary.HasValue);
         }
 
         [Theory]
@@ -80,6 +86,7 @@ namespace NuGet.Services.Configuration.Tests
             // Assert
             Assert.Equal(value, valueFromDictionary);
             Assert.Throws<KeyNotFoundException>(() => dictionary.GetOrThrow<T>(notKey));
+            Assert.Throws<NotSupportedException>(() => dictionary.GetOrThrow<NoConversionFromStringToThisStruct>(key));
         }
     }
 }

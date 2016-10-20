@@ -8,7 +8,7 @@ namespace NuGet.Services.Configuration
     public static class DictionaryExtensions
     {
         /// <summary>
-        /// Gets the value associated with a key or null.
+        /// Gets the value associated with a key or null if there is no value associated with key.
         /// </summary>
         /// <param name="dictionary">Dictionary to get value from.</param>
         /// <param name="key">The key associated with the desired value.</param>
@@ -21,7 +21,7 @@ namespace NuGet.Services.Configuration
         }
 
         /// <summary>
-        /// Gets the value associated with a key and converts it into T or null.
+        /// Gets the value associated with a key and converts it into T or null if there is no value associated with key or the value could not be converted into T.
         /// </summary>
         /// <typeparam name="T">Type to convert value into.</typeparam>
         /// <param name="dictionary">Dictionary to get value from.</param>
