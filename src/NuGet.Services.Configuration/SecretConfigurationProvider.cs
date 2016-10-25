@@ -9,15 +9,15 @@ using NuGet.Services.KeyVault;
 namespace NuGet.Services.Configuration
 {
     /// <summary>
-    /// Maintains a dictionary of configuration or command line arguments and injects them with secrets using an ISecretInjector on every access to refresh them.
+    /// Asynchronously provides configuration and command line arguments and injects them with secrets using an ISecretInjector on every access to refresh them.
     /// </summary>
-    public class SecretService : ISecretService
+    public class SecretConfigurationProvider : IConfigurationProvider
     {
         private readonly ISecretInjector _secretInjector;
         private readonly IDictionary<string, string> _arguments;
         private readonly IDictionary<string, string> _cachedArgumentValues = new Dictionary<string, string>();
 
-        public SecretService(ISecretInjector secretInjector, IDictionary<string, string> arguments)
+        public SecretConfigurationProvider(ISecretInjector secretInjector, IDictionary<string, string> arguments)
         {
             _secretInjector = secretInjector;
             _arguments = arguments;

@@ -29,7 +29,7 @@ namespace NuGet.Services.Configuration.Tests
                 {secretName, secretKey}
             };
 
-            var configService = new SecretService(mockSecretInjector.Object, arguments);
+            var configService = new SecretConfigurationProvider(mockSecretInjector.Object, arguments);
 
             // Act
             var value = configService.GetOrThrowSync<string>(secretName);
@@ -55,7 +55,7 @@ namespace NuGet.Services.Configuration.Tests
                 {secretName, secretKey}
             };
 
-            var configService = new SecretService(mockSecretInjector.Object, arguments);
+            var configService = new SecretConfigurationProvider(mockSecretInjector.Object, arguments);
 
             // Act
             var value1 = await configService.GetOrThrow<string>(secretName);
@@ -97,10 +97,10 @@ namespace NuGet.Services.Configuration.Tests
             // Arrange
             var dummy = CreateDummyConfigService();
 
-            var getOrThrowMethod = typeof(ISecretService).GetMethod("GetOrThrow").MakeGenericMethod(type);
-            var getOrDefaultMethod = typeof(ISecretService).GetMethod("GetOrDefault").MakeGenericMethod(type);
-            var getOrThrowSyncMethod = typeof(ISecretService).GetMethod("GetOrThrowSync").MakeGenericMethod(type);
-            var getOrDefaultSyncMethod = typeof(ISecretService).GetMethod("GetOrDefaultSync").MakeGenericMethod(type);
+            var getOrThrowMethod = typeof(IConfigurationProvider).GetMethod("GetOrThrow").MakeGenericMethod(type);
+            var getOrDefaultMethod = typeof(IConfigurationProvider).GetMethod("GetOrDefault").MakeGenericMethod(type);
+            var getOrThrowSyncMethod = typeof(IConfigurationProvider).GetMethod("GetOrThrowSync").MakeGenericMethod(type);
+            var getOrDefaultSyncMethod = typeof(IConfigurationProvider).GetMethod("GetOrDefaultSync").MakeGenericMethod(type);
 
             var defaultOfType = GetDefault(type);
             var memberOfType = _typeToObject[type];
@@ -153,12 +153,12 @@ namespace NuGet.Services.Configuration.Tests
                 {emptyKey, "" }
             };
 
-            var configService = new SecretService(mockSecretInjector.Object, arguments);
+            var configService = new SecretConfigurationProvider(mockSecretInjector.Object, arguments);
 
-            var getOrThrowMethod = typeof(ISecretService).GetMethod("GetOrThrow").MakeGenericMethod(type);
-            var getOrDefaultMethod = typeof(ISecretService).GetMethod("GetOrDefault").MakeGenericMethod(type);
-            var getOrThrowSyncMethod = typeof(ISecretService).GetMethod("GetOrThrowSync").MakeGenericMethod(type);
-            var getOrDefaultSyncMethod = typeof(ISecretService).GetMethod("GetOrDefaultSync").MakeGenericMethod(type);
+            var getOrThrowMethod = typeof(IConfigurationProvider).GetMethod("GetOrThrow").MakeGenericMethod(type);
+            var getOrDefaultMethod = typeof(IConfigurationProvider).GetMethod("GetOrDefault").MakeGenericMethod(type);
+            var getOrThrowSyncMethod = typeof(IConfigurationProvider).GetMethod("GetOrThrowSync").MakeGenericMethod(type);
+            var getOrDefaultSyncMethod = typeof(IConfigurationProvider).GetMethod("GetOrDefaultSync").MakeGenericMethod(type);
 
             ////// Act and Assert
 
@@ -207,7 +207,7 @@ namespace NuGet.Services.Configuration.Tests
                 {secretName, secretKey}
             };
 
-            var configService = new SecretService(mockSecretInjector.Object, arguments);
+            var configService = new SecretConfigurationProvider(mockSecretInjector.Object, arguments);
 
             // Assert
             await Assert.ThrowsAsync<NotSupportedException>(
@@ -237,9 +237,9 @@ namespace NuGet.Services.Configuration.Tests
             { typeof(DateTime), DateTime.Now }
         };
 
-        private static SecretService CreateDummyConfigService()
+        private static SecretConfigurationProvider CreateDummyConfigService()
         {
-            return new SecretService(new SecretInjector(new EmptySecretReader()), new Dictionary<string, string>());
+            return new SecretConfigurationProvider(new SecretInjector(new EmptySecretReader()), new Dictionary<string, string>());
         }
     }
 }
