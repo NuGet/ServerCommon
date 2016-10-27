@@ -13,6 +13,8 @@ namespace NuGet.Services.Configuration.Tests
         {
             new object[] {true},
             new object[] {false},
+            new object[] {"hello"},
+            new object[] {"123456789"},
             new object[] {-1},
             new object[] {1259},    
             new object[] {DateTime.MinValue},
@@ -23,30 +25,9 @@ namespace NuGet.Services.Configuration.Tests
         {
         }
 
-        [Fact]
-        public void GetOrNullStringReturnsAndDoesNotThrow()
-        {
-            // Arrange
-            const string key = "key";
-            const string value = "value";
-            const string notKey = "notAKey";
-            IDictionary<string, string> dictionary = new Dictionary<string, string>
-            {
-                {key, value}
-            };
-
-            // Act
-            var valueFromDictionary = dictionary.GetOrNull(key);
-            var notFoundFromDictionary = dictionary.GetOrNull(notKey);
-
-            // Assert
-            Assert.Equal(value, valueFromDictionary);
-            Assert.Equal(default(string), notFoundFromDictionary);
-        }
-
         [Theory]
         [MemberData(nameof(ValueData))]
-        public void GetOrNullConvertsAndDoesNotThrow<T>(T value) where T : struct
+        public void GetOrNullConvertsAndDoesNotThrow<T>(T value)
         {
             // Arrange
             const string key = "key";
@@ -57,20 +38,19 @@ namespace NuGet.Services.Configuration.Tests
             };
 
             // Act
-            var valueFromDictionary = dictionary.GetOrNull<T>(key);
-            var notFoundFromDictionary = dictionary.GetOrNull<T>(notKey);
-            var notSupportedFromDictionary = dictionary.GetOrNull<NoConversionFromStringToThisStruct>(key);
+            var valueFromDictionary = dictionary.GetOrDefault<T>(key);
+            var notFoundFromDictionary = dictionary.GetOrDefault<T>(notKey);
+            var notSupportedFromDictionary = dictionary.GetOrDefault<NoConversionFromStringToThisStruct>(key);
 
             // Assert
-            Assert.True(valueFromDictionary.HasValue);
-            Assert.Equal(value, valueFromDictionary.Value);
-            Assert.False(notFoundFromDictionary.HasValue);
-            Assert.False(notSupportedFromDictionary.HasValue);
+            Assert.Equal(value, valueFromDictionary);
+            Assert.Equal(default(T), notFoundFromDictionary);
+            Assert.Equal(default(NoConversionFromStringToThisStruct), notSupportedFromDictionary);
         }
 
         [Theory]
         [MemberData(nameof(ValueData))]
-        public void GetOrThrowConvertsValueAndThrows<T>(T value) where T : struct
+        public void GetOrThrowConvertsValueAndThrows<T>(T value)
         {
             // Arrange
             const string key = "key";
