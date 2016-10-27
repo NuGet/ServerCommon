@@ -60,22 +60,25 @@ namespace NuGet.Services.Configuration.Tests
         {
             // Arrange
             const string key = "key";
+            const string notKey = "notAKey";
             IDictionary<string, string> dictionary = new Dictionary<string, string>
             {
                 {key, "i am a string"}
             };
 
             // Act
-            var notSupportedFromDictionary = dictionary.GetOrDefault<NoConversionFromStringToThisClass>(key);
+            var notFoundFromDictionary = dictionary.GetOrDefault<NoConversionFromStringToThisClass>(notKey);
 
             // default(NoConversionFromStringToThisClass) has value = false because default(bool) is false
             // Therefore, create a NoConversionFromStringToThisClass with a true value so it is different than the default.
             var defaultNoConversion = new NoConversionFromStringToThisClass(true);
-            var notSupportedFromDictionaryWithDefault = dictionary.GetOrDefault(key, defaultNoConversion);
+            var notFoundFromDictionaryWithDefault = dictionary.GetOrDefault(notKey, defaultNoConversion);
 
             // Assert
-            Assert.Equal(default(NoConversionFromStringToThisClass), notSupportedFromDictionary);
-            Assert.Equal(defaultNoConversion, notSupportedFromDictionaryWithDefault);
+            Assert.Throws<NotSupportedException>(() => dictionary.GetOrDefault<NoConversionFromStringToThisClass>(key));
+            Assert.Equal(default(NoConversionFromStringToThisClass), notFoundFromDictionary);
+            Assert.Equal(defaultNoConversion, notFoundFromDictionaryWithDefault);
+            // Safety check to prevent the test from passing if defaultNoConversion is equal to default(NoConversionFromStringToThisClass)
             Assert.NotEqual(defaultNoConversion, default(NoConversionFromStringToThisClass));
         }
 
