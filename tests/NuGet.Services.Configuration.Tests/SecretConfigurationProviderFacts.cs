@@ -1,17 +1,17 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Moq;
 using System;
 using System.Collections.Generic;
 using System.Reflection;
 using System.Threading.Tasks;
+using Moq;
 using NuGet.Services.KeyVault;
 using Xunit;
 
 namespace NuGet.Services.Configuration.Tests
 {
-    public class SecretServiceFacts
+    public class SecretConfigurationProviderFacts
     {
         [Fact]
         public void HandlesSyncCalledFirst()
@@ -24,7 +24,7 @@ namespace NuGet.Services.Configuration.Tests
             var mockSecretInjector = new Mock<ISecretInjector>();
             mockSecretInjector.Setup(x => x.InjectAsync(It.Is<string>(v => v == secretKey))).Returns(Task.FromResult(secretValue));
 
-            var arguments = new Dictionary<string, string>()
+            var arguments = new Dictionary<string, string>
             {
                 {secretName, secretKey}
             };
@@ -50,7 +50,7 @@ namespace NuGet.Services.Configuration.Tests
             var mockSecretInjector = new Mock<ISecretInjector>();
             mockSecretInjector.Setup(x => x.InjectAsync(It.IsAny<string>())).Returns(Task.FromResult(firstSecret));
 
-            var arguments = new Dictionary<string, string>()
+            var arguments = new Dictionary<string, string>
             {
                 {secretName, secretKey}
             };
@@ -147,7 +147,7 @@ namespace NuGet.Services.Configuration.Tests
             var mockSecretInjector = new Mock<ISecretInjector>();
             mockSecretInjector.Setup(x => x.InjectAsync(It.IsAny<string>())).Returns<string>(Task.FromResult);
 
-            var arguments = new Dictionary<string, string>()
+            var arguments = new Dictionary<string, string>
             {
                 {nullKey, null},
                 {emptyKey, "" }
@@ -202,7 +202,7 @@ namespace NuGet.Services.Configuration.Tests
             var mockSecretInjector = new Mock<ISecretInjector>();
             mockSecretInjector.Setup(x => x.InjectAsync(It.IsAny<string>())).Returns(Task.FromResult(secretValue));
 
-            var arguments = new Dictionary<string, string>()
+            var arguments = new Dictionary<string, string>
             {
                 {secretName, secretKey}
             };
@@ -229,7 +229,7 @@ namespace NuGet.Services.Configuration.Tests
         /// <summary>
         /// Used in some tests to create a member of a type.
         /// </summary>
-        private readonly IDictionary<Type, object> _typeToObject = new Dictionary<Type, object>()
+        private readonly IDictionary<Type, object> _typeToObject = new Dictionary<Type, object>
         {
             { typeof(string), "this is a string" },
             { typeof(int), 1234 },
