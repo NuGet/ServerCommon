@@ -29,10 +29,10 @@ namespace NuGet.Services.Configuration.Tests
                 {secretName, secretKey}
             };
 
-            var configService = new SecretConfigurationProvider(mockSecretInjector.Object, arguments);
+            var configProvider = new SecretConfigurationProvider(mockSecretInjector.Object, arguments);
 
             // Act
-            var value = configService.GetOrThrowSync<string>(secretName);
+            var value = configProvider.GetOrThrowSync<string>(secretName);
 
             // Assert
             Assert.Equal(secretValue, value);
@@ -55,13 +55,13 @@ namespace NuGet.Services.Configuration.Tests
                 {secretName, secretKey}
             };
 
-            var configService = new SecretConfigurationProvider(mockSecretInjector.Object, arguments);
+            var configProvider = new SecretConfigurationProvider(mockSecretInjector.Object, arguments);
 
             // Act
-            var value1 = await configService.GetOrThrow<string>(secretName);
-            var value2 = configService.GetOrThrowSync<string>(secretName);
-            var value3 = await configService.GetOrDefault<string>(secretName);
-            var value4 = configService.GetOrDefaultSync<string>(secretName);
+            var value1 = await configProvider.GetOrThrow<string>(secretName);
+            var value2 = configProvider.GetOrThrowSync<string>(secretName);
+            var value3 = await configProvider.GetOrDefault<string>(secretName);
+            var value4 = configProvider.GetOrDefaultSync<string>(secretName);
 
             // Assert
             mockSecretInjector.Verify(x => x.InjectAsync(It.IsAny<string>()));
@@ -74,10 +74,10 @@ namespace NuGet.Services.Configuration.Tests
             mockSecretInjector.Setup(x => x.InjectAsync(It.IsAny<string>())).Returns(Task.FromResult(secondSecret));
 
             // Act 2
-            value1 = await configService.GetOrThrow<string>(secretName);
-            value2 = configService.GetOrThrowSync<string>(secretName);
-            value3 = await configService.GetOrDefault<string>(secretName);
-            value4 = configService.GetOrDefaultSync<string>(secretName);
+            value1 = await configProvider.GetOrThrow<string>(secretName);
+            value2 = configProvider.GetOrThrowSync<string>(secretName);
+            value3 = await configProvider.GetOrDefault<string>(secretName);
+            value4 = configProvider.GetOrDefaultSync<string>(secretName);
 
             // Assert 2
             mockSecretInjector.Verify(x => x.InjectAsync(It.IsAny<string>()));
@@ -95,10 +95,10 @@ namespace NuGet.Services.Configuration.Tests
         public async void HandlesKeyNotFound(Type type)
         {
             // Arrange
-            var dummy = CreateDummyConfigService();
+            var dummy = CreateDummyConfigProvider();
 
-            var getOrThrowMethod = typeof(IConfigurationProvider).GetMethod("GetOrThrow").MakeGenericMethod(type);
-            var getOrDefaultMethod = typeof(IConfigurationProvider).GetMethod("GetOrDefault").MakeGenericMethod(type);
+            var getOrThrowMethod = typeof(ISettingsProvider).GetMethod("GetOrThrow").MakeGenericMethod(type);
+            var getOrDefaultMethod = typeof(ISettingsProvider).GetMethod("GetOrDefault").MakeGenericMethod(type);
             var getOrThrowSyncMethod = typeof(IConfigurationProvider).GetMethod("GetOrThrowSync").MakeGenericMethod(type);
             var getOrDefaultSyncMethod = typeof(IConfigurationProvider).GetMethod("GetOrDefaultSync").MakeGenericMethod(type);
 
@@ -153,10 +153,10 @@ namespace NuGet.Services.Configuration.Tests
                 {emptyKey, "" }
             };
 
-            var configService = new SecretConfigurationProvider(mockSecretInjector.Object, arguments);
+            var configProvider = new SecretConfigurationProvider(mockSecretInjector.Object, arguments);
 
-            var getOrThrowMethod = typeof(IConfigurationProvider).GetMethod("GetOrThrow").MakeGenericMethod(type);
-            var getOrDefaultMethod = typeof(IConfigurationProvider).GetMethod("GetOrDefault").MakeGenericMethod(type);
+            var getOrThrowMethod = typeof(ISettingsProvider).GetMethod("GetOrThrow").MakeGenericMethod(type);
+            var getOrDefaultMethod = typeof(ISettingsProvider).GetMethod("GetOrDefault").MakeGenericMethod(type);
             var getOrThrowSyncMethod = typeof(IConfigurationProvider).GetMethod("GetOrThrowSync").MakeGenericMethod(type);
             var getOrDefaultSyncMethod = typeof(IConfigurationProvider).GetMethod("GetOrDefaultSync").MakeGenericMethod(type);
 
@@ -165,26 +165,26 @@ namespace NuGet.Services.Configuration.Tests
             //// Null Key
 
             // GetOrThrow
-            await Assert.ThrowsAsync<ArgumentNullException>(() => (Task)getOrThrowMethod.Invoke(configService, nullKeyThrowArgs));
-            Assert.Throws<TargetInvocationException>(() => getOrThrowSyncMethod.Invoke(configService, nullKeyThrowArgs));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => (Task)getOrThrowMethod.Invoke(configProvider, nullKeyThrowArgs));
+            Assert.Throws<TargetInvocationException>(() => getOrThrowSyncMethod.Invoke(configProvider, nullKeyThrowArgs));
             // GetOrDefault
-            Assert.Equal(defaultOfType, await (dynamic)getOrDefaultMethod.Invoke(configService, nullKeyDefaultArgs));
-            Assert.Equal(defaultOfType, (dynamic)getOrDefaultSyncMethod.Invoke(configService, nullKeyDefaultArgs));
+            Assert.Equal(defaultOfType, await (dynamic)getOrDefaultMethod.Invoke(configProvider, nullKeyDefaultArgs));
+            Assert.Equal(defaultOfType, (dynamic)getOrDefaultSyncMethod.Invoke(configProvider, nullKeyDefaultArgs));
             // GetOrDefault with default specified
-            Assert.Equal(memberOfType, await (dynamic)getOrDefaultMethod.Invoke(configService, nullKeyDefaultSpecifiedArgs));
-            Assert.Equal(memberOfType, (dynamic)getOrDefaultSyncMethod.Invoke(configService, nullKeyDefaultSpecifiedArgs));
+            Assert.Equal(memberOfType, await (dynamic)getOrDefaultMethod.Invoke(configProvider, nullKeyDefaultSpecifiedArgs));
+            Assert.Equal(memberOfType, (dynamic)getOrDefaultSyncMethod.Invoke(configProvider, nullKeyDefaultSpecifiedArgs));
 
             //// Empty Key
 
             // GetOrThrow
-            await Assert.ThrowsAsync<ArgumentNullException>(() => (Task)getOrThrowMethod.Invoke(configService, emptyKeyThrowArgs));
-            Assert.Throws<TargetInvocationException>(() => getOrThrowSyncMethod.Invoke(configService, emptyKeyThrowArgs));
+            await Assert.ThrowsAsync<ArgumentNullException>(() => (Task)getOrThrowMethod.Invoke(configProvider, emptyKeyThrowArgs));
+            Assert.Throws<TargetInvocationException>(() => getOrThrowSyncMethod.Invoke(configProvider, emptyKeyThrowArgs));
             // GetOrDefault
-            Assert.Equal(defaultOfType, await (dynamic)getOrDefaultMethod.Invoke(configService, emptyKeyDefaultArgs));
-            Assert.Equal(defaultOfType, (dynamic)getOrDefaultSyncMethod.Invoke(configService, emptyKeyDefaultArgs));
+            Assert.Equal(defaultOfType, await (dynamic)getOrDefaultMethod.Invoke(configProvider, emptyKeyDefaultArgs));
+            Assert.Equal(defaultOfType, (dynamic)getOrDefaultSyncMethod.Invoke(configProvider, emptyKeyDefaultArgs));
             // GetOrDefault with default specified
-            Assert.Equal(memberOfType, await (dynamic)getOrDefaultMethod.Invoke(configService, emptyKeyDefaultSpecifiedArgs));
-            Assert.Equal(memberOfType, (dynamic)getOrDefaultSyncMethod.Invoke(configService, emptyKeyDefaultSpecifiedArgs));
+            Assert.Equal(memberOfType, await (dynamic)getOrDefaultMethod.Invoke(configProvider, emptyKeyDefaultSpecifiedArgs));
+            Assert.Equal(memberOfType, (dynamic)getOrDefaultSyncMethod.Invoke(configProvider, emptyKeyDefaultSpecifiedArgs));
         }
         
         private class NoConversionFromStringToThisClass
@@ -207,13 +207,13 @@ namespace NuGet.Services.Configuration.Tests
                 {secretName, secretKey}
             };
 
-            var configService = new SecretConfigurationProvider(mockSecretInjector.Object, arguments);
+            var configProvider = new SecretConfigurationProvider(mockSecretInjector.Object, arguments);
 
             // Assert
             await Assert.ThrowsAsync<NotSupportedException>(
-                async () => await configService.GetOrThrow<NoConversionFromStringToThisClass>(secretName));
+                async () => await configProvider.GetOrThrow<NoConversionFromStringToThisClass>(secretName));
             Assert.Throws<NotSupportedException>(
-                () => configService.GetOrThrowSync<NoConversionFromStringToThisClass>(secretName));
+                () => configProvider.GetOrThrowSync<NoConversionFromStringToThisClass>(secretName));
         }
 
         public dynamic GetDefault(Type t)
@@ -237,7 +237,7 @@ namespace NuGet.Services.Configuration.Tests
             { typeof(DateTime), DateTime.Now }
         };
 
-        private static SecretConfigurationProvider CreateDummyConfigService()
+        private static SecretConfigurationProvider CreateDummyConfigProvider()
         {
             return new SecretConfigurationProvider(new SecretInjector(new EmptySecretReader()), new Dictionary<string, string>());
         }
