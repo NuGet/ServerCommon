@@ -5,10 +5,13 @@ using System.Threading.Tasks;
 
 namespace NuGet.Services.Configuration
 {
-    public abstract class SettingsProvider : ISettingsProvider
+    /// <summary>
+    /// Abstract base class for ConfigurationProvider that handles conversion and exception handling when provided a Get method.
+    /// </summary>
+    public abstract class ConfigurationProvider : IConfigurationProvider
     {
         /// <summary>
-        /// Gets a value and injects a secret into it.
+        /// Gets a value from a given key.
         /// </summary>
         /// <param name="key">The key associated with the desired value.</param>
         /// <returns>The value associated with the given key.</returns>

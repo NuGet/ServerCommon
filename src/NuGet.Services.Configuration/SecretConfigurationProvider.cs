@@ -10,8 +10,9 @@ namespace NuGet.Services.Configuration
 {
     /// <summary>
     /// Asynchronously provides configuration and command line arguments and injects them with secrets using an ISecretInjector on every access to refresh them.
+    /// Caches configuration values for synchronous access.
     /// </summary>
-    public class SecretConfigurationProvider : SettingsProvider, IConfigurationProvider
+    public class SecretConfigurationProvider : ConfigurationProvider, ICachingConfigurationProvider
     {
         private readonly ISecretInjector _secretInjector;
         private readonly IDictionary<string, string> _arguments;

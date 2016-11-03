@@ -97,10 +97,10 @@ namespace NuGet.Services.Configuration.Tests
             // Arrange
             var dummy = CreateDummyConfigProvider();
 
-            var getOrThrowMethod = typeof(ISettingsProvider).GetMethod("GetOrThrow").MakeGenericMethod(type);
-            var getOrDefaultMethod = typeof(ISettingsProvider).GetMethod("GetOrDefault").MakeGenericMethod(type);
-            var getOrThrowSyncMethod = typeof(IConfigurationProvider).GetMethod("GetOrThrowSync").MakeGenericMethod(type);
-            var getOrDefaultSyncMethod = typeof(IConfigurationProvider).GetMethod("GetOrDefaultSync").MakeGenericMethod(type);
+            var getOrThrowMethod = typeof(IConfigurationProvider).GetMethod("GetOrThrow").MakeGenericMethod(type);
+            var getOrDefaultMethod = typeof(IConfigurationProvider).GetMethod("GetOrDefault").MakeGenericMethod(type);
+            var getOrThrowSyncMethod = typeof(ICachingConfigurationProvider).GetMethod("GetOrThrowSync").MakeGenericMethod(type);
+            var getOrDefaultSyncMethod = typeof(ICachingConfigurationProvider).GetMethod("GetOrDefaultSync").MakeGenericMethod(type);
 
             var defaultOfType = GetDefault(type);
             var memberOfType = _typeToObject[type];
@@ -155,10 +155,10 @@ namespace NuGet.Services.Configuration.Tests
 
             var configProvider = new SecretConfigurationProvider(mockSecretInjector.Object, arguments);
 
-            var getOrThrowMethod = typeof(ISettingsProvider).GetMethod("GetOrThrow").MakeGenericMethod(type);
-            var getOrDefaultMethod = typeof(ISettingsProvider).GetMethod("GetOrDefault").MakeGenericMethod(type);
-            var getOrThrowSyncMethod = typeof(IConfigurationProvider).GetMethod("GetOrThrowSync").MakeGenericMethod(type);
-            var getOrDefaultSyncMethod = typeof(IConfigurationProvider).GetMethod("GetOrDefaultSync").MakeGenericMethod(type);
+            var getOrThrowMethod = typeof(IConfigurationProvider).GetMethod("GetOrThrow").MakeGenericMethod(type);
+            var getOrDefaultMethod = typeof(IConfigurationProvider).GetMethod("GetOrDefault").MakeGenericMethod(type);
+            var getOrThrowSyncMethod = typeof(ICachingConfigurationProvider).GetMethod("GetOrThrowSync").MakeGenericMethod(type);
+            var getOrDefaultSyncMethod = typeof(ICachingConfigurationProvider).GetMethod("GetOrDefaultSync").MakeGenericMethod(type);
 
             ////// Act and Assert
 
