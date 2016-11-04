@@ -30,6 +30,13 @@ namespace NuGet.Services.Configuration
             _configuration = new Dictionary<string, string>();
         }
 
+        public AzureStorageConfigurationProvider(string storageAccountName, string storageKeyValue, string configurationContainerName, string blobName, string primaryKey)
+            : this(storageAccountName, storageKeyValue, configurationContainerName)
+        {
+            PrimeConfigurationBlob(blobName);
+            LoadConfigurationForKey(primaryKey);
+        }
+
         private static KeyNotFoundException GetKeyNotFoundException(string key)
         {
             return new KeyNotFoundException("Could not find key " + key + "!");
