@@ -31,14 +31,14 @@ namespace NuGet.Services.Configuration
             LoadConfiguration();
         }
 
-        private static KeyNotFoundException GetKeyNotFoundException(string key)
+        public AzureStorageConfigurationProvider(string connectionString, string configurationContainerName, string configurationBlobName)
         {
-            return new KeyNotFoundException("Could not find key " + key + "!");
-        }
+            _configurationContainerName = configurationContainerName;
+            _configurationBlobName = configurationBlobName;
+            _storageAccount = CloudStorageAccount.Parse(connectionString);
+            _storageCredentials = _storageAccount.Credentials;
 
-        private static ArgumentNullException GetArgumentNullException(string key)
-        {
-            return new ArgumentNullException("Value for key " + key + " is null or empty!");
+            LoadConfiguration();
         }
 
         /// <summary>
@@ -113,7 +113,7 @@ namespace NuGet.Services.Configuration
         {
             if (!_configuration.ContainsKey(key))
             {
-                throw GetKeyNotFoundException(key);
+                throw new KeyNotFoundException($"Could not find key {key}!");
             }
 
             return _configuration[key];
@@ -151,12 +151,12 @@ namespace NuGet.Services.Configuration
         {
             if (!_configuration.ContainsKey(key))
             {
-                throw GetKeyNotFoundException(key);
+                throw new KeyNotFoundException($"Could not find key {key}!");
             }
 
             if (string.IsNullOrEmpty(_configuration[key]))
             {
-                throw GetArgumentNullException(key);
+                throw new ArgumentNullException($"Value for key {key} is null or empty!");
             }
 
             return ConfigurationUtility.ConvertFromString<T>(_configuration[key]);
