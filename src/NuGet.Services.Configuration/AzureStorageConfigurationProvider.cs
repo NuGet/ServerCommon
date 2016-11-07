@@ -16,25 +16,19 @@ namespace NuGet.Services.Configuration
     public class AzureStorageConfigurationProvider : IConfigurationProvider
     {
         private string _configurationContainerName;
+        private string _configurationBlobName;
         private StorageCredentials _storageCredentials;
         private CloudStorageAccount _storageAccount;
-        private IDictionary<string, JObject> _fileToParsedMap;
         private IDictionary<string, string> _configuration;
 
-        public AzureStorageConfigurationProvider(string storageAccountName, string storageKeyValue, string configurationContainerName)
+        public AzureStorageConfigurationProvider(string storageAccountName, string storageKeyValue, string configurationContainerName, string configurationBlobName)
         {
             _configurationContainerName = configurationContainerName;
+            _configurationBlobName = configurationBlobName;
             _storageCredentials = new StorageCredentials(storageAccountName, storageKeyValue);
             _storageAccount = new CloudStorageAccount(_storageCredentials, useHttps: true);
-            _fileToParsedMap = new Dictionary<string, JObject>();
-            _configuration = new Dictionary<string, string>();
-        }
 
-        public AzureStorageConfigurationProvider(string storageAccountName, string storageKeyValue, string configurationContainerName, string blobName, string primaryKey)
-            : this(storageAccountName, storageKeyValue, configurationContainerName)
-        {
-            PrimeConfigurationBlob(blobName);
-            LoadConfigurationForKey(primaryKey);
+            LoadConfiguration();
         }
 
         private static KeyNotFoundException GetKeyNotFoundException(string key)
@@ -48,66 +42,34 @@ namespace NuGet.Services.Configuration
         }
 
         /// <summary>
-        /// Pulls and primes configuration json from the configured blob storage account
+        /// Pulls and loads configuration json from the configured blob storage account and file
         /// </summary>
-        /// <param name="blobName">The name of the configuration json to load.</param>
-        /// <param name="forceReload">Indicates that we should force refetch from network.</param>
-        /// <returns>True if blob is loaded/was already loaded. False if blob fails to load.</returns>
-        /// <remarks>Note that this method does not actually load the configuration values for retrieval. It only primes the file into memory from blob storage. Call LoadConfigurationForKey to actually load the configuration for retrieval.</remarks>
-        public bool PrimeConfigurationBlob(string blobName, bool forceReload = false)
-        {
-            try
-            {
-                if (!_fileToParsedMap.ContainsKey(blobName) || forceReload)
-                {
-                    var blobClient = _storageAccount.CreateCloudBlobClient();
-                    var container = blobClient.GetContainerReference(_configurationContainerName);
-                    var blockBlob = container.GetBlockBlobReference(blobName);
-
-                    var retrievedConfiguration = blockBlob.DownloadText();
-
-                    var parsedConfiguration = JObject.Parse(retrievedConfiguration);
-
-                    _fileToParsedMap.Add(blobName, parsedConfiguration);
-                }
-            }
-            catch (Exception)
-            {
-                return false;
-            }
-
-            return true;
-        }
-
-        /// <summary>
-        /// Loads values from primed configuration json files into our actual configuration for retrieval.
-        /// </summary>
-        /// <param name="primaryKey">The name of the key that should be loaded from the parsed json config files.</param>
-        /// <returns>True if config was loaded without exception. False if there was a problem loading. This likely means that we primed a json file that is valid json, but in a format that we don't know about.</returns>
-        public bool LoadConfigurationForKey(string primaryKey)
+        /// <returns>True if blob is loaded. False if blob fails to load.</returns>
+        public bool LoadConfiguration()
         {
             _configuration = new Dictionary<string, string>();
-
             try
             {
-                foreach (var rawConfig in _fileToParsedMap.Values)
+
+                var blobClient = _storageAccount.CreateCloudBlobClient();
+                var container = blobClient.GetContainerReference(_configurationContainerName);
+                var blockBlob = container.GetBlockBlobReference(_configurationBlobName);
+
+                var retrievedConfiguration = blockBlob.DownloadText();
+
+                var parsedConfiguration = JObject.Parse(retrievedConfiguration);
+
+                foreach (var key in parsedConfiguration)
                 {
-                    var primaryKeyRawConfig = rawConfig[primaryKey];
-                    if (primaryKeyRawConfig != null)
-                    {
-                        foreach (var key in primaryKeyRawConfig)
-                        {
-                            _configuration.Add(key.ToObject<string>(), primaryKeyRawConfig[key].ToObject<string>());
-                        }
-                    }
+                    _configuration.Add(key.ToString(), parsedConfiguration[key].ToString());
                 }
+
+                return true;
             }
             catch (Exception)
             {
                 return false;
             }
-
-            return true;
         }
 
         /// <summary>
@@ -116,17 +78,28 @@ namespace NuGet.Services.Configuration
         /// <param name="storageKeyValue">New storage key value.</param>
         /// <param name="configurationContainerName">New container to check for config files.</param>
         /// <remarks>Updating ConfigurationContainerName does NOT force a reload of currently loaded config files. To reload a file that has already been loaded from another container, call PrimeConfigurationBlob with forceReload = true.</remarks>
-        public void Update(string storageKeyValue = null, string configurationContainerName = null)
+        public void Update(string storageKeyValue = null, string configurationContainerName = null, string configurationBlobName = null)
         {
+            bool needConfigReload = false;
+
+            if (configurationBlobName != null)
+            {
+                _configurationBlobName = configurationBlobName;
+                needConfigReload |= true;
+            }
+
             if (configurationContainerName != null)
             {
                 _configurationContainerName = configurationContainerName;
+                needConfigReload |= true;
             }
 
             if (storageKeyValue != null)
             {
                 _storageAccount.Credentials.UpdateKey(storageKeyValue);
             }
+
+            LoadConfiguration();
         }
 
         /// <summary>
