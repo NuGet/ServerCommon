@@ -45,30 +45,21 @@ namespace NuGet.Services.Configuration
         /// Pulls and loads configuration json from the configured blob storage account and file
         /// </summary>
         /// <returns>True if blob is loaded. False if blob fails to load.</returns>
-        public bool LoadConfiguration()
+        public void LoadConfiguration()
         {
             _configuration = new Dictionary<string, string>();
-            try
+
+            var blobClient = _storageAccount.CreateCloudBlobClient();
+            var container = blobClient.GetContainerReference(_configurationContainerName);
+            var blockBlob = container.GetBlockBlobReference(_configurationBlobName);
+
+            var retrievedConfiguration = blockBlob.DownloadText();
+
+            var parsedConfiguration = JObject.Parse(retrievedConfiguration);
+
+            foreach (var key in parsedConfiguration)
             {
-
-                var blobClient = _storageAccount.CreateCloudBlobClient();
-                var container = blobClient.GetContainerReference(_configurationContainerName);
-                var blockBlob = container.GetBlockBlobReference(_configurationBlobName);
-
-                var retrievedConfiguration = blockBlob.DownloadText();
-
-                var parsedConfiguration = JObject.Parse(retrievedConfiguration);
-
-                foreach (var key in parsedConfiguration)
-                {
-                    _configuration.Add(key.ToString(), parsedConfiguration[key].ToString());
-                }
-
-                return true;
-            }
-            catch (Exception)
-            {
-                return false;
+                _configuration.Add(key.ToString(), parsedConfiguration[key].ToString());
             }
         }
 
