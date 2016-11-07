@@ -17,7 +17,6 @@ namespace NuGet.Services.Configuration
     {
         private string _configurationContainerName;
         private string _configurationBlobName;
-        private StorageCredentials _storageCredentials;
         private CloudStorageAccount _storageAccount;
         private IDictionary<string, string> _configuration;
 
@@ -25,8 +24,9 @@ namespace NuGet.Services.Configuration
         {
             _configurationContainerName = configurationContainerName;
             _configurationBlobName = configurationBlobName;
-            _storageCredentials = new StorageCredentials(storageAccountName, storageKeyValue);
-            _storageAccount = new CloudStorageAccount(_storageCredentials, useHttps: true);
+
+            var storageCredentials = new StorageCredentials(storageAccountName, storageKeyValue);
+            _storageAccount = new CloudStorageAccount(storageCredentials, useHttps: true);
 
             LoadConfiguration();
         }
@@ -36,7 +36,6 @@ namespace NuGet.Services.Configuration
             _configurationContainerName = configurationContainerName;
             _configurationBlobName = configurationBlobName;
             _storageAccount = CloudStorageAccount.Parse(connectionString);
-            _storageCredentials = _storageAccount.Credentials;
 
             LoadConfiguration();
         }
@@ -66,10 +65,12 @@ namespace NuGet.Services.Configuration
         /// <summary>
         /// Updates either the storage key or the config container
         /// </summary>
+        /// <param name="connectionString">New connection string value.</param>
         /// <param name="storageKeyValue">New storage key value.</param>
         /// <param name="configurationContainerName">New container to check for config files.</param>
-        /// <remarks>Updating ConfigurationContainerName does NOT force a reload of currently loaded config files. To reload a file that has already been loaded from another container, call PrimeConfigurationBlob with forceReload = true.</remarks>
-        public void Update(string storageKeyValue = null, string configurationContainerName = null, string configurationBlobName = null)
+        /// <param name="configurationBlobName">New configuration blob name.</param>
+        /// <remarks>Updating ConfigurationContainerName or ConfigurationBlobName will force a reload of configuration.</remarks>
+        public void Update(string connectionString = null, string storageKeyValue = null, string configurationContainerName = null, string configurationBlobName = null)
         {
             bool needConfigReload = false;
 
@@ -90,7 +91,15 @@ namespace NuGet.Services.Configuration
                 _storageAccount.Credentials.UpdateKey(storageKeyValue);
             }
 
-            LoadConfiguration();
+            if (connectionString != null)
+            {
+                _storageAccount = CloudStorageAccount.Parse(connectionString);
+            }
+
+            if (needConfigReload)
+            {
+                LoadConfiguration();
+            }
         }
 
         /// <summary>
