@@ -52,7 +52,7 @@ namespace NuGet.Services.KeyVault
 
         private async Task<string> GetTokenAsync(string authority, string resource, string scope)
         {
-            var authContext = new AuthenticationContext(authority);
+            var authContext = new AuthenticationContext(authority, TokenCache.DefaultShared);
             var result = await authContext.AcquireTokenAsync(resource, _clientAssertionCertificate);
 
             if (result == null)
