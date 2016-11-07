@@ -19,6 +19,7 @@ namespace NuGet.Services.Configuration
         private string _configurationBlobName;
         private CloudStorageAccount _storageAccount;
         private IDictionary<string, string> _configuration;
+        private DateTimeOffset _lastModified;
 
         public AzureStorageConfigurationProvider(string storageAccountName, string storageKeyValue, string configurationContainerName, string configurationBlobName)
         {
@@ -28,7 +29,7 @@ namespace NuGet.Services.Configuration
             var storageCredentials = new StorageCredentials(storageAccountName, storageKeyValue);
             _storageAccount = new CloudStorageAccount(storageCredentials, useHttps: true);
 
-            LoadConfiguration();
+            LoadConfiguration(forceRefresh: true);
         }
 
         public AzureStorageConfigurationProvider(string connectionString, string configurationContainerName, string configurationBlobName)
@@ -37,28 +38,40 @@ namespace NuGet.Services.Configuration
             _configurationBlobName = configurationBlobName;
             _storageAccount = CloudStorageAccount.Parse(connectionString);
 
-            LoadConfiguration();
+            LoadConfiguration(forceRefresh: true);
         }
 
         /// <summary>
         /// Pulls and loads configuration json from the configured blob storage account and file
         /// </summary>
         /// <returns>True if blob is loaded. False if blob fails to load.</returns>
-        public void LoadConfiguration()
+        public void LoadConfiguration(bool forceRefresh = false)
         {
-            _configuration = new Dictionary<string, string>();
-
+            var newConfig = new Dictionary<string, string>();
+            var update = false;
             var blobClient = _storageAccount.CreateCloudBlobClient();
             var container = blobClient.GetContainerReference(_configurationContainerName);
             var blockBlob = container.GetBlockBlobReference(_configurationBlobName);
 
-            var retrievedConfiguration = blockBlob.DownloadText();
-
-            var parsedConfiguration = JObject.Parse(retrievedConfiguration);
-
-            foreach (var key in parsedConfiguration)
+            if (forceRefresh || blockBlob.Properties.LastModified > _lastModified)
             {
-                _configuration.Add(key.ToString(), parsedConfiguration[key].ToString());
+                _lastModified = (DateTimeOffset)blockBlob.Properties.LastModified;
+
+                var retrievedConfiguration = blockBlob.DownloadText();
+
+                var parsedConfiguration = JObject.Parse(retrievedConfiguration);
+
+                foreach (var key in parsedConfiguration)
+                {
+                    newConfig.Add(key.ToString(), parsedConfiguration[key].ToString());
+                }
+
+                update = true;
+            }
+
+            if (update)
+            {
+                _configuration = newConfig;
             }
         }
 
