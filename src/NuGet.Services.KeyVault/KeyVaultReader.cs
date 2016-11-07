@@ -72,7 +72,9 @@ namespace NuGet.Services.KeyVault
                 var col = store.Certificates.Find(X509FindType.FindByThumbprint, thumbprint, validationRequired);
                 if (col.Count == 0)
                 {
-                    throw new ArgumentException($"Certificate with thumbprint {thumbprint} was not found in store {storeLocation} {storeName} ");
+                    var validationRequiredString = validationRequired ? "required" : "not required";
+                    throw new ArgumentException(
+                        $"Certificate with thumbprint {thumbprint} and validation {validationRequiredString} was not found in store {storeLocation} {storeName}.");
                 }
 
                 return col[0];
