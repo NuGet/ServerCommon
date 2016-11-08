@@ -2,6 +2,7 @@
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" />
   
   <PropertyGroup>
+    <OutputPath Condition="'$(OutputPath)'=='' ">.\bin\</OutputPath>
     <TargetFramework>net452</TargetFramework>
     <AssemblyName>NuGet.Services.Logging</AssemblyName>
     <PackageLicenseUrl>https://github.com/NuGet/ServerCommon/blob/master/License.md</PackageLicenseUrl>
