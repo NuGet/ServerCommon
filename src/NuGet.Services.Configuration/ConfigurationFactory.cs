@@ -46,7 +46,28 @@ namespace NuGet.Services.Configuration
         /// <returns>A task that completes when the property has been injected into.</returns>
         public async Task InjectPropertyWithConfiguration<T, TP>(T instance, PropertyDescriptor property)
         {
-            var settingName = string.IsNullOrEmpty(property.DisplayName) ? property.Name : property.DisplayName;
+            var configKey = string.IsNullOrEmpty(property.DisplayName) ? property.Name : property.DisplayName;
+
+            // Replace the configuration key with the key specified by the ConfigurationKeyAttribute if it exists.
+            var configNameProperty = property.Attributes.OfType<ConfigurationKeyAttribute>().FirstOrDefault();
+            if (configNameProperty != null)
+            {
+                if (string.IsNullOrEmpty(configNameProperty.Key))
+                {
+                    throw new ArgumentNullException(nameof(configNameProperty.Key),
+                        $"Configuration key specified by {nameof(ConfigurationKeyAttribute)} is null or empty!");
+                }
+
+                configKey = configNameProperty.Key;
+            }
+
+            // Add the prefix specified by the ConfigurationKeyAttribute to the configuration key if it exists.
+            var configNamePrefixProperty =
+                property.Attributes.OfType<ConfigurationKeyPrefixAttribute>().FirstOrDefault();
+            if (configNamePrefixProperty != null)
+            {
+                configKey = configNamePrefixProperty.Prefix + configKey;
+            }
 
             TP value;
 
@@ -54,7 +75,7 @@ namespace NuGet.Services.Configuration
             {
                 // If the property is required, use GetOrThrowAsync to access configuration.
                 // It will throw if the configuration is not found or invalid.
-                value = await _configProvider.GetOrThrowAsync<TP>(settingName);
+                value = await _configProvider.GetOrThrowAsync<TP>(configKey);
             }
             else
             {
@@ -64,17 +85,21 @@ namespace NuGet.Services.Configuration
                     try
                     {
                         // Use the default value specified by the DefaultValueAttribute if it can be converted into the type of the property.
-                        var defaultValue = (TP) (defaultValueAttribute.Value.GetType() == property.PropertyType ? defaultValueAttribute.Value : property.Converter.ConvertFrom(defaultValueAttribute.Value));
-                        value = await _configProvider.GetOrDefaultAsync(settingName, defaultValue);
+                        var defaultValue =
+                            (TP)
+                            (defaultValueAttribute.Value.GetType() == property.PropertyType
+                                ? defaultValueAttribute.Value
+                                : property.Converter.ConvertFrom(defaultValueAttribute.Value));
+                        value = await _configProvider.GetOrDefaultAsync(configKey, defaultValue);
                     }
                     catch (Exception)
                     {
-                        throw new ArgumentException($"Default value for {settingName} specified by DefaultValueAttribute is malformed ({defaultValueAttribute.Value ?? "null"})!");
+                        throw new ArgumentException($"Default value for {configKey} specified by DefaultValueAttribute is malformed ({defaultValueAttribute.Value ?? "null"})!");
                     }
                 }
                 else
                 {
-                    value = await _configProvider.GetOrDefaultAsync<TP>(settingName);
+                    value = await _configProvider.GetOrDefaultAsync<TP>(configKey);
                 }
             }
 
