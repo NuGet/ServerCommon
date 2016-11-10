@@ -19,16 +19,16 @@ namespace NuGet.Services.Configuration
         /// <exception cref="ArgumentNullException">Thrown when the value associated with the given key is null or empty.</exception>
         protected abstract Task<string> Get(string key);
 
-        public async Task<T> GetOrThrow<T>(string key)
+        public async Task<T> GetOrThrowAsync<T>(string key)
         {
             return ConfigurationUtility.ConvertFromString<T>(await Get(key));
         }
 
-        public async Task<T> GetOrDefault<T>(string key, T defaultValue = default(T))
+        public async Task<T> GetOrDefaultAsync<T>(string key, T defaultValue = default(T))
         {
             try
             {
-                return await GetOrThrow<T>(key);
+                return await GetOrThrowAsync<T>(key);
             }
             catch (ArgumentNullException)
             {
