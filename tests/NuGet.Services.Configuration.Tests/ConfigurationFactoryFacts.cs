@@ -151,12 +151,15 @@ namespace NuGet.Services.Configuration.Tests
             foreach (var configPair in typeMap)
             {
                 var configTuple = configPair.Value;
-
-                if (configTuple.Required &&
-                    (configTuple.ExpectedValue == null ||
-                     (configTuple.ExpectedValue is string && string.IsNullOrEmpty((string) configTuple.ExpectedValue))))
+                
+                // True if the expected value is null or if it is an empty string.
+                var expectedValueIsMissing = 
+                    configTuple.ExpectedValue == null ||
+                    (configTuple.ExpectedValue is string && string.IsNullOrEmpty((string) configTuple.ExpectedValue));
+                
+                if (configTuple.Required && expectedValueIsMissing)
                 {
-                    // Acquiring the configuration will fail if a required attribute is not specified.
+                    // Acquiring the configuration will fail if a required attribute does not have an expected value.
                     willSucceed = false;
                     break;
                 }
