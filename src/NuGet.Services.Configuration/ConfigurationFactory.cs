@@ -64,7 +64,7 @@ namespace NuGet.Services.Configuration
                     try
                     {
                         // Use the default value specified by the DefaultValueAttribute if it can be converted into the type of the property.
-                        var defaultValue = (TP) property.Converter.ConvertFrom(defaultValueAttribute.Value);
+                        var defaultValue = (TP) (defaultValueAttribute.Value.GetType() == property.PropertyType ? defaultValueAttribute.Value : property.Converter.ConvertFrom(defaultValueAttribute.Value));
                         value = await _configProvider.GetOrDefaultAsync(settingName, defaultValue);
                     }
                     catch (Exception)

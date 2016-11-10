@@ -12,9 +12,6 @@ namespace NuGet.Services.Configuration.Tests
 {
     public class ConfigurationFactoryFacts
     {
-        public const string DynamicTypeName = "TestConfiguration";
-        public static int DynamicTypeCount = 0;
-
         /// <summary>
         /// Represents the data associated with a property.
         /// Used to construct classes dynamically to test the <see cref="ConfigurationFactory"/> with.
@@ -36,12 +33,22 @@ namespace NuGet.Services.Configuration.Tests
         }
 
         /// <summary>
+        /// Dummy class that has no conversion into any type.
+        /// Used to test that the <see cref="ConfigurationFactory"/> fails correctly when given incorrect types.
+        /// </summary>
+        public class NoConversionFromThisClass
+        {
+        }
+
+        /// <summary>
         /// Test data for the <see cref="ConfigurationFactory"/> tests.
         /// </summary>
         public static IEnumerable<object[]> ConfigurationFactoryTestData => new[]
         {
             new object[]
             {
+                // Succeeds
+                // Tests base case
                 new Dictionary<string, ConfigurationTuple>
                 {
                     {
@@ -52,6 +59,8 @@ namespace NuGet.Services.Configuration.Tests
             },
             new object[]
             {
+                // Succeeds
+                // Tests required
                 new Dictionary<string, ConfigurationTuple>
                 {
                     {"stringPropertyRequired", new ConfigurationTuple(typeof(string), true, "i am still a string")}
@@ -59,6 +68,8 @@ namespace NuGet.Services.Configuration.Tests
             },
             new object[]
             {
+                // Succeeds
+                // Tests default value
                 new Dictionary<string, ConfigurationTuple>
                 {
                     {
@@ -69,6 +80,8 @@ namespace NuGet.Services.Configuration.Tests
             },
             new object[]
             {
+                // Succeeds
+                // Tests default value with actual value provided
                 new Dictionary<string, ConfigurationTuple>
                 {
                     {
@@ -79,6 +92,8 @@ namespace NuGet.Services.Configuration.Tests
             },
             new object[]
             {
+                // Succeeds
+                // Tests required and default together
                 new Dictionary<string, ConfigurationTuple>
                 {
                     {
@@ -89,6 +104,8 @@ namespace NuGet.Services.Configuration.Tests
             },
             new object[]
             {
+                // Fails because required configuration is missing
+                // Tests required
                 new Dictionary<string, ConfigurationTuple>
                 {
                     {"stringPropertyRequiredMissing", new ConfigurationTuple(typeof(string), true, null)}
@@ -96,6 +113,8 @@ namespace NuGet.Services.Configuration.Tests
             },
             new object[]
             {
+                // Succeeds because missing but not required
+                // Tests default without provided default
                 new Dictionary<string, ConfigurationTuple>
                 {
                     {"stringPropertyMissing", new ConfigurationTuple(typeof(string), false, null)}
@@ -103,6 +122,8 @@ namespace NuGet.Services.Configuration.Tests
             },
             new object[]
             {
+                // Fails because empty string is equivalent to null with regards to configuration
+                // (the IConfigurationProvider throws ArgumentNullException)
                 new Dictionary<string, ConfigurationTuple>
                 {
                     {"stringPropertyRequiredEmpty", new ConfigurationTuple(typeof(string), true, "")}
@@ -110,6 +131,8 @@ namespace NuGet.Services.Configuration.Tests
             },
             new object[]
             {
+                // Succeeds
+                // Tests conversion into types other than string
                 new Dictionary<string, ConfigurationTuple>
                 {
                     {"intProperty", new ConfigurationTuple(typeof(int), false, 101)}
@@ -117,13 +140,58 @@ namespace NuGet.Services.Configuration.Tests
             },
             new object[]
             {
+                // Succeeds
+                // Tests multiple properties in a class
+                new Dictionary<string, ConfigurationTuple>
+                {
+                    {"stringProperty1", new ConfigurationTuple(typeof(string), false, "thing 1")},
+                    {"stringProperty2", new ConfigurationTuple(typeof(string), false, "thing 2")}
+                }
+            },
+            new object[]
+            {
+                // Succeeds
+                // Tests multiple properties and types in a class
                 new Dictionary<string, ConfigurationTuple>
                 {
                     {"intProperty", new ConfigurationTuple(typeof(int), false, 44)},
-                    {"boolProperty", new ConfigurationTuple(typeof(bool), true, true)}
+                    {"requiredBoolProperty", new ConfigurationTuple(typeof(bool), true, true)}
+                }
+            },
+            new object[]
+            {
+                // Succeeds
+                // Tests defaults with multiple properties and types in a class
+                new Dictionary<string, ConfigurationTuple>
+                {
+                    {"doublePropertyWithDefault", new ConfigurationTuple(typeof(double), false, 1.1, 3.14)},
+                    {"boolPropertyMissingWithDefault", new ConfigurationTuple(typeof(bool), false, null, true)}
+                }
+            },
+            new object[]
+            {
+                // Fails
+                // Tests that the configuration provided must have the same type as the property
+                new Dictionary<string, ConfigurationTuple>
+                {
+                    {
+                        "invalidBoolProperty",
+                        new ConfigurationTuple(typeof(double), false, new NoConversionFromThisClass())
+                    }
                 }
             }
         };
+
+        /// <summary>
+        /// Returns true if the object is convertible to type.
+        /// </summary>
+        /// <param name="value">The object to test.</param>
+        /// <param name="type">Type to test.</param>
+        /// <returns>True if the <param name="value">object</param> is convertible to <param name="type">type</param>, false otherwise.</returns>
+        private static bool IsValueWrongType(object value, Type type)
+        {
+            return value != null && !(value.GetType() == type) && !TypeDescriptor.GetConverter(type).CanConvertFrom(value.GetType());
+        }
 
         /// <summary>
         /// Tests that the <see cref="ConfigurationFactory"/> can handle a subclass <see cref="Configuration"/> specified by <param name="typeMap">typeMap</param>.
@@ -157,9 +225,15 @@ namespace NuGet.Services.Configuration.Tests
                     configTuple.ExpectedValue == null ||
                     (configTuple.ExpectedValue is string && string.IsNullOrEmpty((string) configTuple.ExpectedValue));
                 
-                if (configTuple.Required && expectedValueIsMissing)
+                var expectedIsInvalid = IsValueWrongType(configTuple.ExpectedValue, configTuple.Type);
+                
+                if ((configTuple.Required && expectedValueIsMissing) || expectedIsInvalid)
                 {
                     // Acquiring the configuration will fail if a required attribute does not have an expected value.
+                    // It will also fail if the expected value cannot be converted into the type of the property.
+                    //
+                    // Note: it is impossible to put a default value that is not the type of the property in a real class.
+                    // It is not necessary to test for default values that are not the type of the property.
                     willSucceed = false;
                     break;
                 }
@@ -203,6 +277,9 @@ namespace NuGet.Services.Configuration.Tests
             return typeBuilder.CreateType();
         }
 
+        private const string DynamicTypeName = "TestConfiguration";
+        private static int DynamicTypeCount = 0;
+
         private static TypeBuilder CreateTypeBuilder()
         {
             var assemblyName = new AssemblyName(Assembly.GetExecutingAssembly().FullName);
@@ -228,7 +305,7 @@ namespace NuGet.Services.Configuration.Tests
             {
                 propertyBuilder.SetCustomAttribute(
                     new CustomAttributeBuilder(typeof(DefaultValueAttribute).GetConstructor(new[] { configTuple.Type }),
-                        new[] { configTuple.DefaultValue }));
+                        new[] { Convert.ChangeType(configTuple.DefaultValue, configTuple.Type) }));
             }
 
             if (configTuple.Required)
