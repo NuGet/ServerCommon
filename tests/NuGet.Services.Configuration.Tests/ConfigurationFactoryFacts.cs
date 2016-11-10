@@ -179,6 +179,18 @@ namespace NuGet.Services.Configuration.Tests
                         new ConfigurationTuple(typeof(double), false, new NoConversionFromThisClass())
                     }
                 }
+            },
+            new object[]
+            {
+                // Fails
+                // Tests that the default provided must be convertible to the property.
+                new Dictionary<string, ConfigurationTuple>
+                {
+                    {
+                        "boolPropertyWithInvalidDefault",
+                        new ConfigurationTuple(typeof(double), false, null, "can't convert this to double")
+                    }
+                }
             }
         };
 
@@ -190,7 +202,20 @@ namespace NuGet.Services.Configuration.Tests
         /// <returns>True if the <param name="value">object</param> is convertible to <param name="type">type</param>, false otherwise.</returns>
         private static bool IsValueWrongType(object value, Type type)
         {
-            return value != null && !(value.GetType() == type) && !TypeDescriptor.GetConverter(type).CanConvertFrom(value.GetType());
+            if (value == null || value.GetType() == type)
+            {
+                return false;
+            }
+
+            try
+            {
+                TypeDescriptor.GetConverter(type).ConvertFrom(value);
+                return false;
+            }
+            catch (Exception)
+            {
+                return true;
+            }
         }
 
         /// <summary>
@@ -226,14 +251,12 @@ namespace NuGet.Services.Configuration.Tests
                     (configTuple.ExpectedValue is string && string.IsNullOrEmpty((string) configTuple.ExpectedValue));
                 
                 var expectedIsInvalid = IsValueWrongType(configTuple.ExpectedValue, configTuple.Type);
+                var defaultIsInvalid = IsValueWrongType(configTuple.DefaultValue, configTuple.Type);
                 
-                if ((configTuple.Required && expectedValueIsMissing) || expectedIsInvalid)
+                if ((configTuple.Required && expectedValueIsMissing) || expectedIsInvalid || defaultIsInvalid)
                 {
                     // Acquiring the configuration will fail if a required attribute does not have an expected value.
                     // It will also fail if the expected value cannot be converted into the type of the property.
-                    //
-                    // Note: it is impossible to put a default value that is not the type of the property in a real class.
-                    // It is not necessary to test for default values that are not the type of the property.
                     willSucceed = false;
                     break;
                 }
@@ -304,8 +327,8 @@ namespace NuGet.Services.Configuration.Tests
             if (configTuple.DefaultValue != null)
             {
                 propertyBuilder.SetCustomAttribute(
-                    new CustomAttributeBuilder(typeof(DefaultValueAttribute).GetConstructor(new[] { configTuple.Type }),
-                        new[] { Convert.ChangeType(configTuple.DefaultValue, configTuple.Type) }));
+                    new CustomAttributeBuilder(typeof(DefaultValueAttribute).GetConstructor(new[] { configTuple.DefaultValue.GetType() }),
+                        new[] { configTuple.DefaultValue }));
             }
 
             if (configTuple.Required)

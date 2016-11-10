@@ -39,8 +39,8 @@ namespace NuGet.Services.Configuration
         /// <summary>
         /// Injects a property of <param name="instance">instance</param> specified by <param name="property">a <see cref="PropertyDescriptor"/></param> with configuration.
         /// </summary>
-        /// <typeparam name="T">Type of the instance to inject configuration into a property of.</typeparam>
-        /// <typeparam name="TP">Type of the property to inject configuration into.</typeparam>
+        /// <typeparam name="T">Type of <param name="instance">the instance</param>.</typeparam>
+        /// <typeparam name="TP">Type of <param name="property">the property</param>.</typeparam>
         /// <param name="instance">Instance to inject configuration into a property of.</param>
         /// <param name="property"><see cref="PropertyDescriptor"/> that describes the property to inject the configuration into.</param>
         /// <returns>A task that completes when the property has been injected into.</returns>
