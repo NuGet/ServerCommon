@@ -256,7 +256,7 @@ namespace NuGet.Services.Configuration.Tests
                 if ((configTuple.Required && expectedValueIsMissing) || expectedIsInvalid || defaultIsInvalid)
                 {
                     // Acquiring the configuration will fail if a required attribute does not have an expected value.
-                    // It will also fail if the expected value cannot be converted into the type of the property.
+                    // It will also fail if the expected value or default value cannot be converted into the type of the property.
                     willSucceed = false;
                     break;
                 }
@@ -274,7 +274,7 @@ namespace NuGet.Services.Configuration.Tests
             }
             else
             {
-                // This will throw a TargetInvocationException because we are using Reflection in getConfig.
+                // This will throw a TargetInvocationException instead of the exception thrown by ConfigurationFactory because we are using Reflection in getConfig.
                 Assert.Throws<TargetInvocationException>(getConfig);
             }
         }
