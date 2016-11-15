@@ -5,6 +5,7 @@ using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace NuGet.Services.Configuration
@@ -30,15 +31,25 @@ namespace NuGet.Services.Configuration
         {
             var instance = new T();
 
+            // Get the prefix specified by the ConfigurationKeyPrefixAttribute on the class if it exists.
+            var classPrefix = string.Empty;
+            var configNamePrefixProperty =
+                (ConfigurationKeyPrefixAttribute)
+                typeof(T).GetCustomAttributes(typeof(ConfigurationKeyPrefixAttribute), true).FirstOrDefault();
+            if (configNamePrefixProperty != null)
+            {
+                classPrefix = configNamePrefixProperty.Prefix;
+            }
+
             // Iterate over the properties and inject each with configuration.
             foreach (
                 var property in
                 TypeDescriptor.GetProperties(instance).Cast<PropertyDescriptor>().Where(p => !p.IsReadOnly))
             {
                 await (Task) GetType()
-                    .GetMethod(nameof(InjectPropertyWithConfiguration))
+                    .GetMethod(nameof(InjectPropertyWithConfiguration), BindingFlags.NonPublic | BindingFlags.Instance)
                     .MakeGenericMethod(typeof(T), property.PropertyType)
-                    .Invoke(this, new object[] {instance, property});
+                    .Invoke(this, new object[] {instance, property, classPrefix});
             }
 
             return instance;
@@ -51,8 +62,9 @@ namespace NuGet.Services.Configuration
         /// <typeparam name="TP">Type of <param name="property">the property</param>.</typeparam>
         /// <param name="instance">Instance to inject configuration into a property of.</param>
         /// <param name="property"><see cref="PropertyDescriptor"/> that describes the property to inject the configuration into.</param>
+        /// <param name="classPrefix">The prefix to add to the configuration key of all properties except those that have a <see cref="ConfigurationKeyPrefixAttribute"/>.</param>
         /// <returns>A task that completes when the property has been injected into.</returns>
-        public async Task InjectPropertyWithConfiguration<T, TP>(T instance, PropertyDescriptor property)
+        private async Task InjectPropertyWithConfiguration<T, TP>(T instance, PropertyDescriptor property, string classPrefix)
         {
             if (instance == null)
             {
@@ -93,6 +105,10 @@ namespace NuGet.Services.Configuration
                 }
 
                 configKey = configNamePrefixProperty.Prefix + configKey;
+            }
+            else
+            {
+                configKey = classPrefix + configKey;
             }
 
             TP value;

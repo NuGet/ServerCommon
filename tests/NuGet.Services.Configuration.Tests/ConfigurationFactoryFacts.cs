@@ -16,12 +16,42 @@ namespace NuGet.Services.Configuration.Tests
     public class ConfigurationFactoryFacts
     {
         /// <summary>
-        /// Represents the data associated with a property.
-        /// Used to construct classes dynamically to test the <see cref="ConfigurationFactory"/> with.
+        /// Represents a subclass of <see cref="Configuration"/>.
+        /// Used to construct a class dynamically to test the <see cref="ConfigurationFactory"/> with.
         /// </summary>
-        public class ConfigurationTuple
+        public class ConfigurationClassInfo
         {
-            public ConfigurationTuple(Type type, bool required, object expectedValue, object defaultValue = null,
+            public ConfigurationClassInfo(IDictionary<string, ConfigurationPropertyInfo> propertyMap, string classPrefix)
+                : this(propertyMap)
+            {
+                ClassPrefix = classPrefix;
+            }
+
+            public ConfigurationClassInfo(IDictionary<string, ConfigurationPropertyInfo> propertyMap)
+            {
+                PropertyMap = propertyMap;
+            }
+
+            /// <summary>
+            /// Describes each property of the object.
+            /// Each key represents the name of a property.
+            /// Each <see cref="ConfigurationPropertyInfo"/> describes additional information about the property.
+            /// </summary>
+            public IDictionary<string, ConfigurationPropertyInfo> PropertyMap { get; set; }
+
+            /// <summary>
+            /// If not null, a <see cref="ConfigurationKeyPrefixAttribute"/> will be added to the class with this value as the prefix.
+            /// </summary>
+            public string ClassPrefix { get; set; }
+        }
+
+        /// <summary>
+        /// Represents the data associated with a property of a subclass of <see cref="Configuration"/>.
+        /// Used to construct a class dynamically to test the <see cref="ConfigurationFactory"/> with.
+        /// </summary>
+        public class ConfigurationPropertyInfo
+        {
+            public ConfigurationPropertyInfo(Type type, bool required, object expectedValue, object defaultValue = null,
                 string configKey = null, string configKeyPrefix = null)
             {
                 Type = type;
@@ -82,276 +112,331 @@ namespace NuGet.Services.Configuration.Tests
             {
                 // Succeeds
                 // Tests base case
-                new Dictionary<string, ConfigurationTuple>
+                new ConfigurationClassInfo(new Dictionary<string, ConfigurationPropertyInfo>
                 {
                     {
                         "stringProperty",
-                        new ConfigurationTuple(typeof(string), required: false, expectedValue: "i am a string")
+                        new ConfigurationPropertyInfo(typeof(string), required: false, expectedValue: "i am a string")
                     }
-                }
+                })
             },
             new object[]
             {
                 // Succeeds
                 // Tests ConfigurationKeyAttribute
-                new Dictionary<string, ConfigurationTuple>
+                new ConfigurationClassInfo(new Dictionary<string, ConfigurationPropertyInfo>
                 {
                     {
                         "stringPropertyWithCustomKey",
-                        new ConfigurationTuple(typeof(string), required: false, expectedValue: "i have a custom name!",
+                        new ConfigurationPropertyInfo(typeof(string), required: false,
+                            expectedValue: "i have a custom name!",
                             configKey: "customConfig")
                     }
-                }
+                })
             },
             new object[]
             {
                 // Succeeds
                 // Tests ConfigurationKeyPrefixAttribute
-                new Dictionary<string, ConfigurationTuple>
+                new ConfigurationClassInfo(new Dictionary<string, ConfigurationPropertyInfo>
                 {
                     {
                         "stringPropertyWithPrefix",
-                        new ConfigurationTuple(typeof(string), required: false, expectedValue: "i have a cool prefix!",
+                        new ConfigurationPropertyInfo(typeof(string), required: false,
+                            expectedValue: "i have a cool prefix!",
                             configKeyPrefix: "coolbeans:")
                     }
-                }
+                })
             },
             new object[]
             {
                 // Succeeds
                 // Tests ConfigurationKeyAttribute and ConfigurationKeyPrefixAttribute together
-                new Dictionary<string, ConfigurationTuple>
+                new ConfigurationClassInfo(new Dictionary<string, ConfigurationPropertyInfo>
                 {
                     {
                         "stringPropertyWithPrefixAndCustomKey",
-                        new ConfigurationTuple(typeof(string), required: false,
+                        new ConfigurationPropertyInfo(typeof(string), required: false,
                             expectedValue: "i have a cool prefix and a cool name!", configKey: "customConfig",
                             configKeyPrefix: "coolbeans:")
                     }
-                }
+                })
+            },
+            new object[]
+            {
+                // Succeeds
+                // Tests ConfigurationKeyPrefixAttribute on class
+                new ConfigurationClassInfo(new Dictionary<string, ConfigurationPropertyInfo>
+                {
+                    {
+                        "stringPropertyWithInheritedPrefix",
+                        new ConfigurationPropertyInfo(typeof(string), required: false,
+                            expectedValue: "i inherit my prefix!")
+                    }
+                }, "coolbeans:")
             },
             new object[]
             {
                 // Succeeds
                 // Tests required
-                new Dictionary<string, ConfigurationTuple>
+                new ConfigurationClassInfo(new Dictionary<string, ConfigurationPropertyInfo>
                 {
                     {
                         "stringPropertyRequired",
-                        new ConfigurationTuple(typeof(string), required: true, expectedValue: "i am still a string")
+                        new ConfigurationPropertyInfo(typeof(string), required: true,
+                            expectedValue: "i am still a string")
                     }
-                }
+                })
             },
             new object[]
             {
                 // Succeeds
                 // Tests default value
-                new Dictionary<string, ConfigurationTuple>
+                new ConfigurationClassInfo(new Dictionary<string, ConfigurationPropertyInfo>
                 {
                     {
                         "stringPropertyWithDefault",
-                        new ConfigurationTuple(typeof(string), required: false, expectedValue: null,
+                        new ConfigurationPropertyInfo(typeof(string), required: false, expectedValue: null,
                             defaultValue: "default string value")
                     }
-                }
+                })
             },
             new object[]
             {
                 // Succeeds
                 // Tests default value with actual value provided
-                new Dictionary<string, ConfigurationTuple>
+                new ConfigurationClassInfo(new Dictionary<string, ConfigurationPropertyInfo>
                 {
                     {
                         "stringPropertyWithDefaultDefined",
-                        new ConfigurationTuple(typeof(string), required: false, expectedValue: "yet again i am a string",
+                        new ConfigurationPropertyInfo(typeof(string), required: false,
+                            expectedValue: "yet again i am a string",
                             defaultValue: "default string value")
                     }
-                }
+                })
             },
             new object[]
             {
                 // Succeeds
                 // Tests required and default together
-                new Dictionary<string, ConfigurationTuple>
+                new ConfigurationClassInfo(new Dictionary<string, ConfigurationPropertyInfo>
                 {
                     {
                         "stringPropertyRequiredWithDefaultDefined",
-                        new ConfigurationTuple(typeof(string), required: true, expectedValue: "string forever",
+                        new ConfigurationPropertyInfo(typeof(string), required: true, expectedValue: "string forever",
                             defaultValue: "default string value")
                     }
-                }
+                })
             },
             new object[]
             {
                 // Fails because required configuration is missing
                 // Tests required
-                new Dictionary<string, ConfigurationTuple>
+                new ConfigurationClassInfo(new Dictionary<string, ConfigurationPropertyInfo>
                 {
                     {
                         "stringPropertyRequiredMissing",
-                        new ConfigurationTuple(typeof(string), required: true, expectedValue: null)
+                        new ConfigurationPropertyInfo(typeof(string), required: true, expectedValue: null)
                     }
-                }
+                })
             },
             new object[]
             {
                 // Succeeds because missing but not required
                 // Tests default without provided default
-                new Dictionary<string, ConfigurationTuple>
+                new ConfigurationClassInfo(new Dictionary<string, ConfigurationPropertyInfo>
                 {
                     {
                         "stringPropertyMissing",
-                        new ConfigurationTuple(typeof(string), required: false, expectedValue: null)
+                        new ConfigurationPropertyInfo(typeof(string), required: false, expectedValue: null)
                     }
-                }
+                })
             },
             new object[]
             {
                 // Fails because empty string is equivalent to null with regards to configuration
                 // (the IConfigurationProvider throws ArgumentException)
-                new Dictionary<string, ConfigurationTuple>
+                new ConfigurationClassInfo(new Dictionary<string, ConfigurationPropertyInfo>
                 {
                     {
                         "stringPropertyRequiredEmpty",
-                        new ConfigurationTuple(typeof(string), required: true, expectedValue: "")
+                        new ConfigurationPropertyInfo(typeof(string), required: true, expectedValue: "")
                     }
-                }
+                })
             },
             new object[]
             {
                 // Succeeds
                 // Tests conversion into types other than string
-                new Dictionary<string, ConfigurationTuple>
+                new ConfigurationClassInfo(new Dictionary<string, ConfigurationPropertyInfo>
                 {
-                    {"intProperty", new ConfigurationTuple(typeof(int), required: false, expectedValue: 101)}
-                }
+                    {"intProperty", new ConfigurationPropertyInfo(typeof(int), required: false, expectedValue: 101)}
+                })
             },
             new object[]
             {
                 // Succeeds
                 // Tests multiple properties in a class
-                new Dictionary<string, ConfigurationTuple>
+                new ConfigurationClassInfo(new Dictionary<string, ConfigurationPropertyInfo>
                 {
                     {
                         "stringProperty1",
-                        new ConfigurationTuple(typeof(string), required: false, expectedValue: "thing 1")
+                        new ConfigurationPropertyInfo(typeof(string), required: false, expectedValue: "thing 1")
                     },
                     {
                         "stringProperty2",
-                        new ConfigurationTuple(typeof(string), required: false, expectedValue: "thing 2")
+                        new ConfigurationPropertyInfo(typeof(string), required: false, expectedValue: "thing 2")
                     }
-                }
+                })
+            },
+            new object[]
+            {
+                // Succeeds
+                // Tests ConfigurationKeyPrefixAttribute on class with multiple properties
+                new ConfigurationClassInfo(new Dictionary<string, ConfigurationPropertyInfo>
+                {
+                    {
+                        "stringPropertyWithInheritedPrefix1",
+                        new ConfigurationPropertyInfo(typeof(string), required: false, expectedValue: "fashionable felines")
+                    },
+                    {
+                        "stringPropertyWithInheritedPrefix2",
+                        new ConfigurationPropertyInfo(typeof(string), required: false, expectedValue: "fish of various colors")
+                    }
+                }, "Seuss:")
+            },
+            new object[]
+            {
+                // Succeeds
+                // Tests ConfigurationKeyPrefixAttribute on class with multiple properties and override
+                new ConfigurationClassInfo(new Dictionary<string, ConfigurationPropertyInfo>
+                {
+                    {
+                        "stringPropertyWithInheritedPrefix",
+                        new ConfigurationPropertyInfo(typeof(string), required: false, expectedValue: "small mustached yellow environmentalist")
+                    },
+                    {
+                        "stringPropertyWithOverride",
+                        new ConfigurationPropertyInfo(typeof(string), required: false, expectedValue: "gandalf", configKeyPrefix: "LOTR:")
+                    }
+                }, "Seuss:")
             },
             new object[]
             {
                 // Succeeds
                 // Tests multiple properties and types in a class
-                new Dictionary<string, ConfigurationTuple>
+                new ConfigurationClassInfo(new Dictionary<string, ConfigurationPropertyInfo>
                 {
-                    {"intProperty", new ConfigurationTuple(typeof(int), required: false, expectedValue: 44)},
-                    {"requiredBoolProperty", new ConfigurationTuple(typeof(bool), required: true, expectedValue: true)}
-                }
+                    {"intProperty", new ConfigurationPropertyInfo(typeof(int), required: false, expectedValue: 44)},
+                    {
+                        "requiredBoolProperty",
+                        new ConfigurationPropertyInfo(typeof(bool), required: true, expectedValue: true)
+                    }
+                })
             },
             new object[]
             {
                 // Succeeds
                 // Tests multiple properties and types in a class and custom key name
-                new Dictionary<string, ConfigurationTuple>
+                new ConfigurationClassInfo(new Dictionary<string, ConfigurationPropertyInfo>
                 {
                     {
                         "doublePropertyWithCustomKey",
-                        new ConfigurationTuple(typeof(double), required: false, expectedValue: 99.999,
+                        new ConfigurationPropertyInfo(typeof(double), required: false, expectedValue: 99.999,
                             configKey: "coolIntProperty")
                     },
                     {
                         "requiredDatetimePropertyWithPrefix",
-                        new ConfigurationTuple(typeof(bool), required: true, expectedValue: DateTime.MinValue,
+                        new ConfigurationPropertyInfo(typeof(bool), required: true, expectedValue: DateTime.MinValue,
                             configKeyPrefix: "coolProperty.")
                     },
                     {
                         "intPropertyWithDefaultAndCustomKeyAndPrefix",
-                        new ConfigurationTuple(typeof(int), required: false, expectedValue: 503, defaultValue: 200,
+                        new ConfigurationPropertyInfo(typeof(int), required: false, expectedValue: 503,
+                            defaultValue: 200,
                             configKey: "ResponseCode", configKeyPrefix: "coolProperty:")
                     }
-                }
+                })
             },
             new object[]
             {
                 // Succeeds
                 // Tests defaults with multiple properties and types in a class
-                new Dictionary<string, ConfigurationTuple>
+                new ConfigurationClassInfo(new Dictionary<string, ConfigurationPropertyInfo>
                 {
                     {
                         "doublePropertyWithDefault",
-                        new ConfigurationTuple(typeof(double), required: false, expectedValue: 1.1, defaultValue: 3.14)
+                        new ConfigurationPropertyInfo(typeof(double), required: false, expectedValue: 1.1,
+                            defaultValue: 3.14)
                     },
                     {
                         "boolPropertyMissingWithDefault",
-                        new ConfigurationTuple(typeof(bool), required: false, expectedValue: null, defaultValue: true)
+                        new ConfigurationPropertyInfo(typeof(bool), required: false, expectedValue: null,
+                            defaultValue: true)
                     }
-                }
+                })
             },
             new object[]
             {
                 // Fails
                 // Tests that the configuration provided must have the same type as the property
-                new Dictionary<string, ConfigurationTuple>
+                new ConfigurationClassInfo(new Dictionary<string, ConfigurationPropertyInfo>
                 {
                     {
                         "invalidBoolProperty",
-                        new ConfigurationTuple(typeof(double), required: false,
+                        new ConfigurationPropertyInfo(typeof(double), required: false,
                             expectedValue: new NoConversionFromThisClass())
                     }
-                }
+                })
             },
             new object[]
             {
                 // Fails
                 // Tests that the default provided must be convertible to the property
-                new Dictionary<string, ConfigurationTuple>
+                new ConfigurationClassInfo(new Dictionary<string, ConfigurationPropertyInfo>
                 {
                     {
                         "boolPropertyWithInvalidDefault",
-                        new ConfigurationTuple(typeof(double), required: false, expectedValue: null,
+                        new ConfigurationPropertyInfo(typeof(double), required: false, expectedValue: null,
                             defaultValue: "can't convert this to double")
                     }
-                }
+                })
             },
             new object[]
             {
                 // Succeeds
                 // Tests that the class supports providing null data to a nullable property
-                new Dictionary<string, ConfigurationTuple>
+                new ConfigurationClassInfo(new Dictionary<string, ConfigurationPropertyInfo>
                 {
                     {
                         "nullableIntPropertyAsNull",
-                        new ConfigurationTuple(typeof(int?), required: false, expectedValue: null)
+                        new ConfigurationPropertyInfo(typeof(int?), required: false, expectedValue: null)
                     }
-                }
+                })
             },
             new object[]
             {
                 // Succeeds
                 // Tests that the class supports providing non-null data to a nullable property
-                new Dictionary<string, ConfigurationTuple>
+                new ConfigurationClassInfo(new Dictionary<string, ConfigurationPropertyInfo>
                 {
                     {
                         "nullableIntPropertyAsInt",
-                        new ConfigurationTuple(typeof(int?), required: false, expectedValue: 2439)
+                        new ConfigurationPropertyInfo(typeof(int?), required: false, expectedValue: 2439)
                     }
-                }
+                })
             },
             new object[]
             {
                 // Fails because the expected value cannot be converted from a string to an int
                 // Tests that the configuration provided for a nullable must have the same type as the property
-                new Dictionary<string, ConfigurationTuple>
+                new ConfigurationClassInfo(new Dictionary<string, ConfigurationPropertyInfo>
                 {
                     {
                         "nullableIntPropertyAsString",
-                        new ConfigurationTuple(typeof(int?), required: false, expectedValue: "this isn't right!")
+                        new ConfigurationPropertyInfo(typeof(int?), required: false, expectedValue: "this isn't right!")
                     }
-                }
+                })
             }
         };
 
@@ -389,22 +474,23 @@ namespace NuGet.Services.Configuration.Tests
         }
 
         /// <summary>
-        /// Tests that the <see cref="ConfigurationFactory"/> can handle a subclass <see cref="Configuration"/> specified by <param name="typeMap">typeMap</param>.
+        /// Tests that the <see cref="ConfigurationFactory"/> can handle a subclass of <see cref="Configuration"/> described by <param name="configClass">configClass</param>.
         /// </summary>
-        /// <param name="typeMap">Used to construct a subclass of <see cref="Configuration"/>.</param>
+        /// <param name="configClass">Describes the subclass of <see cref="Configuration"/> to dynamically build and test.</param>
         [Theory]
         [MemberData(nameof(ConfigurationFactoryTestData))]
-        public void CorrectlyHandlesTypes(IDictionary<string, ConfigurationTuple> typeMap)
+        public void CorrectlyHandlesTypes(ConfigurationClassInfo configClass)
         {
             // Arrange
+
             IConfigurationFactory configFactory =
                 new ConfigurationFactory(
                     new DictionaryConfigurationProvider(
-                        typeMap.ToDictionary(
-                            tuple => tuple.Value.ConfigKeyPrefix + (tuple.Value.ConfigKey ?? tuple.Key),
-                            tuple => tuple.Value.ExpectedValue)));
+                        configClass.PropertyMap.ToDictionary(
+                            property => (property.Value.ConfigKeyPrefix ?? configClass.ClassPrefix) + (property.Value.ConfigKey ?? property.Key),
+                            property => property.Value.ExpectedValue)));
 
-            var type = CreateTypeFromConfiguration(typeMap);
+            var type = CreateTypeFromConfiguration(configClass);
 
             // Act
             var getConfig = new Func<object>(() => GetType()
@@ -413,22 +499,22 @@ namespace NuGet.Services.Configuration.Tests
                 .Invoke(this, new object[] {configFactory}));
 
             var willSucceed = true;
-            foreach (var configPair in typeMap)
+            foreach (var configPair in configClass.PropertyMap)
             {
-                var configTuple = configPair.Value;
+                var configPropertyInfo = configPair.Value;
 
                 // True if the expected value is null or if it is an empty string.
                 var expectedValueIsMissing =
-                    configTuple.ExpectedValue == null ||
-                    (configTuple.ExpectedValue is string && string.IsNullOrEmpty((string) configTuple.ExpectedValue));
+                    configPropertyInfo.ExpectedValue == null ||
+                    (configPropertyInfo.ExpectedValue is string && string.IsNullOrEmpty((string) configPropertyInfo.ExpectedValue));
 
-                var isExpectedValueValid = IsValueValid(configTuple.ExpectedValue, configTuple.Type);
-                var isDefaultValueValid = IsValueValid(configTuple.DefaultValue, configTuple.Type);
+                var isExpectedValueValid = IsValueValid(configPropertyInfo.ExpectedValue, configPropertyInfo.Type);
+                var isDefaultValueValid = IsValueValid(configPropertyInfo.DefaultValue, configPropertyInfo.Type);
 
-                if ((configTuple.Required && expectedValueIsMissing) ||
+                if ((configPropertyInfo.Required && expectedValueIsMissing) ||
                     !isExpectedValueValid ||
                     !isDefaultValueValid ||
-                    configTuple.ConfigKey == string.Empty)
+                    configPropertyInfo.ConfigKey == string.Empty)
                 {
                     // Acquiring the configuration will fail if a required attribute does not have an expected value.
                     // It will also fail if the expected value or default value cannot be converted into the type of the property.
@@ -442,11 +528,11 @@ namespace NuGet.Services.Configuration.Tests
             if (willSucceed)
             {
                 var config = getConfig();
-                foreach (var configPair in typeMap)
+                foreach (var configPropertyPair in configClass.PropertyMap)
                 {
-                    var configTuple = configPair.Value;
-                    Assert.Equal(configTuple.ExpectedValue ?? configTuple.DefaultValue,
-                        GetFromProperty(config, configPair.Key));
+                    var configPropertyInfo = configPropertyPair.Value;
+                    Assert.Equal(configPropertyInfo.ExpectedValue ?? configPropertyInfo.DefaultValue,
+                        GetFromProperty(config, configPropertyPair.Key));
                 }
             }
             else
@@ -466,10 +552,18 @@ namespace NuGet.Services.Configuration.Tests
             return instance.GetType().GetProperty(propertyName).GetMethod.Invoke(instance, null);
         }
 
-        private static Type CreateTypeFromConfiguration(IDictionary<string, ConfigurationTuple> typeMap)
+        private static Type CreateTypeFromConfiguration(ConfigurationClassInfo configClass)
         {
             var typeBuilder = CreateTypeBuilder();
-            foreach (var property in typeMap)
+
+            if (!string.IsNullOrEmpty(configClass.ClassPrefix))
+            {
+                typeBuilder.SetCustomAttribute(new CustomAttributeBuilder(
+                    typeof(ConfigurationKeyPrefixAttribute).GetConstructor(new[] {typeof(string)}),
+                    new object[] {configClass.ClassPrefix}));
+            }
+
+            foreach (var property in configClass.PropertyMap)
             {
                 AddProperty(typeBuilder, property.Key, property.Value);
             }
@@ -494,49 +588,49 @@ namespace NuGet.Services.Configuration.Tests
         /// </summary>
         /// <param name="typeBuilder">The <see cref="TypeBuilder"/> to add the property to.</param>
         /// <param name="name">The name of the property.</param>
-        /// <param name="configTuple">Specifies how to construct the property.</param>
-        private static void AddProperty(TypeBuilder typeBuilder, string name, ConfigurationTuple configTuple)
+        /// <param name="configPropertyInfo">Specifies how to construct the property.</param>
+        private static void AddProperty(TypeBuilder typeBuilder, string name, ConfigurationPropertyInfo configPropertyInfo)
         {
             // Create the property attribute.
-            var propertyAttributes = configTuple.DefaultValue != null ? PropertyAttributes.HasDefault : PropertyAttributes.None;
-            var propertyBuilder = typeBuilder.DefineProperty(name, propertyAttributes, configTuple.Type, parameterTypes: null);
+            var propertyAttributes = configPropertyInfo.DefaultValue != null ? PropertyAttributes.HasDefault : PropertyAttributes.None;
+            var propertyBuilder = typeBuilder.DefineProperty(name, propertyAttributes, configPropertyInfo.Type, parameterTypes: null);
 
-            if (configTuple.Required)
+            if (configPropertyInfo.Required)
             {
                 propertyBuilder.SetCustomAttribute(
                     new CustomAttributeBuilder(typeof(RequiredAttribute).GetConstructor(Type.EmptyTypes),
                         new object[] { }));
             }
 
-            if (configTuple.DefaultValue != null)
+            if (configPropertyInfo.DefaultValue != null)
             {
                 propertyBuilder.SetCustomAttribute(
-                    new CustomAttributeBuilder(typeof(DefaultValueAttribute).GetConstructor(new[] { configTuple.DefaultValue.GetType() }),
-                        new[] { configTuple.DefaultValue }));
+                    new CustomAttributeBuilder(typeof(DefaultValueAttribute).GetConstructor(new[] { configPropertyInfo.DefaultValue.GetType() }),
+                        new[] { configPropertyInfo.DefaultValue }));
             }
 
-            if (configTuple.ConfigKey != null)
+            if (configPropertyInfo.ConfigKey != null)
             {
                 propertyBuilder.SetCustomAttribute(
                     new CustomAttributeBuilder(
                         typeof(ConfigurationKeyAttribute).GetConstructor(new[] { typeof(string) }),
-                        new object[] { configTuple.ConfigKey }));
+                        new object[] { configPropertyInfo.ConfigKey }));
             }
 
-            if (configTuple.ConfigKeyPrefix != null)
+            if (configPropertyInfo.ConfigKeyPrefix != null)
             {
                 propertyBuilder.SetCustomAttribute(
                     new CustomAttributeBuilder(
                         typeof(ConfigurationKeyPrefixAttribute).GetConstructor(new[] { typeof(string) }),
-                        new object[] { configTuple.ConfigKeyPrefix }));
+                        new object[] { configPropertyInfo.ConfigKeyPrefix }));
             }
 
             // Create the field that the property will get and set.
-            var fieldBuilder = typeBuilder.DefineField($"_{name}", configTuple.Type, FieldAttributes.Private);
+            var fieldBuilder = typeBuilder.DefineField($"_{name}", configPropertyInfo.Type, FieldAttributes.Private);
 
             // Create the get method for the property that will return the field.
             var getMethod = typeBuilder.DefineMethod($"get_{name}",
-                MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName, configTuple.Type, parameterTypes: null);
+                MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName, configPropertyInfo.Type, parameterTypes: null);
 
             var getMethodIl = getMethod.GetILGenerator();
             getMethodIl.Emit(OpCodes.Ldarg_0);
@@ -548,7 +642,7 @@ namespace NuGet.Services.Configuration.Tests
             // Create the set method for the property that will set the field.
             var setMethod = typeBuilder.DefineMethod($"set_{name}",
                 MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName, typeof(void),
-                new[] { configTuple.Type });
+                new[] { configPropertyInfo.Type });
 
             var setMethodIl = setMethod.GetILGenerator();
             setMethodIl.Emit(OpCodes.Ldarg_0);
