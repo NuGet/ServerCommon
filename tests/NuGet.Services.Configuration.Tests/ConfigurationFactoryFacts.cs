@@ -307,13 +307,49 @@ namespace NuGet.Services.Configuration.Tests
             new object[]
             {
                 // Fails
-                // Tests that the default provided must be convertible to the property.
+                // Tests that the default provided must be convertible to the property
                 new Dictionary<string, ConfigurationTuple>
                 {
                     {
                         "boolPropertyWithInvalidDefault",
                         new ConfigurationTuple(typeof(double), required: false, expectedValue: null,
                             defaultValue: "can't convert this to double")
+                    }
+                }
+            },
+            new object[]
+            {
+                // Succeeds
+                // Tests that the class supports providing null data to a nullable property
+                new Dictionary<string, ConfigurationTuple>
+                {
+                    {
+                        "nullableIntPropertyAsNull",
+                        new ConfigurationTuple(typeof(int?), required: false, expectedValue: null)
+                    }
+                }
+            },
+            new object[]
+            {
+                // Succeeds
+                // Tests that the class supports providing non-null data to a nullable property
+                new Dictionary<string, ConfigurationTuple>
+                {
+                    {
+                        "nullableIntPropertyAsInt",
+                        new ConfigurationTuple(typeof(int?), required: false, expectedValue: 2439)
+                    }
+                }
+            },
+            new object[]
+            {
+                // Fails because the expected value cannot be converted from a string to an int
+                // Tests that the configuration provided for a nullable must have the same type as the property
+                new Dictionary<string, ConfigurationTuple>
+                {
+                    {
+                        "nullableIntPropertyAsString",
+                        new ConfigurationTuple(typeof(int?), required: false, expectedValue: "this isn't right!")
                     }
                 }
             }
