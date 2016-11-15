@@ -31,7 +31,7 @@ namespace NuGet.Services.Configuration.Tests
                 {secretName, firstSecret}
             };
 
-            ConfigurationProvider configProvider = new TestConfigurationProvider(arguments);
+            ConfigurationProvider configProvider = new DictionaryConfigurationProvider(arguments);
 
             // Act
             var value1 = await configProvider.GetOrThrowAsync<string>(secretName);
@@ -51,6 +51,62 @@ namespace NuGet.Services.Configuration.Tests
             // Assert 2
             Assert.Equal(secondSecret, value1);
             Assert.Equal(value1, value2);
+        }
+
+        [Theory]
+        [MemberData(nameof(ConfigurationTypes))]
+        public async void HandlesNullKey(Type type)
+        {
+            // Arrange
+            var defaultOfType = GetDefault(type);
+            var memberOfType = _typeToObject[type];
+
+            string nullKey = null;
+            object[] nullKeyThrowArgs = { nullKey };
+            object[] nullKeyDefaultArgs = { nullKey, null };
+            object[] nullKeyDefaultSpecifiedArgs = { nullKey, memberOfType };
+
+            ConfigurationProvider configProvider = new DummyConfigurationProvider();
+
+            var getOrThrowMethod = typeof(IConfigurationProvider).GetMethod(nameof(IConfigurationProvider.GetOrThrowAsync)).MakeGenericMethod(type);
+            var getOrDefaultMethod = typeof(IConfigurationProvider).GetMethod(nameof(IConfigurationProvider.GetOrDefaultAsync)).MakeGenericMethod(type);
+
+            //// Assert
+
+            // GetOrThrow
+            await Assert.ThrowsAsync<ArgumentNullException>(() => (Task)getOrThrowMethod.Invoke(configProvider, nullKeyThrowArgs));
+            // GetOrDefault
+            Assert.Equal(defaultOfType, await (dynamic)getOrDefaultMethod.Invoke(configProvider, nullKeyDefaultArgs));
+            // GetOrDefault with default specified
+            Assert.Equal(memberOfType, await (dynamic)getOrDefaultMethod.Invoke(configProvider, nullKeyDefaultSpecifiedArgs));
+        }
+
+        [Theory]
+        [MemberData(nameof(ConfigurationTypes))]
+        public async void HandlesEmptyKey(Type type)
+        {
+            // Arrange
+            var defaultOfType = GetDefault(type);
+            var memberOfType = _typeToObject[type];
+
+            var emptyKey = "";
+            object[] emptyKeyThrowArgs = { emptyKey };
+            object[] emptyKeyDefaultArgs = { emptyKey, null };
+            object[] emptyKeyDefaultSpecifiedArgs = { emptyKey, memberOfType };
+
+            ConfigurationProvider configProvider = new DummyConfigurationProvider();
+
+            var getOrThrowMethod = typeof(IConfigurationProvider).GetMethod(nameof(IConfigurationProvider.GetOrThrowAsync)).MakeGenericMethod(type);
+            var getOrDefaultMethod = typeof(IConfigurationProvider).GetMethod(nameof(IConfigurationProvider.GetOrDefaultAsync)).MakeGenericMethod(type);
+
+            //// Assert
+
+            // GetOrThrow
+            await Assert.ThrowsAsync<ArgumentNullException>(() => (Task)getOrThrowMethod.Invoke(configProvider, emptyKeyThrowArgs));
+            // GetOrDefault
+            Assert.Equal(defaultOfType, await (dynamic)getOrDefaultMethod.Invoke(configProvider, emptyKeyDefaultArgs));
+            // GetOrDefault with default specified
+            Assert.Equal(memberOfType, await (dynamic)getOrDefaultMethod.Invoke(configProvider, emptyKeyDefaultSpecifiedArgs));
         }
 
         [Theory]
@@ -89,17 +145,17 @@ namespace NuGet.Services.Configuration.Tests
             var defaultOfType = GetDefault(type);
             var memberOfType = _typeToObject[type];
 
-            var nullKey = "this key has a null value";
-            object[] nullKeyThrowArgs = { nullKey };
-            object[] nullKeyDefaultArgs = { nullKey, null };
-            object[] nullKeyDefaultSpecifiedArgs = { nullKey, memberOfType };
+            var nullValueKey = "this key has a null value";
+            object[] nullValueKeyThrowArgs = { nullValueKey };
+            object[] nullValueKeyDefaultArgs = { nullValueKey, null };
+            object[] nullValueKeyDefaultSpecifiedArgs = { nullValueKey, memberOfType };
             
             var arguments = new Dictionary<string, string>
             {
-                {nullKey, null}
+                {nullValueKey, null}
             };
 
-            ConfigurationProvider configProvider = new TestConfigurationProvider(arguments);
+            ConfigurationProvider configProvider = new DictionaryConfigurationProvider(arguments);
 
             var getOrThrowMethod = typeof(IConfigurationProvider).GetMethod(nameof(IConfigurationProvider.GetOrThrowAsync)).MakeGenericMethod(type);
             var getOrDefaultMethod = typeof(IConfigurationProvider).GetMethod(nameof(IConfigurationProvider.GetOrDefaultAsync)).MakeGenericMethod(type);
@@ -107,11 +163,11 @@ namespace NuGet.Services.Configuration.Tests
             //// Assert
             
             // GetOrThrow
-            await Assert.ThrowsAsync<ArgumentNullException>(() => (Task)getOrThrowMethod.Invoke(configProvider, nullKeyThrowArgs));
+            await Assert.ThrowsAsync<ConfigurationNullOrEmptyException>(() => (Task)getOrThrowMethod.Invoke(configProvider, nullValueKeyThrowArgs));
             // GetOrDefault
-            Assert.Equal(defaultOfType, await (dynamic)getOrDefaultMethod.Invoke(configProvider, nullKeyDefaultArgs));
+            Assert.Equal(defaultOfType, await (dynamic)getOrDefaultMethod.Invoke(configProvider, nullValueKeyDefaultArgs));
             // GetOrDefault with default specified
-            Assert.Equal(memberOfType, await (dynamic)getOrDefaultMethod.Invoke(configProvider, nullKeyDefaultSpecifiedArgs));
+            Assert.Equal(memberOfType, await (dynamic)getOrDefaultMethod.Invoke(configProvider, nullValueKeyDefaultSpecifiedArgs));
         }
 
         [Theory]
@@ -122,17 +178,17 @@ namespace NuGet.Services.Configuration.Tests
             var defaultOfType = GetDefault(type);
             var memberOfType = _typeToObject[type];
             
-            var emptyKey = "this key has an empty value";
-            object[] emptyKeyThrowArgs = { emptyKey };
-            object[] emptyKeyDefaultArgs = { emptyKey, null };
-            object[] emptyKeyDefaultSpecifiedArgs = { emptyKey, memberOfType };
+            var emptyValueKey = "this key has an empty value";
+            object[] emptyValueKeyThrowArgs = { emptyValueKey };
+            object[] emptyValueKeyDefaultArgs = { emptyValueKey, null };
+            object[] emptyValueKeyDefaultSpecifiedArgs = { emptyValueKey, memberOfType };
 
             var arguments = new Dictionary<string, string>
             {
-                {emptyKey, "" }
+                {emptyValueKey, "" }
             };
 
-            ConfigurationProvider configProvider = new TestConfigurationProvider(arguments);
+            ConfigurationProvider configProvider = new DictionaryConfigurationProvider(arguments);
 
             var getOrThrowMethod = typeof(IConfigurationProvider).GetMethod(nameof(IConfigurationProvider.GetOrThrowAsync)).MakeGenericMethod(type);
             var getOrDefaultMethod = typeof(IConfigurationProvider).GetMethod(nameof(IConfigurationProvider.GetOrDefaultAsync)).MakeGenericMethod(type);
@@ -140,11 +196,11 @@ namespace NuGet.Services.Configuration.Tests
             //// Assert
             
             // GetOrThrow
-            await Assert.ThrowsAsync<ArgumentNullException>(() => (Task)getOrThrowMethod.Invoke(configProvider, emptyKeyThrowArgs));
+            await Assert.ThrowsAsync<ConfigurationNullOrEmptyException>(() => (Task)getOrThrowMethod.Invoke(configProvider, emptyValueKeyThrowArgs));
             // GetOrDefault
-            Assert.Equal(defaultOfType, await (dynamic)getOrDefaultMethod.Invoke(configProvider, emptyKeyDefaultArgs));
+            Assert.Equal(defaultOfType, await (dynamic)getOrDefaultMethod.Invoke(configProvider, emptyValueKeyDefaultArgs));
             // GetOrDefault with default specified
-            Assert.Equal(memberOfType, await (dynamic)getOrDefaultMethod.Invoke(configProvider, emptyKeyDefaultSpecifiedArgs));
+            Assert.Equal(memberOfType, await (dynamic)getOrDefaultMethod.Invoke(configProvider, emptyValueKeyDefaultSpecifiedArgs));
         }
 
         private class NoConversionFromStringToThisClass
@@ -163,7 +219,7 @@ namespace NuGet.Services.Configuration.Tests
                 {secretName, secretKey}
             };
 
-            ConfigurationProvider configProvider = new TestConfigurationProvider(arguments);
+            ConfigurationProvider configProvider = new DictionaryConfigurationProvider(arguments);
 
             // Assert
             await Assert.ThrowsAsync<NotSupportedException>(
@@ -193,7 +249,7 @@ namespace NuGet.Services.Configuration.Tests
 
         private static ConfigurationProvider CreateDummyConfigProvider()
         {
-            return new TestConfigurationProvider(new Dictionary<string, string>());
+            return new DictionaryConfigurationProvider(new Dictionary<string, string>());
         }
     }
 }

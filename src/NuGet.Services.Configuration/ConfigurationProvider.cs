@@ -18,7 +18,7 @@ namespace NuGet.Services.Configuration
         /// <param name="key">The key associated with the desired value.</param>
         /// <returns>The value associated with the given key.</returns>
         /// <exception cref="KeyNotFoundException">Thrown when the key is not found in the list of keys.</exception>
-        /// <exception cref="ArgumentNullException">Thrown when the value associated with the given key is null or empty.</exception>
+        /// <exception cref="ConfigurationNullOrEmptyException">Thrown when the value associated with the given key is null or empty.</exception>
         protected abstract Task<string> Get(string key);
 
         public async Task<T> GetOrThrowAsync<T>(string key)
@@ -37,9 +37,13 @@ namespace NuGet.Services.Configuration
             {
                 return await GetOrThrowAsync<T>(key);
             }
+            catch (ConfigurationNullOrEmptyException)
+            {
+                // The value for the specified key is null or empty.
+            }
             catch (ArgumentNullException)
             {
-                // The specified key is null or empty, or the value for the specified key is null or empty.
+                // The specified key is null or empty.
             }
             catch (KeyNotFoundException)
             {

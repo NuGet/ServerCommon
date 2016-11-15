@@ -5,16 +5,16 @@ using System.Threading.Tasks;
 
 namespace NuGet.Services.Configuration.Tests
 {
-    public class TestConfigurationProvider : ConfigurationProvider
+    public class DictionaryConfigurationProvider : ConfigurationProvider
     {
         private readonly IDictionary<string, string> _configuration;
 
-        public TestConfigurationProvider(IDictionary<string, string> configuration)
+        public DictionaryConfigurationProvider(IDictionary<string, string> configuration)
         {
             _configuration = configuration;
         }
 
-        public TestConfigurationProvider(IDictionary<string, object> configuration)
+        public DictionaryConfigurationProvider(IDictionary<string, object> configuration)
         {
             _configuration = configuration.Where(tuple => tuple.Value != null)
                 .ToDictionary(tuple => tuple.Key, tuple => tuple.Value.ToString());
@@ -24,14 +24,19 @@ namespace NuGet.Services.Configuration.Tests
         {
             string value;
 
+            if (string.IsNullOrEmpty(key))
+            {
+                throw new ArgumentNullException(key);
+            }
+
             if (!_configuration.TryGetValue(key, out value))
             {
-                throw new KeyNotFoundException();
+                throw new KeyNotFoundException(nameof(key));
             }
 
             if (string.IsNullOrEmpty(value))
             {
-                throw new ArgumentNullException();
+                throw new ConfigurationNullOrEmptyException(nameof(key));
             }
 
             return Task.FromResult(value);

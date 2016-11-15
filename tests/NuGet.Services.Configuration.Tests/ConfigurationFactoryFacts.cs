@@ -399,7 +399,7 @@ namespace NuGet.Services.Configuration.Tests
             // Arrange
             IConfigurationFactory configFactory =
                 new ConfigurationFactory(
-                    new TestConfigurationProvider(
+                    new DictionaryConfigurationProvider(
                         typeMap.ToDictionary(
                             tuple => tuple.Value.ConfigKeyPrefix + (tuple.Value.ConfigKey ?? tuple.Key),
                             tuple => tuple.Value.ExpectedValue)));

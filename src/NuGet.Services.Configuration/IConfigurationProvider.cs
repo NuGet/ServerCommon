@@ -20,7 +20,8 @@ namespace NuGet.Services.Configuration
         /// <param name="key">The key mapping to the desired argument.</param>
         /// <returns>The configuration specified by the key converted to <typeparam name="T">type T</typeparam>.</returns>
         /// <exception cref="KeyNotFoundException">Thrown when <param name="key">the key</param> is not mapped to any configuration.</exception>
-        /// <exception cref="ArgumentNullException">Thrown when the configuration mapped to by <param name="key">the key</param> is null or empty.</exception>
+        /// <exception cref="ConfigurationNullOrEmptyException">Thrown when the configuration mapped to by <param name="key">the key</param> is null or empty.</exception>
+        /// <exception cref="ArgumentNullException">Thrown when <param name="key">the key</param> is null or empty.</exception>
         /// <exception cref="NotSupportedException">Thrown when the configuration mapped to by <param name="key">the key</param> cannot be converted into an object of <typeparam name="T">type T</typeparam>.</exception>
         Task<T> GetOrThrowAsync<T>(string key);
 
