@@ -22,24 +22,7 @@ namespace NuGet.Services.Configuration.Tests
 
         protected override Task<string> Get(string key)
         {
-            string value;
-
-            if (string.IsNullOrEmpty(key))
-            {
-                throw new ArgumentNullException(key);
-            }
-
-            if (!_configuration.TryGetValue(key, out value))
-            {
-                throw new KeyNotFoundException(nameof(key));
-            }
-
-            if (string.IsNullOrEmpty(value))
-            {
-                throw new ConfigurationNullOrEmptyException(nameof(key));
-            }
-
-            return Task.FromResult(value);
+            return Task.FromResult(_configuration[key]);
         }
     }
 }

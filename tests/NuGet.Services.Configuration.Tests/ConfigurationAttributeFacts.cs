@@ -1,7 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿// Copyright (c) .NET Foundation. All rights reserved. 
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information. 
+
+using System;
 using Xunit;
 
 namespace NuGet.Services.Configuration.Tests
@@ -11,25 +11,25 @@ namespace NuGet.Services.Configuration.Tests
         [Fact]
         public void ConfigurationKeyAttributeThrowsWhenKeyNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new ConfigurationKeyAttribute(null));
+            Assert.Throws<ArgumentException>(() => new ConfigurationKeyAttribute(null));
         }
 
         [Fact]
         public void ConfigurationKeyPrefixAttributeThrowsWhenPrefixNull()
         {
-            Assert.Throws<ArgumentNullException>(() => new ConfigurationKeyPrefixAttribute(null));
+            Assert.Throws<ArgumentException>(() => new ConfigurationKeyPrefixAttribute(null));
         }
 
         [Fact]
         public void ConfigurationKeyAttributeThrowsWhenKeyEmpty()
         {
-            Assert.Throws<ArgumentNullException>(() => new ConfigurationKeyAttribute(""));
+            Assert.Throws<ArgumentException>(() => new ConfigurationKeyAttribute(""));
         }
 
         [Fact]
         public void ConfigurationKeyPrefixAttributeThrowsWhenPrefixEmpty()
         {
-            Assert.Throws<ArgumentNullException>(() => new ConfigurationKeyPrefixAttribute(""));
+            Assert.Throws<ArgumentException>(() => new ConfigurationKeyPrefixAttribute(""));
         }
     }
 }

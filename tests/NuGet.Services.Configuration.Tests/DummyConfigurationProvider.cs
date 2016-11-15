@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace NuGet.Services.Configuration.Tests
@@ -12,11 +10,6 @@ namespace NuGet.Services.Configuration.Tests
     {
         protected override Task<string> Get(string key)
         {
-            if (string.IsNullOrEmpty(key))
-            {
-                throw new ArgumentNullException(key);
-            }
-
             return Task.FromResult("test value");
         }
     }

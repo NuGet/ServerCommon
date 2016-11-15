@@ -72,8 +72,9 @@ namespace NuGet.Services.Configuration
             {
                 if (string.IsNullOrEmpty(configNameProperty.Key))
                 {
-                    throw new ArgumentNullException(nameof(configNameProperty.Key),
-                        $"Configuration key for {configKey} specified by {nameof(ConfigurationKeyAttribute)} is null or empty!");
+                    throw new ArgumentException(
+                        $"Configuration key for {configKey} specified by {nameof(ConfigurationKeyAttribute)} is null or empty!",
+                        nameof(configNameProperty.Key));
                 }
 
                 configKey = configNameProperty.Key;
@@ -86,8 +87,9 @@ namespace NuGet.Services.Configuration
             {
                 if (string.IsNullOrEmpty(configNamePrefixProperty.Prefix))
                 {
-                    throw new ArgumentNullException(nameof(configNamePrefixProperty.Prefix),
-                        $"Configuration key prefix for {configKey} specified by {nameof(ConfigurationKeyPrefixAttribute)} is null or empty!");
+                    throw new ArgumentException(
+                        $"Configuration key prefix for {configKey} specified by {nameof(ConfigurationKeyPrefixAttribute)} is null or empty!",
+                        nameof(configNamePrefixProperty.Prefix));
                 }
 
                 configKey = configNamePrefixProperty.Prefix + configKey;

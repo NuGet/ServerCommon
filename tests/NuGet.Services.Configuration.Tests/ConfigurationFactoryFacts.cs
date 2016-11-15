@@ -208,7 +208,7 @@ namespace NuGet.Services.Configuration.Tests
             new object[]
             {
                 // Fails because empty string is equivalent to null with regards to configuration
-                // (the IConfigurationProvider throws ArgumentNullException)
+                // (the IConfigurationProvider throws ArgumentException)
                 new Dictionary<string, ConfigurationTuple>
                 {
                     {

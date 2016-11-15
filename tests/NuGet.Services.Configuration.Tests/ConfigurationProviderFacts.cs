@@ -74,7 +74,7 @@ namespace NuGet.Services.Configuration.Tests
             //// Assert
 
             // GetOrThrow
-            await Assert.ThrowsAsync<ArgumentNullException>(() => (Task)getOrThrowMethod.Invoke(configProvider, nullKeyThrowArgs));
+            await Assert.ThrowsAsync<ArgumentException>(() => (Task)getOrThrowMethod.Invoke(configProvider, nullKeyThrowArgs));
             // GetOrDefault
             Assert.Equal(defaultOfType, await (dynamic)getOrDefaultMethod.Invoke(configProvider, nullKeyDefaultArgs));
             // GetOrDefault with default specified
@@ -102,7 +102,7 @@ namespace NuGet.Services.Configuration.Tests
             //// Assert
 
             // GetOrThrow
-            await Assert.ThrowsAsync<ArgumentNullException>(() => (Task)getOrThrowMethod.Invoke(configProvider, emptyKeyThrowArgs));
+            await Assert.ThrowsAsync<ArgumentException>(() => (Task)getOrThrowMethod.Invoke(configProvider, emptyKeyThrowArgs));
             // GetOrDefault
             Assert.Equal(defaultOfType, await (dynamic)getOrDefaultMethod.Invoke(configProvider, emptyKeyDefaultArgs));
             // GetOrDefault with default specified
@@ -208,7 +208,7 @@ namespace NuGet.Services.Configuration.Tests
         }
 
         [Fact]
-        public async void ThrowsForNotSupportedConversion()
+        public async void ThrowsForUnsupportedConversion()
         {
             // Arrange
             const string secretName = "hello i'm a secret";

@@ -15,7 +15,7 @@ namespace NuGet.Services.Configuration
         {
             if (string.IsNullOrEmpty(prefix))
             {
-                throw new ArgumentNullException(nameof(prefix));
+                throw new ArgumentException($"{nameof(prefix)} cannot be null or empty!", nameof(prefix));
             }
 
             Prefix = prefix;

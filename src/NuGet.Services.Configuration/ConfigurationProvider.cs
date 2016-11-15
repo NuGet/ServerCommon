@@ -25,10 +25,17 @@ namespace NuGet.Services.Configuration
         {
             if (string.IsNullOrEmpty(key))
             {
-                throw new ArgumentNullException(nameof(key));
+                throw new ArgumentException($"{nameof(key)} cannot be null or empty!", nameof(key));
             }
 
-            return ConfigurationUtility.ConvertFromString<T>(await Get(key));
+            var value = await Get(key);
+
+            if (string.IsNullOrEmpty(value))
+            {
+                throw new ConfigurationNullOrEmptyException(key);
+            }
+
+            return ConfigurationUtility.ConvertFromString<T>(value);
         }
 
         public async Task<T> GetOrDefaultAsync<T>(string key, T defaultValue = default(T))
@@ -41,7 +48,7 @@ namespace NuGet.Services.Configuration
             {
                 // The value for the specified key is null or empty.
             }
-            catch (ArgumentNullException)
+            catch (ArgumentException)
             {
                 // The specified key is null or empty.
             }
