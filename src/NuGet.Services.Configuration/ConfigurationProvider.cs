@@ -1,6 +1,8 @@
-﻿using System;
+﻿// Copyright (c) .NET Foundation. All rights reserved. 
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information. 
+
+using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace NuGet.Services.Configuration
@@ -21,6 +23,11 @@ namespace NuGet.Services.Configuration
 
         public async Task<T> GetOrThrowAsync<T>(string key)
         {
+            if (string.IsNullOrEmpty(key))
+            {
+                throw new ArgumentNullException(nameof(key));
+            }
+
             return ConfigurationUtility.ConvertFromString<T>(await Get(key));
         }
 
@@ -32,7 +39,7 @@ namespace NuGet.Services.Configuration
             }
             catch (ArgumentNullException)
             {
-                // The value for the specified key is null or empty.
+                // The specified key is null or empty, or the value for the specified key is null or empty.
             }
             catch (KeyNotFoundException)
             {

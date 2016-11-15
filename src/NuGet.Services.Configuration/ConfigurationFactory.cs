@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) .NET Foundation. All rights reserved. 
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information. 
+
+using System;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -15,6 +18,11 @@ namespace NuGet.Services.Configuration
 
         public ConfigurationFactory(IConfigurationProvider configProvider)
         {
+            if (configProvider == null)
+            {
+                throw new ArgumentNullException(nameof(configProvider));
+            }
+
             _configProvider = configProvider;
         }
 
@@ -46,6 +54,16 @@ namespace NuGet.Services.Configuration
         /// <returns>A task that completes when the property has been injected into.</returns>
         public async Task InjectPropertyWithConfiguration<T, TP>(T instance, PropertyDescriptor property)
         {
+            if (instance == null)
+            {
+                throw new ArgumentNullException(nameof(instance));
+            }
+
+            if (property == null)
+            {
+                throw new ArgumentNullException(nameof(property));
+            }
+
             var configKey = string.IsNullOrEmpty(property.DisplayName) ? property.Name : property.DisplayName;
 
             // Replace the configuration key with the key specified by the ConfigurationKeyAttribute if it exists.
@@ -55,17 +73,23 @@ namespace NuGet.Services.Configuration
                 if (string.IsNullOrEmpty(configNameProperty.Key))
                 {
                     throw new ArgumentNullException(nameof(configNameProperty.Key),
-                        $"Configuration key specified by {nameof(ConfigurationKeyAttribute)} is null or empty!");
+                        $"Configuration key for {configKey} specified by {nameof(ConfigurationKeyAttribute)} is null or empty!");
                 }
 
                 configKey = configNameProperty.Key;
             }
 
-            // Add the prefix specified by the ConfigurationKeyAttribute to the configuration key if it exists.
+            // Add the prefix specified by the ConfigurationKeyPrefixAttribute to the configuration key if it exists.
             var configNamePrefixProperty =
                 property.Attributes.OfType<ConfigurationKeyPrefixAttribute>().FirstOrDefault();
             if (configNamePrefixProperty != null)
             {
+                if (string.IsNullOrEmpty(configNamePrefixProperty.Prefix))
+                {
+                    throw new ArgumentNullException(nameof(configNamePrefixProperty.Prefix),
+                        $"Configuration key prefix for {configKey} specified by {nameof(ConfigurationKeyPrefixAttribute)} is null or empty!");
+                }
+
                 configKey = configNamePrefixProperty.Prefix + configKey;
             }
 
@@ -94,7 +118,7 @@ namespace NuGet.Services.Configuration
                     }
                     catch (Exception)
                     {
-                        throw new ArgumentException($"Default value for {configKey} specified by DefaultValueAttribute is malformed ({defaultValueAttribute.Value ?? "null"})!");
+                        throw new ArgumentException($"Default value for {configKey} specified by {nameof(DefaultValueAttribute)} is malformed ({defaultValueAttribute.Value ?? "null"})!");
                     }
                 }
                 else

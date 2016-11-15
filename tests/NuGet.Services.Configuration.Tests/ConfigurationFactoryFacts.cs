@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) .NET Foundation. All rights reserved. 
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information. 
+
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
@@ -18,7 +21,8 @@ namespace NuGet.Services.Configuration.Tests
         /// </summary>
         public class ConfigurationTuple
         {
-            public ConfigurationTuple(Type type, bool required, object expectedValue, object defaultValue = null, string configKey = null, string configKeyPrefix = null)
+            public ConfigurationTuple(Type type, bool required, object expectedValue, object defaultValue = null,
+                string configKey = null, string configKeyPrefix = null)
             {
                 Type = type;
                 Required = required;
@@ -28,11 +32,36 @@ namespace NuGet.Services.Configuration.Tests
                 ConfigKeyPrefix = configKeyPrefix;
             }
 
+            /// <summary>
+            /// If not null, a <see cref="ConfigurationKeyAttribute"/> will be added to the property with this value as the key.
+            /// </summary>
             public string ConfigKey { get; set; }
+
+            /// <summary>
+            /// If not null, a <see cref="ConfigurationKeyPrefixAttribute"/> will be added to the property with this value as the prefix.
+            /// </summary>
             public string ConfigKeyPrefix { get; set; }
+
+            /// <summary>
+            /// The type of the property.
+            /// </summary>
             public Type Type { get; set; }
+
+            /// <summary>
+            /// If true, a <see cref="RequiredAttribute"/> will be added to the property.
+            /// </summary>
             public bool Required { get; set; }
+
+            /// <summary>
+            /// If not null, the value to be injected into the property by the <see cref="ConfigurationFactory"/>.
+            /// If null, the default value will be injected into the property by the <see cref="ConfigurationFactory"/>.
+            /// </summary>
             public object ExpectedValue { get; set; }
+
+            /// <summary>
+            /// If not null, a <see cref="DefaultValueAttribute"/> will be added to this property with this value as the default.
+            /// If null, <code>default(Type)</code> will be used as the default.
+            /// </summary>
             public object DefaultValue { get; set; }
         }
 
@@ -57,7 +86,7 @@ namespace NuGet.Services.Configuration.Tests
                 {
                     {
                         "stringProperty",
-                        new ConfigurationTuple(typeof(string), false, "i am a string")
+                        new ConfigurationTuple(typeof(string), required: false, expectedValue: "i am a string")
                     }
                 }
             },
@@ -69,19 +98,8 @@ namespace NuGet.Services.Configuration.Tests
                 {
                     {
                         "stringPropertyWithCustomKey",
-                        new ConfigurationTuple(typeof(string), false, "i have a custom name!", configKey: "customConfig")
-                    }
-                }
-            },
-            new object[]
-            {
-                // Fails because empty key specified by ConfigurationKeyAttribute
-                // Tests ConfigurationKeyAttribute
-                new Dictionary<string, ConfigurationTuple>
-                {
-                    {
-                        "stringPropertyWithInvalidCustomKey",
-                        new ConfigurationTuple(typeof(string), false, "i am nameless!", configKey: string.Empty)
+                        new ConfigurationTuple(typeof(string), required: false, expectedValue: "i have a custom name!",
+                            configKey: "customConfig")
                     }
                 }
             },
@@ -93,7 +111,8 @@ namespace NuGet.Services.Configuration.Tests
                 {
                     {
                         "stringPropertyWithPrefix",
-                        new ConfigurationTuple(typeof(string), false, "i have a cool prefix!", configKeyPrefix: "coolbeans:")
+                        new ConfigurationTuple(typeof(string), required: false, expectedValue: "i have a cool prefix!",
+                            configKeyPrefix: "coolbeans:")
                     }
                 }
             },
@@ -105,7 +124,9 @@ namespace NuGet.Services.Configuration.Tests
                 {
                     {
                         "stringPropertyWithPrefixAndCustomKey",
-                        new ConfigurationTuple(typeof(string), false, "i have a cool prefix and a cool name!", configKey: "customConfig", configKeyPrefix: "coolbeans:")
+                        new ConfigurationTuple(typeof(string), required: false,
+                            expectedValue: "i have a cool prefix and a cool name!", configKey: "customConfig",
+                            configKeyPrefix: "coolbeans:")
                     }
                 }
             },
@@ -115,7 +136,10 @@ namespace NuGet.Services.Configuration.Tests
                 // Tests required
                 new Dictionary<string, ConfigurationTuple>
                 {
-                    {"stringPropertyRequired", new ConfigurationTuple(typeof(string), true, "i am still a string")}
+                    {
+                        "stringPropertyRequired",
+                        new ConfigurationTuple(typeof(string), required: true, expectedValue: "i am still a string")
+                    }
                 }
             },
             new object[]
@@ -126,7 +150,8 @@ namespace NuGet.Services.Configuration.Tests
                 {
                     {
                         "stringPropertyWithDefault",
-                        new ConfigurationTuple(typeof(string), false, null, "default string value")
+                        new ConfigurationTuple(typeof(string), required: false, expectedValue: null,
+                            defaultValue: "default string value")
                     }
                 }
             },
@@ -138,7 +163,8 @@ namespace NuGet.Services.Configuration.Tests
                 {
                     {
                         "stringPropertyWithDefaultDefined",
-                        new ConfigurationTuple(typeof(string), false, "yet again i am a string", "default string value")
+                        new ConfigurationTuple(typeof(string), required: false, expectedValue: "yet again i am a string",
+                            defaultValue: "default string value")
                     }
                 }
             },
@@ -150,7 +176,8 @@ namespace NuGet.Services.Configuration.Tests
                 {
                     {
                         "stringPropertyRequiredWithDefaultDefined",
-                        new ConfigurationTuple(typeof(string), true, "string forever", "default string value")
+                        new ConfigurationTuple(typeof(string), required: true, expectedValue: "string forever",
+                            defaultValue: "default string value")
                     }
                 }
             },
@@ -160,7 +187,10 @@ namespace NuGet.Services.Configuration.Tests
                 // Tests required
                 new Dictionary<string, ConfigurationTuple>
                 {
-                    {"stringPropertyRequiredMissing", new ConfigurationTuple(typeof(string), true, null)}
+                    {
+                        "stringPropertyRequiredMissing",
+                        new ConfigurationTuple(typeof(string), required: true, expectedValue: null)
+                    }
                 }
             },
             new object[]
@@ -169,7 +199,10 @@ namespace NuGet.Services.Configuration.Tests
                 // Tests default without provided default
                 new Dictionary<string, ConfigurationTuple>
                 {
-                    {"stringPropertyMissing", new ConfigurationTuple(typeof(string), false, null)}
+                    {
+                        "stringPropertyMissing",
+                        new ConfigurationTuple(typeof(string), required: false, expectedValue: null)
+                    }
                 }
             },
             new object[]
@@ -178,7 +211,10 @@ namespace NuGet.Services.Configuration.Tests
                 // (the IConfigurationProvider throws ArgumentNullException)
                 new Dictionary<string, ConfigurationTuple>
                 {
-                    {"stringPropertyRequiredEmpty", new ConfigurationTuple(typeof(string), true, "")}
+                    {
+                        "stringPropertyRequiredEmpty",
+                        new ConfigurationTuple(typeof(string), required: true, expectedValue: "")
+                    }
                 }
             },
             new object[]
@@ -187,7 +223,7 @@ namespace NuGet.Services.Configuration.Tests
                 // Tests conversion into types other than string
                 new Dictionary<string, ConfigurationTuple>
                 {
-                    {"intProperty", new ConfigurationTuple(typeof(int), false, 101)}
+                    {"intProperty", new ConfigurationTuple(typeof(int), required: false, expectedValue: 101)}
                 }
             },
             new object[]
@@ -196,8 +232,14 @@ namespace NuGet.Services.Configuration.Tests
                 // Tests multiple properties in a class
                 new Dictionary<string, ConfigurationTuple>
                 {
-                    {"stringProperty1", new ConfigurationTuple(typeof(string), false, "thing 1")},
-                    {"stringProperty2", new ConfigurationTuple(typeof(string), false, "thing 2")}
+                    {
+                        "stringProperty1",
+                        new ConfigurationTuple(typeof(string), required: false, expectedValue: "thing 1")
+                    },
+                    {
+                        "stringProperty2",
+                        new ConfigurationTuple(typeof(string), required: false, expectedValue: "thing 2")
+                    }
                 }
             },
             new object[]
@@ -206,8 +248,8 @@ namespace NuGet.Services.Configuration.Tests
                 // Tests multiple properties and types in a class
                 new Dictionary<string, ConfigurationTuple>
                 {
-                    {"intProperty", new ConfigurationTuple(typeof(int), false, 44)},
-                    {"requiredBoolProperty", new ConfigurationTuple(typeof(bool), true, true)}
+                    {"intProperty", new ConfigurationTuple(typeof(int), required: false, expectedValue: 44)},
+                    {"requiredBoolProperty", new ConfigurationTuple(typeof(bool), required: true, expectedValue: true)}
                 }
             },
             new object[]
@@ -216,9 +258,21 @@ namespace NuGet.Services.Configuration.Tests
                 // Tests multiple properties and types in a class and custom key name
                 new Dictionary<string, ConfigurationTuple>
                 {
-                    {"doublePropertyWithCustomKey", new ConfigurationTuple(typeof(double), false, 99.999, configKey: "coolIntProperty")},
-                    {"requiredDatetimePropertyWithPrefix", new ConfigurationTuple(typeof(bool), true, DateTime.MinValue, configKeyPrefix: "coolProperty.")},
-                    {"intPropertyWithDefaultAndCustomKeyAndPrefix", new ConfigurationTuple(typeof(int), false, 503, 200, "ResponseCode", "coolProperty:")}
+                    {
+                        "doublePropertyWithCustomKey",
+                        new ConfigurationTuple(typeof(double), required: false, expectedValue: 99.999,
+                            configKey: "coolIntProperty")
+                    },
+                    {
+                        "requiredDatetimePropertyWithPrefix",
+                        new ConfigurationTuple(typeof(bool), required: true, expectedValue: DateTime.MinValue,
+                            configKeyPrefix: "coolProperty.")
+                    },
+                    {
+                        "intPropertyWithDefaultAndCustomKeyAndPrefix",
+                        new ConfigurationTuple(typeof(int), required: false, expectedValue: 503, defaultValue: 200,
+                            configKey: "ResponseCode", configKeyPrefix: "coolProperty:")
+                    }
                 }
             },
             new object[]
@@ -227,8 +281,14 @@ namespace NuGet.Services.Configuration.Tests
                 // Tests defaults with multiple properties and types in a class
                 new Dictionary<string, ConfigurationTuple>
                 {
-                    {"doublePropertyWithDefault", new ConfigurationTuple(typeof(double), false, 1.1, 3.14)},
-                    {"boolPropertyMissingWithDefault", new ConfigurationTuple(typeof(bool), false, null, true)}
+                    {
+                        "doublePropertyWithDefault",
+                        new ConfigurationTuple(typeof(double), required: false, expectedValue: 1.1, defaultValue: 3.14)
+                    },
+                    {
+                        "boolPropertyMissingWithDefault",
+                        new ConfigurationTuple(typeof(bool), required: false, expectedValue: null, defaultValue: true)
+                    }
                 }
             },
             new object[]
@@ -239,7 +299,8 @@ namespace NuGet.Services.Configuration.Tests
                 {
                     {
                         "invalidBoolProperty",
-                        new ConfigurationTuple(typeof(double), false, new NoConversionFromThisClass())
+                        new ConfigurationTuple(typeof(double), required: false,
+                            expectedValue: new NoConversionFromThisClass())
                     }
                 }
             },
@@ -251,7 +312,8 @@ namespace NuGet.Services.Configuration.Tests
                 {
                     {
                         "boolPropertyWithInvalidDefault",
-                        new ConfigurationTuple(typeof(double), false, null, "can't convert this to double")
+                        new ConfigurationTuple(typeof(double), required: false, expectedValue: null,
+                            defaultValue: "can't convert this to double")
                     }
                 }
             }
@@ -263,21 +325,30 @@ namespace NuGet.Services.Configuration.Tests
         /// <param name="value">The object to test.</param>
         /// <param name="type">Type to test.</param>
         /// <returns>True if the <param name="value">object</param> is convertible to <param name="type">type</param>, false otherwise.</returns>
-        private static bool IsValueWrongType(object value, Type type)
+        private static bool IsValueValid(object value, Type type)
         {
-            if (value == null || value.GetType() == type)
+            if (value == null)
             {
-                return false;
+                // Null is always valid because it will use the default.
+                return true;
             }
 
+            if (value.GetType() == type)
+            {
+                // TypeConverters sometimes throw when converting a type to the same type.
+                return true;
+            }
+
+            // Attempt to convert the value.
+            // If it fails, the value is not valid.
             try
             {
                 TypeDescriptor.GetConverter(type).ConvertFrom(value);
-                return false;
+                return true;
             }
             catch (Exception)
             {
-                return true;
+                return false;
             }
         }
 
@@ -309,23 +380,23 @@ namespace NuGet.Services.Configuration.Tests
             foreach (var configPair in typeMap)
             {
                 var configTuple = configPair.Value;
-                
+
                 // True if the expected value is null or if it is an empty string.
-                var expectedValueIsMissing = 
+                var expectedValueIsMissing =
                     configTuple.ExpectedValue == null ||
                     (configTuple.ExpectedValue is string && string.IsNullOrEmpty((string) configTuple.ExpectedValue));
-                
-                var expectedIsInvalid = IsValueWrongType(configTuple.ExpectedValue, configTuple.Type);
-                var defaultIsInvalid = IsValueWrongType(configTuple.DefaultValue, configTuple.Type);
 
-                if ((configTuple.Required && expectedValueIsMissing) || 
-                    expectedIsInvalid || 
-                    defaultIsInvalid ||
+                var isExpectedValueValid = IsValueValid(configTuple.ExpectedValue, configTuple.Type);
+                var isDefaultValueValid = IsValueValid(configTuple.DefaultValue, configTuple.Type);
+
+                if ((configTuple.Required && expectedValueIsMissing) ||
+                    !isExpectedValueValid ||
+                    !isDefaultValueValid ||
                     configTuple.ConfigKey == string.Empty)
                 {
                     // Acquiring the configuration will fail if a required attribute does not have an expected value.
                     // It will also fail if the expected value or default value cannot be converted into the type of the property.
-                    // A null or empty configuration name will also fail.
+                    // A null or empty configuration key will also fail.
                     willSucceed = false;
                     break;
                 }
@@ -338,7 +409,8 @@ namespace NuGet.Services.Configuration.Tests
                 foreach (var configPair in typeMap)
                 {
                     var configTuple = configPair.Value;
-                    Assert.Equal(configTuple.ExpectedValue ?? configTuple.DefaultValue, GetFromProperty(config, configPair.Key));
+                    Assert.Equal(configTuple.ExpectedValue ?? configTuple.DefaultValue,
+                        GetFromProperty(config, configPair.Key));
                 }
             }
             else
@@ -391,7 +463,7 @@ namespace NuGet.Services.Configuration.Tests
         {
             // Create the property attribute.
             var propertyAttributes = configTuple.DefaultValue != null ? PropertyAttributes.HasDefault : PropertyAttributes.None;
-            var propertyBuilder = typeBuilder.DefineProperty(name, propertyAttributes, configTuple.Type, null);
+            var propertyBuilder = typeBuilder.DefineProperty(name, propertyAttributes, configTuple.Type, parameterTypes: null);
 
             if (configTuple.Required)
             {
@@ -428,7 +500,7 @@ namespace NuGet.Services.Configuration.Tests
 
             // Create the get method for the property that will return the field.
             var getMethod = typeBuilder.DefineMethod($"get_{name}",
-                MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName, configTuple.Type, null);
+                MethodAttributes.Public | MethodAttributes.HideBySig | MethodAttributes.SpecialName, configTuple.Type, parameterTypes: null);
 
             var getMethodIl = getMethod.GetILGenerator();
             getMethodIl.Emit(OpCodes.Ldarg_0);
