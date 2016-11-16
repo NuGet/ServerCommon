@@ -124,20 +124,22 @@ namespace NuGet.Services.Configuration
                 var defaultValueAttribute = property.Attributes.OfType<DefaultValueAttribute>().FirstOrDefault();
                 if (defaultValueAttribute != null)
                 {
+                    TP defaultValue;
                     try
                     {
                         // Use the default value specified by the DefaultValueAttribute if it can be converted into the type of the property.
-                        var defaultValue =
+                        defaultValue =
                             (TP)
                             (defaultValueAttribute.Value.GetType() == property.PropertyType
                                 ? defaultValueAttribute.Value
                                 : property.Converter.ConvertFrom(defaultValueAttribute.Value));
-                        value = await _configProvider.GetOrDefaultAsync(configKey, defaultValue);
                     }
                     catch (Exception)
                     {
                         throw new ArgumentException($"Default value for {configKey} specified by {nameof(DefaultValueAttribute)} is malformed ({defaultValueAttribute.Value ?? "null"})!");
                     }
+
+                    value = await _configProvider.GetOrDefaultAsync(configKey, defaultValue);
                 }
                 else
                 {
