@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NuGet.Services.KeyVault
 {
-    public interface ISecretWriter : ISecretReader
+    public interface ISecretWriter
     {
         /// <summary>
         /// Sets the value of a secret.
