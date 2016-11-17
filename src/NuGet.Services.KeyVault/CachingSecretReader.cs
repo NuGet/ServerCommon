@@ -13,7 +13,7 @@ namespace NuGet.Services.KeyVault
         private readonly int _refreshIntervalSec;
 
         private readonly ISecretReader _internalReader;
-        private readonly Dictionary<string, Tuple<string, DateTime>> _cache;
+        private readonly Dictionary<string, Tuple<Secret, DateTime>> _cache;
 
         public CachingSecretReader(ISecretReader secretReader, int refreshIntervalSec = DefaultRefreshIntervalSec)
         {
@@ -23,23 +23,28 @@ namespace NuGet.Services.KeyVault
             }
 
             _internalReader = secretReader;
-            _cache = new Dictionary<string, Tuple<string, DateTime>>();
+            _cache = new Dictionary<string, Tuple<Secret, DateTime>>();
 
             _refreshIntervalSec = refreshIntervalSec;
         }
 
-        public virtual bool IsSecretOutdated(Tuple<string, DateTime> cachedSecret)
+        public virtual bool IsSecretOutdated(DateTime timeSecretCached)
         {
-            return DateTime.UtcNow.Subtract(cachedSecret.Item2).TotalSeconds >= _refreshIntervalSec;
+            return DateTime.UtcNow.Subtract(timeSecretCached).TotalSeconds >= _refreshIntervalSec;
         }
 
-        public async Task<string> GetSecretAsync(string secretName)
+        public Task<Secret> GetSecretAsync(Secret secret)
         {
-            if (!_cache.ContainsKey(secretName) || IsSecretOutdated(_cache[secretName]))
+            return GetSecretAsync(secret.Name);
+        }
+
+        public async Task<Secret> GetSecretAsync(string secretName)
+        {
+            if (!_cache.ContainsKey(secretName) || IsSecretOutdated(_cache[secretName].Item2))
             {
                 // Get the secret if it is not yet in the cache or it is outdated.
-                var secretValue = await _internalReader.GetSecretAsync(secretName);
-                _cache[secretName] = Tuple.Create(secretValue, DateTime.UtcNow);
+                var secret = await _internalReader.GetSecretAsync(secretName);
+                _cache[secretName] = Tuple.Create(secret, DateTime.UtcNow);
             }
 
             return _cache[secretName].Item1;

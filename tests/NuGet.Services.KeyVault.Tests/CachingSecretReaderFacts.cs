@@ -15,9 +15,10 @@ namespace NuGet.Services.KeyVault.Tests
         public async Task WhenGetSecretIsCalledCacheIsUsed()
         {
             // Arrange
-            const string secret = "secret";
+            const string secretName = "secret";
+            const string secretValue = "value";
             var mockSecretReader = new Mock<ISecretReader>();
-            mockSecretReader.Setup(x => x.GetSecretAsync(It.IsAny<string>())).Returns(Task.FromResult(secret));
+            mockSecretReader.Setup(x => x.GetSecretAsync(It.IsAny<string>())).Returns(Task.FromResult(new Secret(secretName, secretValue)));
 
             var cachingSecretReader = new CachingSecretReader(mockSecretReader.Object, int.MaxValue);
 
@@ -27,7 +28,8 @@ namespace NuGet.Services.KeyVault.Tests
 
             // Assert
             mockSecretReader.Verify(x => x.GetSecretAsync(It.IsAny<string>()), Times.Once);
-            Assert.Equal(secret, value1);
+            Assert.Equal(secretName, value1.Name);
+            Assert.Equal(secretValue, value1.Value);
             Assert.Equal(value1, value2);
         }
 
@@ -42,11 +44,10 @@ namespace NuGet.Services.KeyVault.Tests
         {
             // Arrange
             var cachingSecretReaderMock = new Mock<CachingSecretReader>(new Mock<ISecretReader>().Object, refreshIntervalSec) {CallBase = true};
-            var secretToCheck = Tuple.Create("secretName",
-                DateTime.UtcNow.Add(new TimeSpan(0, 0, -secretLastRefreshedSec)));
+            var timeSecretCached = DateTime.UtcNow.Add(new TimeSpan(0, 0, -secretLastRefreshedSec));
 
             // Act
-            var result = cachingSecretReaderMock.Object.IsSecretOutdated(secretToCheck);
+            var result = cachingSecretReaderMock.Object.IsSecretOutdated(timeSecretCached);
 
             // Assert
             Assert.Equal(isOutdated, result);
@@ -62,7 +63,7 @@ namespace NuGet.Services.KeyVault.Tests
             const int refreshIntervalSec = 1;
 
             var mockSecretReader = new Mock<ISecretReader>();
-            mockSecretReader.Setup(x => x.GetSecretAsync(It.IsAny<string>())).Returns(Task.FromResult(firstSecret));
+            mockSecretReader.Setup(x => x.GetSecretAsync(It.IsAny<string>())).Returns(Task.FromResult(new Secret(secretName, firstSecret)));
 
             var cachingSecretReaderMock = new Mock<CachingSecretReader>(mockSecretReader.Object, refreshIntervalSec)
             {
@@ -70,7 +71,7 @@ namespace NuGet.Services.KeyVault.Tests
             };
 
             var hasIntervalPassed = false;
-            cachingSecretReaderMock.Setup(x => x.IsSecretOutdated(It.IsAny<Tuple<string, DateTime>>())).Returns(() =>
+            cachingSecretReaderMock.Setup(x => x.IsSecretOutdated(It.IsAny<DateTime>())).Returns(() =>
             {
                 // If the interval hasn't passed, the secret we have stored is not outdated.
                 if (!hasIntervalPassed)
@@ -90,13 +91,14 @@ namespace NuGet.Services.KeyVault.Tests
 
             // Assert
             mockSecretReader.Verify(x => x.GetSecretAsync(It.IsAny<string>()), Times.Once);
-            Assert.Equal(firstSecret, firstValue1);
+            Assert.Equal(secretName, firstValue1.Name);
+            Assert.Equal(firstSecret, firstValue1.Value);
             Assert.Equal(firstValue1, firstValue2);
 
             // Arrange 2
             // We are now x seconds later after refreshIntervalSec has passed.
             hasIntervalPassed = true;
-            mockSecretReader.Setup(x => x.GetSecretAsync(It.IsAny<string>())).Returns(Task.FromResult(secondSecret));
+            mockSecretReader.Setup(x => x.GetSecretAsync(It.IsAny<string>())).Returns(Task.FromResult(new Secret(secretName, secondSecret)));
 
             // Act 2
             var secondValue1 = await cachingSecretReaderMock.Object.GetSecretAsync(secretName);
@@ -104,7 +106,8 @@ namespace NuGet.Services.KeyVault.Tests
 
             // Assert 2
             mockSecretReader.Verify(x => x.GetSecretAsync(It.IsAny<string>()), Times.Exactly(2));
-            Assert.Equal(secondSecret, secondValue1);
+            Assert.Equal(secretName, secondValue1.Name);
+            Assert.Equal(secondSecret, secondValue1.Value);
             Assert.Equal(secondValue1, secondValue2);
         }
     }

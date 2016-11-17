@@ -7,6 +7,18 @@ namespace NuGet.Services.KeyVault
 {
     public interface ISecretReader
     {
-        Task<string> GetSecretAsync(string secretName);
+        /// <summary>
+        /// Gets a secret.
+        /// </summary>
+        /// <param name="secret">A secret with the same name as the secret to acquire.</param>
+        /// <returns>A secret specified by <paramref name="secret"/>.</returns>
+        Task<Secret> GetSecretAsync(Secret secret);
+
+        /// <summary>
+        /// Gets a secret.
+        /// </summary>
+        /// <param name="secretName">The name of the secret to acquire.</param>
+        /// <returns>A secret with the name specified by <paramref name="secretName"/>.</returns>
+        Task<Secret> GetSecretAsync(string secretName);
     }
 }

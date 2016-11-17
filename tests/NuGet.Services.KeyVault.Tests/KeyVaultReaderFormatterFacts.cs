@@ -55,7 +55,7 @@ namespace NuGet.Services.KeyVault.Tests
         public KeyVaultReaderFormatterFacts()
         {
             var mockKeyVault = new Mock<ISecretReader>();
-            mockKeyVault.Setup(x => x.GetSecretAsync(It.IsAny<string>())).Returns((string s) => Task.FromResult(s.ToUpper()));
+            mockKeyVault.Setup(x => x.GetSecretAsync(It.IsAny<string>())).Returns((string s) => Task.FromResult(new Secret(s, s.ToUpper())));
 
             _secretInjector = new SecretInjector(mockKeyVault.Object);
         }

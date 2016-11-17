@@ -10,14 +10,15 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory;
 namespace NuGet.Services.KeyVault
 {
     /// <summary>
-    /// Reads secretes from KeyVault.
-    /// Authentication with KeyVault is done using a certificate in location:LocalMachine store name:My 
+    /// Reads secrets from KeyVault.
+    /// Authentication with KeyVault is done using a certificate specified by a <see cref="KeyVaultConfiguration"/>.
     /// </summary>
     public class KeyVaultReader : ISecretReader
     {
+        protected readonly Lazy<KeyVaultClient> KeyVaultClient;
+        protected readonly string Vault;
+
         private readonly KeyVaultConfiguration _configuration;
-        private readonly string _vault;
-        private readonly Lazy<KeyVaultClient> _keyVaultClient;
         private ClientAssertionCertificate _clientAssertionCertificate;
 
         public KeyVaultReader(KeyVaultConfiguration configuration)
@@ -28,14 +29,18 @@ namespace NuGet.Services.KeyVault
             }
 
             _configuration = configuration;
-            _vault = $"https://{_configuration.VaultName}.vault.azure.net/";
-            _keyVaultClient = new Lazy<KeyVaultClient>(InitializeClient);
+            Vault = $"https://{_configuration.VaultName}.vault.azure.net/";
+            KeyVaultClient = new Lazy<KeyVaultClient>(InitializeClient);
         }
 
-        public async Task<string> GetSecretAsync(string secretName)
+        public Task<Secret> GetSecretAsync(Secret secret)
         {
-            var secret = await _keyVaultClient.Value.GetSecretAsync(_vault, secretName);
-            return secret.Value;
+            return GetSecretAsync(secret.Name);
+        }
+
+        public async Task<Secret> GetSecretAsync(string secretName)
+        {
+            return new KeyVaultSecret(await KeyVaultClient.Value.GetSecretAsync(Vault, secretName));
         }
 
         private KeyVaultClient InitializeClient()

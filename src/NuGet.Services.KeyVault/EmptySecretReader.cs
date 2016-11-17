@@ -7,9 +7,14 @@ namespace NuGet.Services.KeyVault
 {
     public class EmptySecretReader : ISecretReader
     {
-        public Task<string> GetSecretAsync(string secretName)
+        public Task<Secret> GetSecretAsync(Secret secret)
         {
-            return Task.FromResult(secretName);
+            return Task.FromResult(secret);
+        }
+
+        public Task<Secret> GetSecretAsync(string secretName)
+        {
+            return Task.FromResult(new Secret(secretName, secretName));
         }
     }
 }
