@@ -1,0 +1,12 @@
+<?xml version="1.0"?>
+<package >
+  <metadata>
+    <id>NuGet.Services.Logging</id>
+    <version>$version$</version>
+    <title>NuGet.Services.Logging</title>
+    <authors>.NET Foundation</authors>
+    <owners>.NET Foundation</owners>
+    <description>NuGet.Services.Logging</description>
+    <copyright>Copyright .NET Foundation</copyright>
+  </metadata>
+</package>
