@@ -115,8 +115,6 @@ Trace-Log "Time elapsed $(Format-ElapsedTime ($endTime - $startTime))"
 
 Trace-Log ('=' * 60)
 
-exit 1
-
 if ($BuildErrors) {
     $ErrorLines = $BuildErrors | %{ ">>> $($_.Exception.Message)" }
     Error-Log "Builds completed with $($BuildErrors.Count) error(s):`r`n$($ErrorLines -join "`r`n")" -Fatal
