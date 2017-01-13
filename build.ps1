@@ -27,28 +27,17 @@ $env:DOTNET_INSTALL_DIR=$CLIRoot
 
 . "$PSScriptRoot\build\common.ps1"
 
-Function Run-BinSkim {
+Function Clean-Tests {
 	[CmdletBinding()]
 	param()
 	
-	Trace-Log 'Running BinSkim'
+	Trace-Log 'Cleaning test results'
 	
-	$BinSkimExe = (Join-Path $PSScriptRoot "packages\Microsoft.CodeAnalysis.BinSkim\tools\x64\BinSkim.exe")
+	$TestAssemblies = "tests\NuGet.Services.KeyVault.Tests\bin\$Configuration\NuGet.Services.KeyVault.Tests.dll", "tests\NuGet.Services.Configuration.Tests\bin\$Configuration\NuGet.Services.Configuration.Tests.dll"
 	
-	& $BinSkimExe analyze --config default --verbose (Join-Path $PSScriptRoot "src\NuGet.Services.Logging\bin\$Configuration\net452\NuGet.Services.Logging.dll")
-	& $BinSkimExe analyze --config default --verbose (Join-Path $PSScriptRoot "src\NuGet.Services.KeyVault\bin\$Configuration\NuGet.Services.KeyVault.dll")
-	& $BinSkimExe analyze --config default --verbose (Join-Path $PSScriptRoot "src\NuGet.Services.Configuration\bin\$Configuration\net452\NuGet.Services.Configuration.dll")
-}
-
-Function Run-Tests {
-	[CmdletBinding()]
-	param()
-	
-	Trace-Log 'Running tests'
-	
-	$xUnitExe = (Join-Path $PSScriptRoot "packages\xunit.runner.console\tools\xunit.console.exe")
-	
-	& $xUnitExe (Join-Path $PSScriptRoot "tests\NuGet.Services.KeyVault.Tests\bin\$Configuration\NuGet.Services.KeyVault.Tests.dll")
+	foreach ($Test in $TestAssemblies) {
+		Remove-Item (Join-Path $PSScriptRoot $Test)
+	}
 }
 	
 Write-Host ("`r`n" * 3)
@@ -61,6 +50,9 @@ if (-not $BuildNumber) {
 Trace-Log "Build #$BuildNumber started at $startTime"
 
 $BuildErrors = @()
+	
+Invoke-BuildStep 'Cleaning test results' { Clean-Tests } `
+	-ev +BuildErrors
 
 Invoke-BuildStep 'Installing NuGet.exe' { Install-NuGet } `
     -ev +BuildErrors
@@ -95,12 +87,6 @@ Invoke-BuildStep 'Building solution' { `
 	} `
 	-args $Configuration, $BuildNumber, (Join-Path $PSScriptRoot "NuGet.Server.Common.sln"), $SkipRestore `
     -ev +BuildErrors
-
-Invoke-BuildStep 'Running BinSkim' { Run-BinSkim } `
-	-ev +BuildErrors
-	
-Invoke-BuildStep 'Running tests' { Run-Tests } `
-	-ev +BuildErrors
 	
 Invoke-BuildStep 'Creating artifacts' { `
 	param($Configuration, $BuildNumber, $ReleaseLabel, $SemanticVersion, $Artifacts) `
@@ -135,7 +121,7 @@ Trace-Log ('=' * 60)
 
 if ($BuildErrors) {
     $ErrorLines = $BuildErrors | %{ ">>> $($_.Exception.Message)" }
-    Error-Log "Build's completed with $($BuildErrors.Count) error(s):`r`n$($ErrorLines -join "`r`n")" -Fatal
+    Error-Log "Builds completed with $($BuildErrors.Count) error(s):`r`n$($ErrorLines -join "`r`n")" -Fatal
 }
 
 Write-Host ("`r`n" * 3)
