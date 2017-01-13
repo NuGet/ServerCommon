@@ -32,7 +32,6 @@ Function Run-Tests {
 	$TestCount = 0
 	
 	foreach ($Test in $TestAssemblies) {
-		Remove-Item (Join-Path $PSScriptRoot $Test)
 		& $xUnitExe (Join-Path $PSScriptRoot $Test) -xml "Results.$TestCount.xml"
 		$TestCount++
 	}
