@@ -33,11 +33,7 @@ Function Clean-Tests {
 	
 	Trace-Log 'Cleaning test results'
 	
-	$TestAssemblies = "tests\NuGet.Services.KeyVault.Tests\bin\$Configuration\NuGet.Services.KeyVault.Tests.dll", "tests\NuGet.Services.Configuration.Tests\bin\$Configuration\NuGet.Services.Configuration.Tests.dll"
-	
-	foreach ($Test in $TestAssemblies) {
-		Remove-Item (Join-Path $PSScriptRoot $Test)
-	}
+	Remove-Item (Join-Path $PSScriptRoot "Results.*.xml")
 }
 	
 Write-Host ("`r`n" * 3)
