@@ -60,8 +60,6 @@ Trace-Log "Time elapsed $(Format-ElapsedTime ($endTime - $startTime))"
 
 Trace-Log ('=' * 60)
 
-exit 1
-
 if ($TestErrors) {
     $ErrorLines = $TestErrors | %{ ">>> $($_.Exception.Message)" }
     Error-Log "Tests completed with $($TestErrors.Count) error(s):`r`n$($ErrorLines -join "`r`n")" -Fatal
