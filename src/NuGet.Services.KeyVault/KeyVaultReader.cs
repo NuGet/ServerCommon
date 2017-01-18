@@ -32,6 +32,7 @@ namespace NuGet.Services.KeyVault
             _keyVaultClient = new Lazy<KeyVaultClient>(InitializeClient);
 
             var uselessVariable = 0;
+            var anotherUselessVariable = 0;
         }
 
         public async Task<string> GetSecretAsync(string secretName)
