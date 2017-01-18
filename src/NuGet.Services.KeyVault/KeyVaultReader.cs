@@ -30,6 +30,8 @@ namespace NuGet.Services.KeyVault
             _configuration = configuration;
             _vault = $"https://{_configuration.VaultName}.vault.azure.net/";
             _keyVaultClient = new Lazy<KeyVaultClient>(InitializeClient);
+
+            var uselessVariable = 0;
         }
 
         public async Task<string> GetSecretAsync(string secretName)
