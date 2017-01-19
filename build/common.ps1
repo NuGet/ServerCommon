@@ -5,6 +5,7 @@ $NuGetClientRoot = Split-Path -Path $PSScriptRoot -Parent
 $CLIRoot = Join-Path $NuGetClientRoot 'cli'
 $DotNetExe = Join-Path $CLIRoot 'dotnet.exe'
 $NuGetExe = Join-Path $NuGetClientRoot '.nuget\nuget.exe'
+$7zipExe = Join-Path $NuGetClientRoot 'tools\7zip\7za.exe'
 $Artifacts = Join-Path $NuGetClientRoot artifacts
 $MSBuildRoot = Join-Path ${env:ProgramFiles(x86)} 'MSBuild\'
 $MSBuildExeRelPath = 'bin\msbuild.exe'
@@ -179,6 +180,49 @@ Function Build-Solution {
     }
 }
 
+Function Update-Submodules {
+    [CmdletBinding()]
+    param(
+        [string]$SubmodulePath,
+        [string]$Branch,
+        [string]$SubmoduleBranch
+    )
+    Trace-Log 'Updating and initializing submodules from remote'
+    # We are invoking git through cmd here because otherwise the redirection does not process until after git has completed, leaving errors in the stream.
+    
+    $opts = 'submodule', 'foreach', 'git', 'reset', '--hard'
+    Trace-Log "git $opts"
+    & cmd /c "git $opts 2>&1"
+    
+    if ($SubmodulePath) {
+        $BranchToUse = $SubmoduleBranch
+        if (-not $SubmoduleBranch) {
+            # If no submodule branch is specified, use master.
+            if ($Branch -eq 'dev') {
+                # If we are on dev, use dev.
+                $BranchToUse = 'dev'
+            } else {
+                $BranchToUse = 'master'
+            }
+        }
+        Trace-Log "Using branch $BranchToUse for submodule at $SubmodulePath"
+        $opts = 'config', '-f', '.gitmodules', "submodule.$SubmodulePath.branch", "$BranchToUse"
+        Trace-Log "git $opts"
+        & cmd /c "git $opts 2>&1"
+    } else {
+        Trace-Log "No submodule path specified! Using pre-existing submodule configuration."
+    }
+    
+    $opts = 'submodule', 'update'
+    $opts += '--init'
+    $opts += '--remote'
+    if (-not $VerbosePreference) {
+        $opts += '--quiet'
+    }
+    Trace-Log "git $opts"
+    & cmd /c "git $opts 2>&1"
+}
+
 # Downloads NuGet.exe and VSTS Credential provider if missing
 Function Install-NuGet {
     [CmdletBinding()]
@@ -188,12 +232,69 @@ Function Install-NuGet {
 		Trace-Log 'Creating folder "$($NuGetFolderPath)"'
 		New-Item $NuGetFolderPath -Type Directory | Out-Null
 	}
-	else {
-		Trace-Log 'Target folder "$($NuGetFolderPath)" already exists.'
+
+	$CredentialProviderBundle = (Join-Path $NuGetClientRoot '.nuget\CredentialProviderBundle.zip')
+    if (-not (Test-Path $CredentialProviderBundle)) {
+        Trace-Log 'Downloading VSTS credential provider'
+
+		wget https://msblox.pkgs.visualstudio.com/DefaultCollection/_apis/public/nuget/client/CredentialProviderBundle.zip -OutFile $CredentialProviderBundle
+    }
+
+	if (-not (Test-Path $NuGetExe)) {
+		Trace-Log 'Extracting VSTS credential provider'
+		& $7zipExe e $CredentialProviderBundle -o "$NuGetFolderPath"
+
+		Remove-Item $CredentialProviderBundle
 	}
 	
 	Trace-Log 'Downloading latest prerelease of nuget.exe'
 	wget https://dist.nuget.org/win-x86-commandline/latest-prerelease/nuget.exe -OutFile $NuGetExe
+}
+
+Function Configure-NuGetCredentials {
+	[CmdletBinding()]
+	param(
+		[string] $FeedName,
+		[string] $Username,
+		[string] $PAT,
+		[string] $ConfigFile
+	)
+	Trace-Log 'Configuring credentials for $FeedName'
+
+	if (-not $FeedName) {
+		Error-Log "Required argument FeedName was not provided."
+	}
+
+	if (-not $Username) {
+		Error-Log "Required argument Username was not provided."
+	}
+
+	$opts = , 'sources'
+	$opts += 'update'
+	$opts += '-NonInteractive'
+	$opts += '-Name', "${FeedName}"
+	$opts += '-Username', "${Username}"
+
+	if (-not $VerbosePreference) {
+        $opts += '-verbosity', 'quiet'
+    }
+	else {
+		$opts += '-verbosity', 'detailed'
+	}
+
+	if ($PAT) {
+		$opts += '-Password', "${PAT}"
+	}
+
+	if (Test-Path $ConfigFile) {
+		$opts += '-ConfigFile', "${ConfigFile}"
+	}
+
+	Trace-Log ("$NuGetExe $opts" -replace "${PAT}", "***")
+	& $NuGetExe $opts
+	if (-not $?) {
+        Error-Log "Pack failed for @""$TargetFilePath"". Code: ${LASTEXITCODE}"
+    }
 }
 
 Function Install-DotnetCLI {
@@ -248,7 +349,8 @@ Function Install-SolutionPackages {
 		[Alias('output')]
 		[string]$OutputPath,
 		[switch]$NonInteractive = $true,
-		[switch]$ExcludeVersion = $false
+		[switch]$ExcludeVersion = $false,
+        [string]$ConfigFile
     )
     $opts = , 'install'
 	$InstallLocation = $NuGetClientRoot
@@ -262,6 +364,10 @@ Function Install-SolutionPackages {
 
     if (-not $VerbosePreference) {
         $opts += '-verbosity', 'quiet'
+    }
+    
+    if ($ConfigFile) {
+        $opts += '-configfile', $ConfigFile
     }
 	
 	if ($NonInteractive) {
@@ -291,7 +397,8 @@ Function Restore-SolutionPackages {
         [string]$SolutionPath,
         [ValidateSet(4, 12, 14, 15)]
         [int]$MSBuildVersion,
-		[string]$BuildNumber
+		[string]$BuildNumber,
+        [string]$ConfigFile
     )
 	$InstallLocation = $NuGetClientRoot
     $opts = , 'restore'
@@ -304,6 +411,10 @@ Function Restore-SolutionPackages {
     }
     if ($MSBuildVersion) {
         $opts += '-MSBuildVersion', $MSBuildVersion
+    }
+    
+    if ($ConfigFile) {
+        $opts += '-configfile', $ConfigFile
     }
 
     if (-not $VerbosePreference) {
@@ -337,13 +448,16 @@ Function New-Package {
 	param(
 		[Alias('target')]
 		[string]$TargetFilePath,
+        [string]$TargetProfile,
 		[string]$Configuration,		
 		[string]$ReleaseLabel,
 		[string]$BuildNumber,
 		[switch]$NoPackageAnalysis,
+        [string]$PackageId,
 		[string]$Version,
 		[string]$MSBuildVersion = "14",
-		[switch]$Symbols
+		[switch]$Symbols,
+        [string]$Branch
 	)
 	Trace-Log "Creating package from @""$TargetFilePath"""
 	$opts = , 'pack'
@@ -353,8 +467,24 @@ Function New-Package {
 		New-Item $Artifacts -Type Directory
 	}
 	
-	$opts += '-OutputDirectory', $Artifacts
-	$opts += '-Properties', "Configuration=$Configuration"
+	$OutputDir = Join-Path $Artifacts $TargetProfile
+	if (-not (Test-Path $OutputDir)) {
+		New-Item $OutputDir -Type Directory
+	}
+	$opts += '-OutputDirectory', $OutputDir
+    
+    $Properties = "Configuration=$Configuration"
+    if ($TargetProfile) {
+        $Properties += ";TargetProfile=$TargetProfile"
+    }
+    if ($Branch) {
+        $Properties += ";branch=$Branch"
+    }
+	if ($PackageId) {
+        $Properties += ";PackageId=$PackageId"
+	}
+	$opts += '-Properties', $Properties
+    
 	$opts += '-MSBuildVersion', $MSBuildVersion
 	
 	if (-not $BuildNumber) {
@@ -384,6 +514,16 @@ Function New-Package {
 	& $NuGetExe $opts
 	if (-not $?) {
         Error-Log "Pack failed for @""$TargetFilePath"". Code: ${LASTEXITCODE}"
+    }
+}
+
+Function Set-AppSetting($webConfig, [string]$name, [string]$value) {
+    $setting = $webConfig.configuration.appSettings.add | where { $_.key -eq $name }
+    if($setting) {
+        $setting.value = $value
+        "Set $name = $value."
+    } else {
+        "Unknown App Setting: $name."
     }
 }
 
