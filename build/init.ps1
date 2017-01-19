@@ -25,7 +25,7 @@ Function Download-Folder {
 		New-Item -Path $Path -ItemType "directory"
 	}
 	
-    $FolderUri = Join-Path $RootGitHubApiUri "$Path$Ref"
+    $FolderUri = "$RootGitHubApiUri/$Path$Ref"
 	Write-Host $FolderUri
 	wget $FolderUri | ConvertFrom-Json | foreach {
 		$FilePath = $_.path
