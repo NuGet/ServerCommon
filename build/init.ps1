@@ -27,13 +27,14 @@ Function Download-Folder {
 	
     $FolderUri = "$RootGitHubApiUri/$Path$Ref"
 	Write-Host $FolderUri
-	wget $FolderUri | ConvertFrom-Json | foreach {
-		$FilePath = $_.path
-		if ($_.type -eq "file") {
-			$DownloadUrl = $_.download_url
+	$Files = wget $FolderUri | ConvertFrom-Json
+    Foreach ($File in $Files) {
+		$FilePath = $File.path
+		if ($File.type -eq "file") {
+			$DownloadUrl = $File.download_url
 			Write-Host $DownloadUrl
 			wget -Uri $DownloadUrl -OutFile (Join-Path $NuGetClientRoot $FilePath)
-		} elseif ($_.type -eq "dir") {
+		} elseif ($File.type -eq "dir") {
 			Download-Folder -Path $FilePath
 		}
 	}
