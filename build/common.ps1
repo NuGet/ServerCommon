@@ -206,7 +206,7 @@ Function Update-Submodules {
             }
         }
         Trace-Log "Using branch $BranchToUse for submodule at $SubmodulePath"
-        $opts = 'config', '-f', '.gitmodules', "submodule.$SubmodulePath.branch", "$BranchToUse"
+        $opts = 'config', '-f', "$NuGetClientRoot\.gitmodules", "submodule.$SubmodulePath.branch", "$BranchToUse"
         Trace-Log "git $opts"
         & cmd /c "git $opts 2>&1"
     } else {
