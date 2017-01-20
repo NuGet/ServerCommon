@@ -213,9 +213,7 @@ Function Update-Submodules {
         Trace-Log "No submodule path specified! Using pre-existing submodule configuration."
     }
     
-    $opts = 'submodule', 'update'
-    $opts += '--init'
-    $opts += '--remote'
+    $opts = 'submodule', 'update', '--init', '--remote'
     if (-not $VerbosePreference) {
         $opts += '--quiet'
     }
@@ -269,11 +267,7 @@ Function Configure-NuGetCredentials {
         Error-Log "Required argument Username was not provided."
     }
 
-    $opts = , 'sources'
-    $opts += 'update'
-    $opts += '-NonInteractive'
-    $opts += '-Name', "${FeedName}"
-    $opts += '-Username', "${Username}"
+    $opts = 'sources', 'update', '-NonInteractive', '-Name', "${FeedName}", '-Username', "${Username}"
 
     if (-not $VerbosePreference) {
         $opts += '-verbosity', 'quiet'
