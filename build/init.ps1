@@ -21,8 +21,9 @@ Function Download-Folder {
 		[string]$Path
 	)
 	
-	if (-not (Test-Path $Path)) {
-		New-Item -Path $Path -ItemType "directory"
+    $DirectoryPath = (Join-Path $NuGetClientRoot $FilePath)
+	if (-not (Test-Path $DirectoryPath)) {
+		New-Item -Path $DirectoryPath -ItemType "directory"
 	}
 	
     $FolderUri = "$RootGitHubApiUri/$Path$Ref"
