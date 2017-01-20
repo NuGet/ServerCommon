@@ -9,18 +9,8 @@ param (
     [string]$SubmoduleBranch
 )
 
-Write-Host $User
-Write-Host $Password
-Write-Host $Instance
-Write-Host $Project
-Write-Host $DefinitionId
-Write-Host $Branch
-Write-Host $SubmoduleBranch
-
 $Base64AuthInfo = [Convert]::ToBase64String([Text.Encoding]::ASCII.GetBytes(("{0}:{1}" -f $User, $Password)))
 $Headers = @{Authorization=("Basic {0}" -f $Base64AuthInfo)}
-
-Write-Host $Base64AuthInfo
 
 # Check if there is already a build queued, so we don't queue the same build multiple times.
 $ListResponse = Invoke-WebRequest -Method Get -Uri "https://$Instance.visualstudio.com/DefaultCollection/$Project/_apis/build/builds?api-version=2.0&definitions=$DefinitionId&statusFilter=notStarted" -Headers $Headers
