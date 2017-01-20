@@ -257,7 +257,7 @@ Function Configure-NuGetCredentials {
         [string] $PAT,
         [string] $ConfigFile
     )
-    Trace-Log 'Configuring credentials for $FeedName'
+    Trace-Log "Configuring credentials for $FeedName"
 
     if (-not $FeedName) {
         Error-Log "Required argument FeedName was not provided."
