@@ -67,9 +67,9 @@ Function Clear-Artifacts {
         Trace-Log 'Clearing the Artifacts folder'
         Remove-Item $Artifacts\* -Recurse -Force
     }
-	else {
-		New-Item $Artifacts -Type Directory
-	}
+    else {
+        New-Item $Artifacts -Type Directory
+    }
 }
 
 Function Get-MSBuildExe {
@@ -138,14 +138,14 @@ Function Build-Solution {
         [string]$Configuration = $DefaultConfiguration,
         [int]$BuildNumber = (Get-BuildNumber),
         [string]$MSBuildVersion = $DefaultMSBuildVersion,
-		[string]$SolutionPath,
-		[string]$TargetProfile,
-		[string]$Target,
-		[string]$MSBuildProperties,
+        [string]$SolutionPath,
+        [string]$TargetProfile,
+        [string]$Target,
+        [string]$MSBuildProperties,
         [switch]$SkipRestore
     )
-	
-	if (-not $SkipRestore) {
+    
+    if (-not $SkipRestore) {
         # Restore packages for NuGet.Tooling solution
         Restore-SolutionPackages -path $SolutionPath -MSBuildVersion $MSBuildVersion
     }
@@ -153,22 +153,22 @@ Function Build-Solution {
     # Build the solution
     $opts = , $SolutionPath
     $opts += "/p:Configuration=$Configuration;BuildNumber=$(Format-BuildNumber $BuildNumber)"
-	
-	if ($TargetProfile) {
-		$opts += "/p:TargetProfile=$TargetProfile"
-	}
-	
-	if ($Target) {
-		$opts += "/t:$Target"
-	}
-	
+    
+    if ($TargetProfile) {
+        $opts += "/p:TargetProfile=$TargetProfile"
+    }
+    
+    if ($Target) {
+        $opts += "/t:$Target"
+    }
+    
     if (-not $VerbosePreference) {
         $opts += '/verbosity:minimal'
     }
-	
-	if ($MSBuildProperties) {
-		$opts += $MSBuildProperties
-	}
+    
+    if ($MSBuildProperties) {
+        $opts += $MSBuildProperties
+    }
 
     $MSBuildExe = Get-MSBuildExe $MSBuildVersion
 
@@ -183,17 +183,17 @@ Function Build-Solution {
 Function Install-NuGet {
     [CmdletBinding()]
     param()		
-	$NuGetFolderPath = Split-Path -Path $NuGetExe -Parent
-	if (-not (Test-Path $NuGetFolderPath )) {
-		Trace-Log 'Creating folder "$($NuGetFolderPath)"'
-		New-Item $NuGetFolderPath -Type Directory | Out-Null
-	}
-	else {
-		Trace-Log 'Target folder "$($NuGetFolderPath)" already exists.'
-	}
-	
-	Trace-Log 'Downloading latest prerelease of nuget.exe'
-	wget https://dist.nuget.org/win-x86-commandline/latest-prerelease/nuget.exe -OutFile $NuGetExe
+    $NuGetFolderPath = Split-Path -Path $NuGetExe -Parent
+    if (-not (Test-Path $NuGetFolderPath )) {
+        Trace-Log 'Creating folder "$($NuGetFolderPath)"'
+        New-Item $NuGetFolderPath -Type Directory | Out-Null
+    }
+    else {
+        Trace-Log 'Target folder "$($NuGetFolderPath)" already exists.'
+    }
+    
+    Trace-Log 'Downloading latest prerelease of nuget.exe'
+    wget https://dist.nuget.org/win-x86-commandline/latest-prerelease/nuget.exe -OutFile $NuGetExe
 }
 
 Function Install-DotnetCLI {
@@ -245,38 +245,38 @@ Function Install-SolutionPackages {
     param(
         [Alias('path')]
         [string]$SolutionPath,
-		[Alias('output')]
-		[string]$OutputPath,
-		[switch]$NonInteractive = $true,
-		[switch]$ExcludeVersion = $false
+        [Alias('output')]
+        [string]$OutputPath,
+        [switch]$NonInteractive = $true,
+        [switch]$ExcludeVersion = $false
     )
     $opts = , 'install'
-	$InstallLocation = $NuGetClientRoot
+    $InstallLocation = $NuGetClientRoot
     if (-not $SolutionPath) {
         $opts += "${NuGetClientRoot}\.nuget\packages.config", '-SolutionDirectory', $NuGetClientRoot
     }
     else {
         $opts += $SolutionPath
-		$InstallLocation = Split-Path -Path $SolutionPath -Parent
+        $InstallLocation = Split-Path -Path $SolutionPath -Parent
     }
 
     if (-not $VerbosePreference) {
         $opts += '-verbosity', 'quiet'
     }
-	
-	if ($NonInteractive) {
-		$opts += '-NonInteractive'
-	}
-	
-	if ($ExcludeVersion) {
-		$opts += '-ExcludeVersion'
-	}
-	
-	if ($OutputPath) {
-		$opts += '-OutputDirectory', "${OutputPath}"
-	}
-	
-	Trace-Log "Installing packages @""$InstallLocation"""	
+    
+    if ($NonInteractive) {
+        $opts += '-NonInteractive'
+    }
+    
+    if ($ExcludeVersion) {
+        $opts += '-ExcludeVersion'
+    }
+    
+    if ($OutputPath) {
+        $opts += '-OutputDirectory', "${OutputPath}"
+    }
+    
+    Trace-Log "Installing packages @""$InstallLocation"""	
     Trace-Log "$NuGetExe $opts"
     & $NuGetExe $opts
     if (-not $?) {
@@ -291,16 +291,16 @@ Function Restore-SolutionPackages {
         [string]$SolutionPath,
         [ValidateSet(4, 12, 14, 15)]
         [int]$MSBuildVersion,
-		[string]$BuildNumber
+        [string]$BuildNumber
     )
-	$InstallLocation = $NuGetClientRoot
+    $InstallLocation = $NuGetClientRoot
     $opts = , 'restore'
     if (-not $SolutionPath) {
         $opts += "${NuGetClientRoot}\.nuget\packages.config", '-SolutionDirectory', $NuGetClientRoot
     }
     else {
         $opts += $SolutionPath
-		$InstallLocation = Split-Path -Path $SolutionPath -Parent
+        $InstallLocation = Split-Path -Path $SolutionPath -Parent
     }
     if ($MSBuildVersion) {
         $opts += '-MSBuildVersion', $MSBuildVersion
@@ -319,120 +319,120 @@ Function Restore-SolutionPackages {
 }
 
 Function Get-PackageVersion() {
-	[CmdletBinding()]
+    [CmdletBinding()]
     param(
-		[string]$ReleaseLabel = "zlocal",
-		[string]$BuildNumber
+        [string]$ReleaseLabel = "zlocal",
+        [string]$BuildNumber
     )
-	
-	if (-not $BuildNumber) {
-		$BuildNumber = Get-BuildNumber
-	}
-	
-	[string]"$SemanticVersion-$ReleaseLabel$BuildNumber"
+    
+    if (-not $BuildNumber) {
+        $BuildNumber = Get-BuildNumber
+    }
+    
+    [string]"$SemanticVersion-$ReleaseLabel$BuildNumber"
 }
 
 Function New-Package {
-	[CmdletBinding()]
-	param(
-		[Alias('target')]
-		[string]$TargetFilePath,
-		[string]$Configuration,		
-		[string]$ReleaseLabel,
-		[string]$BuildNumber,
-		[switch]$NoPackageAnalysis,
-		[string]$Version,
-		[string]$MSBuildVersion = "14",
-		[switch]$Symbols
-	)
-	Trace-Log "Creating package from @""$TargetFilePath"""
-	$opts = , 'pack'
-	$opts += $TargetFilePath
-	
-	if (-not (Test-Path $Artifacts)) {
-		New-Item $Artifacts -Type Directory
-	}
-	
-	$opts += '-OutputDirectory', $Artifacts
-	$opts += '-Properties', "Configuration=$Configuration"
-	$opts += '-MSBuildVersion', $MSBuildVersion
-	
-	if (-not $BuildNumber) {
-		$BuildNumber = Get-BuildNumber
-	}
-	
-	if ($Version){
-		$PackageVersion = $Version
-	}
-	elseif ($ReleaseLabel) {
-		$PackageVersion = Get-PackageVersion $ReleaseLabel $BuildNumber
-	}
-	
-	if ($PackageVersion) {
-		$opts += '-Version', "$PackageVersion"
-	}
-	
-	if ($NoPackageAnalysis) {
-		$opts += '-NoPackageAnalysis'
-	}
-	
-	if ($Symbols) {
-		$opts += '-Symbols'
-	}
-	
+    [CmdletBinding()]
+    param(
+        [Alias('target')]
+        [string]$TargetFilePath,
+        [string]$Configuration,		
+        [string]$ReleaseLabel,
+        [string]$BuildNumber,
+        [switch]$NoPackageAnalysis,
+        [string]$Version,
+        [string]$MSBuildVersion = "14",
+        [switch]$Symbols
+    )
+    Trace-Log "Creating package from @""$TargetFilePath"""
+    $opts = , 'pack'
+    $opts += $TargetFilePath
+    
+    if (-not (Test-Path $Artifacts)) {
+        New-Item $Artifacts -Type Directory
+    }
+    
+    $opts += '-OutputDirectory', $Artifacts
+    $opts += '-Properties', "Configuration=$Configuration"
+    $opts += '-MSBuildVersion', $MSBuildVersion
+    
+    if (-not $BuildNumber) {
+        $BuildNumber = Get-BuildNumber
+    }
+    
+    if ($Version){
+        $PackageVersion = $Version
+    }
+    elseif ($ReleaseLabel) {
+        $PackageVersion = Get-PackageVersion $ReleaseLabel $BuildNumber
+    }
+    
+    if ($PackageVersion) {
+        $opts += '-Version', "$PackageVersion"
+    }
+    
+    if ($NoPackageAnalysis) {
+        $opts += '-NoPackageAnalysis'
+    }
+    
+    if ($Symbols) {
+        $opts += '-Symbols'
+    }
+    
     Trace-Log "$NuGetExe $opts"
-	& $NuGetExe $opts
-	if (-not $?) {
+    & $NuGetExe $opts
+    if (-not $?) {
         Error-Log "Pack failed for @""$TargetFilePath"". Code: ${LASTEXITCODE}"
     }
 }
 
 Function Set-VersionInfo {
-	[CmdletBinding()]
-	param(
-		[string]$Path,
-		[string]$Version,
-		[string]$Branch,
-		[string]$Commit
-	)
-	
-	if (-not $Version) {
-		throw "No version info provided."
-	}
-	
-	if(!(Test-Path $Path)) {
-		throw "AssemblyInfo.cs not found at $Path!"
-	}
-	
-	Trace-Log "Getting version info in @""$Path"""
-	
-	if (-not $Commit) {
-		$Commit = git rev-parse --short HEAD
-	}
-	else {
-		if ($Commit.Length -gt 7) {
-			$Commit = $Commit.SubString(0, 7)
-		}
-	}
-	
-	if (-not $Branch) {
-		$Branch = git rev-parse --abbrev-ref HEAD
-	}
-	
-	$BuildDateUtc = [DateTimeOffset]::UtcNow	
-	$SemanticVersion = $Version + "-" + $Branch
-		
-	Trace-Log ("[assembly: AssemblyVersion(""" + $Version + """)]")
-	Trace-Log ("[assembly: AssemblyInformationalVersion(""" + $SemanticVersion + """)]")
-	Trace-Log ("[assembly: AssemblyMetadata(""Branch"", """ + $Branch + """)]")
-	Trace-Log ("[assembly: AssemblyMetadata(""CommitId"", """ + $Commit + """)]")
-	Trace-Log ("[assembly: AssemblyMetadata(""BuildDateUtc"", """ + $BuildDateUtc + """)]")
-	
-	Add-Content $Path ("`r`n[assembly: AssemblyVersion(""" + $Version + """)]")
-	Add-Content $Path ("[assembly: AssemblyInformationalVersion(""" + $SemanticVersion + """)]")
-	Add-Content $Path "#if !PORTABLE"
-	Add-Content $Path ("[assembly: AssemblyMetadata(""Branch"", """ + $Branch + """)]")
-	Add-Content $Path ("[assembly: AssemblyMetadata(""CommitId"", """ + $Commit + """)]")
-	Add-Content $Path ("[assembly: AssemblyMetadata(""BuildDateUtc"", """ + $BuildDateUtc + """)]")
-	Add-Content $Path "#endif"
+    [CmdletBinding()]
+    param(
+        [string]$Path,
+        [string]$Version,
+        [string]$Branch,
+        [string]$Commit
+    )
+    
+    if (-not $Version) {
+        throw "No version info provided."
+    }
+    
+    if(!(Test-Path $Path)) {
+        throw "AssemblyInfo.cs not found at $Path!"
+    }
+    
+    Trace-Log "Getting version info in @""$Path"""
+    
+    if (-not $Commit) {
+        $Commit = git rev-parse --short HEAD
+    }
+    else {
+        if ($Commit.Length -gt 7) {
+            $Commit = $Commit.SubString(0, 7)
+        }
+    }
+    
+    if (-not $Branch) {
+        $Branch = git rev-parse --abbrev-ref HEAD
+    }
+    
+    $BuildDateUtc = [DateTimeOffset]::UtcNow	
+    $SemanticVersion = $Version + "-" + $Branch
+        
+    Trace-Log ("[assembly: AssemblyVersion(""" + $Version + """)]")
+    Trace-Log ("[assembly: AssemblyInformationalVersion(""" + $SemanticVersion + """)]")
+    Trace-Log ("[assembly: AssemblyMetadata(""Branch"", """ + $Branch + """)]")
+    Trace-Log ("[assembly: AssemblyMetadata(""CommitId"", """ + $Commit + """)]")
+    Trace-Log ("[assembly: AssemblyMetadata(""BuildDateUtc"", """ + $BuildDateUtc + """)]")
+    
+    Add-Content $Path ("`r`n[assembly: AssemblyVersion(""" + $Version + """)]")
+    Add-Content $Path ("[assembly: AssemblyInformationalVersion(""" + $SemanticVersion + """)]")
+    Add-Content $Path "#if !PORTABLE"
+    Add-Content $Path ("[assembly: AssemblyMetadata(""Branch"", """ + $Branch + """)]")
+    Add-Content $Path ("[assembly: AssemblyMetadata(""CommitId"", """ + $Commit + """)]")
+    Add-Content $Path ("[assembly: AssemblyMetadata(""BuildDateUtc"", """ + $BuildDateUtc + """)]")
+    Add-Content $Path "#endif"
 }
