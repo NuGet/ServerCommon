@@ -534,9 +534,10 @@ Function Set-VersionInfo {
         throw "No version info provided."
     }
     
-    if(!(Test-Path $Path)) {
-        throw "AssemblyInfo.cs not found at $Path!"
+    if (Test-Path $Path) {
+        Remove-Item $Path
     }
+    New-Item $Path -ItemType File
     
     Trace-Log "Getting version info in @""$Path"""
     
