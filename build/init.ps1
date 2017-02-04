@@ -52,7 +52,7 @@ Function Get-BuildTools {
     }
 }
 
-Get-BuildTools -Branch $Branch
+Get-BuildTools -Branch $BuildBranch
 
 # Run common.ps1
 . "$NuGetClientRoot\build\common.ps1"
