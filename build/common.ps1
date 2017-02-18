@@ -589,10 +589,14 @@ Function Set-VersionInfo {
 
 Function Install-PrivateBuildTools() {
     $repository = $env:PRIVATE_BUILD_TOOLS_REPO
-    $commit = '903bedf5c27c24c885d6e492dcdb437d2ee007c1'
+    $commit = $env:PRIVATE_BUILD_TOOLS_COMMIT
+
+    if (-Not $commit) {
+        $commit = '903bedf5c27c24c885d6e492dcdb437d2ee007c1'
+    }
 
     if (-Not $repository) {
-        Trace-Log "No private build tools are configured. Use the 'PRIVATE_BUILD_TOOLS_REPO' environment variable."
+        Trace-Log "No private build tools are configured. Use the 'PRIVATE_BUILD_TOOLS_REPO' and 'PRIVATE_BUILD_TOOLS_COMMIT' environment variables."
         return
     }
 
