@@ -592,7 +592,7 @@ Function Install-PrivateBuildTools() {
     $commit = $env:PRIVATE_BUILD_TOOLS_COMMIT
 
     if (-Not $commit) {
-        $commit = '903bedf5c27c24c885d6e492dcdb437d2ee007c1'
+        $commit = 'c2167eb6017ed162ff9ad623072ba786b7309950'
     }
 
     if (-Not $repository) {
