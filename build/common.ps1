@@ -18,6 +18,8 @@ Set-Alias dotnet $DotNetExe
 $OrigBgColor = $host.ui.rawui.BackgroundColor
 $OrigFgColor = $host.ui.rawui.ForegroundColor
 
+. "$PSScriptRoot\HttpFileCaching.ps1"
+
 ### Functions ###
 Function Trace-Log($TraceMessage = '') {
     Write-Host "[$(Trace-Time)]`t$TraceMessage" -ForegroundColor Cyan
@@ -234,9 +236,9 @@ Function Install-NuGet {
 
     $CredentialProviderBundle = (Join-Path $NuGetClientRoot '.nuget\CredentialProviderBundle.zip')
     if (-not (Test-Path $CredentialProviderBundle)) {
-        Trace-Log 'Downloading VSTS credential provider'
-
-        wget -UseBasicParsing https://msblox.pkgs.visualstudio.com/DefaultCollection/_apis/public/nuget/client/CredentialProviderBundle.zip -OutFile $CredentialProviderBundle
+        Get-HttpFile -sourceUri "https://msblox.pkgs.visualstudio.com/DefaultCollection/_apis/public/nuget/client/CredentialProviderBundle.zip" `
+            -destinationFilePath $CredentialProviderBundle `
+            -message 'Downloading VSTS credential provider'
     }
 
     if (-not (Test-Path $NuGetExe)) {
@@ -245,9 +247,10 @@ Function Install-NuGet {
 
         Remove-Item $CredentialProviderBundle
     }
-    
-    Trace-Log 'Downloading latest prerelease of nuget.exe'
-    wget -UseBasicParsing https://dist.nuget.org/win-x86-commandline/latest-prerelease/nuget.exe -OutFile $NuGetExe
+
+    Get-HttpFile -sourceUri "https://dist.nuget.org/win-x86-commandline/latest-prerelease/nuget.exe" `
+        -destinationFilePath $NuGetExe `
+        -message 'Downloading latest prerelease of nuget.exe'
 }
 
 Function Configure-NuGetCredentials {
@@ -296,8 +299,6 @@ Function Install-DotnetCLI {
     [CmdletBinding()]
     param()
 
-    Trace-Log 'Downloading Dotnet CLI'
-
     New-Item -ItemType Directory -Force -Path $CLIRoot | Out-Null
 
     $env:DOTNET_HOME=$CLIRoot
@@ -305,7 +306,9 @@ Function Install-DotnetCLI {
 
     $installDotnet = Join-Path $CLIRoot "dotnet-install.ps1"
 
-    wget -UseBasicParsing 'https://raw.githubusercontent.com/dotnet/cli/rel/1.0.0-preview2/scripts/obtain/dotnet-install.ps1' -OutFile $installDotnet
+    Get-HttpFile -sourceUri "https://raw.githubusercontent.com/dotnet/cli/rel/1.0.0-preview2/scripts/obtain/dotnet-install.ps1" `
+        -destinationFilePath $installDotnet `
+        -message 'Downloading Dotnet CLI'
 
     & $installDotnet -Channel preview -i $CLIRoot -Version 1.0.0-preview2-003121
 

@@ -4,7 +4,9 @@ param(
 )
 
 # This file is downloaded to "build/init.ps1" so use the parent folder as the root
-$NuGetClientRoot = Split-Path -Path $PSScriptRoot -Parent
+$NuGetRepoRoot = Split-Path -Path $PSScriptRoot -Parent
+
+. "$PSScriptRoot\HttpFileCaching.ps1"
 
 Function Get-BuildTools {
     param(
@@ -25,12 +27,12 @@ Function Get-BuildTools {
         param(
             [string]$Path
         )
-        
-        $DirectoryPath = (Join-Path $NuGetClientRoot $FilePath)
+
+        $DirectoryPath = (Join-Path $NuGetRepoRoot $FilePath)
         if (-not (Test-Path $DirectoryPath)) {
             New-Item -Path $DirectoryPath -ItemType "directory"
         }
-        
+
         $FolderUri = "$RootGitHubApiUri/$Path$Ref"
         Write-Host "Downloading files from $FolderUri"
         $Files = wget -UseBasicParsing $FolderUri | ConvertFrom-Json
@@ -38,8 +40,7 @@ Function Get-BuildTools {
             $FilePath = $File.path
             if ($File.type -eq "file") {
                 $DownloadUrl = $File.download_url
-                Write-Host "Downloading file at $DownloadUrl"
-                wget -UseBasicParsing -Uri $DownloadUrl -OutFile (Join-Path $NuGetClientRoot $FilePath)
+                Get-HttpFile -sourceUri $DownloadUrl -destinationFilePath (Join-Path $NuGetRepoRoot $FilePath) -message "Downloading file at $DownloadUrl"
             } elseif ($File.type -eq "dir") {
                 Get-Folder -Path $FilePath
             }
@@ -55,4 +56,4 @@ Function Get-BuildTools {
 Get-BuildTools -Branch $BuildBranch
 
 # Run common.ps1
-. "$NuGetClientRoot\build\common.ps1"
+. "$NuGetRepoRoot\build\common.ps1"
