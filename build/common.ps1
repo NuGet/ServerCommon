@@ -205,7 +205,7 @@ Function Update-Submodule {
         [string] $Name,
         [string] $Path,
         [string] $Branch,
-        [string] $Url
+        [string] $RemoteUrl
     )
 
     Trace-Log "Configuring submodule $Name ($Path) to use branch $Branch."
@@ -213,9 +213,9 @@ Function Update-Submodule {
 
     Invoke-Git -Arguments $args
 
-    If ($Url) {
-        Trace-Log "Configuring submodule $Name ($Path) to use URL $Url."
-        $args = 'config', '-f', "$NuGetClientRoot\.gitmodules", "submodule.$Path.url", "$Url"
+    If ($RemoteUrl) {
+        Trace-Log "Configuring submodule $Name ($Path) to use URL $RemoteUrl."
+        $args = 'config', '-f', "$NuGetClientRoot\.gitmodules", "submodule.$Path.url", "$RemoteUrl"
 
         Invoke-Git -Arguments $args
 
