@@ -37,7 +37,7 @@ namespace NuGet.Services.Logging.Tests
             }
         }
 
-        private int GetSerilogTraceListenerCount()
+        private static int GetSerilogTraceListenerCount()
         {
             return Trace.Listeners.OfType<SerilogTraceListener.SerilogTraceListener>().Count();
         }
