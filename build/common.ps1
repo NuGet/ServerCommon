@@ -86,14 +86,14 @@ Function Get-MSBuildExe {
         $MSBuildExe = Join-Path $MSBuildRoot ([string]$MSBuildVersion + ".0")
         Join-Path $MSBuildExe $MSBuildExeRelPath
     } else {
-        # Check if VS package to use to find MSBuild is installed and install it if it isn't
+        # Check if VS package to use to find $NuGetBuildPackageId is installed. If not, install it.
         if (-not ([AppDomain]::CurrentDomain.GetAssemblies() | `
             ForEach-Object { $_.GetTypes() } | `
             Where-Object { `
                 $_.FullName -like "NuGet.Services.Build.VisualStudioSetupConfigurationHelper" `
             }))
         {
-            Trace-Log 'Installing and configuring package to use to find MSBuild'
+            Trace-Log "Installing and configuring $NuGetBuildPackageId"
             $opts = "install", $NuGetBuildPackageId, "-Version", $NuGetBuildPackageVersion, "-Source", "https://dotnet.myget.org/F/nuget-build/api/v3/index.json", "-OutputDirectory", "$PSScriptRoot\packages"
             & $NuGetExe $opts | Out-Null
             if (-not $?) {
