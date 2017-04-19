@@ -12,8 +12,8 @@ $MSBuildRoot = Join-Path ${env:ProgramFiles(x86)} 'MSBuild\'
 $MSBuildExeRelPath = 'bin\msbuild.exe'
 $VisualStudioVersion = 14.0
 
-$VsConfigurationPackageId = 'NuGet.VisualStudio.Setup.Configuration.Interop'
-$VsConfigurationPackageVersion = '1.0.0'
+$NuGetBuildPackageId = 'NuGet.Services.Build'
+$NuGetBuildPackageVersion = '1.0.0'
 
 Set-Alias nuget $NuGetExe
 Set-Alias dotnet $DotNetExe
@@ -90,20 +90,20 @@ Function Get-MSBuildExe {
         if (-not ([AppDomain]::CurrentDomain.GetAssemblies() | `
             ForEach-Object { $_.GetTypes() } | `
             Where-Object { `
-                $_.FullName -like "NuGet.VisualStudio.Setup.Configuration.Interop.VisualStudioSetupConfigurationHelper" `
+                $_.FullName -like "NuGet.Services.Build.VisualStudioSetupConfigurationHelper" `
             }))
         {
-            Trace-Log 'Installing and configuring VS package to use to find MSBuild'
-            $opts = "install", $VsConfigurationPackageId, "-Version", $VsConfigurationPackageVersion, "-Source", "https://dotnet.myget.org/F/nuget-build/api/v3/index.json", "-OutputDirectory", "$PSScriptRoot"
+            Trace-Log 'Installing and configuring package to use to find MSBuild'
+            $opts = "install", $NuGetBuildPackageId, "-Version", $NuGetBuildPackageVersion, "-Source", "https://dotnet.myget.org/F/nuget-build/api/v3/index.json", "-OutputDirectory", "$PSScriptRoot\packages"
             & $NuGetExe $opts | Out-Null
             if (-not $?) {
-                Error-Log "Failed to install package $VsConfigurationPackageId $VsConfigurationPackageVersion!"
+                Error-Log "Failed to install package $NuGetBuildPackageId $NuGetBuildPackageVersion!"
             } else {
-                Add-Type -Path "$PSScriptRoot\$VsConfigurationPackageId.$VsConfigurationPackageVersion\lib\net452\$VsConfigurationPackageId.dll" | Out-Null
+                Add-Type -Path "$PSScriptRoot\packages\$NuGetBuildPackageId.$NuGetBuildPackageVersion\lib\net452\$NuGetBuildPackageId.dll" | Out-Null
             }
         }
         
-        $installations = [NuGet.VisualStudio.Setup.Configuration.Interop.VisualStudioSetupConfigurationHelper]::GetInstancePaths() | ForEach-Object {
+        $installations = [NuGet.Services.Build.VisualStudioSetupConfigurationHelper]::GetInstancePaths() | ForEach-Object {
             $MSBuildExe = Join-Path "$_\MSBuild" ([string]$MSBuildVersion + ".0")
             Join-Path $MSBuildExe $MSBuildExeRelPath
         } | Where-Object { Test-Path $_ }

@@ -22,7 +22,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.Services.Logging", "s
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.Services.Configuration.Tests", "tests\NuGet.Services.Configuration.Tests\NuGet.Services.Configuration.Tests.csproj", "{8C24FB60-456A-4570-8400-08970F421415}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.VisualStudio.Setup.Configuration.Interop", "src\NuGet.VisualStudio.Setup.Configuration.Interop\NuGet.VisualStudio.Setup.Configuration.Interop.csproj", "{7EBF325F-8671-46EF-B065-D9EB4C60B850}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.Services.Build", "src\NuGet.Services.Build\NuGet.Services.Build.csproj", "{7EBF325F-8671-46EF-B065-D9EB4C60B850}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

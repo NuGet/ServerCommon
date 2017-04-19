@@ -4,7 +4,7 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio.Setup.Configuration;
 
-namespace NuGet.VisualStudio.Setup.Configuration.Interop
+namespace NuGet.Services.Build
 {
     public static class VisualStudioSetupConfigurationHelper
     {

@@ -7,8 +7,8 @@
     <ProjectGuid>{7EBF325F-8671-46EF-B065-D9EB4C60B850}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NuGet.VisualStudio.Setup.Configuration.Interop</RootNamespace>
-    <AssemblyName>NuGet.VisualStudio.Setup.Configuration.Interop</AssemblyName>
+    <RootNamespace>NuGet.Services.Build</RootNamespace>
+    <AssemblyName>NuGet.Services.Build</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>

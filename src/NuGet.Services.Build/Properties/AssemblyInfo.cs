@@ -1,9 +1,9 @@
 ﻿using System.Reflection;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("NuGet.VisualStudio.Setup.Configuration.Interop")]
-[assembly: AssemblyDescription("Shared component to assist NuGet build scripts with finding Visual Studio installations.")]
-[assembly: AssemblyProduct("NuGet.VisualStudio.Setup.Configuration.Interop")]
+[assembly: AssemblyTitle("NuGet.Services.Build")]
+[assembly: AssemblyDescription("Shared component to assist NuGet build scripts.")]
+[assembly: AssemblyProduct("NuGet.Services.Build")]
 [assembly: AssemblyCompany(".NET Foundation")]
 [assembly: AssemblyCopyright("Copyright © .NET Foundation 2017")]
 [assembly: ComVisible(false)]
