@@ -108,6 +108,7 @@ Function Get-MSBuildExe {
         $installations = [NuGet.Services.Build.VisualStudioSetupConfigurationHelper]::GetInstancePaths() | ForEach-Object {
             $MSBuildRoot = Join-Path "$_\MSBuild" ([string]$MSBuildVersion + ".0")
             Join-Path $MSBuildRoot $MSBuildExeRelPath
+            Trace-Log "Checking for MSBuild at $(Join-Path $MSBuildRoot $MSBuildExeRelPath)"
         } | Where-Object { Test-Path $_ }
         
         $MSBuildPath = $installations[0]
