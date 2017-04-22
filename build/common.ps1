@@ -110,7 +110,11 @@ Function Get-MSBuildExe {
             Join-Path $MSBuildRoot $MSBuildExeRelPath
         } | Where-Object { Test-Path $_ })
         
-        $MSBuildPath = $installations[0]
+        if ($installations.Count -ge 1) {
+            $MSBuildPath = $installations[0]
+        } else {
+            Error-Log "Failed to find MSBuild $MSBuildVersion!"
+        }
     }
     
     Trace-Log "MSBuild found at $MSBuildPath"
