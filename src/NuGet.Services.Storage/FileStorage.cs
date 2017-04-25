@@ -6,16 +6,17 @@ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace NuGet.Services.Storage
 {
     public class FileStorage : Storage
     {
-        public FileStorage(string baseAddress, string path) 
-            : this(new Uri(baseAddress), path) { }
+        public FileStorage(string baseAddress, string path, ILoggerFactory loggerFactory) 
+            : this(new Uri(baseAddress), path, loggerFactory) { }
 
-        public FileStorage(Uri baseAddress, string path)
-            : base(baseAddress)
+        public FileStorage(Uri baseAddress, string path, ILoggerFactory loggerFactory)
+            : base(baseAddress, loggerFactory)
         {
             Path = path;
 

@@ -10,31 +10,31 @@ using System.IO.Compression;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace NuGet.Services.Storage
 {
     public class AzureStorage : Storage
     {
+        private readonly ILogger<AzureStorage> _logger;
         private readonly CloudBlobDirectory _directory;
 
-        public AzureStorage(CloudStorageAccount account, string containerName, string path, Uri baseAddress)
-            : this(account.CreateCloudBlobClient().GetContainerReference(containerName).GetDirectoryReference(path), baseAddress)
+        public AzureStorage(CloudStorageAccount account, string containerName, string path, Uri baseAddress, ILoggerFactory loggerFactory)
+            : this(account.CreateCloudBlobClient().GetContainerReference(containerName).GetDirectoryReference(path), baseAddress, loggerFactory)
         {
         }
 
-        private AzureStorage(CloudBlobDirectory directory, Uri baseAddress)
-            : base(baseAddress ?? GetDirectoryUri(directory))
+        private AzureStorage(CloudBlobDirectory directory, Uri baseAddress, ILoggerFactory loggerFactory)
+            : base(baseAddress ?? GetDirectoryUri(directory), loggerFactory)
         {
+            _logger = loggerFactory.CreateLogger<AzureStorage>();
             _directory = directory;
 
             if (_directory.Container.CreateIfNotExists())
             {
                 _directory.Container.SetPermissions(new BlobContainerPermissions { PublicAccess = BlobContainerPublicAccessType.Blob });
 
-                if (Verbose)
-                {
-                    Trace.WriteLine(String.Format("Created '{0}' publish container", _directory.Container.Name));
-                }
+                _logger.LogDebug("Created {ContainerName} publish container", _directory.Container.Name);
             }
 
             ResetStatistics();
@@ -69,10 +69,7 @@ namespace NuGet.Services.Storage
             {
                 return true;
             }
-            if (Verbose)
-            {
-                Trace.WriteLine(String.Format("The blob {0} does not exist.", packageRegistrationUri));
-            }
+            _logger.LogDebug("The blob {BlobUri} does not exist.", packageRegistrationUri);
             return false;
         }
 
@@ -91,7 +88,6 @@ namespace NuGet.Services.Storage
         }
 
         //  save
-
         protected override async Task OnSave(Uri resourceUri, StorageContent content, CancellationToken cancellationToken)
         {
             string name = GetName(resourceUri);
@@ -114,7 +110,7 @@ namespace NuGet.Services.Storage
 
                     destinationStream.Seek(0, SeekOrigin.Begin);
                     await blob.UploadFromStreamAsync(destinationStream, cancellationToken);
-                    Trace.WriteLine(String.Format("Saved compressed blob {0} to container {1}", blob.Uri.ToString(), _directory.Container.Name));
+                    _logger.LogInformation("Saved compressed blob {BlobUri} to container {ContainerName}", blob.Uri.ToString(), _directory.Container.Name);
                 }
             }
             else
@@ -122,13 +118,12 @@ namespace NuGet.Services.Storage
                 using (Stream stream = content.GetContentStream())
                 {
                     await blob.UploadFromStreamAsync(stream, cancellationToken);
-                    Trace.WriteLine(String.Format("Saved uncompressed blob {0} to container {1}", blob.Uri.ToString(), _directory.Container.Name));
+                    _logger.LogInformation("Saved uncompressed blob {BlobUri} to container {ContainerName}", blob.Uri.ToString(), _directory.Container.Name);
                 }
             }
         }
 
         //  load
-
         protected override async Task<StorageContent> OnLoad(Uri resourceUri, CancellationToken cancellationToken)
         {
             // the Azure SDK will treat a starting / as an absolute URL,
@@ -168,16 +163,12 @@ namespace NuGet.Services.Storage
                 return new StringStorageContent(content);
             }
 
-            if (Verbose)
-            {
-                Trace.WriteLine(String.Format("Can't load '{0}'. Blob doesn't exist", resourceUri));
-            }
+            _logger.LogDebug("Can't load {BlobUri}. Blob doesn't exist", resourceUri);
 
             return null;
         }
 
         //  delete
-
         protected override async Task OnDelete(Uri resourceUri, CancellationToken cancellationToken)
         {
             string name = GetName(resourceUri);

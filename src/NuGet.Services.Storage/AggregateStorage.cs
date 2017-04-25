@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace NuGet.Services.Storage
 {
@@ -22,8 +23,9 @@ namespace NuGet.Services.Storage
         private readonly WriteSecondaryStorageContentInterceptor _writeSecondaryStorageContentInterceptor;
         
         public AggregateStorage(Uri baseAddress, Storage primaryStorage, Storage[] secondaryStorage,
-            WriteSecondaryStorageContentInterceptor writeSecondaryStorageContentInterceptor)
-            : base(baseAddress)
+            WriteSecondaryStorageContentInterceptor writeSecondaryStorageContentInterceptor,
+            ILoggerFactory loggerFactory)
+            : base(baseAddress, loggerFactory)
         {
             _primaryStorage = primaryStorage;
             _secondaryStorage = secondaryStorage;

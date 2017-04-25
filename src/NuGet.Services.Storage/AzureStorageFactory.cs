@@ -3,6 +3,7 @@
 
 using Microsoft.WindowsAzure.Storage;
 using System;
+using Microsoft.Extensions.Logging;
 
 namespace NuGet.Services.Storage
 {
@@ -12,12 +13,14 @@ namespace NuGet.Services.Storage
         string _containerName;
         string _path;
         private Uri _differentBaseAddress = null;
+        private readonly ILoggerFactory _loggerFactory;
 
-        public AzureStorageFactory(CloudStorageAccount account, string containerName, string path = null, Uri baseAddress = null)
+        public AzureStorageFactory(CloudStorageAccount account, string containerName, ILoggerFactory loggerFactory, string path = null, Uri baseAddress = null)
         {
             _account = account;
             _containerName = containerName;
             _path = null;
+            _loggerFactory = loggerFactory;
 
             if (path != null)
             {
@@ -68,7 +71,7 @@ namespace NuGet.Services.Storage
                 newBase = new Uri(_differentBaseAddress, name + "/");
             }
 
-            return new AzureStorage(_account, _containerName, path, newBase) { Verbose = Verbose, CompressContent = CompressContent };
+            return new AzureStorage(_account, _containerName, path, newBase, _loggerFactory) { Verbose = Verbose, CompressContent = CompressContent };
         }
     }
 }

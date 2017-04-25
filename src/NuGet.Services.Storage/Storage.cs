@@ -8,16 +8,20 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using Microsoft.WindowsAzure.Storage;
 
 namespace NuGet.Services.Storage
 {
     public abstract class Storage : IStorage
     {
-        public Storage(Uri baseAddress)
+        private readonly ILogger<Storage> _logger;
+
+        public Storage(Uri baseAddress, ILoggerFactory loggerFactory)
         {
             string s = baseAddress.OriginalString.TrimEnd('/') + '/';
             BaseAddress = new Uri(s);
+            _logger = loggerFactory.CreateLogger<Storage>();
         }
 
         public override string ToString()
@@ -42,7 +46,7 @@ namespace NuGet.Services.Storage
             catch (Exception e)
             {
                 string message = String.Format("SAVE EXCEPTION: {0} {1}", resourceUri, e.Message);
-                Trace.WriteLine(message);
+                _logger.LogError("SAVE EXCEPTION: {ResourceUri} {Exception}", resourceUri, e);
                 throw new Exception(message, e);
             }
         }
@@ -60,7 +64,7 @@ namespace NuGet.Services.Storage
             catch (Exception e)
             {
                 string message = String.Format("LOAD EXCEPTION: {0} {1}", resourceUri, e.Message);
-                Trace.WriteLine(message);
+                _logger.LogError("LOAD EXCEPTION: {ResourceUri} {Exception}", resourceUri, e);
                 throw new Exception(message, e);
             }
         }
@@ -94,7 +98,7 @@ namespace NuGet.Services.Storage
             catch (Exception e)
             {
                 string message = String.Format("DELETE EXCEPTION: {0} {1}", resourceUri, e.Message);
-                Trace.WriteLine(message);
+                _logger.LogError("DELETE EXCEPTION: {ResourceUri} {Exception}", resourceUri, e);
                 throw new Exception(message, e);
             }
         }
@@ -189,10 +193,7 @@ namespace NuGet.Services.Storage
 
         protected void TraceMethod(string method, Uri resourceUri)
         {
-            if (Verbose)
-            {
-                Trace.WriteLine(String.Format("{0} {1}", method, resourceUri));
-            }
+            _logger.LogDebug("{Method} {ResourceUri}", method, resourceUri);
         }
     }
 }

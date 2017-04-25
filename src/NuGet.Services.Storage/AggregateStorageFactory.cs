@@ -3,24 +3,28 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Extensions.Logging;
 
 namespace NuGet.Services.Storage
 {
     public class AggregateStorageFactory : StorageFactory
     {
         private readonly AggregateStorage.WriteSecondaryStorageContentInterceptor _writeSecondaryStorageContentInterceptor;
+        private readonly ILoggerFactory _loggerFactory;
 
-        public AggregateStorageFactory(StorageFactory primaryStorageFactory, StorageFactory[] secondaryStorageFactories)
-            : this(primaryStorageFactory, secondaryStorageFactories, null)
+        public AggregateStorageFactory(StorageFactory primaryStorageFactory, StorageFactory[] secondaryStorageFactories, ILoggerFactory loggerFactory)
+            : this(primaryStorageFactory, secondaryStorageFactories, null, loggerFactory)
         {
         }
 
         public AggregateStorageFactory(StorageFactory primaryStorageFactory, StorageFactory[] secondaryStorageFactories,
-            AggregateStorage.WriteSecondaryStorageContentInterceptor writeSecondaryStorageContentInterceptor)
+            AggregateStorage.WriteSecondaryStorageContentInterceptor writeSecondaryStorageContentInterceptor,
+            ILoggerFactory loggerFactory)
         { 
             PrimaryStorageFactory = primaryStorageFactory;
             SecondaryStorageFactories = secondaryStorageFactories;
             _writeSecondaryStorageContentInterceptor = writeSecondaryStorageContentInterceptor;
+            _loggerFactory = loggerFactory;
 
             BaseAddress = PrimaryStorageFactory.BaseAddress;
         }
@@ -34,7 +38,8 @@ namespace NuGet.Services.Storage
                 PrimaryStorageFactory.BaseAddress,
                 primaryStorage,
                 secondaryStorage,
-                _writeSecondaryStorageContentInterceptor);
+                _writeSecondaryStorageContentInterceptor,
+                _loggerFactory);
         }
 
         public StorageFactory PrimaryStorageFactory { get; }
