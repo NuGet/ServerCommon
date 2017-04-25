@@ -193,7 +193,10 @@ namespace NuGet.Services.Storage
 
         protected void TraceMethod(string method, Uri resourceUri)
         {
-            _logger.LogDebug("{Method} {ResourceUri}", method, resourceUri);
+            if (Verbose)
+            {
+                _logger.LogInformation("{Method} {ResourceUri}", method, resourceUri);
+            }
         }
     }
 }

@@ -34,7 +34,10 @@ namespace NuGet.Services.Storage
             {
                 _directory.Container.SetPermissions(new BlobContainerPermissions { PublicAccess = BlobContainerPublicAccessType.Blob });
 
-                _logger.LogDebug("Created {ContainerName} publish container", _directory.Container.Name);
+                if (Verbose)
+                {
+                    _logger.LogInformation("Created {ContainerName} publish container", _directory.Container.Name);
+                }
             }
 
             ResetStatistics();
@@ -69,7 +72,10 @@ namespace NuGet.Services.Storage
             {
                 return true;
             }
-            _logger.LogDebug("The blob {BlobUri} does not exist.", packageRegistrationUri);
+            if (Verbose)
+            {
+                _logger.LogInformation("The blob {BlobUri} does not exist.", packageRegistrationUri);
+            }
             return false;
         }
 
@@ -163,7 +169,10 @@ namespace NuGet.Services.Storage
                 return new StringStorageContent(content);
             }
 
-            _logger.LogDebug("Can't load {BlobUri}. Blob doesn't exist", resourceUri);
+            if (Verbose)
+            {
+                _logger.LogInformation("Can't load {BlobUri}. Blob doesn't exist", resourceUri);
+            }
 
             return null;
         }
