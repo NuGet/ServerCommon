@@ -7,9 +7,9 @@ namespace NuGet.Services.Storage
 {
     public class StorageListItem
     {
-        public Uri Uri { get; set; }
+        public Uri Uri { get; private set; }
 
-        public DateTime? LastModifiedUtc { get; set; }
+        public DateTime? LastModifiedUtc { get; private set; }
 
         public StorageListItem(Uri uri, DateTime? lastModifiedUtc)
         {
