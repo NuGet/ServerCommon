@@ -10,10 +10,10 @@ namespace NuGet.Services.Storage
     public class AggregateStorageFactory : StorageFactory
     {
         private readonly AggregateStorage.WriteSecondaryStorageContentInterceptor _writeSecondaryStorageContentInterceptor;
-        private readonly ILogger<AggregateStorage> _aggregateStorageFactory;
+        private readonly ILogger<AggregateStorage> _aggregateStorageCursor;
 
-        public AggregateStorageFactory(StorageFactory primaryStorageFactory, ICollection<StorageFactory> secondaryStorageFactories, ILogger<AggregateStorage> aggregateStorageFactory)
-            : this(primaryStorageFactory, secondaryStorageFactories, null, aggregateStorageFactory)
+        public AggregateStorageFactory(StorageFactory primaryStorageFactory, ICollection<StorageFactory> secondaryStorageFactories, ILogger<AggregateStorage> aggregateStorageCursor)
+            : this(primaryStorageFactory, secondaryStorageFactories, null, aggregateStorageCursor)
         {
         }
 
@@ -24,7 +24,7 @@ namespace NuGet.Services.Storage
             PrimaryStorageFactory = primaryStorageFactory;
             SecondaryStorageFactories = secondaryStorageFactories;
             _writeSecondaryStorageContentInterceptor = writeSecondaryStorageContentInterceptor;
-            _aggregateStorageFactory = aggregateStorageFactory;
+            _aggregateStorageCursor = aggregateStorageFactory;
 
             BaseAddress = PrimaryStorageFactory.BaseAddress;
         }
@@ -39,7 +39,7 @@ namespace NuGet.Services.Storage
                 primaryStorage,
                 secondaryStorage,
                 _writeSecondaryStorageContentInterceptor,
-                _aggregateStorageFactory);
+                _aggregateStorageCursor);
         }
 
         public StorageFactory PrimaryStorageFactory { get; }
