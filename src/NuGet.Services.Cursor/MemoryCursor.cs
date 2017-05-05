@@ -8,13 +8,13 @@ namespace NuGet.Services.Cursor
 {
     public class MemoryCursor : ReadWriteCursor<DateTimeOffset>
     {
-        public static DateTime MinValue = DateTime.MinValue.ToUniversalTime();
-        public static DateTime MaxValue = DateTime.MaxValue.ToUniversalTime();
+        public static DateTimeOffset MinValue = DateTimeOffset.MinValue.ToUniversalTime();
+        public static DateTimeOffset MaxValue = DateTimeOffset.MaxValue.ToUniversalTime();
 
         public static MemoryCursor CreateMin() { return new MemoryCursor(MinValue); }
         public static MemoryCursor CreateMax() { return new MemoryCursor(MaxValue); }
 
-        public MemoryCursor(DateTime value)
+        public MemoryCursor(DateTimeOffset value)
         {
             Value = value;
         }

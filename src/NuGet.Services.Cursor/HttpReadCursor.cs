@@ -35,7 +35,7 @@ namespace NuGet.Services.Cursor
                 string json = await response.Content.ReadAsStringAsync();
 
                 JObject obj = JObject.Parse(json);
-                Value = obj["value"].ToObject<DateTime>();
+                Value = obj["value"].ToObject<DateTimeOffset>();
             }
 
             Trace.TraceInformation("HttpReadCursor.Load: {0}", this);

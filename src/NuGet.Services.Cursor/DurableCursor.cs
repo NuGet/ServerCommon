@@ -12,9 +12,9 @@ namespace NuGet.Services.Cursor
     {
         Uri _address;
         Storage.Storage _storage;
-        DateTime _defaultValue;
+        DateTimeOffset _defaultValue;
 
-        public DurableCursor(Uri address, Storage.Storage storage, DateTime defaultValue)
+        public DurableCursor(Uri address, Storage.Storage storage, DateTimeOffset defaultValue)
         {
             _address = address;
             _storage = storage;
@@ -39,7 +39,7 @@ namespace NuGet.Services.Cursor
             }
 
             JObject obj = JObject.Parse(json);
-            Value = obj["value"].ToObject<DateTime>();
+            Value = obj["value"].ToObject<DateTimeOffset>();
         }
     }
 }
