@@ -6,15 +6,10 @@ using System.Threading.Tasks;
 
 namespace NuGet.Services.Cursor
 {
-    public abstract class ReadCursor
+    public abstract class ReadCursor<T>
     {
-        public DateTime Value { get; set; }
+        public T Value { get; set; }
 
         public abstract Task Load(CancellationToken cancellationToken);
-
-        public override string ToString()
-        {
-            return Value.ToString("O");
-        }
     }
 }

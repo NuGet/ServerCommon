@@ -8,7 +8,7 @@ using NuGet.Services.Storage;
 
 namespace NuGet.Services.Cursor
 {
-    public class DurableCursor : ReadWriteCursor
+    public class DurableCursor : ReadWriteCursor<DateTimeOffset>
     {
         Uri _address;
         Storage.Storage _storage;

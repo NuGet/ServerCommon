@@ -9,7 +9,7 @@ using Newtonsoft.Json.Linq;
 
 namespace NuGet.Services.Cursor
 {
-    public class HttpReadCursor : ReadCursor
+    public class HttpReadCursor : ReadCursor<DateTimeOffset>
     {
         Uri _address;
         Func<HttpMessageHandler> _handlerFunc;

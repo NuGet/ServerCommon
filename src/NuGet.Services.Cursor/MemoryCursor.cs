@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NuGet.Services.Cursor
 {
-    public class MemoryCursor : ReadWriteCursor
+    public class MemoryCursor : ReadWriteCursor<DateTimeOffset>
     {
         public static DateTime MinValue = DateTime.MinValue.ToUniversalTime();
         public static DateTime MaxValue = DateTime.MaxValue.ToUniversalTime();
