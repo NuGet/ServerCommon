@@ -10,21 +10,21 @@ namespace NuGet.Services.Storage
     public class AggregateStorageFactory : StorageFactory
     {
         private readonly AggregateStorage.WriteSecondaryStorageContentInterceptor _writeSecondaryStorageContentInterceptor;
-        private readonly ILoggerFactory _loggerFactory;
+        private readonly ILogger<AggregateStorage> _aggregateStorageFactory;
 
-        public AggregateStorageFactory(StorageFactory primaryStorageFactory, StorageFactory[] secondaryStorageFactories, ILoggerFactory loggerFactory)
-            : this(primaryStorageFactory, secondaryStorageFactories, null, loggerFactory)
+        public AggregateStorageFactory(StorageFactory primaryStorageFactory, ICollection<StorageFactory> secondaryStorageFactories, ILogger<AggregateStorage> aggregateStorageFactory)
+            : this(primaryStorageFactory, secondaryStorageFactories, null, aggregateStorageFactory)
         {
         }
 
-        public AggregateStorageFactory(StorageFactory primaryStorageFactory, StorageFactory[] secondaryStorageFactories,
+        public AggregateStorageFactory(StorageFactory primaryStorageFactory, ICollection<StorageFactory> secondaryStorageFactories,
             AggregateStorage.WriteSecondaryStorageContentInterceptor writeSecondaryStorageContentInterceptor,
-            ILoggerFactory loggerFactory)
+            ILogger<AggregateStorage> aggregateStorageFactory)
         { 
             PrimaryStorageFactory = primaryStorageFactory;
             SecondaryStorageFactories = secondaryStorageFactories;
             _writeSecondaryStorageContentInterceptor = writeSecondaryStorageContentInterceptor;
-            _loggerFactory = loggerFactory;
+            _aggregateStorageFactory = aggregateStorageFactory;
 
             BaseAddress = PrimaryStorageFactory.BaseAddress;
         }
@@ -39,7 +39,7 @@ namespace NuGet.Services.Storage
                 primaryStorage,
                 secondaryStorage,
                 _writeSecondaryStorageContentInterceptor,
-                _loggerFactory);
+                _aggregateStorageFactory);
         }
 
         public StorageFactory PrimaryStorageFactory { get; }
