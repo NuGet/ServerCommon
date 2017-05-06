@@ -15,7 +15,7 @@ namespace NuGet.Services.Cursor.Tests
     public class DurableCursorFacts
     {
         [Fact]
-        public void SavesToStorage()
+        public async void SavesToStorage()
         {
             var storageMock = CreateStorageMock();
             storageMock
@@ -24,12 +24,12 @@ namespace NuGet.Services.Cursor.Tests
                 .Verifiable();
 
             var durableCursor = new DurableCursor(new Uri("http://localhost/cursor.json"), storageMock.Object, new DateTimeOffset(2017, 5, 5, 17, 8, 42, TimeSpan.Zero));
-            durableCursor.Save(CancellationToken.None).Wait();
+            await durableCursor.Save(CancellationToken.None);
             storageMock.Verify();
         }
 
         [Fact]
-        public void LoadsFromStorage()
+        public async void LoadsFromStorage()
         {
             var storageMock = CreateStorageMock();
             storageMock
@@ -38,12 +38,12 @@ namespace NuGet.Services.Cursor.Tests
                 .Verifiable();
 
             var durableCursor = new DurableCursor(new Uri("http://localhost/cursor.json"), storageMock.Object, new DateTimeOffset(2017, 5, 5, 17, 8, 42, TimeSpan.Zero));
-            durableCursor.Load(CancellationToken.None).Wait();
+            await durableCursor.Load(CancellationToken.None);
             storageMock.Verify();
         }
 
         [Fact]
-        public void UsesDefaultValue()
+        public async void UsesDefaultValue()
         {
             var storageMock = CreateStorageMock();
             storageMock
@@ -52,9 +52,36 @@ namespace NuGet.Services.Cursor.Tests
 
             DateTimeOffset defaultValue = new DateTimeOffset(2017, 5, 5, 17, 8, 42, TimeSpan.Zero);
             var durableCursor = new DurableCursor(new Uri("http://localhost/cursor.json"), storageMock.Object, defaultValue);
-            durableCursor.Load(CancellationToken.None).Wait();
+            await durableCursor.Load(CancellationToken.None);
 
             Assert.Equal(defaultValue, durableCursor.Value);
+        }
+
+        [Fact]
+        public async void CanReadWhatItSaves()
+        {
+            StorageContent savedContent = null;
+
+            var storageMock = CreateStorageMock();
+            storageMock
+                .Protected().Setup<Task>("OnSave", ItExpr.IsAny<Uri>(), ItExpr.IsAny<StorageContent>(), ItExpr.IsAny<CancellationToken>())
+                .Callback<Uri, StorageContent, CancellationToken>((uri, content, token) => { savedContent = content; })
+                .Returns(Task.FromResult(0));
+
+            storageMock
+                .Protected().Setup<Task<StorageContent>>("OnLoad", ItExpr.IsAny<Uri>(), ItExpr.IsAny<CancellationToken>())
+                .Returns<Uri, CancellationToken>((uri, token) => Task.FromResult(savedContent));
+
+            DateTimeOffset defaultValue = new DateTimeOffset(2017, 5, 5, 17, 8, 42, TimeSpan.Zero);
+            DateTimeOffset actualValue = new DateTimeOffset(2017, 5, 5, 17, 49, 42, TimeSpan.Zero);
+            var durableCursorSaver = new DurableCursor(new Uri("http://localhost/cursor.json"), storageMock.Object, defaultValue);
+            durableCursorSaver.Value = actualValue;
+            await durableCursorSaver.Save(CancellationToken.None);
+
+            var durableCursorLoader = new DurableCursor(new Uri("http://localhost/cursor.json"), storageMock.Object, defaultValue);
+            await durableCursorLoader.Load(CancellationToken.None);
+
+            Assert.Equal(actualValue, durableCursorLoader.Value);
         }
 
         private static Mock<Storage.Storage> CreateStorageMock()
