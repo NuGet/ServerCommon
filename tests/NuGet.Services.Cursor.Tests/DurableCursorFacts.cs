@@ -87,12 +87,8 @@ namespace NuGet.Services.Cursor.Tests
         private static Mock<Storage.Storage> CreateStorageMock()
         {
             var loggerMock = new Mock<ILogger<Storage.Storage>>();
-            var loggerFactoryMock = new Mock<ILoggerFactory>();
-            loggerFactoryMock
-                .Setup(f => f.CreateLogger(It.IsAny<string>()))
-                .Returns(loggerMock.Object);
 
-            return new Mock<Storage.Storage>(MockBehavior.Strict, new Uri("http://localhost/"), loggerFactoryMock.Object);
+            return new Mock<Storage.Storage>(MockBehavior.Strict, new Uri("http://localhost/"), loggerMock.Object);
         }
     }
 }
