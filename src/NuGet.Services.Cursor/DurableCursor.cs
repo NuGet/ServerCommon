@@ -16,8 +16,8 @@ namespace NuGet.Services.Cursor
 
         public DurableCursor(Uri address, Storage.Storage storage, DateTimeOffset defaultValue)
         {
-            _address = address;
-            _storage = storage;
+            _address = address ?? throw new ArgumentNullException(nameof(address));
+            _storage = storage ?? throw new ArgumentNullException(nameof(storage));
             _defaultValue = defaultValue;
         }
 
