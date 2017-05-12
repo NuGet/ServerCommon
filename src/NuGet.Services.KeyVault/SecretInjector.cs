@@ -46,8 +46,8 @@ namespace NuGet.Services.KeyVault
 
             foreach (var secretName in secretNames)
             {
-                var secretValue = await _secretReader.GetSecretAsync(secretName);
-                output.Replace($"{_frame}{secretName}{_frame}", secretValue);
+                var secret = await _secretReader.GetSecretAsync(secretName);
+                output.Replace($"{_frame}{secretName}{_frame}", secret.Value);
             }
 
             return output.ToString();
