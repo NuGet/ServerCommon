@@ -52,7 +52,7 @@ namespace NuGet.Services.Owin.Tests
             await middleware.Invoke(context);
 
             next.Verify(n => n.Invoke(It.IsAny<IOwinContext>()), Times.Never());
-            Assert.Equal((int)HttpStatusCode.Forbidden, context.Response.StatusCode);
+            Assert.Equal((int)HttpStatusCode.BadRequest, context.Response.StatusCode);
         }
 
         private static IOwinContext CreateOwinContext(string method, Uri uri)

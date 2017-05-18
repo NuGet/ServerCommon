@@ -32,7 +32,7 @@ namespace NuGet.Services.Owin
                 }
                 else
                 {
-                    context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
+                    context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                     context.Response.ReasonPhrase = "SSL Required";
                 }
             }
