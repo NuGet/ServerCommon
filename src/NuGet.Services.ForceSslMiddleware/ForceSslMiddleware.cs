@@ -7,7 +7,7 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Owin;
 
-namespace NuGet.Services.ForceSslMiddleware
+namespace NuGet.Services.Owin
 {
     public class ForceSslMiddleware : OwinMiddleware
     {

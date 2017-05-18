@@ -8,7 +8,7 @@ using Microsoft.Owin;
 using Moq;
 using Xunit;
 
-namespace NuGet.Services.ForceSslMiddleware.Tests
+namespace NuGet.Services.Owin.Tests
 {
     public class ForceSslMiddlewareFacts
     {
