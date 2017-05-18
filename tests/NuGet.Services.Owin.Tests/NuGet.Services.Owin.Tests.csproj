@@ -47,7 +47,7 @@
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\src\NuGet.Services.ForceSslMiddleware\NuGet.Services.Owin.csproj">
+    <ProjectReference Include="..\..\src\NuGet.Services.Owin\NuGet.Services.Owin.csproj">
       <Project>{5af3ce0b-9c47-4fd0-83f6-d6c1e0a50e85}</Project>
       <Name>NuGet.Services.Owin</Name>
     </ProjectReference>

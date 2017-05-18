@@ -28,9 +28,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.Services.Logging.Test
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.Services.Storage", "src\NuGet.Services.Storage\NuGet.Services.Storage.csproj", "{AED43955-2676-48EC-A27E-6965008D4B3B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.Services.Owin", "src\NuGet.Services.ForceSslMiddleware\NuGet.Services.Owin.csproj", "{5AF3CE0B-9C47-4FD0-83F6-D6C1E0A50E85}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.Services.Owin", "src\NuGet.Services.Owin\NuGet.Services.Owin.csproj", "{5AF3CE0B-9C47-4FD0-83F6-D6C1E0A50E85}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.Services.Owin.Tests", "tests\NuGet.Services.ForceSslMiddleware.Tests\NuGet.Services.Owin.Tests.csproj", "{037B35D5-05A7-4333-AA91-B8002068B0B2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.Services.Owin.Tests", "tests\NuGet.Services.Owin.Tests\NuGet.Services.Owin.Tests.csproj", "{037B35D5-05A7-4333-AA91-B8002068B0B2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
