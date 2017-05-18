@@ -19,7 +19,8 @@ namespace NuGet.Services.ForceSslMiddleware.Tests
         [InlineData("HEAD", 1234)]
         public async Task RedirectsGetHeadToHttps(string method, int sslPort)
         {
-            var context = CreateOwinContext(method, "http://localhost");
+            var uri = new Uri("http://localhost:8080/somepath/somedocument?somequery=somevalue");
+            var context = CreateOwinContext(method, uri);
             var next = CreateOwinMiddleware();
 
             var middleware = new ForceSslMiddleware(next.Object, sslPort);
@@ -30,6 +31,8 @@ namespace NuGet.Services.ForceSslMiddleware.Tests
             Uri targetUri = new Uri(context.Response.Headers["Location"]);
             Assert.Equal(Uri.UriSchemeHttps, targetUri.Scheme);
             Assert.Equal(sslPort, targetUri.Port);
+            Assert.Equal(uri.Host, targetUri.Host);
+            Assert.Equal(uri.PathAndQuery, targetUri.PathAndQuery);
         }
 
         [Theory]
@@ -42,7 +45,7 @@ namespace NuGet.Services.ForceSslMiddleware.Tests
         [InlineData("PATCH")]
         public async Task ForbidsNonGetHead(string method)
         {
-            var context = CreateOwinContext(method, "http://localhost");
+            var context = CreateOwinContext(method, new Uri("http://localhost"));
             var next = CreateOwinMiddleware();
 
             var middleware = new ForceSslMiddleware(next.Object, 443);
@@ -52,11 +55,10 @@ namespace NuGet.Services.ForceSslMiddleware.Tests
             Assert.Equal((int)HttpStatusCode.Forbidden, context.Response.StatusCode);
         }
 
-        private static IOwinContext CreateOwinContext(string method, string url)
+        private static IOwinContext CreateOwinContext(string method, Uri uri)
         {
             var ctx = new OwinContext();
 
-            Uri uri = new Uri(url);
             ctx.Request.Scheme = uri.Scheme;
             ctx.Request.Host = HostString.FromUriComponent(uri);
             ctx.Request.PathBase = new PathString("");
