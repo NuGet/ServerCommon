@@ -80,7 +80,7 @@ Invoke-BuildStep 'Restoring solution packages' { `
         
 Invoke-BuildStep 'Building solution' { `
         $SolutionPath = Join-Path $PSScriptRoot "NuGet.Server.Common.sln"
-        Build-Solution $Configuration $BuildNumber -MSBuildVersion "14" $SolutionPath -SkipRestore:$SkipRestore
+        Build-Solution $Configuration $BuildNumber -MSBuildVersion "15" $SolutionPath -SkipRestore:$SkipRestore
     } `
     -ev +BuildErrors
     
@@ -94,7 +94,7 @@ Invoke-BuildStep 'Creating artifacts' { `
             "src\NuGet.Services.Owin\NuGet.Services.Owin.csproj"
         
         $projects | ForEach-Object {
-            New-Package (Join-Path $PSScriptRoot $_) -Configuration $Configuration -Symbols -IncludeReferencedProjects -MSBuildVersion "14"
+            New-Package (Join-Path $PSScriptRoot $_) -Configuration $Configuration -Symbols -IncludeReferencedProjects -MSBuildVersion "15"
         }
     } `
     -ev +BuildErrors
