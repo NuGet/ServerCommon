@@ -65,7 +65,7 @@ Invoke-BuildStep 'Set version metadata in AssemblyInfo.cs' { `
             "$PSScriptRoot\src\NuGet.Services.Configuration\Properties\AssemblyInfo.g.cs", `
             "$PSScriptRoot\src\NuGet.Services.Build\Properties\AssemblyInfo.g.cs",`
             "$PSScriptRoot\src\NuGet.Services.Storage\Properties\AssemblyInfo.g.cs",`
-            "$PSScriptRoot\src\NuGet.Services.ForceSslMiddleware\Properties\AssemblyInfo.g.cs"
+            "$PSScriptRoot\src\NuGet.Services.Owin\Properties\AssemblyInfo.g.cs"
             
         $versionMetadata | ForEach-Object {
             Set-VersionInfo -Path $_ -Version $SimpleVersion -Branch $Branch -Commit $CommitSHA
@@ -91,7 +91,7 @@ Invoke-BuildStep 'Creating artifacts' { `
             "src\NuGet.Services.Configuration\NuGet.Services.Configuration.csproj", `
             "src\NuGet.Services.Build\NuGet.Services.Build.csproj",`
             "src\NuGet.Services.Storage\NuGet.Services.Storage.csproj",`
-            "src\NuGet.Services.ForceSslMiddleware\NuGet.Services.ForceSslMiddleware.csproj"
+            "src\NuGet.Services.Owin\NuGet.Services.Owin.csproj"
         
         $projects | ForEach-Object {
             New-Package (Join-Path $PSScriptRoot $_) -Configuration $Configuration -Symbols -IncludeReferencedProjects -MSBuildVersion "14"
