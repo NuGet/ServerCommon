@@ -8,7 +8,7 @@ namespace NuGet.Services.Cursor
 {
     public abstract class ReadCursor<T>
     {
-        public T Value { get; set; }
+        public virtual T Value { get; set; }
 
         public abstract Task Load(CancellationToken cancellationToken);
     }
