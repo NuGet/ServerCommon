@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using System.Text.RegularExpressions;
 using NuGet.Services.Owin;
 
 namespace Owin
@@ -19,9 +18,9 @@ namespace Owin
             return appBuilder.Use<ForceSslMiddleware>(sslPort);
         }
 
-        public static IAppBuilder UseForceSsl(this IAppBuilder appBuilder, int sslPort, IEnumerable<Regex> excludedPathPatterns)
+        public static IAppBuilder UseForceSsl(this IAppBuilder appBuilder, int sslPort, IEnumerable<string> excludedPaths)
         {
-            return appBuilder.Use<ForceSslMiddleware>(sslPort, excludedPathPatterns);
+            return appBuilder.Use<ForceSslMiddleware>(sslPort, excludedPaths);
         }
     }
 }

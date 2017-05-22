@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Owin;
 
@@ -15,21 +14,21 @@ namespace NuGet.Services.Owin
     public class ForceSslMiddleware : OwinMiddleware
     {
         private readonly int _sslPort;
-        private readonly List<Regex> _exclusionPathPatterns;
+        private readonly HashSet<string> _exclusionPathPatterns;
 
         public ForceSslMiddleware(OwinMiddleware next, int sslPort)
-            : this(next, sslPort, Enumerable.Empty<Regex>())
+            : this(next, sslPort, Enumerable.Empty<string>())
         {
         }
 
         public ForceSslMiddleware(
             OwinMiddleware next, 
             int sslPort, 
-            IEnumerable<Regex> exclusionPathPatterns)
+            IEnumerable<string> exclusionPathPatterns)
             : base(next ?? throw new ArgumentNullException(nameof(next)))
         {
             _sslPort = sslPort;
-            _exclusionPathPatterns = exclusionPathPatterns.ToList();
+            _exclusionPathPatterns = new HashSet<string>(exclusionPathPatterns);
         }
 
         public override async Task Invoke(IOwinContext context)
@@ -60,7 +59,7 @@ namespace NuGet.Services.Owin
 
         private bool IsExcludedPath(string path)
         {
-            return _exclusionPathPatterns.Any(p => p.IsMatch(path));
+            return _exclusionPathPatterns.Contains(path);
         }
 
         private static bool IsAllowedMethod(string method)
