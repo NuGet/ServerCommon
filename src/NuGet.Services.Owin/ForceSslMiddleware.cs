@@ -28,7 +28,7 @@ namespace NuGet.Services.Owin
             : base(next ?? throw new ArgumentNullException(nameof(next)))
         {
             _sslPort = sslPort;
-            _exclusionPathPatterns = new HashSet<string>(exclusionPathPatterns);
+            _exclusionPathPatterns = new HashSet<string>(exclusionPathPatterns, StringComparer.OrdinalIgnoreCase);
         }
 
         public override async Task Invoke(IOwinContext context)

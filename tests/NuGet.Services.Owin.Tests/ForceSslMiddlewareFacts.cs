@@ -59,8 +59,8 @@ namespace NuGet.Services.Owin.Tests
 
         [Theory]
         [InlineData("http://localhost/", new[] { "/" })]
-        [InlineData("http://localhost/search/diag", new[] { "/", "/search/diag" })]
-        [InlineData("http://localhost/somepath?something=somevalue", new[] { "/", "/somepath" })]
+        [InlineData("http://localhost/Search/Diag", new[] { "/", "/search/diag" })]
+        [InlineData("http://localhost/somepath?something=somevalue", new[] { "/", "/SomePath" })]
         public async Task RespectsExclusionList(string url, IEnumerable<string> excludedPaths)
         {
             var uri = new Uri(url);
@@ -76,7 +76,7 @@ namespace NuGet.Services.Owin.Tests
         [Theory]
         [InlineData("http://localhost/", new[] { "/health" })]
         [InlineData("http://localhost/search/diag", new[] { "/" })]
-        [InlineData("http://localhost/somepath?something=somevalue", new[] { "/", "/someotherpath" })]
+        [InlineData("http://localhost/somepath?something=somevalue", new[] { "/", "/SomeOtherPath" })]
         public async Task RedirectsNotExludedUrls(string url, IEnumerable<string> excludedPaths)
         {
             var uri = new Uri(url);
