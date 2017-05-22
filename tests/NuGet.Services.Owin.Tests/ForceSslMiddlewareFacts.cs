@@ -2,7 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Net;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Microsoft.Owin;
 using Moq;
@@ -53,6 +56,40 @@ namespace NuGet.Services.Owin.Tests
 
             next.Verify(n => n.Invoke(It.IsAny<IOwinContext>()), Times.Never());
             Assert.Equal((int)HttpStatusCode.BadRequest, context.Response.StatusCode);
+        }
+
+        [Theory]
+        [InlineData("http://localhost/", new[] { "^/$" })]
+        [InlineData("http://localhost/search/diag", new[] { "^/$", "^/search/diag$" })]
+        [InlineData("http://localhost/somepath?something=somevalue", new[] { "^/$", "^/somepath$" })]
+        public async Task RespectsExclusionList(string url, IEnumerable<string> exclusionPaths)
+        {
+            var uri = new Uri(url);
+            var exclusionList = exclusionPaths.Select(p => new Regex(p, RegexOptions.IgnoreCase));
+            var context = CreateOwinContext("GET", uri);
+            var next = CreateOwinMiddleware();
+
+            var middleware = new ForceSslMiddleware(next.Object, 443, exclusionList);
+            await middleware.Invoke(context);
+
+            Assert.Equal((int)HttpStatusCode.OK, context.Response.StatusCode);
+        }
+
+        [Theory]
+        [InlineData("http://localhost/", new[] { "^/health$" })]
+        [InlineData("http://localhost/search/diag", new[] { "^/$" })]
+        [InlineData("http://localhost/somepath?something=somevalue", new[] { "^/$", "^/someotherpath$" })]
+        public async Task RedirectsNotExludedUrls(string url, IEnumerable<string> exclusionPaths)
+        {
+            var uri = new Uri(url);
+            var exclusionList = exclusionPaths.Select(p => new Regex(p, RegexOptions.IgnoreCase));
+            var context = CreateOwinContext("GET", uri);
+            var next = CreateOwinMiddleware();
+
+            var middleware = new ForceSslMiddleware(next.Object, 443, exclusionList);
+            await middleware.Invoke(context);
+
+            Assert.Equal((int)HttpStatusCode.Found, context.Response.StatusCode);
         }
 
         private static IOwinContext CreateOwinContext(string method, Uri uri)
