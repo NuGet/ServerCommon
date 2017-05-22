@@ -2,10 +2,10 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Linq;
 using Microsoft.ApplicationInsights.Extensibility;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
+using System.Collections.Generic;
 
 namespace NuGet.Services.Logging
 {
@@ -20,7 +20,7 @@ namespace NuGet.Services.Logging
         /// <summary>
         /// The response codes that should always be marked as successful.
         /// </summary>
-        public int[] SuccessfulResponseCodes { get; set; }
+        public IList<int> SuccessfulResponseCodes { get; } = new List<int>();
 
         public TelemetryResponseCodeProcessor(ITelemetryProcessor next)
         {
