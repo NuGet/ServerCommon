@@ -40,10 +40,8 @@ namespace NuGet.Services.Logging
 
             ITelemetry nextItem = null;
 
-            if (TryProcess(item as RequestTelemetry))
-            {
-            }
-            else if (TryProcess(item as ExceptionTelemetry, out nextItem))
+            if (!TryProcess(item as RequestTelemetry) &&
+                TryProcess(item as ExceptionTelemetry, out nextItem))
             {
                 item = nextItem;
             }
