@@ -15,7 +15,7 @@ using Xunit;
 
 namespace NuGet.Services.Logging.Tests
 {
-    class ExceptionTelemetryProcessorTests
+    public class ExceptionTelemetryProcessorTests
     {
         [Fact]
         public void Constructor_ThrowsForNullNext()
