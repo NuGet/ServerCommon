@@ -2,8 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 using System.Web;
+using Microsoft.ApplicationInsights;
 using Microsoft.ApplicationInsights.Channel;
 using Microsoft.ApplicationInsights.DataContracts;
 using Microsoft.ApplicationInsights.Extensibility;
@@ -14,23 +14,33 @@ using Newtonsoft.Json.Linq;
 namespace NuGet.Services.Logging
 {
     /// <summary>
-    /// Application Insights inspects a request's response code to decide if the operation
-    /// was successful or not. This processor can be used to override the default behavior.
+    /// An Application Insights telemetry processor for <see cref="ExceptionTelemetry" />.
     /// </summary>
-    public class TelemetryResponseCodeProcessor : ITelemetryProcessor
+    public sealed class ExceptionTelemetryProcessor : ITelemetryProcessor
     {
-        private readonly ITelemetryProcessor _next;
+        private readonly ITelemetryProcessor _nextProcessor;
+        private readonly TelemetryClient _telemetryClient;
 
         /// <summary>
-        /// The response codes that should always be marked as successful.
+        /// Initialize a new <see cref="ExceptionTelemetryProcessor" /> class.
         /// </summary>
-        public IList<int> SuccessfulResponseCodes { get; } = new List<int>();
-
-        public TelemetryResponseCodeProcessor(ITelemetryProcessor next)
+        /// <param name="nextProcessor">The next telemetry processor in the processing chain.</param>
+        /// <param name="telemetryClient">A telemetry client.</param>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="nextProcessor" />
+        /// is <c>null</c>.</exception>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="telemetryClient" />
+        /// is <c>null</c>.</exception>
+        public ExceptionTelemetryProcessor(ITelemetryProcessor nextProcessor, TelemetryClient telemetryClient)
         {
-            _next = next ?? throw new ArgumentNullException(nameof(next));
+            _nextProcessor = nextProcessor ?? throw new ArgumentNullException(nameof(nextProcessor));
+            _telemetryClient = telemetryClient ?? throw new ArgumentNullException(nameof(telemetryClient));
         }
 
+        /// <summary>
+        /// Processes a telemetry item.
+        /// </summary>
+        /// <param name="item">A telemetry item.</param>
+        /// <exception cref="ArgumentNullException">Thrown if <paramref name="item" /> is <c>null</c>.</exception>
         public void Process(ITelemetry item)
         {
             if (item == null)
@@ -38,41 +48,11 @@ namespace NuGet.Services.Logging
                 throw new ArgumentNullException(nameof(item));
             }
 
-            ITelemetry nextItem = null;
+            var exceptionTelemetry = item as ExceptionTelemetry;
 
-            if (!TryProcess(item as RequestTelemetry) &&
-                TryProcess(item as ExceptionTelemetry, out nextItem))
+            if (exceptionTelemetry != null)
             {
-                item = nextItem;
-            }
-
-            _next.Process(item);
-        }
-
-        private bool TryProcess(RequestTelemetry telemetry)
-        {
-            int responseCode;
-
-            if (telemetry != null && int.TryParse(telemetry.ResponseCode, out responseCode))
-            {
-                if (SuccessfulResponseCodes.Contains(responseCode))
-                {
-                    telemetry.Success = true;
-
-                    return true;
-                }
-            }
-
-            return false;
-        }
-
-        private static bool TryProcess(ExceptionTelemetry telemetry, out ITelemetry nextTelemetry)
-        {
-            nextTelemetry = telemetry;
-
-            if (telemetry != null)
-            {
-                var httpException = telemetry.Exception as HttpException;
+                var httpException = exceptionTelemetry.Exception as HttpException;
 
                 if (httpException != null)
                 {
@@ -82,14 +62,16 @@ namespace NuGet.Services.Logging
                     {
                         // Logging exception telemetry for a request that resulted in an HTTP response code under 500
                         // adds noise to exception telemetry analysis.  Log it as trace telemetry instead.
-                        nextTelemetry = Convert(telemetry, httpException);
-                    }
+                        var traceTelemetry = Convert(exceptionTelemetry, httpException);
 
-                    return true;
+                        _telemetryClient.TrackTrace(traceTelemetry);
+
+                        return;
+                    }
                 }
             }
 
-            return false;
+            _nextProcessor.Process(item);
         }
 
         private static TraceTelemetry Convert(ExceptionTelemetry exceptionTelemetry, HttpException exception)
