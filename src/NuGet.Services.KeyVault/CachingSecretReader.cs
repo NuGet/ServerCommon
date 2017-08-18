@@ -3,6 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.InteropServices;
+using System.Security;
 using System.Threading.Tasks;
 
 namespace NuGet.Services.KeyVault
@@ -13,7 +16,7 @@ namespace NuGet.Services.KeyVault
         private readonly int _refreshIntervalSec;
 
         private readonly ISecretReader _internalReader;
-        private readonly Dictionary<string, Tuple<string, DateTime>> _cache;
+        private readonly Dictionary<string, Tuple<SecureString, DateTime>> _cache;
 
         public CachingSecretReader(ISecretReader secretReader, int refreshIntervalSec = DefaultRefreshIntervalSec)
         {
@@ -23,12 +26,20 @@ namespace NuGet.Services.KeyVault
             }
 
             _internalReader = secretReader;
-            _cache = new Dictionary<string, Tuple<string, DateTime>>();
+            _cache = new Dictionary<string, Tuple<SecureString, DateTime>>();
 
             _refreshIntervalSec = refreshIntervalSec;
         }
 
-        public virtual bool IsSecretOutdated(Tuple<string, DateTime> cachedSecret)
+        ~CachingSecretReader()
+        {
+            foreach (var secretTuple in _cache.Values)
+            {
+                secretTuple.Item1.Dispose();
+            }
+        }
+
+        public virtual bool IsSecretOutdated(Tuple<SecureString, DateTime> cachedSecret)
         {
             return DateTime.UtcNow.Subtract(cachedSecret.Item2).TotalSeconds >= _refreshIntervalSec;
         }
@@ -39,10 +50,39 @@ namespace NuGet.Services.KeyVault
             {
                 // Get the secret if it is not yet in the cache or it is outdated.
                 var secretValue = await _internalReader.GetSecretAsync(secretName);
-                _cache[secretName] = Tuple.Create(secretValue, DateTime.UtcNow);
+
+                if (_cache.ContainsKey(secretName))
+                {
+                    var outdatedValue = _cache[secretName].Item1;
+                    _cache[secretName] = null;
+                    outdatedValue.Dispose();
+                }
+
+                _cache[secretName] = Tuple.Create(StringToSecureString(secretValue), DateTime.UtcNow);
             }
 
-            return _cache[secretName].Item1;
+            return SecureStringToString(_cache[secretName].Item1);
+        }
+
+        private static SecureString StringToSecureString(string input)
+        {
+            var output = new SecureString();
+            input.ToCharArray().ToList().ForEach(c => output.AppendChar(c));
+            output.MakeReadOnly();
+            return output;
+        }
+
+        private static string SecureStringToString(SecureString input)
+        {
+            var bstr = Marshal.SecureStringToBSTR(input);
+            try
+            {
+                return Marshal.PtrToStringBSTR(bstr);
+            }
+            finally
+            {
+                Marshal.FreeBSTR(bstr);
+            }
         }
     }
 }

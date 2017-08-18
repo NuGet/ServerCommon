@@ -5,7 +5,7 @@ using System;
 using System.Threading.Tasks;
 using Moq;
 using Xunit;
-using System.Threading;
+using System.Security;
 
 namespace NuGet.Services.KeyVault.Tests
 {
@@ -42,7 +42,7 @@ namespace NuGet.Services.KeyVault.Tests
         {
             // Arrange
             var cachingSecretReaderMock = new Mock<CachingSecretReader>(new Mock<ISecretReader>().Object, refreshIntervalSec) {CallBase = true};
-            var secretToCheck = Tuple.Create("secretName",
+            var secretToCheck = Tuple.Create(new SecureString(),
                 DateTime.UtcNow.Add(new TimeSpan(0, 0, -secretLastRefreshedSec)));
 
             // Act
@@ -70,7 +70,7 @@ namespace NuGet.Services.KeyVault.Tests
             };
 
             var hasIntervalPassed = false;
-            cachingSecretReaderMock.Setup(x => x.IsSecretOutdated(It.IsAny<Tuple<string, DateTime>>())).Returns(() =>
+            cachingSecretReaderMock.Setup(x => x.IsSecretOutdated(It.IsAny<Tuple<SecureString, DateTime>>())).Returns(() =>
             {
                 // If the interval hasn't passed, the secret we have stored is not outdated.
                 if (!hasIntervalPassed)
