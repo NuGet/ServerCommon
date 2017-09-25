@@ -2,6 +2,8 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 using System;
 using System.Collections.Generic;
+using System.Data;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Threading;
@@ -13,13 +15,13 @@ namespace NuGet.Services.Storage
 {
     public abstract class Storage : IStorage
     {
-        private readonly ILogger<Storage> _logger;
+        protected readonly ILogger<Storage> Logger;
 
         public Storage(Uri baseAddress, ILogger<Storage> logger)
         {
             string s = baseAddress.OriginalString.TrimEnd('/') + '/';
             BaseAddress = new Uri(s);
-            _logger = logger;
+            Logger = logger;
         }
 
         public override string ToString()
@@ -28,14 +30,16 @@ namespace NuGet.Services.Storage
         }
 
         protected abstract Task OnSave(Uri resourceUri, StorageContent content, CancellationToken cancellationToken);
+        protected abstract Task OnSaveIfETag(Uri resourceUri, StorageContent content, string eTag, CancellationToken cancellationToken);
         protected abstract Task<StorageContent> OnLoad(Uri resourceUri, CancellationToken cancellationToken);
         protected abstract Task OnDelete(Uri resourceUri, CancellationToken cancellationToken);
+        protected abstract Task OnDeleteIfETag(Uri resourceUri, string eTag, CancellationToken cancellationToken);
 
         public async Task Save(Uri resourceUri, StorageContent content, CancellationToken cancellationToken)
         {
             SaveCount++;
 
-            TraceMethod("SAVE", resourceUri);
+            TraceMethod(nameof(Save), resourceUri);
 
             try
             {
@@ -43,9 +47,23 @@ namespace NuGet.Services.Storage
             }
             catch (Exception e)
             {
-                string message = String.Format("SAVE EXCEPTION: {0} {1}", resourceUri, e.Message);
-                _logger.LogError("SAVE EXCEPTION: {ResourceUri} {Exception}", resourceUri, e);
-                throw new Exception(message, e);
+                throw TraceException(nameof(Save), resourceUri, e);
+            }
+        }
+
+        public async Task SaveIfETag(Uri resourceUri, StorageContent content, string eTag, CancellationToken cancellationToken)
+        {
+            SaveCount++;
+
+            TraceMethod(nameof(SaveIfETag), resourceUri);
+
+            try
+            {
+                await OnSaveIfETag(resourceUri, content, eTag, cancellationToken);
+            }
+            catch (Exception e)
+            {
+                throw TraceException(nameof(SaveIfETag), resourceUri, e);
             }
         }
 
@@ -53,7 +71,7 @@ namespace NuGet.Services.Storage
         {
             LoadCount++;
 
-            TraceMethod("LOAD", resourceUri);
+            TraceMethod(nameof(Load), resourceUri);
 
             try
             {
@@ -61,9 +79,7 @@ namespace NuGet.Services.Storage
             }
             catch (Exception e)
             {
-                string message = String.Format("LOAD EXCEPTION: {0} {1}", resourceUri, e.Message);
-                _logger.LogError("LOAD EXCEPTION: {ResourceUri} {Exception}", resourceUri, e);
-                throw new Exception(message, e);
+                throw TraceException(nameof(Load), resourceUri, e);
             }
         }
 
@@ -71,7 +87,7 @@ namespace NuGet.Services.Storage
         {
             DeleteCount++;
 
-            TraceMethod("DELETE", resourceUri);
+            TraceMethod(nameof(Delete), resourceUri);
 
             try
             {
@@ -83,7 +99,7 @@ namespace NuGet.Services.Storage
                 if (webException != null)
                 {
                     HttpStatusCode statusCode = ((HttpWebResponse)webException.Response).StatusCode;
-                    if (statusCode != HttpStatusCode.NotFound) 
+                    if (statusCode != HttpStatusCode.NotFound)
                     {
                         throw;
                     }
@@ -95,9 +111,39 @@ namespace NuGet.Services.Storage
             }
             catch (Exception e)
             {
-                string message = String.Format("DELETE EXCEPTION: {0} {1}", resourceUri, e.Message);
-                _logger.LogError("DELETE EXCEPTION: {ResourceUri} {Exception}", resourceUri, e);
-                throw new Exception(message, e);
+                throw TraceException(nameof(Delete), resourceUri, e);
+            }
+        }
+
+        public async Task DeleteIfETag(Uri resourceUri, string eTag, CancellationToken cancellationToken)
+        {
+            DeleteCount++;
+
+            TraceMethod(nameof(DeleteIfETag), resourceUri);
+
+            try
+            {
+                await OnDeleteIfETag(resourceUri, eTag, cancellationToken);
+            }
+            catch (StorageException e)
+            {
+                WebException webException = e.InnerException as WebException;
+                if (webException != null)
+                {
+                    HttpStatusCode statusCode = ((HttpWebResponse)webException.Response).StatusCode;
+                    if (statusCode != HttpStatusCode.NotFound)
+                    {
+                        throw;
+                    }
+                }
+                else
+                {
+                    throw;
+                }
+            }
+            catch (Exception e)
+            {
+                throw TraceException(nameof(DeleteIfETag), resourceUri, e);
             }
         }
 
@@ -193,8 +239,15 @@ namespace NuGet.Services.Storage
         {
             if (Verbose)
             {
-                _logger.LogInformation("{Method} {ResourceUri}", method, resourceUri);
+                Logger.LogInformation("{Method} {ResourceUri}", method, resourceUri);
             }
+        }
+
+        protected Exception TraceException(string method, Uri resourceUri, Exception exception)
+        {
+            string message = String.Format("{Method} EXCEPTION: {0} {1}", method, resourceUri, exception.Message);
+            Logger.LogError("{Method} EXCEPTION: {ResourceUri} {Exception}", method, resourceUri, exception);
+            return new Exception(message, exception);
         }
     }
 }

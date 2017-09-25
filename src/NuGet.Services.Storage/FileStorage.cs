@@ -12,7 +12,7 @@ namespace NuGet.Services.Storage
 {
     public class FileStorage : Storage
     {
-        public FileStorage(string baseAddress, string path, ILogger<FileStorage> logger) 
+        public FileStorage(string baseAddress, string path, ILogger<FileStorage> logger)
             : this(new Uri(baseAddress), path, logger) { }
 
         public FileStorage(Uri baseAddress, string path, ILogger<FileStorage> logger)
@@ -39,14 +39,14 @@ namespace NuGet.Services.Storage
         {
             DirectoryInfo directoryInfo = new DirectoryInfo(Path);
             var files = directoryInfo.GetFiles("*", SearchOption.AllDirectories)
-                .Select(file => 
-                    new StorageListItem(GetUri(file.FullName.Replace(Path, string.Empty)), file.LastWriteTimeUtc));
+                .Select(file =>
+                    new StorageListItem(GetUri(file.FullName.Replace(Path, string.Empty)), file.LastWriteTimeUtc, GetETag(file)));
 
             return Task.FromResult(files.AsEnumerable());
         }
 
         public string Path
-        { 
+        {
             get;
             set;
         }
@@ -56,8 +56,6 @@ namespace NuGet.Services.Storage
         protected override async Task OnSave(Uri resourceUri, StorageContent content, CancellationToken cancellationToken)
         {
             SaveCount++;
-
-            TraceMethod("SAVE", resourceUri);
 
             string name = GetName(resourceUri);
 
@@ -88,8 +86,18 @@ namespace NuGet.Services.Storage
 
             using (FileStream stream = File.Create(path + name))
             {
-                await content.GetContentStream().CopyToAsync(stream,4096, cancellationToken);
+                await content.GetContentStream().CopyToAsync(stream, 4096, cancellationToken);
             }
+        }
+
+        protected override async Task OnSaveIfETag(Uri resourceUri, StorageContent content, string eTag, CancellationToken cancellationToken)
+        {
+            if (await IsETagConflict(resourceUri, eTag, cancellationToken))
+            {
+                return;
+            }
+
+            await OnSave(resourceUri, content, cancellationToken);
         }
 
         //  load
@@ -119,7 +127,7 @@ namespace NuGet.Services.Storage
             FileInfo fileInfo = new FileInfo(filename);
             if (fileInfo.Exists)
             {
-                return await Task.Run<StorageContent>(() => { return new StreamStorageContent(fileInfo.OpenRead()); }, cancellationToken);
+                return await Task.Run<StorageContent>(() => { return new StreamStorageContent(fileInfo.OpenRead()) { ETag = GetETag(fileInfo) }; }, cancellationToken);
             }
 
             return null;
@@ -152,8 +160,30 @@ namespace NuGet.Services.Storage
             FileInfo fileInfo = new FileInfo(filename);
             if (fileInfo.Exists)
             {
-                await Task.Run(() => { fileInfo.Delete(); },cancellationToken);
+                await Task.Run(() => { fileInfo.Delete(); }, cancellationToken);
             }
+        }
+
+        protected override async Task OnDeleteIfETag(Uri resourceUri, string eTag, CancellationToken cancellationToken)
+        {
+            if (await IsETagConflict(resourceUri, eTag, cancellationToken))
+            {
+                return;
+            }
+
+            await OnDelete(resourceUri, cancellationToken);
+        }
+
+        private async Task<bool> IsETagConflict(Uri resourceUri, string eTag, CancellationToken cancellationToken)
+        {
+            var existingFile = await OnLoad(resourceUri, cancellationToken);
+
+            return eTag != null ? existingFile.ETag != eTag : existingFile != null;
+        }
+
+        private string GetETag(FileInfo file)
+        {
+            return file.LastWriteTimeUtc.ToString("O");
         }
     }
 }

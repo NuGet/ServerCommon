@@ -12,10 +12,10 @@ namespace NuGet.Services.Storage
     public class AggregateStorage : Storage
     {
         public delegate StorageContent WriteSecondaryStorageContentInterceptor(
-            Uri primaryStorageBaseUri, 
-            Uri primaryResourceUri, 
+            Uri primaryStorageBaseUri,
+            Uri primaryResourceUri,
             Uri secondaryStorageBaseUri,
-            Uri secondaryResourceUri, 
+            Uri secondaryResourceUri,
             StorageContent content);
 
         private readonly Storage _primaryStorage;
@@ -30,14 +30,24 @@ namespace NuGet.Services.Storage
             _primaryStorage = primaryStorage;
             _secondaryStorage = secondaryStorage;
             _writeSecondaryStorageContentInterceptor = writeSecondaryStorageContentInterceptor;
-        
+
             BaseAddress = _primaryStorage.BaseAddress;
         }
-        
+
         protected override Task OnSave(Uri resourceUri, StorageContent content, CancellationToken cancellationToken)
         {
+            return OnSaveInternal(resourceUri, content, (storage, uri, storageContent, token) => storage.Save(uri, storageContent, token), cancellationToken);
+        }
+
+        protected override Task OnSaveIfETag(Uri resourceUri, StorageContent content, string eTag, CancellationToken cancellationToken)
+        {
+            return OnSaveInternal(resourceUri, content, (storage, uri, storageContent, token) => storage.SaveIfETag(uri, storageContent, eTag, token), cancellationToken);
+        }
+
+        private Task OnSaveInternal(Uri resourceUri, StorageContent content, Func<IStorage, Uri, StorageContent, CancellationToken, Task> saveOperation, CancellationToken cancellationToken)
+        {
             var tasks = new List<Task>();
-            tasks.Add(_primaryStorage.Save(resourceUri, content, cancellationToken));
+            tasks.Add(saveOperation(_primaryStorage, resourceUri, content, cancellationToken));
 
             foreach (var storage in _secondaryStorage)
             {
@@ -48,13 +58,13 @@ namespace NuGet.Services.Storage
                 if (_writeSecondaryStorageContentInterceptor != null)
                 {
                     secondaryContent = _writeSecondaryStorageContentInterceptor(
-                        _primaryStorage.BaseAddress, 
-                        resourceUri, 
-                        storage.BaseAddress, 
+                        _primaryStorage.BaseAddress,
+                        resourceUri,
+                        storage.BaseAddress,
                         secondaryResourceUri, content);
                 }
 
-                tasks.Add(storage.Save(secondaryResourceUri, secondaryContent, cancellationToken));
+                tasks.Add(saveOperation(storage, secondaryResourceUri, secondaryContent, cancellationToken));
             }
 
             return Task.WhenAll(tasks);
@@ -67,15 +77,25 @@ namespace NuGet.Services.Storage
 
         protected override Task OnDelete(Uri resourceUri, CancellationToken cancellationToken)
         {
+            return OnDeleteInternal(resourceUri, (storage, uri, token) => storage.Delete(uri, token), cancellationToken);
+        }
+
+        protected override Task OnDeleteIfETag(Uri resourceUri, string eTag, CancellationToken cancellationToken)
+        {
+            return OnDeleteInternal(resourceUri, (storage, uri, token) => storage.DeleteIfETag(uri, eTag, token), cancellationToken);
+        }
+
+        private Task OnDeleteInternal(Uri resourceUri, Func<IStorage, Uri, CancellationToken, Task> deletionOperation, CancellationToken cancellationToken)
+        {
             var tasks = new List<Task>();
-            tasks.Add(_primaryStorage.Delete(resourceUri, cancellationToken));
+            tasks.Add(deletionOperation(_primaryStorage, resourceUri, cancellationToken));
 
             foreach (var storage in _secondaryStorage)
             {
                 var secondaryResourceUri = new Uri(resourceUri.ToString()
                     .Replace(_primaryStorage.BaseAddress.ToString(), storage.BaseAddress.ToString()));
 
-                tasks.Add(storage.Delete(secondaryResourceUri, cancellationToken));
+                tasks.Add(deletionOperation(storage, secondaryResourceUri, cancellationToken));
             }
 
             return Task.WhenAll(tasks);

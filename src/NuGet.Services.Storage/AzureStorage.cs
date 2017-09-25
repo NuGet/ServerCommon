@@ -1,32 +1,55 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Blob;
+using Microsoft.WindowsAzure.Storage.RetryPolicies;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Blob;
 
 namespace NuGet.Services.Storage
 {
     public class AzureStorage : Storage
     {
-        private readonly ILogger<AzureStorage> _logger;
+        private readonly TimeSpan _defaultServerTimeout = TimeSpan.FromSeconds(30);
         private readonly CloudBlobDirectory _directory;
+        private readonly BlobRequestOptions _blobRequestOptions;
 
-        public AzureStorage(CloudStorageAccount account, string containerName, string path, Uri baseAddress, ILogger<AzureStorage> logger)
-            : this(account.CreateCloudBlobClient().GetContainerReference(containerName).GetDirectoryReference(path), baseAddress, logger)
+
+        public AzureStorage(CloudStorageAccount account,
+                            string containerName,
+                            string path,
+                            Uri baseAddress,
+                            ILogger<AzureStorage> logger)
+            : this(account, containerName, path, baseAddress, DefaultMaxExecutionTime, logger)
         {
         }
 
-        private AzureStorage(CloudBlobDirectory directory, Uri baseAddress, ILogger<AzureStorage> logger)
+        public AzureStorage(CloudStorageAccount account,
+                           string containerName,
+                           string path,
+                           Uri baseAddress,
+                           TimeSpan maxExecutionTime,
+                           ILogger<AzureStorage> logger)
+           : this(account.CreateCloudBlobClient().GetContainerReference(containerName).GetDirectoryReference(path),
+                 baseAddress,
+                 maxExecutionTime,
+                 logger)
+        {
+        }
+
+        private AzureStorage(CloudBlobDirectory directory, 
+                             Uri baseAddress, 
+                             TimeSpan maxExecutionTime, 
+                             ILogger<AzureStorage> logger)
             : base(baseAddress ?? GetDirectoryUri(directory), logger)
         {
-            _logger = logger;
             _directory = directory;
 
             if (_directory.Container.CreateIfNotExists())
@@ -35,11 +58,20 @@ namespace NuGet.Services.Storage
 
                 if (Verbose)
                 {
-                    _logger.LogInformation("Created {ContainerName} publish container", _directory.Container.Name);
+                    Logger.LogInformation("Created {ContainerName} publish container", _directory.Container.Name);
                 }
             }
 
             ResetStatistics();
+            this._blobRequestOptions = CreateBlobRequestOptions(maxExecutionTime);
+        }
+
+        public static TimeSpan DefaultMaxExecutionTime
+        {
+            get
+            {
+                return TimeSpan.FromSeconds(600);
+            }
         }
 
         public bool CompressContent
@@ -73,7 +105,7 @@ namespace NuGet.Services.Storage
             }
             if (Verbose)
             {
-                _logger.LogInformation("The blob {BlobUri} does not exist.", packageRegistrationUri);
+                Logger.LogInformation("The blob {BlobUri} does not exist.", packageRegistrationUri);
             }
             return false;
         }
@@ -87,13 +119,31 @@ namespace NuGet.Services.Storage
 
         private StorageListItem GetStorageListItem(IListBlobItem listBlobItem)
         {
-            var lastModified = (listBlobItem as CloudBlockBlob)?.Properties.LastModified?.UtcDateTime;
+            DateTime? lastModified = null;
+            string eTag = null;
 
-            return new StorageListItem(listBlobItem.Uri, lastModified);
+            var properties = (listBlobItem as CloudBlockBlob)?.Properties;
+            if (properties != null)
+            {
+                lastModified = properties.LastModified?.UtcDateTime;
+                eTag = properties.ETag;
+            }
+
+            return new StorageListItem(listBlobItem.Uri, lastModified, eTag);
         }
 
         //  save
-        protected override async Task OnSave(Uri resourceUri, StorageContent content, CancellationToken cancellationToken)
+        protected override Task OnSave(Uri resourceUri, StorageContent content, CancellationToken cancellationToken)
+        {
+            return OnSaveInternal(resourceUri, content, null, cancellationToken);
+        }
+
+        protected override Task OnSaveIfETag(Uri resourceUri, StorageContent content, string eTag, CancellationToken cancellationToken)
+        {
+            return OnSaveInternal(resourceUri, content, GetAccessConditionForETag(eTag), cancellationToken);
+        }
+
+        private async Task OnSaveInternal(Uri resourceUri, StorageContent content, AccessCondition accessCondition, CancellationToken cancellationToken)
         {
             string name = GetName(resourceUri);
 
@@ -114,17 +164,74 @@ namespace NuGet.Services.Storage
                     }
 
                     destinationStream.Seek(0, SeekOrigin.Begin);
-                    await blob.UploadFromStreamAsync(destinationStream, cancellationToken);
-                    _logger.LogInformation("Saved compressed blob {BlobUri} to container {ContainerName}", blob.Uri.ToString(), _directory.Container.Name);
+                    await blob.UploadFromStreamAsync(destinationStream, 
+                        accessCondition: accessCondition, 
+                        options: _blobRequestOptions, 
+                        operationContext: null, 
+                        cancellationToken: cancellationToken);
+                    Logger.LogInformation("Saved uncompressed blob {BlobUri} to container {ContainerName}", blob.Uri.ToString(), _directory.Container.Name);
                 }
             }
             else
             {
                 using (Stream stream = content.GetContentStream())
                 {
-                    await blob.UploadFromStreamAsync(stream, cancellationToken);
-                    _logger.LogInformation("Saved uncompressed blob {BlobUri} to container {ContainerName}", blob.Uri.ToString(), _directory.Container.Name);
+                    await blob.UploadFromStreamAsync(stream,
+                        accessCondition: accessCondition,
+                        options: _blobRequestOptions,
+                        operationContext: null,
+                        cancellationToken: cancellationToken);
+                    Logger.LogInformation("Saved uncompressed blob {BlobUri} to container {ContainerName}", blob.Uri.ToString(), _directory.Container.Name);
                 }
+            }
+            await TryTakeBlobSnapshotAsync(blob);
+        }
+
+        private BlobRequestOptions CreateBlobRequestOptions(TimeSpan maxExecutionTime)
+        {
+            return new BlobRequestOptions
+            {
+                ServerTimeout = _defaultServerTimeout,
+                MaximumExecutionTime = maxExecutionTime,
+                RetryPolicy = new ExponentialRetry()
+            };
+        }
+
+        /// <summary>
+        /// Take one snapshot only if there is not any snapshot for the specific blob
+        /// This will prevent the blob to be deleted by a not intended delete action
+        /// </summary>
+        /// <param name="blob"></param>
+        /// <returns></returns>
+        private async Task<bool> TryTakeBlobSnapshotAsync(CloudBlockBlob blob)
+        {
+            if (blob == null)
+            {
+                //no action
+                return false;
+            }
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
+            try
+            {
+                var allSnapshots = blob.Container.
+                                   ListBlobs(prefix: blob.Name,
+                                             useFlatBlobListing: true,
+                                             blobListingDetails: BlobListingDetails.Snapshots);
+                //the above call will return at least one blob the original
+                if (allSnapshots.Count() == 1)
+                {
+                    var snapshot = await blob.CreateSnapshotAsync();
+                    sw.Stop();
+                    Logger.LogInformation("SnapshotCreated:milliseconds={ElapsedMilliseconds}:{BlobUri}:{SnapshotUri}", sw.ElapsedMilliseconds, blob.Uri.ToString(), snapshot.SnapshotQualifiedUri);
+                }
+                return true;
+            }
+            catch (StorageException storageException)
+            {
+                sw.Stop();
+                Logger.LogInformation("EXCEPTION:milliseconds={ElapsedMilliseconds}:CreateSnapshot: Failed to take the snapshot for blob {BlobUri}. {Exception}", sw.ElapsedMilliseconds, blob.Uri.ToString(), storageException);
+                return false;
             }
         }
 
@@ -141,7 +248,11 @@ namespace NuGet.Services.Storage
             if (blob.Exists())
             {
                 MemoryStream originalStream = new MemoryStream();
-                await blob.DownloadToStreamAsync(originalStream, cancellationToken);
+                await blob.DownloadToStreamAsync(originalStream,
+                                                 accessCondition: null,
+                                                 options: _blobRequestOptions,
+                                                 operationContext: null,
+                                                 cancellationToken: cancellationToken);
 
                 originalStream.Seek(0, SeekOrigin.Begin);
 
@@ -165,25 +276,44 @@ namespace NuGet.Services.Storage
                     }
                 }
 
-                return new StringStorageContent(content);
+                return new StringStorageContent(content) { ETag = blob.Properties.ETag };
             }
 
             if (Verbose)
             {
-                _logger.LogInformation("Can't load {BlobUri}. Blob doesn't exist", resourceUri);
+                Logger.LogInformation("Can't load {BlobUri}. Blob doesn't exist", resourceUri);
             }
 
             return null;
         }
 
         //  delete
-        protected override async Task OnDelete(Uri resourceUri, CancellationToken cancellationToken)
+        protected override Task OnDelete(Uri resourceUri, CancellationToken cancellationToken)
+        {
+            return OnDeleteInternal(resourceUri, null, cancellationToken);
+        }
+
+        protected override Task OnDeleteIfETag(Uri resourceUri, string eTag, CancellationToken cancellationToken)
+        {
+            return OnDeleteInternal(resourceUri, GetAccessConditionForETag(eTag), cancellationToken);
+        }
+
+        private Task OnDeleteInternal(Uri resourceUri, AccessCondition accessCondition, CancellationToken cancellationToken)
         {
             string name = GetName(resourceUri);
 
             CloudBlockBlob blob = _directory.GetBlockBlobReference(name);
+            return blob.DeleteAsync(
+                deleteSnapshotsOption: DeleteSnapshotsOption.IncludeSnapshots, 
+                accessCondition: accessCondition, 
+                options: _blobRequestOptions, 
+                operationContext: null, 
+                cancellationToken: cancellationToken);
+        }
 
-            await blob.DeleteAsync(cancellationToken);
+        private AccessCondition GetAccessConditionForETag(string eTag)
+        {
+            return eTag != null ? AccessCondition.GenerateIfMatchCondition(eTag) : AccessCondition.GenerateIfNotExistsCondition();
         }
     }
 }
