@@ -27,7 +27,8 @@ namespace NuGet.Services.Validation
     }
 
     /// <summary>
-    /// Represents a single package signature state.
+    /// The metadata for a package's signature. A package may be signed with one or more <see cref="PackageSignature"/>s
+    /// using one or more <see cref="Certificate"/>.
     /// </summary>
     public class Package
     {
