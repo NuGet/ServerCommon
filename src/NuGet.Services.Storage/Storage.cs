@@ -39,7 +39,7 @@ namespace NuGet.Services.Storage
         {
             SaveCount++;
 
-            TraceMethod(nameof(Save), resourceUri);
+            LogMethod(nameof(Save), resourceUri);
 
             try
             {
@@ -47,7 +47,7 @@ namespace NuGet.Services.Storage
             }
             catch (Exception e)
             {
-                throw TraceException(nameof(Save), resourceUri, e);
+                throw LogException(nameof(Save), resourceUri, e);
             }
         }
 
@@ -55,7 +55,7 @@ namespace NuGet.Services.Storage
         {
             SaveCount++;
 
-            TraceMethod(nameof(SaveIfETag), resourceUri);
+            LogMethod(nameof(SaveIfETag), resourceUri);
 
             try
             {
@@ -63,7 +63,7 @@ namespace NuGet.Services.Storage
             }
             catch (Exception e)
             {
-                throw TraceException(nameof(SaveIfETag), resourceUri, e);
+                throw LogException(nameof(SaveIfETag), resourceUri, e);
             }
         }
 
@@ -71,7 +71,7 @@ namespace NuGet.Services.Storage
         {
             LoadCount++;
 
-            TraceMethod(nameof(Load), resourceUri);
+            LogMethod(nameof(Load), resourceUri);
 
             try
             {
@@ -79,7 +79,7 @@ namespace NuGet.Services.Storage
             }
             catch (Exception e)
             {
-                throw TraceException(nameof(Load), resourceUri, e);
+                throw LogException(nameof(Load), resourceUri, e);
             }
         }
 
@@ -87,7 +87,7 @@ namespace NuGet.Services.Storage
         {
             DeleteCount++;
 
-            TraceMethod(nameof(Delete), resourceUri);
+            LogMethod(nameof(Delete), resourceUri);
 
             try
             {
@@ -111,7 +111,7 @@ namespace NuGet.Services.Storage
             }
             catch (Exception e)
             {
-                throw TraceException(nameof(Delete), resourceUri, e);
+                throw LogException(nameof(Delete), resourceUri, e);
             }
         }
 
@@ -119,7 +119,7 @@ namespace NuGet.Services.Storage
         {
             DeleteCount++;
 
-            TraceMethod(nameof(DeleteIfETag), resourceUri);
+            LogMethod(nameof(DeleteIfETag), resourceUri);
 
             try
             {
@@ -143,7 +143,7 @@ namespace NuGet.Services.Storage
             }
             catch (Exception e)
             {
-                throw TraceException(nameof(DeleteIfETag), resourceUri, e);
+                throw LogException(nameof(DeleteIfETag), resourceUri, e);
             }
         }
 
@@ -235,7 +235,7 @@ namespace NuGet.Services.Storage
             return new Uri(address);
         }
 
-        protected void TraceMethod(string method, Uri resourceUri)
+        protected void LogMethod(string method, Uri resourceUri)
         {
             if (Verbose)
             {
@@ -243,7 +243,7 @@ namespace NuGet.Services.Storage
             }
         }
 
-        protected Exception TraceException(string method, Uri resourceUri, Exception exception)
+        protected Exception LogException(string method, Uri resourceUri, Exception exception)
         {
             string message = String.Format("{Method} EXCEPTION: {0} {1}", method, resourceUri, exception.Message);
             Logger.LogError("{Method} EXCEPTION: {ResourceUri} {Exception}", method, resourceUri, exception);
