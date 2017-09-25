@@ -34,12 +34,12 @@ namespace NuGet.Services.Validation
 
         /// <summary>
         /// The SHA1 thumbprint that uniquely identifies this certificate. This is a binary string with
-        /// a maximum length of 64 bits.
+        /// a maximum length of 64 bytes.
         /// </summary>
         public byte[] Thumbprint { get; set;}
 
         /// <summary>
-        /// The status for this certificate. This is an offline cache and may be stale.
+        /// The last known status for this certificate. This may be stale.
         /// </summary>
         public CertificateStatus Status { get; set; }
 
@@ -55,25 +55,25 @@ namespace NuGet.Services.Validation
         public DateTime NextStatusUpdateTime { get; set; }
 
         /// <summary>
-        /// The last time this certificate's Status was updated using online verification. NULL if online
+        /// The last time this certificate's metadata was updated using online verification. NULL if online
         /// verification have never been completed for this certificate.
         /// </summary>
         public DateTime? LastVerificationTime { get; set; }
 
         /// <summary>
-        /// The time at which the certificat was revoked. NULL if the certificate has not been revoked.
+        /// The time at which the certificate was revoked. NULL if the certificate has not been revoked.
         /// </summary>
         public DateTime? RevocationTime { get; set; }
 
         /// <summary>
         /// The number of times online revocation checking failed without a "Good" or "Revoked" response.
-        /// This counter should be reset each time a valid response.
+        /// This counter should be reset each time the certificate is properly verified.
         /// </summary>
         public int ValidationFailures { get; set; }
 
         /// <summary>
         /// The package signatures that depend on this certificate. If this certificate ever gets revoked,
-        /// each of these signatures that were signed after the invalidity period began MUST be invalidated.
+        /// each of these signatures that were signed after the invalidity period begins MUST be invalidated.
         /// </summary>
         public virtual ICollection<PackageSignature> PackageSignatures { get; set; }
     }
