@@ -26,7 +26,7 @@ namespace NuGet.Services.Validation
                         Key = c.Int(nullable: false, identity: true),
                         PackageKey = c.Int(nullable: false),
                         SignedAt = c.DateTime(nullable: false, precision: 7, storeType: "datetime2"),
-                        CreatedAt = c.DateTime(nullable: false),
+                        CreatedAt = c.DateTime(nullable: false, precision: 7, storeType: "datetime2"),
                         Status = c.Int(nullable: false),
                     })
                 .PrimaryKey(t => t.Key)
@@ -43,8 +43,8 @@ namespace NuGet.Services.Validation
                         Status = c.Int(nullable: false),
                         StatusUpdateTime = c.DateTime(nullable: false, precision: 7, storeType: "datetime2"),
                         NextStatusUpdateTime = c.DateTime(nullable: false, precision: 7, storeType: "datetime2"),
-                        LastVerificationTime = c.DateTime(),
-                        RevocationTime = c.DateTime(),
+                        LastVerificationTime = c.DateTime(precision: 7, storeType: "datetime2"),
+                        RevocationTime = c.DateTime(precision: 7, storeType: "datetime2"),
                         ValidationFailures = c.Int(nullable: false),
                     })
                 .PrimaryKey(t => t.Key)
@@ -54,24 +54,24 @@ namespace NuGet.Services.Validation
                 "signature.PackageSignatureCertificates",
                 c => new
                     {
-                        CertificateKey = c.Int(nullable: false),
-                        PackageSignatureKey = c.Long(nullable: false),
+                        PackageSignatureKey = c.Int(nullable: false),
+                        CertificateKey = c.Long(nullable: false),
                     })
-                .PrimaryKey(t => new { t.CertificateKey, t.PackageSignatureKey })
-                .ForeignKey("signature.PackageSignature", t => t.CertificateKey, cascadeDelete: true)
-                .ForeignKey("signature.Certificate", t => t.PackageSignatureKey, cascadeDelete: true)
-                .Index(t => t.CertificateKey)
-                .Index(t => t.PackageSignatureKey);
+                .PrimaryKey(t => new { t.PackageSignatureKey, t.CertificateKey })
+                .ForeignKey("signature.PackageSignature", t => t.PackageSignatureKey, cascadeDelete: true)
+                .ForeignKey("signature.Certificate", t => t.CertificateKey, cascadeDelete: true)
+                .Index(t => t.PackageSignatureKey)
+                .Index(t => t.CertificateKey);
             
         }
         
         public override void Down()
         {
             DropForeignKey("signature.PackageSignature", "PackageKey", "signature.Package");
-            DropForeignKey("signature.PackageSignatureCertificates", "PackageSignatureKey", "signature.Certificate");
-            DropForeignKey("signature.PackageSignatureCertificates", "CertificateKey", "signature.PackageSignature");
-            DropIndex("signature.PackageSignatureCertificates", new[] { "PackageSignatureKey" });
+            DropForeignKey("signature.PackageSignatureCertificates", "CertificateKey", "signature.Certificate");
+            DropForeignKey("signature.PackageSignatureCertificates", "PackageSignatureKey", "signature.PackageSignature");
             DropIndex("signature.PackageSignatureCertificates", new[] { "CertificateKey" });
+            DropIndex("signature.PackageSignatureCertificates", new[] { "PackageSignatureKey" });
             DropIndex("signature.Certificate", "IX_Certificates_Thumbprint");
             DropIndex("signature.PackageSignature", "IX_PackageSignatures_Status");
             DropIndex("signature.PackageSignature", "IX_PackageSignatures_PackageKey");

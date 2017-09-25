@@ -212,12 +212,16 @@ namespace NuGet.Services.Validation
                 .HasColumnType("datetime2");
 
             modelBuilder.Entity<PackageSignature>()
+                .Property(s => s.CreatedAt)
+                .HasColumnType("datetime2");
+
+            modelBuilder.Entity<PackageSignature>()
                 .HasMany(s => s.Certificates)
                 .WithMany(c => c.PackageSignatures)
                 .Map(m =>
                 {
-                    m.MapLeftKey("CertificateKey");
-                    m.MapRightKey("PackageSignatureKey");
+                    m.MapLeftKey("PackageSignatureKey");
+                    m.MapRightKey("CertificateKey");
                     m.ToTable("PackageSignatureCertificates", SignatureSchema);
                 });
 
@@ -251,6 +255,14 @@ namespace NuGet.Services.Validation
 
             modelBuilder.Entity<Certificate>()
                 .Property(c => c.NextStatusUpdateTime)
+                .HasColumnType("datetime2");
+
+            modelBuilder.Entity<Certificate>()
+                .Property(c => c.LastVerificationTime)
+                .HasColumnType("datetime2");
+
+            modelBuilder.Entity<Certificate>()
+                .Property(c => c.RevocationTime)
                 .HasColumnType("datetime2");
         }
     }
