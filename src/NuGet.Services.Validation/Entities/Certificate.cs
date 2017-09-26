@@ -12,14 +12,19 @@ namespace NuGet.Services.Validation
     public enum CertificateStatus
     {
         /// <summary>
+        /// The status is unknown if this <see cref="Certificate"/>'s online verification has never completed.
+        /// </summary>
+        Unknown = 0,
+
+        /// <summary>
         /// The <see cref="Certificate" /> has not been revoked.
         /// </summary>
-        Good = 0,
+        Good = 1,
 
         /// <summary>
         /// The <see cref="Certificate" /> has been revoked.
         /// </summary>
-        Revoked = 1,
+        Revoked = 2,
     }
 
     /// <summary>
@@ -45,14 +50,16 @@ namespace NuGet.Services.Validation
 
         /// <summary>
         /// The time at which the status was known to be correct, according to the Certificate Authority.
+        /// NULL if online verification have never been completed for this certificate.
         /// </summary>
-        public DateTime StatusUpdateTime { get; set; }
+        public DateTime? StatusUpdateTime { get; set; }
 
         /// <summary>
         /// The time at or before which newer information will be available about the certificate's status,
-        /// according to the Certificate Authority.
+        /// according to the Certificate Authority. NULL if online verification have never been completed for
+        /// this certificate.
         /// </summary>
-        public DateTime NextStatusUpdateTime { get; set; }
+        public DateTime? NextStatusUpdateTime { get; set; }
 
         /// <summary>
         /// The last time this certificate's metadata was updated using online verification. NULL if online
