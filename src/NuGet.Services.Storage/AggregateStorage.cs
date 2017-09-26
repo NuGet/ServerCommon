@@ -18,11 +18,11 @@ namespace NuGet.Services.Storage
             Uri secondaryResourceUri, 
             StorageContent content);
 
-        private readonly Storage _primaryStorage;
-        private readonly Storage[] _secondaryStorage;
+        private readonly IStorage _primaryStorage;
+        private readonly IStorage[] _secondaryStorage;
         private readonly WriteSecondaryStorageContentInterceptor _writeSecondaryStorageContentInterceptor;
         
-        public AggregateStorage(Uri baseAddress, Storage primaryStorage, Storage[] secondaryStorage,
+        public AggregateStorage(Uri baseAddress, IStorage primaryStorage, IStorage[] secondaryStorage,
             WriteSecondaryStorageContentInterceptor writeSecondaryStorageContentInterceptor,
             ILogger<AggregateStorage> logger)
             : base(baseAddress, logger)

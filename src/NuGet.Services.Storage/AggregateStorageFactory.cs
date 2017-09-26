@@ -12,12 +12,12 @@ namespace NuGet.Services.Storage
         private readonly AggregateStorage.WriteSecondaryStorageContentInterceptor _writeSecondaryStorageContentInterceptor;
         private readonly ILogger<AggregateStorage> _aggregateStorageLogger;
 
-        public AggregateStorageFactory(StorageFactory primaryStorageFactory, ICollection<StorageFactory> secondaryStorageFactories, ILogger<AggregateStorage> aggregateStorageLogger)
+        public AggregateStorageFactory(IStorageFactory primaryStorageFactory, ICollection<IStorageFactory> secondaryStorageFactories, ILogger<AggregateStorage> aggregateStorageLogger)
             : this(primaryStorageFactory, secondaryStorageFactories, null, aggregateStorageLogger)
         {
         }
 
-        public AggregateStorageFactory(StorageFactory primaryStorageFactory, ICollection<StorageFactory> secondaryStorageFactories,
+        public AggregateStorageFactory(IStorageFactory primaryStorageFactory, ICollection<IStorageFactory> secondaryStorageFactories,
             AggregateStorage.WriteSecondaryStorageContentInterceptor writeSecondaryStorageContentInterceptor,
             ILogger<AggregateStorage> aggregateStorageLogger)
         { 
@@ -29,7 +29,7 @@ namespace NuGet.Services.Storage
             BaseAddress = PrimaryStorageFactory.BaseAddress;
         }
 
-        public override Storage Create(string name = null)
+        public override IStorage Create(string name = null)
         {
             var primaryStorage = PrimaryStorageFactory.Create(name);
             var secondaryStorage = SecondaryStorageFactories.Select(f => f.Create(name)).ToArray();
@@ -42,7 +42,7 @@ namespace NuGet.Services.Storage
                 _aggregateStorageLogger);
         }
 
-        public StorageFactory PrimaryStorageFactory { get; }
-        public IEnumerable<StorageFactory> SecondaryStorageFactories { get; }
+        public IStorageFactory PrimaryStorageFactory { get; }
+        public IEnumerable<IStorageFactory> SecondaryStorageFactories { get; }
     }
 }

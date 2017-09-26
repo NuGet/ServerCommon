@@ -6,7 +6,7 @@ namespace NuGet.Services.Storage
 {
     public abstract class StorageFactory : IStorageFactory
     {
-        public abstract Storage Create(string name = null);
+        public abstract IStorage Create(string name = null);
 
         public Uri BaseAddress { get; protected set; }
 

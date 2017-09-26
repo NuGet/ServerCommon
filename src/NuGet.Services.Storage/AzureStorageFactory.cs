@@ -58,7 +58,7 @@ namespace NuGet.Services.Storage
             set;
         }
 
-        public override Storage Create(string name = null)
+        public override IStorage Create(string name = null)
         {
             string path = (_path == null) ? name : _path + name;
 

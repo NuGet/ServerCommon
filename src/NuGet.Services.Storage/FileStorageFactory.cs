@@ -18,7 +18,7 @@ namespace NuGet.Services.Storage
             _fileStorageLogger = fileStorageLogger;
         }
 
-        public override Storage Create(string name = null)
+        public override IStorage Create(string name = null)
         {
             string fileSystemPath = (name == null) ? _path.Trim('\\') : _path + name;
             string uriPath = name ?? string.Empty;

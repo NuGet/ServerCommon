@@ -15,6 +15,7 @@ namespace NuGet.Services.Storage
         Task<string> LoadString(Uri resourceUri, CancellationToken cancellationToken);
         Uri BaseAddress { get; }
         Uri ResolveUri(string relativeUri);
+        bool Exists(string fileName);
         Task<IEnumerable<StorageListItem>> List(CancellationToken cancellationToken);
     }
 }

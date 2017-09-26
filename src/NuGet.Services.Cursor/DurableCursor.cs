@@ -11,10 +11,10 @@ namespace NuGet.Services.Cursor
     public class DurableCursor : ReadWriteCursor<DateTimeOffset>
     {
         Uri _address;
-        Storage.Storage _storage;
+        IStorage _storage;
         DateTimeOffset _defaultValue;
 
-        public DurableCursor(Uri address, Storage.Storage storage, DateTimeOffset defaultValue)
+        public DurableCursor(Uri address, IStorage storage, DateTimeOffset defaultValue)
         {
             _address = address ?? throw new ArgumentNullException(nameof(address));
             _storage = storage ?? throw new ArgumentNullException(nameof(storage));

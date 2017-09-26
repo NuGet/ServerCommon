@@ -6,7 +6,7 @@ namespace NuGet.Services.Storage
 {
     public interface IStorageFactory
     {
-        Storage Create(string name = null);
+        IStorage Create(string name = null);
         Uri BaseAddress { get; }
     }
 }
