@@ -45,7 +45,7 @@ namespace NuGet.Services.Storage
 
         public Task Add(T contents, CancellationToken token)
         {
-            return Add(new StorageQueueMessage<T> { Contents = contents }, token);
+            return Add(new StorageQueueMessage<T>(contents), token);
         }
 
         public Task Add(IStorageQueueMessage<T> message, CancellationToken token)
