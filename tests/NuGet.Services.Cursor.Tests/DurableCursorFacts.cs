@@ -88,7 +88,7 @@ namespace NuGet.Services.Cursor.Tests
         {
             var loggerMock = new Mock<ILogger<Storage.Storage>>();
 
-            return new Mock<Storage.Storage>(MockBehavior.Strict, new Uri("http://localhost/"), loggerMock.Object);
+            return new Mock<Storage.Storage>(new Uri("http://localhost/"), loggerMock.Object) { CallBase = true };
         }
     }
 }
