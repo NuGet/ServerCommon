@@ -23,7 +23,7 @@ namespace NuGet.Services.Validation
                 "signature.PackageSignature",
                 c => new
                     {
-                        Key = c.Int(nullable: false, identity: true),
+                        Key = c.Long(nullable: false, identity: true),
                         PackageKey = c.Int(nullable: false),
                         SignedAt = c.DateTime(nullable: false, precision: 7, storeType: "datetime2"),
                         CreatedAt = c.DateTime(nullable: false, precision: 7, storeType: "datetime2"),
@@ -54,7 +54,7 @@ namespace NuGet.Services.Validation
                 "signature.PackageSignatureCertificates",
                 c => new
                     {
-                        PackageSignatureKey = c.Int(nullable: false),
+                        PackageSignatureKey = c.Long(nullable: false),
                         CertificateKey = c.Long(nullable: false),
                     })
                 .PrimaryKey(t => new { t.PackageSignatureKey, t.CertificateKey })

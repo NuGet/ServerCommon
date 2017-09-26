@@ -39,7 +39,7 @@ namespace NuGet.Services.Validation
         /// <summary>
         /// The database-mastered identifier for this signature.
         /// </summary>
-        public int Key { get; set; }
+        public long Key { get; set; }
 
         /// <summary>
         /// The key to the <see cref="Package"/> this signature is for.
@@ -48,7 +48,8 @@ namespace NuGet.Services.Validation
 
         /// <summary>
         /// The time at which this signature was created. A signature is valid as long as it was signed
-        /// before its certificates were revoked and/or expired.
+        /// before its certificates were revoked and/or expired. This timestamp SHOULD come from a trusted
+        /// timestamp authority.
         /// </summary>
         public DateTime SignedAt { get; set; }
 
