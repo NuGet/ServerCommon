@@ -3,6 +3,16 @@
 
 namespace NuGet.Services.Storage
 {
+    public class StorageQueueMessage : IStorageQueueMessage
+    {
+        public string Contents { get; }
+
+        public StorageQueueMessage(string contents)
+        {
+            Contents = contents;
+        }
+    }
+
     public class StorageQueueMessage<T> : IStorageQueueMessage<T>
     {
         public T Contents { get; }

@@ -6,24 +6,23 @@ using Newtonsoft.Json;
 namespace NuGet.Services.Storage
 {
     /// <summary>
-    /// Implementation of <see cref="StorageQueueMessageSerializer{T}"/> that uses <see cref="JsonConvert"/> to serialize and deserialize.
+    /// Uses <see cref="JsonConvert"/> to serialize and deserialize.
     /// </summary>
-    /// <typeparam name="T"></typeparam>
-    public class JsonStorageQueueMessageSerializer<T> : StorageQueueMessageSerializer<T>
+    public class JsonMessageSerializer<T> : IMessageSerializer<T>
     {
         private JsonSerializerSettings _settings;
 
-        public JsonStorageQueueMessageSerializer(JsonSerializerSettings settings)
+        public JsonMessageSerializer(JsonSerializerSettings settings)
         {
             _settings = settings;
         }
 
-        public override string Serialize(T contents)
+        public string Serialize(T contents)
         {
             return JsonConvert.SerializeObject(contents, _settings);
         }
 
-        public override T Deserialize(string contents)
+        public T Deserialize(string contents)
         {
             return JsonConvert.DeserializeObject<T>(contents, _settings);
         }

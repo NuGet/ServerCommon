@@ -9,43 +9,31 @@ using Microsoft.WindowsAzure.Storage.Queue;
 
 namespace NuGet.Services.Storage
 {
-    public class AzureStorageQueue<T> : StorageQueue<T>
+    public class AzureStorageQueue : IStorageQueue
     {
-        private Lazy<CloudQueue> _queue;
+        private Lazy<Task<CloudQueue>> _queueTask;
 
         private TimeSpan _visibilityTimeout = TimeSpan.FromMinutes(5);
 
-        public AzureStorageQueue(CloudStorageAccount account, string queueName, IStorageQueueMessageSerializer<T> serializer)
-            : base(serializer)
+        public AzureStorageQueue(CloudStorageAccount account, string queueName)
         {
-            _queue = new Lazy<CloudQueue>(() =>
+            _queueTask = new Lazy<Task<CloudQueue>>(async () =>
             {
                 var queue = account.CreateCloudQueueClient().GetQueueReference(queueName);
-                queue.CreateIfNotExists();
+                await queue.CreateIfNotExistsAsync();
                 return queue;
             });
         }
 
-        protected override Task OnAdd(IStorageQueueMessage message, CancellationToken token)
+        public async Task AddAsync(string contents, CancellationToken token)
         {
-            CloudQueueMessage cloudMessage;
-
-            if (message is AzureStorageQueueMessage)
-            {
-                cloudMessage = ((AzureStorageQueueMessage)message).Message;
-            }
-            else
-            {
-                var azureMessage = new AzureStorageQueueMessage(message.Contents);
-                cloudMessage = azureMessage.Message;
-            }
-            
-            return _queue.Value.AddMessageAsync(cloudMessage, token);
+            var azureMessage = new AzureStorageQueueMessage(contents);
+            await (await _queueTask.Value).AddMessageAsync(azureMessage.Message, token);
         }
 
-        protected override async Task<IStorageQueueMessage> OnGetNext(CancellationToken token)
+        public async Task<IStorageQueueMessage> GetNextAsync(CancellationToken token)
         {
-            var nextMessage = await _queue.Value.GetMessageAsync(
+            var nextMessage = await (await _queueTask.Value).GetMessageAsync(
                 visibilityTimeout: _visibilityTimeout, 
                 options: null, 
                 operationContext: null, 
@@ -59,14 +47,14 @@ namespace NuGet.Services.Storage
             return new AzureStorageQueueMessage(nextMessage);
         }
 
-        protected override Task OnRemove(IStorageQueueMessage message, CancellationToken token)
+        public async Task RemoveAsync(IStorageQueueMessage message, CancellationToken token)
         {
             if (!(message is AzureStorageQueueMessage))
             {
                 throw new ArgumentException("This message was not returned from this queue!", nameof(message));
             }
 
-            return _queue.Value.DeleteMessageAsync((message as AzureStorageQueueMessage).Message, token);
+            await (await _queueTask.Value).DeleteMessageAsync((message as AzureStorageQueueMessage).Message, token);
         }
     }
 }
