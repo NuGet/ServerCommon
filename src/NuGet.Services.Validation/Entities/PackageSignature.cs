@@ -7,31 +7,6 @@ using System.Collections.Generic;
 namespace NuGet.Services.Validation
 {
     /// <summary>
-    /// The status of a <see cref="PackageSignature"/>.
-    /// </summary>
-    public enum PackageSignatureStatus
-    {
-        /// <summary>
-        /// The signature is invalid. This may happen for a number of reasons, including
-        /// untrusted certificates, revoked certificates, or mismatched signature metadata.
-        /// </summary>
-        Invalid = 0,
-
-        /// <summary>
-        /// A signature is considered to be in its "grace period" if one of its certificate's status is unknown OR
-        /// its last known status is older than the signature itself. In other words, a signature is in
-        /// its grace period if one or more the signature's <see cref="Certificate"/>s' "StatusUpdateTime" is before
-        /// <see cref="PackageSignature"/>'s "SignedAt".
-        /// </summary>
-        InGracePeriod = 1,
-
-        /// <summary>
-        /// The signature is valid.
-        /// </summary>
-        Valid = 2,
-    }
-
-    /// <summary>
     /// The signature for a <see cref="Package"/>.
     /// </summary>
     public class PackageSignature

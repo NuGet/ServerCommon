@@ -6,27 +6,6 @@ using System.Collections.Generic;
 namespace NuGet.Services.Validation
 {
     /// <summary>
-    /// Represents the status of a package's signing.
-    /// </summary>
-    public enum PackageSigningStatus
-    {
-        /// <summary>
-        /// One or more of the package's signature is invalid.
-        /// </summary>
-        Invalid = 0,
-
-        /// <summary>
-        /// The package has no signatures.
-        /// </summary>
-        Unsigned = 1,
-
-        /// <summary>
-        /// All of the package's signatures are valid or in their grace periods.
-        /// </summary>
-        Valid = 2,
-    }
-
-    /// <summary>
     /// The metadata for a package's signature. A package may be signed with one or more <see cref="PackageSignature"/>s
     /// using one or more <see cref="Certificate"/>.
     /// </summary>

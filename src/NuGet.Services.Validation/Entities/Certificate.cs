@@ -7,27 +7,6 @@ using System.Collections.Generic;
 namespace NuGet.Services.Validation
 {
     /// <summary>
-    /// The status for a given <see cref="Certificate"/>.
-    /// </summary>
-    public enum CertificateStatus
-    {
-        /// <summary>
-        /// The status is unknown if this <see cref="Certificate"/>'s online verification has never completed.
-        /// </summary>
-        Unknown = 0,
-
-        /// <summary>
-        /// The <see cref="Certificate" /> has not been revoked.
-        /// </summary>
-        Good = 1,
-
-        /// <summary>
-        /// The <see cref="Certificate" /> has been revoked.
-        /// </summary>
-        Revoked = 2,
-    }
-
-    /// <summary>
     /// A X.509 Certificate used by one or more <see cref="PackageSignature" />s for one or more <see cref="Package"/>s.
     /// </summary>
     public class Certificate
