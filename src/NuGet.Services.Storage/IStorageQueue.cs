@@ -20,13 +20,6 @@ namespace NuGet.Services.Storage
         Task Add(T contents, CancellationToken token);
 
         /// <summary>
-        /// Adds a message to the queue.
-        /// </summary>
-        /// <param name="message">A message to add to the queue.</param>
-        /// <param name="token">A token to cancel the task with.</param>
-        Task Add(IStorageQueueMessage<T> message, CancellationToken token);
-
-        /// <summary>
         /// Receives a message from the queue.
         /// </summary>
         /// <param name="token">A token to cancel the task with.</param>

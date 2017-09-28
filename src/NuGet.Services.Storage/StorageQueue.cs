@@ -19,14 +19,14 @@ namespace NuGet.Services.Storage
         /// </summary>
         /// <param name="message">The message to add.</param>
         /// <param name="token">A token to cancel the task with.</param>
-        public abstract Task OnAdd(IStorageQueueMessage message, CancellationToken token);
+        protected abstract Task OnAdd(IStorageQueueMessage message, CancellationToken token);
 
         /// <summary>
         /// Receives a <see cref="IStorageQueueMessage"/> from the queue.
         /// </summary>
         /// <param name="token">A token to cancel the task with.</param>
         /// <returns>A message from the queue.</returns>
-        public abstract Task<IStorageQueueMessage> OnGetNext(CancellationToken token);
+        protected abstract Task<IStorageQueueMessage> OnGetNext(CancellationToken token);
 
         /// <summary>
         /// Removes a <see cref="IStorageQueueMessage"/> from the queue.
@@ -36,7 +36,7 @@ namespace NuGet.Services.Storage
         /// <remarks>
         /// This method should throw if <paramref name="message"/> was not returned by <see cref="OnGetNext(CancellationToken)"/>.
         /// </remarks>
-        public abstract Task OnRemove(IStorageQueueMessage message, CancellationToken token);
+        protected abstract Task OnRemove(IStorageQueueMessage message, CancellationToken token);
 
         public StorageQueue(IStorageQueueMessageSerializer<T> serializer)
         {
@@ -45,12 +45,7 @@ namespace NuGet.Services.Storage
 
         public Task Add(T contents, CancellationToken token)
         {
-            return Add(new StorageQueueMessage<T>(contents), token);
-        }
-
-        public Task Add(IStorageQueueMessage<T> message, CancellationToken token)
-        {
-            return OnAdd(_serializer.SerializeMessage(message), token);
+            return OnAdd(_serializer.SerializeMessage(new StorageQueueMessage<T>(contents)), token);
         }
 
         public async Task<IStorageQueueMessage<T>> GetNextAsync(CancellationToken token)
