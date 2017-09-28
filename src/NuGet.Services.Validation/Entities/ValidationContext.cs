@@ -21,10 +21,16 @@ namespace NuGet.Services.Validation
 
         private const string PackagesPackageIdPackageVersionIndex = "IX_Packages_PackageId_PackageNormalizedVersion";
 
+        private const string ValidatorStatesPackageKeyIndex = "IX_ValidatorStates_PackageKey";
+        private const string ValidatorStatesValidationIdIndex = "IX_ValidatorStates_ValidationId";
+
         private const string PackageSignaturesPackageKeyIndex = "IX_PackageSignatures_PackageKey";
         private const string PackageSignaturesStatusIndex = "IX_PackageSignatures_Status";
 
         private const string CertificatesThumbprintIndex = "IX_Certificates_Thumbprint";
+
+        private const string CertificateValidationsValidationIdIndex = "IX_CertificateValidations_ValidationId";
+        private const string CertificateValidationsCertificateKeyValidationIdIndex = "IX_CertificateValidations_CertificateKey_ValidationId";
 
         static ValidationEntitiesContext()
         {
@@ -131,6 +137,36 @@ namespace NuGet.Services.Validation
                 .Property(pv => pv.RowVersion)
                 .IsRowVersion();
 
+            modelBuilder.Entity<ValidatorState>()
+                .HasKey(s => s.Key);
+
+            modelBuilder.Entity<ValidatorState>()
+                .Property(s => s.Key)
+                .IsRequired();
+
+            modelBuilder.Entity<ValidatorState>()
+                .Property(s => s.PackageKey)
+                .IsRequired()
+                .HasColumnAnnotation(
+                    IndexAnnotation.AnnotationName,
+                    new IndexAnnotation(new[]
+                    {
+                        new IndexAttribute(ValidatorStatesPackageKeyIndex)
+                    }));
+
+            modelBuilder.Entity<ValidatorState>()
+                .Property(s => s.ValidationId)
+                .IsRequired()
+                .HasColumnAnnotation(
+                    IndexAnnotation.AnnotationName,
+                    new IndexAnnotation(new[]
+                    {
+                        new IndexAttribute(ValidatorStatesValidationIdIndex)
+                        {
+                            IsUnique = true
+                        }
+                    }));
+
             RegisterPackageSigningEntities(modelBuilder);
 
             base.OnModelCreating(modelBuilder);
@@ -139,12 +175,13 @@ namespace NuGet.Services.Validation
         private void RegisterPackageSigningEntities(DbModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Package>()
-                .ToTable(nameof(Package), SignatureSchema)
+                .ToTable("Packages", SignatureSchema)
                 .HasKey(p => p.PackageKey);
 
             modelBuilder.Entity<Package>()
                 .Property(p => p.PackageKey)
-                .IsRequired();
+                .IsRequired()
+                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
 
             modelBuilder.Entity<Package>()
                 .Property(p => p.PackageId)
@@ -175,7 +212,7 @@ namespace NuGet.Services.Validation
                 .WillCascadeOnDelete();
 
             modelBuilder.Entity<PackageSignature>()
-                .ToTable(nameof(PackageSignature), SignatureSchema)
+                .ToTable("PackageSignatures", SignatureSchema)
                 .HasKey(s => s.Key);
 
             modelBuilder.Entity<PackageSignature>()
@@ -225,7 +262,7 @@ namespace NuGet.Services.Validation
                 });
 
             modelBuilder.Entity<Certificate>()
-                .ToTable(nameof(Certificate), SignatureSchema)
+                .ToTable("Certificates", SignatureSchema)
                 .HasKey(c => c.Key);
 
             modelBuilder.Entity<Certificate>()
@@ -235,8 +272,8 @@ namespace NuGet.Services.Validation
 
             modelBuilder.Entity<Certificate>()
                 .Property(c => c.Thumbprint)
-                .HasMaxLength(64)
-                .HasColumnType("varbinary")
+                .HasMaxLength(20)
+                .HasColumnType("char")
                 .IsRequired()
                 .HasColumnAnnotation(
                     IndexAnnotation.AnnotationName,
@@ -263,6 +300,41 @@ namespace NuGet.Services.Validation
             modelBuilder.Entity<Certificate>()
                 .Property(c => c.RevocationTime)
                 .HasColumnType("datetime2");
+
+            modelBuilder.Entity<Certificate>()
+                .HasMany(c => c.Validations)
+                .WithRequired(v => v.Certificate)
+                .HasForeignKey(v => v.CertificateKey)
+                .WillCascadeOnDelete();
+
+            modelBuilder.Entity<CertificateValidation>()
+                .ToTable("CertificateValidations", SignatureSchema)
+                .HasKey(v => v.Key);
+
+            modelBuilder.Entity<CertificateValidation>()
+                .Property(v => v.Key)
+                .IsRequired();
+
+            modelBuilder.Entity<CertificateValidation>()
+                .Property(v => v.CertificateKey)
+                .IsRequired()
+                .HasColumnAnnotation(
+                    IndexAnnotation.AnnotationName,
+                    new IndexAnnotation(new[]
+                    {
+                        new IndexAttribute(CertificateValidationsCertificateKeyValidationIdIndex, 1)
+                    }));
+
+            modelBuilder.Entity<CertificateValidation>()
+                .Property(v => v.ValidationId)
+                .IsRequired()
+                .HasColumnAnnotation(
+                    IndexAnnotation.AnnotationName,
+                    new IndexAnnotation(new[]
+                    {
+                        new IndexAttribute(CertificateValidationsValidationIdIndex),
+                        new IndexAttribute(CertificateValidationsCertificateKeyValidationIdIndex, 2)
+                    }));
         }
     }
 }

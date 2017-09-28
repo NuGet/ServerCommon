@@ -38,10 +38,9 @@ namespace NuGet.Services.Validation
         public long Key { get; set; }
 
         /// <summary>
-        /// The SHA1 thumbprint that uniquely identifies this certificate. This is a binary string with
-        /// a maximum length of 64 bytes.
+        /// The SHA1 thumbprint that uniquely identifies this certificate. This is a string with exactly 40 characters.
         /// </summary>
-        public byte[] Thumbprint { get; set;}
+        public string Thumbprint { get; set;}
 
         /// <summary>
         /// The last known status for this certificate. This may be stale.
@@ -83,5 +82,11 @@ namespace NuGet.Services.Validation
         /// each of these signatures that were signed after the invalidity period begins MUST be invalidated.
         /// </summary>
         public virtual ICollection<PackageSignature> PackageSignatures { get; set; }
+
+        /// <summary>
+        /// A certificate should be periodically validated to ensure it has not be revoked. This is the list
+        /// of all validations performed for this certificate.
+        /// </summary>
+        public virtual ICollection<CertificateValidation> Validations { get; set; }
     }
 }
