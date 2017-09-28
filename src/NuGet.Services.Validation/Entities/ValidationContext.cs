@@ -22,7 +22,6 @@ namespace NuGet.Services.Validation
         private const string PackagesPackageIdPackageVersionIndex = "IX_Packages_PackageId_PackageNormalizedVersion";
 
         private const string ValidatorStatesPackageKeyIndex = "IX_ValidatorStates_PackageKey";
-        private const string ValidatorStatesValidationIdIndex = "IX_ValidatorStates_ValidationId";
 
         private const string PackageSignaturesPackageKeyIndex = "IX_PackageSignatures_PackageKey";
         private const string PackageSignaturesStatusIndex = "IX_PackageSignatures_Status";
@@ -137,14 +136,14 @@ namespace NuGet.Services.Validation
                 .Property(pv => pv.RowVersion)
                 .IsRowVersion();
 
-            modelBuilder.Entity<ValidatorState>()
-                .HasKey(s => s.Key);
+            modelBuilder.Entity<ValidatorStatus>()
+                .HasKey(s => s.ValidationId);
 
-            modelBuilder.Entity<ValidatorState>()
-                .Property(s => s.Key)
-                .IsRequired();
+            modelBuilder.Entity<ValidatorStatus>()
+                .Property(s => s.ValidationId)
+                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
 
-            modelBuilder.Entity<ValidatorState>()
+            modelBuilder.Entity<ValidatorStatus>()
                 .Property(s => s.PackageKey)
                 .IsRequired()
                 .HasColumnAnnotation(
@@ -152,19 +151,6 @@ namespace NuGet.Services.Validation
                     new IndexAnnotation(new[]
                     {
                         new IndexAttribute(ValidatorStatesPackageKeyIndex)
-                    }));
-
-            modelBuilder.Entity<ValidatorState>()
-                .Property(s => s.ValidationId)
-                .IsRequired()
-                .HasColumnAnnotation(
-                    IndexAnnotation.AnnotationName,
-                    new IndexAnnotation(new[]
-                    {
-                        new IndexAttribute(ValidatorStatesValidationIdIndex)
-                        {
-                            IsUnique = true
-                        }
                     }));
 
             RegisterPackageSigningEntities(modelBuilder);
@@ -180,7 +166,6 @@ namespace NuGet.Services.Validation
 
             modelBuilder.Entity<Package>()
                 .Property(p => p.PackageKey)
-                .IsRequired()
                 .HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
 
             modelBuilder.Entity<Package>()
@@ -217,7 +202,6 @@ namespace NuGet.Services.Validation
 
             modelBuilder.Entity<PackageSignature>()
                 .Property(s => s.Key)
-                .IsRequired()
                 .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 
             modelBuilder.Entity<PackageSignature>()
@@ -229,10 +213,6 @@ namespace NuGet.Services.Validation
                     {
                         new IndexAttribute(PackageSignaturesPackageKeyIndex)
                     }));
-
-            modelBuilder.Entity<PackageSignature>()
-                .Property(s => s.CreatedAt)
-                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 
             modelBuilder.Entity<PackageSignature>()
                 .Property(s => s.Status)
@@ -249,7 +229,8 @@ namespace NuGet.Services.Validation
 
             modelBuilder.Entity<PackageSignature>()
                 .Property(s => s.CreatedAt)
-                .HasColumnType("datetime2");
+                .HasColumnType("datetime2")
+                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 
             modelBuilder.Entity<PackageSignature>()
                 .HasMany(s => s.Certificates)
@@ -264,11 +245,6 @@ namespace NuGet.Services.Validation
             modelBuilder.Entity<Certificate>()
                 .ToTable("Certificates", SignatureSchema)
                 .HasKey(c => c.Key);
-
-            modelBuilder.Entity<Certificate>()
-                .Property(c => c.Key)
-                .IsRequired()
-                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 
             modelBuilder.Entity<Certificate>()
                 .Property(c => c.Thumbprint)
@@ -310,10 +286,6 @@ namespace NuGet.Services.Validation
             modelBuilder.Entity<CertificateValidation>()
                 .ToTable("CertificateValidations", SignatureSchema)
                 .HasKey(v => v.Key);
-
-            modelBuilder.Entity<CertificateValidation>()
-                .Property(v => v.Key)
-                .IsRequired();
 
             modelBuilder.Entity<CertificateValidation>()
                 .Property(v => v.CertificateKey)

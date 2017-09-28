@@ -47,7 +47,7 @@
     <Compile Include="Entities\PackageValidation.cs" />
     <Compile Include="Entities\PackageValidationSet.cs" />
     <Compile Include="Entities\ValidationContext.cs" />
-    <Compile Include="Entities\ValidatorState.cs" />
+    <Compile Include="Entities\ValidatorStatus.cs" />
     <Compile Include="IPackageValidationEnqueuer.cs" />
     <Compile Include="IServiceBusMessageSerializer.cs" />
     <Compile Include="Entities\EntitiesConfiguration.cs" />

@@ -6,26 +6,21 @@ using System;
 namespace NuGet.Services.Validation
 {
     /// <summary>
-    /// The state of an <see cref="IValidator"/>'s validation of a package. This should be used
-    /// by each <see cref="IValidator"/> to keep track of its own state.
+    /// The status of an <see cref="IValidator"/>'s validation of a package. This should be used
+    /// by each <see cref="IValidator"/> to persist its state.
     /// </summary>
-    public class ValidatorState
+    public class ValidatorStatus
     {
         /// <summary>
-        /// The database-mastered identifier for this validator state.
+        /// The unique identifier for this validation. The Validation Orchestrator generates a unique
+        /// validation ID for each <see cref="IValidator"/> it runs on a single package.
         /// </summary>
-        public long Key { get; set; }
+        public Guid ValidationId { get; set; }
 
         /// <summary>
         /// The package key in the NuGet gallery database.
         /// </summary>
         public long PackageKey { get; set; }
-
-        /// <summary>
-        /// The unique identifier for this validation. The Validation Orchestrator generates different
-        /// validation IDs for each validator it runs on a single package.
-        /// </summary>
-        public Guid ValidationId { get; set; }
 
         /// <summary>
         /// The current status for this validator.

@@ -21,7 +21,9 @@ namespace NuGet.Services.Validation
         public long CertificateKey { get; set; }
 
         /// <summary>
-        /// The unique identifier that represents this round of validation.
+        /// The unique identifier that represents the round of validation that kicked off
+        /// this certificate's validation. Note that this ID may not necessarily be generated
+        /// by the Validation Orchestrator!
         /// </summary>
         public Guid ValidationId { get; set; }
 

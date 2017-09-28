@@ -8,17 +8,15 @@ namespace NuGet.Services.Validation
         public override void Up()
         {
             CreateTable(
-                "dbo.ValidatorStates",
+                "dbo.ValidatorStatus",
                 c => new
                     {
-                        Key = c.Long(nullable: false, identity: true),
-                        PackageKey = c.Long(nullable: false),
                         ValidationId = c.Guid(nullable: false),
+                        PackageKey = c.Long(nullable: false),
                         State = c.Int(nullable: false),
                     })
-                .PrimaryKey(t => t.Key)
-                .Index(t => t.PackageKey, name: "IX_ValidatorStates_PackageKey")
-                .Index(t => t.ValidationId, unique: true, name: "IX_ValidatorStates_ValidationId");
+                .PrimaryKey(t => t.ValidationId)
+                .Index(t => t.PackageKey, name: "IX_ValidatorStates_PackageKey");
             
             CreateTable(
                 "signature.Packages",
@@ -106,14 +104,13 @@ namespace NuGet.Services.Validation
             DropIndex("signature.PackageSignatures", "IX_PackageSignatures_Status");
             DropIndex("signature.PackageSignatures", "IX_PackageSignatures_PackageKey");
             DropIndex("signature.Packages", "IX_Packages_PackageId_PackageNormalizedVersion");
-            DropIndex("dbo.ValidatorStates", "IX_ValidatorStates_ValidationId");
-            DropIndex("dbo.ValidatorStates", "IX_ValidatorStates_PackageKey");
+            DropIndex("dbo.ValidatorStatus", "IX_ValidatorStates_PackageKey");
             DropTable("signature.PackageSignatureCertificates");
             DropTable("signature.CertificateValidations");
             DropTable("signature.Certificates");
             DropTable("signature.PackageSignatures");
             DropTable("signature.Packages");
-            DropTable("dbo.ValidatorStates");
+            DropTable("dbo.ValidatorStatus");
         }
     }
 }
