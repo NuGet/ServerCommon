@@ -62,7 +62,7 @@ namespace NuGet.Services.Validation
 
         /// <summary>
         /// The last time this certificate's metadata was updated using online verification. NULL if online
-        /// verification have never been completed for this certificate.
+        /// verification has never been completed for this certificate.
         /// </summary>
         public DateTime? LastVerificationTime { get; set; }
 
@@ -72,8 +72,9 @@ namespace NuGet.Services.Validation
         public DateTime? RevocationTime { get; set; }
 
         /// <summary>
-        /// The number of times online revocation checking failed without a "Good" or "Revoked" response.
-        /// This counter should be reset each time the certificate is properly verified.
+        /// The number of times validations for this certificate failed to complete.
+        /// This counter should be reset each time the certificate is properly verified (even if the
+        /// certificate is found to be in a "Revoked" status).
         /// </summary>
         public int ValidationFailures { get; set; }
 

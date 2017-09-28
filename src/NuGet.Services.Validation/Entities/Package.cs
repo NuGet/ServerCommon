@@ -8,7 +8,7 @@ namespace NuGet.Services.Validation
     /// <summary>
     /// Represents the status of a package's signing.
     /// </summary>
-    public enum SignatureStatus
+    public enum PackageSigningStatus
     {
         /// <summary>
         /// One or more of the package's signature is invalid.
@@ -21,7 +21,7 @@ namespace NuGet.Services.Validation
         Unsigned = 1,
 
         /// <summary>
-        /// All of the package's signatures are valid.
+        /// All of the package's signatures are valid or in their grace periods.
         /// </summary>
         Valid = 2,
     }
@@ -51,9 +51,10 @@ namespace NuGet.Services.Validation
         public string PackageNormalizedVersion { get; set; }
 
         /// <summary>
-        /// The status of the package's signing.
+        /// The status of the package's signing. The SigningStatus will only be "Valid" if and only if all of this
+        /// Package's <see cref="PackageSignature"/>s' Status is "Valid" or "InGracePeriod".
         /// </summary>
-        public SignatureStatus SignatureStatus { get; set; }
+        public PackageSigningStatus SigningStatus { get; set; }
 
         /// <summary>
         /// The signatures used to ensure this package's integerity.

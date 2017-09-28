@@ -20,7 +20,7 @@ namespace NuGet.Services.Validation
         /// <summary>
         /// The package key in the NuGet gallery database.
         /// </summary>
-        public long PackageKey { get; set; }
+        public int PackageKey { get; set; }
 
         /// <summary>
         /// The current status for this validator.

@@ -12,7 +12,7 @@ namespace NuGet.Services.Validation
                 c => new
                     {
                         ValidationId = c.Guid(nullable: false),
-                        PackageKey = c.Long(nullable: false),
+                        PackageKey = c.Int(nullable: false),
                         State = c.Int(nullable: false),
                     })
                 .PrimaryKey(t => t.ValidationId)
@@ -25,7 +25,7 @@ namespace NuGet.Services.Validation
                         PackageKey = c.Int(nullable: false),
                         PackageId = c.String(nullable: false, maxLength: 128),
                         PackageNormalizedVersion = c.String(nullable: false, maxLength: 64),
-                        SignatureStatus = c.Int(nullable: false),
+                        SigningStatus = c.Int(nullable: false),
                     })
                 .PrimaryKey(t => t.PackageKey)
                 .Index(t => new { t.PackageId, t.PackageNormalizedVersion }, name: "IX_Packages_PackageId_PackageNormalizedVersion");
