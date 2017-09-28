@@ -13,6 +13,11 @@ namespace NuGet.Services.Storage
     {
         private JsonSerializerSettings _settings;
 
+        public JsonStorageQueueMessageSerializer(JsonSerializerSettings settings)
+        {
+            _settings = settings;
+        }
+
         public override string Serialize(T contents)
         {
             return JsonConvert.SerializeObject(contents, _settings);
@@ -21,11 +26,6 @@ namespace NuGet.Services.Storage
         public override T Deserialize(string contents)
         {
             return JsonConvert.DeserializeObject<T>(contents, _settings);
-        }
-
-        public JsonStorageQueueMessageSerializer(JsonSerializerSettings settings)
-        {
-            _settings = settings;
         }
     }
 }
