@@ -12,7 +12,7 @@ namespace NuGet.Services.Storage
     {
         private JsonSerializerSettings _settings;
 
-        public JsonMessageSerializer(JsonSerializerSettings settings)
+        public JsonMessageSerializer(JsonSerializerSettings settings = null)
         {
             _settings = settings;
         }

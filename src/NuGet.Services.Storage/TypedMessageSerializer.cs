@@ -21,8 +21,8 @@ namespace NuGet.Services.Storage
 
         public TypedMessageSerializer(IMessageSerializer<T> contentsSerializer, IMessageSerializer<TypedMessage> messageSerializer, int version)
         {
-            _contentsSerializer = contentsSerializer;
-            _messageSerializer = messageSerializer;
+            _contentsSerializer = contentsSerializer ?? throw new ArgumentNullException(nameof(contentsSerializer));
+            _messageSerializer = messageSerializer ?? throw new ArgumentNullException(nameof(messageSerializer));
             _version = version;
         }
 

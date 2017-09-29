@@ -11,11 +11,20 @@ namespace NuGet.Services.Storage
     {
         private IStorageQueue _queue;
         private IMessageSerializer<T> _messageSerializer;
+        
+        public StorageQueue(IStorageQueue queue, IMessageSerializer<T> contentsSerializer, int version)
+            : this(queue, 
+                  new TypedMessageSerializer<T>(
+                      contentsSerializer, 
+                      new JsonMessageSerializer<TypedMessage>(), 
+                      version))
+        {
+        }
 
-        public StorageQueue(IStorageQueue queue, IMessageSerializer<T> messageSerializer)
+        public StorageQueue(IStorageQueue queue, TypedMessageSerializer<T> typedMessageSerializer)
         {
             _queue = queue ?? throw new ArgumentNullException(nameof(queue));
-            _messageSerializer = messageSerializer ?? throw new ArgumentNullException(nameof(messageSerializer));
+            _messageSerializer = typedMessageSerializer ?? throw new ArgumentNullException(nameof(typedMessageSerializer));
         }
 
         public Task AddAsync(T contents, CancellationToken token)
