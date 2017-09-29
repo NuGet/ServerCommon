@@ -21,7 +21,7 @@ namespace NuGet.Services.Validation
 
         private const string PackagesPackageIdPackageVersionIndex = "IX_Packages_PackageId_PackageNormalizedVersion";
 
-        private const string ValidatorStatesPackageKeyIndex = "IX_ValidatorStates_PackageKey";
+        private const string ValidatorStatusesPackageKeyIndex = "IX_ValidatorStatuses_PackageKey";
 
         private const string PackageSignaturesPackageKeyIndex = "IX_PackageSignatures_PackageKey";
         private const string PackageSignaturesStatusIndex = "IX_PackageSignatures_Status";
@@ -157,7 +157,7 @@ namespace NuGet.Services.Validation
                     IndexAnnotation.AnnotationName,
                     new IndexAnnotation(new[]
                     {
-                        new IndexAttribute(ValidatorStatesPackageKeyIndex)
+                        new IndexAttribute(ValidatorStatusesPackageKeyIndex)
                     }));
 
             RegisterPackageSigningEntities(modelBuilder);

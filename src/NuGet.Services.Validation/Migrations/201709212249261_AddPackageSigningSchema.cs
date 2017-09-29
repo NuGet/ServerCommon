@@ -73,7 +73,7 @@ namespace NuGet.Services.Validation
                         State = c.Int(nullable: false),
                     })
                 .PrimaryKey(t => t.ValidationId)
-                .Index(t => t.PackageKey, name: "IX_ValidatorStates_PackageKey");
+                .Index(t => t.PackageKey, name: "IX_ValidatorStatuses_PackageKey");
             
             CreateTable(
                 "signature.PackageSignatureCertificates",
@@ -98,7 +98,7 @@ namespace NuGet.Services.Validation
             DropForeignKey("signature.PackageSignatureCertificates", "PackageSignatureKey", "signature.PackageSignatures");
             DropIndex("signature.PackageSignatureCertificates", new[] { "CertificateKey" });
             DropIndex("signature.PackageSignatureCertificates", new[] { "PackageSignatureKey" });
-            DropIndex("dbo.ValidatorStatuses", "IX_ValidatorStates_PackageKey");
+            DropIndex("dbo.ValidatorStatuses", "IX_ValidatorStatuses_PackageKey");
             DropIndex("signature.CertificateValidations", "IX_CertificateValidations_ValidationId");
             DropIndex("signature.CertificateValidations", "IX_CertificateValidations_CertificateKey_ValidationId");
             DropIndex("signature.Packages", "IX_Packages_PackageId_PackageNormalizedVersion");
