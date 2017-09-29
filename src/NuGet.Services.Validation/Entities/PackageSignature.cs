@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace NuGet.Services.Validation
 {
     /// <summary>
-    /// The signature for a <see cref="Package"/>.
+    /// The signature for a <see cref="PackageSigningState"/>.
     /// </summary>
     public class PackageSignature
     {
@@ -17,7 +17,7 @@ namespace NuGet.Services.Validation
         public long Key { get; set; }
 
         /// <summary>
-        /// The key to the <see cref="Package"/> this signature is for.
+        /// The key to the <see cref="PackageSigningState"/> this signature is for.
         /// </summary>
         public int PackageKey { get; set; }
 
@@ -40,9 +40,12 @@ namespace NuGet.Services.Validation
         public PackageSignatureStatus Status { get; set; }
 
         /// <summary>
-        /// The <see cref="Package"/> this signature is for.
+        /// The <see cref="PackageSigningState"/> that owns this <see cref="PackageSignature"/>. If this signature
+        /// has a Status of "Invalid", the overall <see cref="PackageSigningState"/> will also be "Invalid". Note that
+        /// a <see cref="PackageSigningState"/> may have multiple <see cref="PacakgeSignature"/>s. Thus, the overall
+        /// signing state can be invalid even if this signature is valid.
         /// </summary>
-        public virtual Package Package { get; set; }
+        public virtual PackageSigningState PackageSigningState { get; set; }
 
         /// <summary>
         /// The <see cref="Certificate"/>s used to generate this signature.

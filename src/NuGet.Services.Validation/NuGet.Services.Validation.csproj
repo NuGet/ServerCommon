@@ -43,7 +43,7 @@
     <Compile Include="Entities\Certificate.cs" />
     <Compile Include="Entities\CertificateStatus.cs" />
     <Compile Include="Entities\CertificateValidation.cs" />
-    <Compile Include="Entities\Package.cs" />
+    <Compile Include="Entities\PackageSigningState.cs" />
     <Compile Include="Entities\PackageSignature.cs" />
     <Compile Include="Entities\PackageSignatureStatus.cs" />
     <Compile Include="Entities\PackageSigningStatus.cs" />

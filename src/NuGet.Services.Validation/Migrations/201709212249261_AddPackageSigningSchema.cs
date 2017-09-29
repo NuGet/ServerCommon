@@ -34,12 +34,12 @@ namespace NuGet.Services.Validation
                         Status = c.Int(nullable: false),
                     })
                 .PrimaryKey(t => t.Key)
-                .ForeignKey("signature.Packages", t => t.PackageKey, cascadeDelete: true)
+                .ForeignKey("signature.PackageSigningStates", t => t.PackageKey, cascadeDelete: true)
                 .Index(t => t.PackageKey, name: "IX_PackageSignatures_PackageKey")
                 .Index(t => t.Status, name: "IX_PackageSignatures_Status");
             
             CreateTable(
-                "signature.Packages",
+                "signature.PackageSigningStates",
                 c => new
                     {
                         PackageKey = c.Int(nullable: false),
@@ -48,7 +48,7 @@ namespace NuGet.Services.Validation
                         SigningStatus = c.Int(nullable: false),
                     })
                 .PrimaryKey(t => t.PackageKey)
-                .Index(t => new { t.PackageId, t.PackageNormalizedVersion }, name: "IX_Packages_PackageId_PackageNormalizedVersion");
+                .Index(t => new { t.PackageId, t.PackageNormalizedVersion }, name: "IX_PackageSigningStates_PackageId_PackageNormalizedVersion");
             
             CreateTable(
                 "signature.CertificateValidations",
@@ -93,7 +93,7 @@ namespace NuGet.Services.Validation
         public override void Down()
         {
             DropForeignKey("signature.CertificateValidations", "CertificateKey", "signature.Certificates");
-            DropForeignKey("signature.PackageSignatures", "PackageKey", "signature.Packages");
+            DropForeignKey("signature.PackageSignatures", "PackageKey", "signature.PackageSigningStates");
             DropForeignKey("signature.PackageSignatureCertificates", "CertificateKey", "signature.Certificates");
             DropForeignKey("signature.PackageSignatureCertificates", "PackageSignatureKey", "signature.PackageSignatures");
             DropIndex("signature.PackageSignatureCertificates", new[] { "CertificateKey" });
@@ -101,14 +101,14 @@ namespace NuGet.Services.Validation
             DropIndex("dbo.ValidatorStatuses", "IX_ValidatorStatuses_PackageKey");
             DropIndex("signature.CertificateValidations", "IX_CertificateValidations_ValidationId");
             DropIndex("signature.CertificateValidations", "IX_CertificateValidations_CertificateKey_ValidationId");
-            DropIndex("signature.Packages", "IX_Packages_PackageId_PackageNormalizedVersion");
+            DropIndex("signature.PackageSigningStates", "IX_PackageSigningStates_PackageId_PackageNormalizedVersion");
             DropIndex("signature.PackageSignatures", "IX_PackageSignatures_Status");
             DropIndex("signature.PackageSignatures", "IX_PackageSignatures_PackageKey");
             DropIndex("signature.Certificates", "IX_Certificates_Thumbprint");
             DropTable("signature.PackageSignatureCertificates");
             DropTable("dbo.ValidatorStatuses");
             DropTable("signature.CertificateValidations");
-            DropTable("signature.Packages");
+            DropTable("signature.PackageSigningStates");
             DropTable("signature.PackageSignatures");
             DropTable("signature.Certificates");
         }

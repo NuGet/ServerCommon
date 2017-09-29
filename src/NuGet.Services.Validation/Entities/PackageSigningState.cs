@@ -6,10 +6,10 @@ using System.Collections.Generic;
 namespace NuGet.Services.Validation
 {
     /// <summary>
-    /// The metadata for a package's signature. A package may be signed with one or more <see cref="PackageSignature"/>s
-    /// using one or more <see cref="Certificate"/>.
+    /// The metadata for a package's signing. A package may be signed with one or more <see cref="PackageSignature"/>s
+    /// using one or more <see cref="Certificate"/>s.
     /// </summary>
-    public class Package
+    public class PackageSigningState
     {
         /// <summary>
         /// The key referencing a package in the NuGet Gallery database. If a package is hard deleted then re-pushed,

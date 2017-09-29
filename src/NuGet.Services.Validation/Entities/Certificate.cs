@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace NuGet.Services.Validation
 {
     /// <summary>
-    /// A X.509 Certificate used by one or more <see cref="PackageSignature" />s for one or more <see cref="Package"/>s.
+    /// A X.509 Certificate used by one or more <see cref="PackageSignature" />s for one or more <see cref="PackageSigningState"/>s.
     /// </summary>
     public class Certificate
     {

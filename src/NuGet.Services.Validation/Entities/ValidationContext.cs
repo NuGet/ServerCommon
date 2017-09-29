@@ -19,15 +19,20 @@ namespace NuGet.Services.Validation
         private const string PackageValidationSetsPackageKeyIndex = "IX_PackageValidationSets_PackageKey";
         private const string PackageValidationSetsPackageIdPackageVersionIndex = "IX_PackageValidationSets_PackageId_PackageNormalizedVersion";
 
-        private const string PackagesPackageIdPackageVersionIndex = "IX_Packages_PackageId_PackageNormalizedVersion";
-
+        private const string ValidatorStatusesTable = "ValidatorStatuses";
         private const string ValidatorStatusesPackageKeyIndex = "IX_ValidatorStatuses_PackageKey";
 
+        private const string PackageSigningStatesTable = "PackageSigningStates";
+        private const string PackageSigningStatesPackageIdPackageVersionIndex = "IX_PackageSigningStates_PackageId_PackageNormalizedVersion";
+
+        private const string PackageSignaturesTable = "PackageSignatures";
         private const string PackageSignaturesPackageKeyIndex = "IX_PackageSignatures_PackageKey";
         private const string PackageSignaturesStatusIndex = "IX_PackageSignatures_Status";
 
+        private const string CertificatesTable = "Certificates";
         private const string CertificatesThumbprintIndex = "IX_Certificates_Thumbprint";
 
+        private const string CertificateValidationsTable = "CertificateValidations";
         private const string CertificateValidationsValidationIdIndex = "IX_CertificateValidations_ValidationId";
         private const string CertificateValidationsCertificateKeyValidationIdIndex = "IX_CertificateValidations_CertificateKey_ValidationId";
 
@@ -41,7 +46,7 @@ namespace NuGet.Services.Validation
         public IDbSet<PackageValidation> PackageValidations { get; set; }
         public IDbSet<ValidatorStatus> ValidatorStatuses { get; set; }
 
-        public IDbSet<Package> Packages { get; set; }
+        public IDbSet<PackageSigningState> PackageSigningStates { get; set; }
         public IDbSet<PackageSignature> PackagSignatures { get; set; }
         public IDbSet<Certificate> Certificates { get; set; }
         public IDbSet<CertificateValidation> CertificateValidations { get; set; }
@@ -143,7 +148,7 @@ namespace NuGet.Services.Validation
                 .IsRowVersion();
 
             modelBuilder.Entity<ValidatorStatus>()
-                .ToTable("ValidatorStatuses")
+                .ToTable(ValidatorStatusesTable)
                 .HasKey(s => s.ValidationId);
 
             modelBuilder.Entity<ValidatorStatus>()
@@ -167,15 +172,15 @@ namespace NuGet.Services.Validation
 
         private void RegisterPackageSigningEntities(DbModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Package>()
-                .ToTable("Packages", SignatureSchema)
+            modelBuilder.Entity<PackageSigningState>()
+                .ToTable(PackageSigningStatesTable, SignatureSchema)
                 .HasKey(p => p.PackageKey);
 
-            modelBuilder.Entity<Package>()
+            modelBuilder.Entity<PackageSigningState>()
                 .Property(p => p.PackageKey)
                 .HasDatabaseGeneratedOption(DatabaseGeneratedOption.None);
 
-            modelBuilder.Entity<Package>()
+            modelBuilder.Entity<PackageSigningState>()
                 .Property(p => p.PackageId)
                 .HasMaxLength(128)
                 .IsRequired()
@@ -183,10 +188,10 @@ namespace NuGet.Services.Validation
                     IndexAnnotation.AnnotationName,
                     new IndexAnnotation(new[]
                     {
-                        new IndexAttribute(PackagesPackageIdPackageVersionIndex, 1)
+                        new IndexAttribute(PackageSigningStatesPackageIdPackageVersionIndex, 1)
                     }));
 
-            modelBuilder.Entity<Package>()
+            modelBuilder.Entity<PackageSigningState>()
                 .Property(p => p.PackageNormalizedVersion)
                 .HasMaxLength(64)
                 .IsRequired()
@@ -194,17 +199,17 @@ namespace NuGet.Services.Validation
                     IndexAnnotation.AnnotationName,
                     new IndexAnnotation(new[]
                     {
-                        new IndexAttribute(PackagesPackageIdPackageVersionIndex, 2)
+                        new IndexAttribute(PackageSigningStatesPackageIdPackageVersionIndex, 2)
                     }));
 
-            modelBuilder.Entity<Package>()
+            modelBuilder.Entity<PackageSigningState>()
                 .HasMany(p => p.PackageSignatures)
-                .WithRequired(s => s.Package)
+                .WithRequired(s => s.PackageSigningState)
                 .HasForeignKey(s => s.PackageKey)
                 .WillCascadeOnDelete();
 
             modelBuilder.Entity<PackageSignature>()
-                .ToTable("PackageSignatures", SignatureSchema)
+                .ToTable(PackageSignaturesTable, SignatureSchema)
                 .HasKey(s => s.Key);
 
             modelBuilder.Entity<PackageSignature>()
@@ -250,7 +255,7 @@ namespace NuGet.Services.Validation
                 });
 
             modelBuilder.Entity<Certificate>()
-                .ToTable("Certificates", SignatureSchema)
+                .ToTable(CertificatesTable, SignatureSchema)
                 .HasKey(c => c.Key);
 
             modelBuilder.Entity<Certificate>()
@@ -291,7 +296,7 @@ namespace NuGet.Services.Validation
                 .WillCascadeOnDelete();
 
             modelBuilder.Entity<CertificateValidation>()
-                .ToTable("CertificateValidations", SignatureSchema)
+                .ToTable(CertificateValidationsTable, SignatureSchema)
                 .HasKey(v => v.Key);
 
             modelBuilder.Entity<CertificateValidation>()

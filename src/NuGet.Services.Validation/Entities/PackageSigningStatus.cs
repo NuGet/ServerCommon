@@ -4,7 +4,7 @@
 namespace NuGet.Services.Validation
 {
     /// <summary>
-    /// Represents the status of a <see cref="Package"/>'s signing.
+    /// Represents the status of a <see cref="PackageSigningState"/>'s signing.
     /// </summary>
     public enum PackageSigningStatus
     {
