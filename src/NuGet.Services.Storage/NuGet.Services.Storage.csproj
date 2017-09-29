@@ -67,6 +67,8 @@
     <Compile Include="StorageQueueMessage.cs" />
     <Compile Include="StreamStorageContent.cs" />
     <Compile Include="StringStorageContent.cs" />
+    <Compile Include="TypedMessage.cs" />
+    <Compile Include="TypedMessageSerializer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="project.json" />
