@@ -39,6 +39,12 @@ namespace NuGet.Services.Validation
 
         public IDbSet<PackageValidationSet> PackageValidationSets { get; set; }
         public IDbSet<PackageValidation> PackageValidations { get; set; }
+        public IDbSet<ValidatorStatus> ValidatorStatuses { get; set; }
+
+        public IDbSet<Package> Packages { get; set; }
+        public IDbSet<PackageSignature> PackagSignatures { get; set; }
+        public IDbSet<Certificate> Certificates { get; set; }
+        public IDbSet<CertificateValidation> CertificateValidations { get; set; }
 
         public ValidationEntitiesContext() : this("Validation.SqlServer")
         {
@@ -137,6 +143,7 @@ namespace NuGet.Services.Validation
                 .IsRowVersion();
 
             modelBuilder.Entity<ValidatorStatus>()
+                .ToTable("ValidatorStatuses")
                 .HasKey(s => s.ValidationId);
 
             modelBuilder.Entity<ValidatorStatus>()

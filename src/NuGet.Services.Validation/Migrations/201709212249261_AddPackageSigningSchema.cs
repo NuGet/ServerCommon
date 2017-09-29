@@ -8,27 +8,20 @@ namespace NuGet.Services.Validation
         public override void Up()
         {
             CreateTable(
-                "dbo.ValidatorStatus",
+                "signature.Certificates",
                 c => new
                     {
-                        ValidationId = c.Guid(nullable: false),
-                        PackageKey = c.Int(nullable: false),
-                        State = c.Int(nullable: false),
+                        Key = c.Long(nullable: false, identity: true),
+                        Thumbprint = c.String(nullable: false, maxLength: 20, fixedLength: true, unicode: false),
+                        Status = c.Int(nullable: false),
+                        StatusUpdateTime = c.DateTime(precision: 7, storeType: "datetime2"),
+                        NextStatusUpdateTime = c.DateTime(precision: 7, storeType: "datetime2"),
+                        LastVerificationTime = c.DateTime(precision: 7, storeType: "datetime2"),
+                        RevocationTime = c.DateTime(precision: 7, storeType: "datetime2"),
+                        ValidationFailures = c.Int(nullable: false),
                     })
-                .PrimaryKey(t => t.ValidationId)
-                .Index(t => t.PackageKey, name: "IX_ValidatorStates_PackageKey");
-            
-            CreateTable(
-                "signature.Packages",
-                c => new
-                    {
-                        PackageKey = c.Int(nullable: false),
-                        PackageId = c.String(nullable: false, maxLength: 128),
-                        PackageNormalizedVersion = c.String(nullable: false, maxLength: 64),
-                        SigningStatus = c.Int(nullable: false),
-                    })
-                .PrimaryKey(t => t.PackageKey)
-                .Index(t => new { t.PackageId, t.PackageNormalizedVersion }, name: "IX_Packages_PackageId_PackageNormalizedVersion");
+                .PrimaryKey(t => t.Key)
+                .Index(t => t.Thumbprint, unique: true, name: "IX_Certificates_Thumbprint");
             
             CreateTable(
                 "signature.PackageSignatures",
@@ -46,20 +39,16 @@ namespace NuGet.Services.Validation
                 .Index(t => t.Status, name: "IX_PackageSignatures_Status");
             
             CreateTable(
-                "signature.Certificates",
+                "signature.Packages",
                 c => new
                     {
-                        Key = c.Long(nullable: false, identity: true),
-                        Thumbprint = c.String(nullable: false, maxLength: 20, fixedLength: true, unicode: false),
-                        Status = c.Int(nullable: false),
-                        StatusUpdateTime = c.DateTime(precision: 7, storeType: "datetime2"),
-                        NextStatusUpdateTime = c.DateTime(precision: 7, storeType: "datetime2"),
-                        LastVerificationTime = c.DateTime(precision: 7, storeType: "datetime2"),
-                        RevocationTime = c.DateTime(precision: 7, storeType: "datetime2"),
-                        ValidationFailures = c.Int(nullable: false),
+                        PackageKey = c.Int(nullable: false),
+                        PackageId = c.String(nullable: false, maxLength: 128),
+                        PackageNormalizedVersion = c.String(nullable: false, maxLength: 64),
+                        SigningStatus = c.Int(nullable: false),
                     })
-                .PrimaryKey(t => t.Key)
-                .Index(t => t.Thumbprint, unique: true, name: "IX_Certificates_Thumbprint");
+                .PrimaryKey(t => t.PackageKey)
+                .Index(t => new { t.PackageId, t.PackageNormalizedVersion }, name: "IX_Packages_PackageId_PackageNormalizedVersion");
             
             CreateTable(
                 "signature.CertificateValidations",
@@ -74,6 +63,17 @@ namespace NuGet.Services.Validation
                 .ForeignKey("signature.Certificates", t => t.CertificateKey, cascadeDelete: true)
                 .Index(t => new { t.CertificateKey, t.ValidationId }, name: "IX_CertificateValidations_CertificateKey_ValidationId")
                 .Index(t => t.ValidationId, name: "IX_CertificateValidations_ValidationId");
+            
+            CreateTable(
+                "dbo.ValidatorStatuses",
+                c => new
+                    {
+                        ValidationId = c.Guid(nullable: false),
+                        PackageKey = c.Int(nullable: false),
+                        State = c.Int(nullable: false),
+                    })
+                .PrimaryKey(t => t.ValidationId)
+                .Index(t => t.PackageKey, name: "IX_ValidatorStates_PackageKey");
             
             CreateTable(
                 "signature.PackageSignatureCertificates",
@@ -92,25 +92,25 @@ namespace NuGet.Services.Validation
         
         public override void Down()
         {
+            DropForeignKey("signature.CertificateValidations", "CertificateKey", "signature.Certificates");
             DropForeignKey("signature.PackageSignatures", "PackageKey", "signature.Packages");
             DropForeignKey("signature.PackageSignatureCertificates", "CertificateKey", "signature.Certificates");
             DropForeignKey("signature.PackageSignatureCertificates", "PackageSignatureKey", "signature.PackageSignatures");
-            DropForeignKey("signature.CertificateValidations", "CertificateKey", "signature.Certificates");
             DropIndex("signature.PackageSignatureCertificates", new[] { "CertificateKey" });
             DropIndex("signature.PackageSignatureCertificates", new[] { "PackageSignatureKey" });
+            DropIndex("dbo.ValidatorStatuses", "IX_ValidatorStates_PackageKey");
             DropIndex("signature.CertificateValidations", "IX_CertificateValidations_ValidationId");
             DropIndex("signature.CertificateValidations", "IX_CertificateValidations_CertificateKey_ValidationId");
-            DropIndex("signature.Certificates", "IX_Certificates_Thumbprint");
+            DropIndex("signature.Packages", "IX_Packages_PackageId_PackageNormalizedVersion");
             DropIndex("signature.PackageSignatures", "IX_PackageSignatures_Status");
             DropIndex("signature.PackageSignatures", "IX_PackageSignatures_PackageKey");
-            DropIndex("signature.Packages", "IX_Packages_PackageId_PackageNormalizedVersion");
-            DropIndex("dbo.ValidatorStatus", "IX_ValidatorStates_PackageKey");
+            DropIndex("signature.Certificates", "IX_Certificates_Thumbprint");
             DropTable("signature.PackageSignatureCertificates");
+            DropTable("dbo.ValidatorStatuses");
             DropTable("signature.CertificateValidations");
-            DropTable("signature.Certificates");
-            DropTable("signature.PackageSignatures");
             DropTable("signature.Packages");
-            DropTable("dbo.ValidatorStatus");
+            DropTable("signature.PackageSignatures");
+            DropTable("signature.Certificates");
         }
     }
 }
