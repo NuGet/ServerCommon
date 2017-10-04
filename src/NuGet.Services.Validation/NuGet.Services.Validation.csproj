@@ -54,7 +54,6 @@
     <Compile Include="Entities\ValidatorStatus.cs" />
     <Compile Include="IPackageValidationEnqueuer.cs" />
     <Compile Include="IServiceBusMessageSerializer.cs" />
-    <Compile Include="Entities\EntitiesConfiguration.cs" />
     <Compile Include="Migrations\201709202218143_AddValidationSchema.cs" />
     <Compile Include="Migrations\201709202218143_AddValidationSchema.Designer.cs">
       <DependentUpon>201709202218143_AddValidationSchema.cs</DependentUpon>

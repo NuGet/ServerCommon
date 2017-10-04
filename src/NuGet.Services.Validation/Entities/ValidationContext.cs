@@ -11,7 +11,6 @@ namespace NuGet.Services.Validation
     /// <summary>
     /// The Entity Framework database context for validation entities.
     /// </summary>
-    [DbConfigurationType(typeof(EntitiesConfiguration))]
     public class ValidationEntitiesContext : DbContext, IValidationEntitiesContext
     {
         private const string SignatureSchema = "signature";
