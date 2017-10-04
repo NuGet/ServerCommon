@@ -70,6 +70,7 @@ namespace NuGet.Services.Validation
                     {
                         ValidationId = c.Guid(nullable: false),
                         PackageKey = c.Int(nullable: false),
+                        ValidatorName = c.String(),
                         State = c.Int(nullable: false),
                     })
                 .PrimaryKey(t => t.ValidationId)
