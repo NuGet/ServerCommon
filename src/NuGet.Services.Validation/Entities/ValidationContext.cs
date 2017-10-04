@@ -166,6 +166,10 @@ namespace NuGet.Services.Validation
                         new IndexAttribute(ValidatorStatusesPackageKeyIndex)
                     }));
 
+            modelBuilder.Entity<ValidatorStatus>()
+                .Property(s => s.ValidatorName)
+                .IsRequired();
+
             RegisterPackageSigningEntities(modelBuilder);
 
             base.OnModelCreating(modelBuilder);
