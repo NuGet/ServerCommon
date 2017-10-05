@@ -13,10 +13,15 @@ namespace NuGet.Services.Storage
     {
         private Lazy<Task<CloudQueue>> _queueTask;
 
-        private TimeSpan _visibilityTimeout = TimeSpan.FromMinutes(5);
+        private static readonly TimeSpan _visibilityTimeout = TimeSpan.FromMinutes(5);
 
         public AzureStorageQueue(CloudStorageAccount account, string queueName)
         {
+            if (account == null)
+            {
+                throw new ArgumentNullException(nameof(account));
+            }
+
             _queueTask = new Lazy<Task<CloudQueue>>(async () =>
             {
                 var queue = account.CreateCloudQueueClient().GetQueueReference(queueName);
