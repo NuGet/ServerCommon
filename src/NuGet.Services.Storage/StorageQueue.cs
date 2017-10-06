@@ -44,9 +44,9 @@ namespace NuGet.Services.Storage
 
         private StorageQueueMessage SerializeMessage(StorageQueueMessage<T> message)
         {
-            if (message is DeserializedStorageQueueMessage<T>)
+            if (message is DeserializedStorageQueueMessage<T> deserializedMessage)
             {
-                return (message as DeserializedStorageQueueMessage<T>).Message;
+                return deserializedMessage.Message;
             }
             else
             {
