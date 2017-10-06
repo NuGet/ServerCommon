@@ -18,6 +18,12 @@ namespace NuGet.Services.Storage
             set;
         }
 
+        public string ETag
+        {
+            get;
+            set;
+        }
+
         public abstract Stream GetContentStream();
     }
 }
