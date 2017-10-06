@@ -13,6 +13,9 @@ namespace NuGet.Services.Storage
     {
         private Lazy<Task<CloudQueue>> _queueTask;
 
+        /// <summary>
+        /// After calling <see cref="GetNextAsync(CancellationToken)"/>, this is the duration of time that the message is invisible to other users for.
+        /// </summary>
         private static readonly TimeSpan _visibilityTimeout = TimeSpan.FromMinutes(5);
 
         public AzureStorageQueue(CloudStorageAccount account, string queueName)
@@ -36,7 +39,7 @@ namespace NuGet.Services.Storage
             await (await _queueTask.Value).AddMessageAsync(azureMessage.Message, token);
         }
 
-        public async Task<IStorageQueueMessage> GetNextAsync(CancellationToken token)
+        public async Task<StorageQueueMessage> GetNextAsync(CancellationToken token)
         {
             var nextMessage = await (await _queueTask.Value).GetMessageAsync(
                 visibilityTimeout: _visibilityTimeout, 
@@ -52,7 +55,7 @@ namespace NuGet.Services.Storage
             return new AzureStorageQueueMessage(nextMessage);
         }
 
-        public async Task RemoveAsync(IStorageQueueMessage message, CancellationToken token)
+        public async Task RemoveAsync(StorageQueueMessage message, CancellationToken token)
         {
             if (!(message is AzureStorageQueueMessage))
             {

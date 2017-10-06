@@ -13,11 +13,11 @@ namespace NuGet.Services.Storage
     /// </remarks>
     public class TypedMessageSerializer<T> : IMessageSerializer<T>
     {
-        private IMessageSerializer<T> _contentsSerializer;
-        private IMessageSerializer<TypedMessage> _messageSerializer;
+        private readonly IMessageSerializer<T> _contentsSerializer;
+        private readonly IMessageSerializer<TypedMessage> _messageSerializer;
 
-        private string _type = typeof(T).FullName;
-        private int _version;
+        private readonly string _type = typeof(T).FullName;
+        private readonly int _version;
 
         public TypedMessageSerializer(IMessageSerializer<T> contentsSerializer, IMessageSerializer<TypedMessage> messageSerializer, int version)
         {

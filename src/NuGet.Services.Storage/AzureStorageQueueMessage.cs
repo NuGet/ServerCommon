@@ -5,22 +5,20 @@ using Microsoft.WindowsAzure.Storage.Queue;
 
 namespace NuGet.Services.Storage
 {
-    internal class AzureStorageQueueMessage : IStorageQueueMessage
+    internal class AzureStorageQueueMessage : StorageQueueMessage
     {
-        public string Contents { get; }
-
         internal CloudQueueMessage Message { get; }
 
         internal AzureStorageQueueMessage(CloudQueueMessage message)
+            : base(message.AsString)
         {
             Message = message;
-            Contents = Message.AsString;
         }
 
         internal AzureStorageQueueMessage(string contents)
+            : base(contents)
         {
             Message = new CloudQueueMessage(contents);
-            Contents = contents;
         }
     }
 }

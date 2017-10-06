@@ -7,37 +7,37 @@ using System.Threading.Tasks;
 namespace NuGet.Services.Storage
 {
     /// <summary>
-    /// Represents a queue to add <see cref="IStorageQueueMessage"/>s to and receive <see cref="IStorageQueueMessage"/>s from.
+    /// Represents a queue to add <see cref="StorageQueueMessage"/>s to and receive <see cref="StorageQueueMessage"/>s from.
     /// </summary>
     public interface IStorageQueue
     {
         /// <summary>
-        /// Adds a <see cref="IStorageQueueMessage"/> to the queue.
+        /// Adds a <see cref="StorageQueueMessage"/> to the queue.
         /// </summary>
         /// <param name="message">The message to add.</param>
         /// <param name="token">A token to cancel the task with.</param>
         Task AddAsync(string contents, CancellationToken token);
 
         /// <summary>
-        /// Receives a <see cref="IStorageQueueMessage"/> from the queue.
+        /// Receives a <see cref="StorageQueueMessage"/> from the queue.
         /// </summary>
         /// <param name="token">A token to cancel the task with.</param>
         /// <returns>A message from the queue.</returns>
-        Task<IStorageQueueMessage> GetNextAsync(CancellationToken token);
+        Task<StorageQueueMessage> GetNextAsync(CancellationToken token);
 
         /// <summary>
-        /// Removes a <see cref="IStorageQueueMessage"/> from the queue.
+        /// Removes a <see cref="StorageQueueMessage"/> from the queue.
         /// </summary>
         /// <param name="message">The message to remove from the queue.</param>
         /// <param name="token">A token to cancel the task with.</param>
         /// <remarks>
         /// This method should throw if <paramref name="message"/> was not returned by <see cref="OnGetNext(CancellationToken)"/>.
         /// </remarks>
-        Task RemoveAsync(IStorageQueueMessage message, CancellationToken token);
+        Task RemoveAsync(StorageQueueMessage message, CancellationToken token);
     }
 
     /// <summary>
-    /// Represents a queue to add <see cref="IStorageQueueMessage{T}"/>s to and receive <see cref="IStorageQueueMessage{T}"/>s from.
+    /// Represents a queue to add <see cref="StorageQueueMessage{T}"/>s to and receive <see cref="StorageQueueMessage{T}"/>s from.
     /// </summary>
     public interface IStorageQueue<T>
     {
@@ -55,9 +55,9 @@ namespace NuGet.Services.Storage
         /// <returns>The message from the queue.</returns>
         /// <remarks>
         /// The message is not removed when this method is called and may be returned by subsequent calls to this method.
-        /// To remove the message, call <see cref="RemoveAsync(IStorageQueueMessage{T}, CancellationToken)"/>.
+        /// To remove the message, call <see cref="RemoveAsync(StorageQueueMessage{T}, CancellationToken)"/>.
         /// </remarks>
-        Task<IStorageQueueMessage<T>> GetNextAsync(CancellationToken token);
+        Task<StorageQueueMessage<T>> GetNextAsync(CancellationToken token);
 
         /// <summary>
         /// Removes a message from the queue.
@@ -67,6 +67,6 @@ namespace NuGet.Services.Storage
         /// <remarks>
         /// <paramref name="message"/> MUST have been previously returned by <see cref="GetNextAsync(CancellationToken)"/>.
         /// </remarks>
-        Task RemoveAsync(IStorageQueueMessage<T> message, CancellationToken token);
+        Task RemoveAsync(StorageQueueMessage<T> message, CancellationToken token);
     }
 }

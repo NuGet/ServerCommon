@@ -4,17 +4,15 @@
 namespace NuGet.Services.Storage
 {
     /// <summary>
-    /// Internal class used by <see cref="StorageQueueMessageSerializer{T}"/> to store a reference to the serialized message returned by the implementor of <see cref="StorageQueue{T}"/>.
+    /// Internal class used by <see cref="IMessageSerializer{T}"/> to store a reference to the serialized message returned by the implementor of <see cref="StorageQueue{T}"/>.
     /// </summary>
-    internal class DeserializedStorageQueueMessage<T> : IStorageQueueMessage<T>
+    internal class DeserializedStorageQueueMessage<T> : StorageQueueMessage<T>
     {
-        public T Contents { get; }
+        internal StorageQueueMessage Message { get; }
 
-        internal IStorageQueueMessage Message { get; }
-
-        public DeserializedStorageQueueMessage(T contents, IStorageQueueMessage message)
+        public DeserializedStorageQueueMessage(T contents, StorageQueueMessage message)
+            : base(contents)
         {
-            Contents = contents;
             Message = message;
         }
     }

@@ -32,17 +32,17 @@ namespace NuGet.Services.Storage
             return _queue.AddAsync(_messageSerializer.Serialize(contents), token);
         }
 
-        public async Task<IStorageQueueMessage<T>> GetNextAsync(CancellationToken token)
+        public async Task<StorageQueueMessage<T>> GetNextAsync(CancellationToken token)
         {
             return DeserializeMessage(await _queue.GetNextAsync(token));
         }
 
-        public Task RemoveAsync(IStorageQueueMessage<T> message, CancellationToken token)
+        public Task RemoveAsync(StorageQueueMessage<T> message, CancellationToken token)
         {
             return _queue.RemoveAsync(SerializeMessage(message), token);
         }
 
-        private IStorageQueueMessage SerializeMessage(IStorageQueueMessage<T> message)
+        private StorageQueueMessage SerializeMessage(StorageQueueMessage<T> message)
         {
             if (message is DeserializedStorageQueueMessage<T>)
             {
@@ -54,7 +54,7 @@ namespace NuGet.Services.Storage
             }
         }
 
-        private IStorageQueueMessage<T> DeserializeMessage(IStorageQueueMessage message)
+        private StorageQueueMessage<T> DeserializeMessage(StorageQueueMessage message)
         {
             if (message == null)
             {

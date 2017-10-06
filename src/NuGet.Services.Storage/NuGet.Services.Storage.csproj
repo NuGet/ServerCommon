@@ -54,7 +54,6 @@
     <Compile Include="IStorage.cs" />
     <Compile Include="IStorageFactory.cs" />
     <Compile Include="IStorageQueue.cs" />
-    <Compile Include="IStorageQueueMessage.cs" />
     <Compile Include="JsonMessageSerializer.cs" />
     <Compile Include="JTokenStorageContent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
