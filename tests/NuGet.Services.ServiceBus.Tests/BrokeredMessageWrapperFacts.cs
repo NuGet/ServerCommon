@@ -38,5 +38,14 @@ namespace NuGet.Services.ServiceBus.Tests
             var message = new BrokeredMessageWrapper("data");
             Assert.True(message.ScheduledEnqueueTimeUtc <= DateTimeOffset.Now);
         }
+
+        [Fact]
+        public void MinScheduledEnqueueTimeUtcWorks()
+        {
+            var message = new BrokeredMessageWrapper("data");
+            message.ScheduledEnqueueTimeUtc = DateTimeOffset.MinValue;
+
+            Assert.True(message.ScheduledEnqueueTimeUtc < DateTimeOffset.Now);
+        }
     }
 }
