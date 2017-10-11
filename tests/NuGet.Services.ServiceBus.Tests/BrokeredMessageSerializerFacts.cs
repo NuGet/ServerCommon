@@ -8,7 +8,7 @@ using Xunit;
 
 namespace NuGet.Services.ServiceBus.Tests
 {
-    public class BrokeredMessageSerializer
+    public class BrokeredMessageSerializerFacts
     {
         private const string SchemaNameKey = "SchemaName";
         private const string SchemaVersionKey = "SchemaVersion";
