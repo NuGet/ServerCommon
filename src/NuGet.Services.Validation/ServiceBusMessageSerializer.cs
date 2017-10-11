@@ -8,6 +8,8 @@ namespace NuGet.Services.Validation
 {
     public class ServiceBusMessageSerializer : IServiceBusMessageSerializer
     {
+        private const string PackageValidationSchemaName = "PackageValidationMessageData";
+
         private static readonly BrokeredMessageSerializer<PackageValidationMessageData1> _serializer = new BrokeredMessageSerializer<PackageValidationMessageData1>();
 
         public IBrokeredMessage SerializePackageValidationMessageData(PackageValidationMessageData message)
@@ -30,7 +32,7 @@ namespace NuGet.Services.Validation
                 data.ValidationTrackingId);
         }
 
-        [Schema(Name = "PackageValidationMessageData", Version = 1)]
+        [Schema(Name = PackageValidationSchemaName, Version = 1)]
         private class PackageValidationMessageData1
         {
             public string PackageId { get; set; }
