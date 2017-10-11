@@ -9,7 +9,7 @@ namespace NuGet.Services.ServiceBus
     /// type and schema version.
     /// </summary>
     /// <typeparam name="TMessage">A type decorated with a <see cref="SchemaVersionAttribute"/>.</typeparam>
-    public class BrokedMessageSerializer<TMessage>
+    public class BrokeredMessageSerializer<TMessage>
     {
         private const string SchemaVersionKey = "SchemaVersion";
         private const string TypeKey = "Type";
@@ -17,7 +17,7 @@ namespace NuGet.Services.ServiceBus
         private static readonly string MessageType;
         private static readonly int SchemaVersion;
 
-        static BrokedMessageSerializer()
+        static BrokeredMessageSerializer()
         {
             var schemaAttribute = typeof(SchemaVersionAttribute);
             var attributes = typeof(TMessage).GetCustomAttributes(schemaAttribute, inherit: false);

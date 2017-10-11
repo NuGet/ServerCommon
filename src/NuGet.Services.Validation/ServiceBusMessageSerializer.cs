@@ -8,7 +8,7 @@ namespace NuGet.Services.Validation
 {
     public class ServiceBusMessageSerializer : IServiceBusMessageSerializer
     {
-        private static readonly BrokedMessageSerializer<PackageValidationMessageData1> _serializer = new BrokedMessageSerializer<PackageValidationMessageData1>();
+        private static readonly BrokeredMessageSerializer<PackageValidationMessageData1> _serializer = new BrokeredMessageSerializer<PackageValidationMessageData1>();
 
         public IBrokeredMessage SerializePackageValidationMessageData(PackageValidationMessageData message)
         {

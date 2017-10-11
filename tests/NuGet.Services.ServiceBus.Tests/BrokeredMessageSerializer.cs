@@ -4,12 +4,11 @@
 using System;
 using System.Collections.Generic;
 using Moq;
-using NuGet.Services.ServiceBus;
 using Xunit;
 
 namespace NuGet.Services.ServiceBus.Tests
 {
-    public class BrokedMessageSerializer
+    public class BrokeredMessageSerializer
     {
         private const string SchemaVersionKey = "SchemaVersion";
         private const string TypeKey = "Type";
@@ -32,7 +31,7 @@ namespace NuGet.Services.ServiceBus.Tests
             [Fact]
             public void ThrowsIfSchemaDoesntHaveSchemaVersionAttribute()
             {
-                Action runConstructor = () => new BrokedMessageSerializer<UnSchematizedType>();
+                Action runConstructor = () => new BrokeredMessageSerializer<UnSchematizedType>();
                 var exception = Assert.Throws<TypeInitializationException>(runConstructor);
 
                 Assert.Equal(typeof(InvalidOperationException), exception.InnerException.GetType());
@@ -175,11 +174,11 @@ namespace NuGet.Services.ServiceBus.Tests
 
         public abstract class Base
         {
-            protected readonly BrokedMessageSerializer<SchematizedType> _target;
+            protected readonly BrokeredMessageSerializer<SchematizedType> _target;
 
             public Base()
             {
-                _target = new BrokedMessageSerializer<SchematizedType>();
+                _target = new BrokeredMessageSerializer<SchematizedType>();
             }
         }
     }
