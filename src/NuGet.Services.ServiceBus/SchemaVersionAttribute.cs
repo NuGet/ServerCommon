@@ -3,7 +3,8 @@
 namespace NuGet.Services.ServiceBus
 {
     /// <summary>
-    /// The version of the sche
+    /// The attribute used to define the version of a schema. This version should be
+    /// bumped whenever a schema's property is added, removed, or modified.
     /// </summary>
     public class SchemaVersionAttribute : Attribute
     {
