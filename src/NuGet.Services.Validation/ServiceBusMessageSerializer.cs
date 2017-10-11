@@ -30,7 +30,7 @@ namespace NuGet.Services.Validation
                 data.ValidationTrackingId);
         }
 
-        [SchemaVersion(1)]
+        [Schema(Name = "PackageValidationMessageData", Version = 1)]
         private class PackageValidationMessageData1
         {
             public string PackageId { get; set; }

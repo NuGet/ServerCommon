@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
 using Newtonsoft.Json;
 
 namespace NuGet.Services.ServiceBus
@@ -8,27 +11,28 @@ namespace NuGet.Services.ServiceBus
     /// throw <see cref="FormatException"/> if the message does not contain a message with the expected
     /// type and schema version.
     /// </summary>
-    /// <typeparam name="TMessage">A type decorated with a <see cref="SchemaVersionAttribute"/>.</typeparam>
+    /// <typeparam name="TMessage">A type decorated with a <see cref="SchemaAttribute"/>.</typeparam>
     public class BrokeredMessageSerializer<TMessage>
     {
+        private const string SchemaNameKey = "SchemaName";
         private const string SchemaVersionKey = "SchemaVersion";
-        private const string TypeKey = "Type";
 
-        private static readonly string MessageType;
+        private static readonly string SchemaName;
         private static readonly int SchemaVersion;
 
         static BrokeredMessageSerializer()
         {
-            var schemaAttribute = typeof(SchemaVersionAttribute);
-            var attributes = typeof(TMessage).GetCustomAttributes(schemaAttribute, inherit: false);
+            var attributes = typeof(TMessage).GetCustomAttributes(typeof(SchemaAttribute), inherit: false);
 
-            if (attributes == null || attributes.Length != 1)
+            if (attributes.Length != 1)
             {
-                throw new InvalidOperationException($"{typeof(TMessage)} must have exactly one {nameof(SchemaVersionAttribute)}");
+                throw new InvalidOperationException($"{typeof(TMessage)} must have exactly one {nameof(SchemaAttribute)}");
             }
 
-            MessageType = typeof(TMessage).Name;
-            SchemaVersion = ((SchemaVersionAttribute)attributes[0]).Version;
+            var schemaAttribute = (SchemaAttribute)attributes[0];
+
+            SchemaName = schemaAttribute.Name;
+            SchemaVersion = schemaAttribute.Version;
         }
 
         public IBrokeredMessage Serialize(TMessage message)
@@ -36,7 +40,7 @@ namespace NuGet.Services.ServiceBus
             var json = JsonConvert.SerializeObject(message);
             var brokeredMessage = new BrokeredMessageWrapper(json);
 
-            brokeredMessage.Properties[TypeKey] = MessageType;
+            brokeredMessage.Properties[SchemaNameKey] = SchemaName;
             brokeredMessage.Properties[SchemaVersionKey] = SchemaVersion;
 
             return brokeredMessage;
@@ -44,7 +48,7 @@ namespace NuGet.Services.ServiceBus
 
         public TMessage Deserialize(IBrokeredMessage message)
         {
-            AssertTypeAndSchemaVersion(message, MessageType, SchemaVersion);
+            AssertTypeAndSchemaVersion(message, SchemaName, SchemaVersion);
 
             return JsonConvert.DeserializeObject<TMessage>(message.GetBody());
         }
@@ -53,7 +57,7 @@ namespace NuGet.Services.ServiceBus
         {
             if (GetType(message) != type)
             {
-                throw new FormatException($"The provided message should have {TypeKey} property '{type}'.");
+                throw new FormatException($"The provided message should have {SchemaNameKey} property '{type}'.");
             }
 
             if (GetSchemaVersion(message) != schemaVersion)
@@ -69,7 +73,7 @@ namespace NuGet.Services.ServiceBus
 
         private static string GetType(IBrokeredMessage message)
         {
-            return GetProperty<string>(message, TypeKey, "a string");
+            return GetProperty<string>(message, SchemaNameKey, "a string");
         }
 
         private static T GetProperty<T>(IBrokeredMessage message, string key, string typeLabel)

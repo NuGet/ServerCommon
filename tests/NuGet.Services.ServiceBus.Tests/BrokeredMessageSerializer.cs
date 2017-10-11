@@ -10,15 +10,15 @@ namespace NuGet.Services.ServiceBus.Tests
 {
     public class BrokeredMessageSerializer
     {
+        private const string SchemaNameKey = "SchemaName";
         private const string SchemaVersionKey = "SchemaVersion";
-        private const string TypeKey = "Type";
 
-        private const string SchematizedTypeName = "SchematizedType";
+        private const string SchemaName = "Foo";
         private const int SchemaVersion23 = 23;
 
         private const string JsonSerializedContent = "{\"A\":\"Hello World\"}";
 
-        [SchemaVersion(23)]
+        [Schema(Name = "Foo", Version = 23)]
         public class SchematizedType
         {
             public string A { get; set; }
@@ -35,7 +35,7 @@ namespace NuGet.Services.ServiceBus.Tests
                 var exception = Assert.Throws<TypeInitializationException>(runConstructor);
 
                 Assert.Equal(typeof(InvalidOperationException), exception.InnerException.GetType());
-                Assert.Contains($"{SchematizedTypeName} must have exactly one {nameof(SchemaVersionAttribute)}", exception.InnerException.Message);
+                Assert.Contains($"{nameof(UnSchematizedType)} must have exactly one {nameof(SchemaAttribute)}", exception.InnerException.Message);
             }
         }
 
@@ -53,8 +53,8 @@ namespace NuGet.Services.ServiceBus.Tests
                 // Assert
                 Assert.Contains(SchemaVersionKey, output.Properties.Keys);
                 Assert.Equal(SchemaVersion23, output.Properties[SchemaVersionKey]);
-                Assert.Contains(TypeKey, output.Properties.Keys);
-                Assert.Equal(SchematizedTypeName, output.Properties[TypeKey]);
+                Assert.Contains(SchemaNameKey, output.Properties.Keys);
+                Assert.Equal(SchemaName, output.Properties[SchemaNameKey]);
                 var body = output.GetBody();
                 Assert.Equal(JsonSerializedContent, body);
             }
@@ -82,12 +82,12 @@ namespace NuGet.Services.ServiceBus.Tests
             {
                 // Arrange
                 var brokeredMessage = GetBrokeredMessage();
-                brokeredMessage.Object.Properties[TypeKey] = "bad";
+                brokeredMessage.Object.Properties[SchemaNameKey] = "bad";
 
                 // Act & Assert
                 var exception = Assert.Throws<FormatException>(() =>
                     _target.Deserialize(brokeredMessage.Object));
-                Assert.Contains($"The provided message should have {TypeKey} property '{SchematizedTypeName}'.", exception.Message);
+                Assert.Contains($"The provided message should have {SchemaNameKey} property '{SchemaName}'.", exception.Message);
             }
 
             [Fact]
@@ -108,12 +108,12 @@ namespace NuGet.Services.ServiceBus.Tests
             {
                 // Arrange
                 var brokeredMessage = GetBrokeredMessage();
-                brokeredMessage.Object.Properties.Remove(TypeKey);
+                brokeredMessage.Object.Properties.Remove(SchemaNameKey);
 
                 // Act & Assert
                 var exception = Assert.Throws<FormatException>(() =>
                     _target.Deserialize(brokeredMessage.Object));
-                Assert.Contains($"The provided message does not have a {TypeKey} property.", exception.Message);
+                Assert.Contains($"The provided message does not have a {SchemaNameKey} property.", exception.Message);
             }
 
             [Fact]
@@ -134,12 +134,12 @@ namespace NuGet.Services.ServiceBus.Tests
             {
                 // Arrange
                 var brokeredMessage = GetBrokeredMessage();
-                brokeredMessage.Object.Properties[TypeKey] = -1;
+                brokeredMessage.Object.Properties[SchemaNameKey] = -1;
 
                 // Act & Assert
                 var exception = Assert.Throws<FormatException>(() =>
                     _target.Deserialize(brokeredMessage.Object));
-                Assert.Contains($"The provided message contains a {TypeKey} property that is not a string.", exception.Message);
+                Assert.Contains($"The provided message contains a {SchemaNameKey} property that is not a string.", exception.Message);
             }
 
             [Fact]
@@ -165,7 +165,7 @@ namespace NuGet.Services.ServiceBus.Tests
                     .Setup(x => x.Properties)
                     .Returns(new Dictionary<string, object>
                     {
-                        { TypeKey, SchematizedTypeName },
+                        { SchemaNameKey, SchemaName },
                         { SchemaVersionKey, SchemaVersion23 }
                     });
                 return brokeredMessage;
