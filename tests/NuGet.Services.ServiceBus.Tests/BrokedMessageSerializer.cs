@@ -7,36 +7,57 @@ using Moq;
 using NuGet.Services.ServiceBus;
 using Xunit;
 
-namespace NuGet.Services.Validation.Tests
+namespace NuGet.Services.ServiceBus.Tests
 {
-    public class ServiceBusMessageSerializerTests
+    public class BrokedMessageSerializer
     {
         private const string SchemaVersionKey = "SchemaVersion";
         private const string TypeKey = "Type";
-        private const string PackageId = "NuGet.Versioning";
-        private const string PackageVersion = "4.3.0";
-        private static readonly Guid ValidationTrackingId = new Guid("14b4c1b8-40e2-4d60-9db7-4b7195e807f5");
-        private const string PackageValidationMessageDataType = "PackageValidationMessageData1";
-        private const int SchemaVersion1 = 1;
 
-        public class TheSerializePackageValidationMessageDataMethod : Base
+        private const string SchematizedTypeName = "SchematizedType";
+        private const int SchemaVersion23 = 23;
+
+        private const string JsonSerializedContent = "{\"A\":\"Hello World\"}";
+
+        [SchemaVersion(23)]
+        public class SchematizedType
+        {
+            public string A { get; set; }
+        }
+
+        public class UnSchematizedType { }
+
+        public class TheConstructor : Base
+        {
+            [Fact]
+            public void ThrowsIfSchemaDoesntHaveSchemaVersionAttribute()
+            {
+                Action runConstructor = () => new BrokedMessageSerializer<UnSchematizedType>();
+                var exception = Assert.Throws<TypeInitializationException>(runConstructor);
+
+                Assert.Equal(typeof(InvalidOperationException), exception.InnerException.GetType());
+                Assert.Contains($"{SchematizedTypeName} must have exactly one {nameof(SchemaVersionAttribute)}", exception.InnerException.Message);
+            }
+        }
+
+        public class TheSerializeMethod : Base
         {
             [Fact]
             public void ProducesExpectedMessage()
             {
                 // Arrange
-                var input = new PackageValidationMessageData(PackageId, PackageVersion, ValidationTrackingId);
+                var input = new SchematizedType { A = "Hello World" };
 
                 // Act
-                var output = _target.SerializePackageValidationMessageData(input);
+                var output = _target.Serialize(input);
 
                 // Assert
                 Assert.Contains(SchemaVersionKey, output.Properties.Keys);
-                Assert.Equal(SchemaVersion1, output.Properties[SchemaVersionKey]);
+                Assert.Equal(SchemaVersion23, output.Properties[SchemaVersionKey]);
                 Assert.Contains(TypeKey, output.Properties.Keys);
-                Assert.Equal(PackageValidationMessageDataType, output.Properties[TypeKey]);
+                Assert.Equal(SchematizedTypeName, output.Properties[TypeKey]);
                 var body = output.GetBody();
-                Assert.Equal(TestData.SerializedPackageValidationMessageData1, body);
+                Assert.Equal(JsonSerializedContent, body);
             }
         }
 
@@ -51,12 +72,10 @@ namespace NuGet.Services.Validation.Tests
                 var brokeredMessage = GetBrokeredMessage();
 
                 // Act
-                var output = _target.DeserializePackageValidationMessageData(brokeredMessage.Object);
+                var output = _target.Deserialize(brokeredMessage.Object);
 
                 // Assert
-                Assert.Equal(PackageId, output.PackageId);
-                Assert.Equal(PackageVersion, output.PackageVersion);
-                Assert.Equal(ValidationTrackingId, output.ValidationTrackingId);
+                Assert.Equal("Hello World", output.A);
             }
 
             [Fact]
@@ -68,8 +87,8 @@ namespace NuGet.Services.Validation.Tests
 
                 // Act & Assert
                 var exception = Assert.Throws<FormatException>(() =>
-                    _target.DeserializePackageValidationMessageData(brokeredMessage.Object));
-                Assert.Contains($"The provided message should have {TypeKey} property '{PackageValidationMessageDataType}'.", exception.Message);
+                    _target.Deserialize(brokeredMessage.Object));
+                Assert.Contains($"The provided message should have {TypeKey} property '{SchematizedTypeName}'.", exception.Message);
             }
 
             [Fact]
@@ -81,8 +100,8 @@ namespace NuGet.Services.Validation.Tests
 
                 // Act & Assert
                 var exception = Assert.Throws<FormatException>(() =>
-                    _target.DeserializePackageValidationMessageData(brokeredMessage.Object));
-                Assert.Contains($"The provided message should have {SchemaVersionKey} property '1'.", exception.Message);
+                    _target.Deserialize(brokeredMessage.Object));
+                Assert.Contains($"The provided message should have {SchemaVersionKey} property '23'.", exception.Message);
             }
 
             [Fact]
@@ -94,7 +113,7 @@ namespace NuGet.Services.Validation.Tests
 
                 // Act & Assert
                 var exception = Assert.Throws<FormatException>(() =>
-                    _target.DeserializePackageValidationMessageData(brokeredMessage.Object));
+                    _target.Deserialize(brokeredMessage.Object));
                 Assert.Contains($"The provided message does not have a {TypeKey} property.", exception.Message);
             }
 
@@ -107,7 +126,7 @@ namespace NuGet.Services.Validation.Tests
 
                 // Act & Assert
                 var exception = Assert.Throws<FormatException>(() =>
-                    _target.DeserializePackageValidationMessageData(brokeredMessage.Object));
+                    _target.Deserialize(brokeredMessage.Object));
                 Assert.Contains($"The provided message does not have a {SchemaVersionKey} property.", exception.Message);
             }
 
@@ -120,7 +139,7 @@ namespace NuGet.Services.Validation.Tests
 
                 // Act & Assert
                 var exception = Assert.Throws<FormatException>(() =>
-                    _target.DeserializePackageValidationMessageData(brokeredMessage.Object));
+                    _target.Deserialize(brokeredMessage.Object));
                 Assert.Contains($"The provided message contains a {TypeKey} property that is not a string.", exception.Message);
             }
 
@@ -133,7 +152,7 @@ namespace NuGet.Services.Validation.Tests
 
                 // Act & Assert
                 var exception = Assert.Throws<FormatException>(() =>
-                    _target.DeserializePackageValidationMessageData(brokeredMessage.Object));
+                    _target.Deserialize(brokeredMessage.Object));
                 Assert.Contains($"The provided message contains a {SchemaVersionKey} property that is not an integer.", exception.Message);
             }
 
@@ -142,13 +161,13 @@ namespace NuGet.Services.Validation.Tests
                 var brokeredMessage = new Mock<IBrokeredMessage>();
                 brokeredMessage
                     .Setup(x => x.GetBody())
-                    .Returns(TestData.SerializedPackageValidationMessageData1);
+                    .Returns(JsonSerializedContent);
                 brokeredMessage
                     .Setup(x => x.Properties)
                     .Returns(new Dictionary<string, object>
                     {
-                        { TypeKey, PackageValidationMessageDataType },
-                        { SchemaVersionKey, SchemaVersion1 }
+                        { TypeKey, SchematizedTypeName },
+                        { SchemaVersionKey, SchemaVersion23 }
                     });
                 return brokeredMessage;
             }
@@ -156,11 +175,11 @@ namespace NuGet.Services.Validation.Tests
 
         public abstract class Base
         {
-            protected readonly ServiceBusMessageSerializer _target;
+            protected readonly BrokedMessageSerializer<SchematizedType> _target;
 
             public Base()
             {
-                _target = new ServiceBusMessageSerializer();
+                _target = new BrokedMessageSerializer<SchematizedType>();
             }
         }
     }

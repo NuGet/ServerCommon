@@ -42,6 +42,7 @@
   <ItemGroup>
     <Compile Include="BrokeredMessageWrapperFacts.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="BrokedMessageSerializer.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="project.json" />
