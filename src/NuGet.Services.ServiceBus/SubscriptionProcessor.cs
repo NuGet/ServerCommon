@@ -8,29 +8,29 @@ using Microsoft.Extensions.Logging;
 
 namespace NuGet.Services.ServiceBus
 {
-    public class SubscriptionListener<TMessage> : ISubscriptionListener<TMessage>
+    public class SubscriptionProcessor<TMessage> : ISubscriptionProcessor<TMessage>
     {
         private readonly ISubscriptionClient _client;
         private readonly IBrokeredMessageSerializer<TMessage> _serializer;
         private readonly IMessageHandler<TMessage> _handler;
-        private readonly ILogger<SubscriptionListener<TMessage>> _logger;
+        private readonly ILogger<SubscriptionProcessor<TMessage>> _logger;
 
         private int _numberOfMessagesInProgress;
 
         public int NumberOfMessagesInProgress => _numberOfMessagesInProgress;
 
         /// <summary>
-        /// Constructs a new SubscriptionListener.
+        /// Constructs a new subscription processor.
         /// </summary>
         /// <param name="client">The client used to receive messages from the subscription.</param>
         /// <param name="serializer">The serializer used to deserialize received messages.</param>
         /// <param name="handler">The handler used to handle received messages.</param>
         /// <param name="logger">The logger used to record debug information.</param>
-        public SubscriptionListener(
+        public SubscriptionProcessor(
             ISubscriptionClient client,
             IBrokeredMessageSerializer<TMessage> serializer,
             IMessageHandler<TMessage> handler,
-            ILogger<SubscriptionListener<TMessage>> logger)
+            ILogger<SubscriptionProcessor<TMessage>> logger)
         {
             _client = client ?? throw new ArgumentNullException(nameof(client));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));

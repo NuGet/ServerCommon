@@ -6,10 +6,10 @@ using System.Threading.Tasks;
 namespace NuGet.Services.ServiceBus
 {
     /// <summary>
-    /// A Service Bus Subscription listener.
+    /// Processes messages that were received from a Service Bus subscription.
     /// </summary>
     /// <typeparam name="TMessage">The type of message listened by this listener.</typeparam>
-    public interface ISubscriptionListener<TMessage>
+    public interface ISubscriptionProcessor<TMessage>
     {
         /// <summary>
         /// The number of messages that are currently being handled.

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace NuGet.Services.ServiceBus
 {
     /// <summary>
-    /// The class that handles messages received by a <see cref="ISubscriptionListener{TMessage}"/>
+    /// The class that handles messages received by a <see cref="ISubscriptionProcessor{TMessage}"/>
     /// </summary>
     /// <typeparam name="TMessage">The type of messages this handler handles.</typeparam>
     public interface IMessageHandler<TMessage>
