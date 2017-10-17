@@ -9,12 +9,24 @@ namespace NuGet.Services.Validation
     public class ServiceBusMessageSerializer : IServiceBusMessageSerializer
     {
         private const string PackageValidationSchemaName = "PackageValidationMessageData";
+        private const string PackageSignaturesValidationSchemaName = "PackageSignaturesValidationMessageData";
 
-        private static readonly BrokeredMessageSerializer<PackageValidationMessageData1> _serializer = new BrokeredMessageSerializer<PackageValidationMessageData1>();
+        private static readonly BrokeredMessageSerializer<PackageValidationMessageData1> _packageValidationSerializer = new BrokeredMessageSerializer<PackageValidationMessageData1>();
+        private static readonly BrokeredMessageSerializer<PackageSignaturesValidationMessageData1> _packageSignaturesValidationSerializer = new BrokeredMessageSerializer<PackageSignaturesValidationMessageData1>();
 
         public IBrokeredMessage SerializePackageValidationMessageData(PackageValidationMessageData message)
         {
-            return _serializer.Serialize(new PackageValidationMessageData1
+            return _packageValidationSerializer.Serialize(new PackageValidationMessageData1
+            {
+                PackageId = message.PackageId,
+                PackageVersion = message.PackageVersion,
+                ValidationTrackingId = message.ValidationTrackingId,
+            });
+        }
+
+        public IBrokeredMessage SerializePackageSignaturesValidationMessageData(PackageSignaturesValidationMessageData message)
+        {
+            return _packageSignaturesValidationSerializer.Serialize(new PackageSignaturesValidationMessageData1
             {
                 PackageId = message.PackageId,
                 PackageVersion = message.PackageVersion,
@@ -24,7 +36,7 @@ namespace NuGet.Services.Validation
 
         public PackageValidationMessageData DeserializePackageValidationMessageData(IBrokeredMessage message)
         {
-            var data = _serializer.Deserialize(message);
+            var data = _packageValidationSerializer.Deserialize(message);
 
             return new PackageValidationMessageData(
                 data.PackageId,
@@ -32,8 +44,26 @@ namespace NuGet.Services.Validation
                 data.ValidationTrackingId);
         }
 
+        public PackageSignaturesValidationMessageData DeserializePackageSignaturesValidationMessageData(IBrokeredMessage message)
+        {
+            var data = _packageSignaturesValidationSerializer.Deserialize(message);
+
+            return new PackageSignaturesValidationMessageData(
+                data.PackageId,
+                data.PackageVersion,
+                data.ValidationTrackingId);
+        }
+
         [Schema(Name = PackageValidationSchemaName, Version = 1)]
         private class PackageValidationMessageData1
+        {
+            public string PackageId { get; set; }
+            public string PackageVersion { get; set; }
+            public Guid ValidationTrackingId { get; set; }
+        }
+
+        [Schema(Name = PackageSignaturesValidationSchemaName, Version = 1)]
+        private class PackageSignaturesValidationMessageData1
         {
             public string PackageId { get; set; }
             public string PackageVersion { get; set; }
