@@ -15,7 +15,7 @@ namespace NuGet.Services.ServiceBus
         /// Handle the message.
         /// </summary>
         /// <param name="message">The received message.</param>
-        /// <returns>A task that completes once the message has been handled.</returns>
-        Task HandleAsync(TMessage message);
+        /// <returns>Whether the message has been handled. If false, the message will be requeued to be handled again later.</returns>
+        Task<bool> HandleAsync(TMessage message);
     }
 }

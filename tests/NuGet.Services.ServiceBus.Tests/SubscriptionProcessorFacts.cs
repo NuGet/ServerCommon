@@ -25,8 +25,10 @@ namespace NuGet.Services.ServiceBus.Tests
                 Func<IBrokeredMessage, Task> onMessageAsync = null;
 
                 _client
-                    .Setup(c => c.OnMessageAsync(It.IsAny<Func<IBrokeredMessage, Task>>()))
-                    .Callback<Func<IBrokeredMessage, Task>>(callback => onMessageAsync = callback);
+                    .Setup(c => c.OnMessageAsync(
+                                    It.IsAny<Func<IBrokeredMessage, Task>>(),
+                                    It.IsAny<IOnMessageOptions>()))
+                    .Callback<Func<IBrokeredMessage, Task>, IOnMessageOptions>((callback, options) => onMessageAsync = callback);
 
                 _serializer
                     .Setup(s => s.Deserialize(It.IsAny<IBrokeredMessage>()))
@@ -55,13 +57,15 @@ namespace NuGet.Services.ServiceBus.Tests
                 int? messagesInProgressDuringHandler = null;
 
                 _client
-                    .Setup(c => c.OnMessageAsync(It.IsAny<Func<IBrokeredMessage, Task>>()))
-                    .Callback<Func<IBrokeredMessage, Task>>(callback => onMessageAsync = callback);
+                    .Setup(c => c.OnMessageAsync(
+                                    It.IsAny<Func<IBrokeredMessage, Task>>(),
+                                    It.IsAny<IOnMessageOptions>()))
+                    .Callback<Func<IBrokeredMessage, Task>, IOnMessageOptions>((callback, options) => onMessageAsync = callback);
 
                 _handler
                     .Setup(h => h.HandleAsync(It.IsAny<TestMessage>()))
                     .Callback(() => messagesInProgressDuringHandler = _target.NumberOfMessagesInProgress)
-                    .Returns(Task.FromResult(0));
+                    .Returns(Task.FromResult(true));
 
                 // Act
                 // Start processing messages and trigger the OnMessageAsync callback.
@@ -79,6 +83,40 @@ namespace NuGet.Services.ServiceBus.Tests
             }
 
             [Fact]
+            public async Task DoesNotCompleteMessageIfHandlerReturnsFalse()
+            {
+                // Arrange
+                // Retrieve the OnMessageAsync callback that is registered to Service Bus's subscription client.
+                Func<IBrokeredMessage, Task> onMessageAsync = null;
+                int? messagesInProgressDuringHandler = null;
+
+                _client
+                    .Setup(c => c.OnMessageAsync(
+                                    It.IsAny<Func<IBrokeredMessage, Task>>(),
+                                    It.IsAny<IOnMessageOptions>()))
+                    .Callback<Func<IBrokeredMessage, Task>, IOnMessageOptions>((callback, options) => onMessageAsync = callback);
+
+                _handler
+                    .Setup(h => h.HandleAsync(It.IsAny<TestMessage>()))
+                    .Callback(() => messagesInProgressDuringHandler = _target.NumberOfMessagesInProgress)
+                    .Returns(Task.FromResult(false));
+
+                // Act
+                // Start processing messages and trigger the OnMessageAsync callback.
+                _target.Start();
+
+                await onMessageAsync(_brokeredMessage.Object);
+
+                // Assert
+                Assert.Equal(1, messagesInProgressDuringHandler);
+                Assert.Equal(0, _target.NumberOfMessagesInProgress);
+
+                _serializer.Verify(s => s.Deserialize(It.IsAny<IBrokeredMessage>()), Times.Once);
+                _handler.Verify(h => h.HandleAsync(It.IsAny<TestMessage>()), Times.Once);
+                _brokeredMessage.Verify(m => m.CompleteAsync(), Times.Never);
+            }
+
+            [Fact]
             public async Task BrokedMessageIsntCompletedIfHandlerThrows()
             {
                 // Arrange
@@ -87,8 +125,10 @@ namespace NuGet.Services.ServiceBus.Tests
                 int? messagesInProgressDuringHandler = null;
 
                 _client
-                    .Setup(c => c.OnMessageAsync(It.IsAny<Func<IBrokeredMessage, Task>>()))
-                    .Callback<Func<IBrokeredMessage, Task>>(callback => onMessageAsync = callback);
+                    .Setup(c => c.OnMessageAsync(
+                                    It.IsAny<Func<IBrokeredMessage, Task>>(),
+                                    It.IsAny<IOnMessageOptions>()))
+                    .Callback<Func<IBrokeredMessage, Task>, IOnMessageOptions>((callback, options) => onMessageAsync = callback);
 
                 _handler
                     .Setup(h => h.HandleAsync(It.IsAny<TestMessage>()))
