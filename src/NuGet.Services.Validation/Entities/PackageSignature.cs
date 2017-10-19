@@ -26,8 +26,7 @@ namespace NuGet.Services.Validation
         public long CertificateKey { get; set; }
 
         /// <summary>
-        /// The time at which this record was inserted into the database. This is used to detect signatures
-        /// that have been stuck in a "InGracePeriod" state for too long.
+        /// The time at which this record was created, used to detect signatures that are stuck "InGracePeriod".
         /// </summary>
         public DateTime CreatedAt { get; set; }
 

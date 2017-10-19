@@ -261,8 +261,7 @@ namespace NuGet.Services.Validation
 
             modelBuilder.Entity<PackageSignature>()
                 .Property(s => s.CreatedAt)
-                .HasColumnType("datetime2")
-                .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
+                .HasColumnType("datetime2");
 
             modelBuilder.Entity<PackageSignature>()
                 .HasRequired(s => s.TrustedTimestamp)
