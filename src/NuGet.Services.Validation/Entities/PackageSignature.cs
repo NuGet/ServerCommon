@@ -21,16 +21,9 @@ namespace NuGet.Services.Validation
         public int PackageKey { get; set; }
 
         /// <summary>
-        /// The key to the end <see cref="Certificate"/> used to create this package signature.
+        /// The key to the end <see cref="Validation.Certificate"/> used to create this package signature.
         /// </summary>
         public long CertificateKey { get; set; }
-
-        /// <summary>
-        /// The time at which this signature was created. A signature is valid as long as it was signed
-        /// before its certificates were revoked and/or expired. This timestamp MUST come from a trusted
-        /// timestamp authority.
-        /// </summary>
-        public DateTime SignedAt { get; set; }
 
         /// <summary>
         /// The time at which this record was inserted into the database. This is used to detect signatures
@@ -52,7 +45,12 @@ namespace NuGet.Services.Validation
         public virtual PackageSigningState PackageSigningState { get; set; }
 
         /// <summary>
-        /// The end <see cref="Certificate"/> used to create this package signature.
+        /// The <see cref="TrustedTimestamp"/> that dates when this signature was created.
+        /// </summary>
+        public TrustedTimestamp TrustedTimestamp { get; set; }
+
+        /// <summary>
+        /// The end <see cref="Validation.Certificate"/> used to create this package signature.
         /// </summary>
         public virtual Certificate Certificate { get; set; }
     }
