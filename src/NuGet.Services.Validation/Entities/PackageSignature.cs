@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Generic;
 
 namespace NuGet.Services.Validation
 {
@@ -44,9 +45,9 @@ namespace NuGet.Services.Validation
         public virtual PackageSigningState PackageSigningState { get; set; }
 
         /// <summary>
-        /// The <see cref="TrustedTimestamp"/> that dates when this signature was created.
+        /// The <see cref="TrustedTimestamp"/>s that dates when this signature was created.
         /// </summary>
-        public TrustedTimestamp TrustedTimestamp { get; set; }
+        public virtual ICollection<TrustedTimestamp> TrustedTimestamps { get; set; }
 
         /// <summary>
         /// The end <see cref="Validation.Certificate"/> used to create this package signature.

@@ -32,7 +32,6 @@ namespace NuGet.Services.Validation
         private const string PackageSignaturesStatusIndex = "IX_PackageSignatures_Status";
 
         private const string TrustedTimestampsTable = "TrustedTimestamps";
-        private const string TrustedTimestampsCertificateKeyIndex = "IX_TrustedTimestamps_CertificateKey";
 
         private const string CertificatesTable = "Certificates";
         private const string CertificatesThumbprintIndex = "IX_Certificates_Thumbprint";
@@ -264,8 +263,9 @@ namespace NuGet.Services.Validation
                 .HasColumnType("datetime2");
 
             modelBuilder.Entity<PackageSignature>()
-                .HasRequired(s => s.TrustedTimestamp)
-                .WithRequiredDependent(s => s.PackageSignature);
+                .HasMany(s => s.TrustedTimestamps)
+                .WithRequired(t => t.PackageSignature)
+                .HasForeignKey(t => t.PackageSignatureKey);
 
             modelBuilder.Entity<PackageSignature>()
                 .HasRequired(s => s.Certificate)
@@ -273,17 +273,8 @@ namespace NuGet.Services.Validation
                 .HasForeignKey(s => s.CertificateKey);
 
             modelBuilder.Entity<TrustedTimestamp>()
-                .Property(s => s.CertificateKey)
-                .HasColumnAnnotation(
-                    IndexAnnotation.AnnotationName,
-                    new IndexAnnotation(new[]
-                    {
-                        new IndexAttribute(TrustedTimestampsCertificateKeyIndex)
-                    }));
-
-            modelBuilder.Entity<TrustedTimestamp>()
                 .ToTable(TrustedTimestampsTable, SignatureSchema)
-                .HasKey(t => t.PackageSignatureKey);
+                .HasKey(t => t.Key);
 
             modelBuilder.Entity<TrustedTimestamp>()
                 .Property(t => t.Value)

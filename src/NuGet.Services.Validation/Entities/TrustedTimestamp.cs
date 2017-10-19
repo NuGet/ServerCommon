@@ -11,6 +11,11 @@ namespace NuGet.Services.Validation
     public class TrustedTimestamp
     {
         /// <summary>
+        /// The unique identifier for this trusted timestamp.
+        /// </summary>
+        public long Key { get; set; }
+
+        /// <summary>
         /// The key to the <see cref="PackageSignature"/> that depends on this trusted timestamp.
         /// </summary>
         public long PackageSignatureKey { get; set; }
@@ -27,7 +32,7 @@ namespace NuGet.Services.Validation
 
         /// <summary>
         /// The <see cref="PackageSignature"/> that depends on this trusted timestamp. If this
-        /// timestamp's <see cref="Certificate"/> is revoked, the signature MUST be invalidated.
+        /// timestamp's <see cref="Certificate"/> is revoked, the signatures MUST be invalidated.
         /// </summary>
         public PackageSignature PackageSignature { get; set; }
 
