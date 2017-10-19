@@ -28,7 +28,7 @@ namespace NuGet.Services.Validation
         /// <summary>
         /// The time at which this record was created, used to detect signatures that are stuck "InGracePeriod".
         /// </summary>
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         /// <summary>
         /// The status for this signature.
