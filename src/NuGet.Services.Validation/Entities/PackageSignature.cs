@@ -27,7 +27,8 @@ namespace NuGet.Services.Validation
         public long CertificateKey { get; set; }
 
         /// <summary>
-        /// The time at which this record was created, used to detect signatures that are stuck "InGracePeriod".
+        /// The time at which this record was created, used to detect signatures that are
+        /// stuck <see cref="PackageSignatureStatus.InGracePeriod"/>.
         /// </summary>
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
