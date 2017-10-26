@@ -9,7 +9,7 @@ namespace NuGet.Services.Configuration
     /// <summary>
     /// Wraps existing secret reader factory to provide a caching layer for the <see cref="ISecretReader"/>.
     /// </summary>
-    class CachingSecretReaderFactory
+    public class CachingSecretReaderFactory
     {
         private readonly ISecretReaderFactory _underlyingFactory;
         private readonly TimeSpan _cachingTimeout;

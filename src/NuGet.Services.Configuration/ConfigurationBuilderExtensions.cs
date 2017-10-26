@@ -6,7 +6,7 @@ using NuGet.Services.KeyVault;
 
 namespace NuGet.Services.Configuration
 {
-    internal static class ConfigurationBuilderExtensions
+    public static class ConfigurationBuilderExtensions
     {
         public static IConfigurationBuilder AddInjectedJsonFile(this IConfigurationBuilder configurationBuilder, string path, ISecretInjector secretInjector)
         {
