@@ -2,14 +2,13 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using NuGet.Services.KeyVault;
 
-namespace NuGet.Services.Configuration
+namespace NuGet.Services.KeyVault
 {
     /// <summary>
     /// Wraps existing secret reader factory to provide a caching layer for the <see cref="ISecretReader"/>.
     /// </summary>
-    public class CachingSecretReaderFactory
+    public class CachingSecretReaderFactory : ISecretReaderFactory
     {
         private readonly ISecretReaderFactory _underlyingFactory;
         private readonly TimeSpan _cachingTimeout;

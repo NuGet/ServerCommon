@@ -40,7 +40,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CachingSecretReaderFactory.cs" />
     <Compile Include="Configuration.cs" />
     <Compile Include="ConfigurationBuilderExtensions.cs" />
     <Compile Include="ConfigurationFactory.cs" />

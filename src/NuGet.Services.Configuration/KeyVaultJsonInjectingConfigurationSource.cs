@@ -8,6 +8,8 @@ using NuGet.Services.KeyVault;
 
 namespace NuGet.Services.Configuration
 {
+    using Extensions = Microsoft.Extensions.Configuration;
+
     /// <summary>
     /// Configuration source for the <see cref="KeyVaultInjectingConfigurationProvider"/> that wraps it around <see cref="JsonConfigurationProvider"/>
     /// to inject secrets to data read from json configuration
@@ -23,7 +25,7 @@ namespace NuGet.Services.Configuration
             _secretInjector = secretInjector ?? throw new ArgumentNullException(nameof(secretInjector));
         }
 
-        public Microsoft.Extensions.Configuration.IConfigurationProvider Build(IConfigurationBuilder builder)
+        public Extensions.IConfigurationProvider Build(IConfigurationBuilder builder)
         {
             var jsonSource = new JsonConfigurationSource { FileProvider = null, Path = _path, Optional = false, ReloadOnChange = false };
             jsonSource.ResolveFileProvider();

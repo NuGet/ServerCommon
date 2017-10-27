@@ -2,7 +2,6 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System.Collections.Generic;
-using Microsoft.Extensions.Configuration;
 using Moq;
 using NuGet.Services.KeyVault;
 using Xunit;
@@ -15,7 +14,7 @@ namespace NuGet.Services.Configuration.Tests
         public void PassesThroughGetChildKeys()
         {
             var originalProviderMock = new Mock<Microsoft.Extensions.Configuration.IConfigurationProvider>();
-            var secretInjectorMock = new Mock<ISecretInjector>(MockBehavior.Strict); // make sure no calls to this guy
+            var secretInjectorMock = new Mock<ISecretInjector>(); 
 
             var keys = new string[] { "someKey" };
             var parentPath = "Section1";
@@ -25,37 +24,40 @@ namespace NuGet.Services.Configuration.Tests
 
             originalProviderMock.Verify(p => p.GetChildKeys(keys, parentPath), Times.Once());
             originalProviderMock.Verify(p => p.GetChildKeys(It.IsAny<IEnumerable<string>>(), It.IsAny<string>()), Times.Once());
+            secretInjectorMock.Verify(x => x.InjectAsync(It.IsAny<string>()), Times.Never());
         }
 
         [Fact]
         public void PassesThroughGetReloadToken()
         {
             var originalProviderMock = new Mock<Microsoft.Extensions.Configuration.IConfigurationProvider>();
-            var secretInjectorMock = new Mock<ISecretInjector>(MockBehavior.Strict);
+            var secretInjectorMock = new Mock<ISecretInjector>();
 
             var provider = new KeyVaultInjectingConfigurationProvider(originalProviderMock.Object, secretInjectorMock.Object);
             provider.GetReloadToken();
 
             originalProviderMock.Verify(p => p.GetReloadToken(), Times.Once());
+            secretInjectorMock.Verify(x => x.InjectAsync(It.IsAny<string>()), Times.Never());
         }
 
         [Fact]
         public void PassesThroughLoad()
         {
             var originalProviderMock = new Mock<Microsoft.Extensions.Configuration.IConfigurationProvider>();
-            var secretInjectorMock = new Mock<ISecretInjector>(MockBehavior.Strict);
+            var secretInjectorMock = new Mock<ISecretInjector>();
 
             var provider = new KeyVaultInjectingConfigurationProvider(originalProviderMock.Object, secretInjectorMock.Object);
             provider.Load();
 
             originalProviderMock.Verify(p => p.Load(), Times.Once());
+            secretInjectorMock.Verify(x => x.InjectAsync(It.IsAny<string>()), Times.Never());
         }
 
         [Fact]
         public void PassesThroughSet()
         {
             var originalProviderMock = new Mock<Microsoft.Extensions.Configuration.IConfigurationProvider>();
-            var secretInjectorMock = new Mock<ISecretInjector>(MockBehavior.Strict);
+            var secretInjectorMock = new Mock<ISecretInjector>();
 
             var key = "SomeKey";
             var value = "SomeValue";
@@ -65,13 +67,14 @@ namespace NuGet.Services.Configuration.Tests
 
             originalProviderMock.Verify(p => p.Set(key, value), Times.Once());
             originalProviderMock.Verify(p => p.Set(It.IsAny<string>(), It.IsAny<string>()), Times.Once());
+            secretInjectorMock.Verify(x => x.InjectAsync(It.IsAny<string>()), Times.Never());
         }
 
         [Fact]
         public void InjectsSecrets()
         {
             var originalProviderMock = new Mock<Microsoft.Extensions.Configuration.IConfigurationProvider>(MockBehavior.Strict);
-            var secretInjectorMock = new Mock<ISecretInjector>(MockBehavior.Strict);
+            var secretInjectorMock = new Mock<ISecretInjector>();
 
             const string key = "SomeKey";
             const string uninjectedValue = "Value=$$Secret$$";
@@ -89,6 +92,7 @@ namespace NuGet.Services.Configuration.Tests
 
             originalProviderMock.Verify(p => p.TryGet(key, out originalOutValue), Times.Once());
             secretInjectorMock.Verify(i => i.InjectAsync(uninjectedValue), Times.Once());
+            secretInjectorMock.Verify(x => x.InjectAsync(It.IsAny<string>()), Times.Once());
         }
     }
 }

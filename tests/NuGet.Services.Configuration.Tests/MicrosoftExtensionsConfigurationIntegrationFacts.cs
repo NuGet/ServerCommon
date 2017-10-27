@@ -4,8 +4,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
@@ -21,7 +19,7 @@ namespace NuGet.Services.Configuration.Tests
     /// Checks some assumptions about implementation of Microsoft.Extensions.Configuration, Microsoft.Extensions.Options libraries and their integration
     /// with our KeyVault secret injecting code.
     /// </summary>
-    public class JsonConfigurationIntegrationFacts
+    public class MicrosoftExtensionsConfigurationIntegrationFacts
     {
         [Fact]
         public void ConfigurationRootDoesNotStoreData()
@@ -69,6 +67,8 @@ namespace NuGet.Services.Configuration.Tests
         }
 
         /// <summary>
+        /// Compare with <see cref="NonCachingOptionsSnapshotPreventsCaching"/>.
+        /// 
         /// Not an actual test, just the demo, that shows that default <see cref="IOptionsSnapshot{TOptions}"/> implementation
         /// caches the value it wraps if underlying <see cref="IConfigurationProvider"/> does not report changes.
         /// 
@@ -80,7 +80,7 @@ namespace NuGet.Services.Configuration.Tests
         /// does not rely on the presence of the caching, instead, it enforces no caching, so nothing would break if the default
         /// implementation would stop doing it, hence no need to test it.
         /// </remarks>
-        //[Fact]
+        [Fact(Skip = "The default IOptionsSnapshot<TOptions> behavior demo")]
         public void RegularOptionsSnapshotCaches()
         {
             const string propertyValue = "Value";
@@ -110,24 +110,16 @@ namespace NuGet.Services.Configuration.Tests
         [Fact]
         public void InjectingProviderInjects()
         {
-            const string propertyValue = "Value $$KeyVaultVar$$";
+            const string keyVaultVarName = "$$KeyVaultVar$$";
+            const string propertyPrefix = "Value ";
+            const string propertyValue = propertyPrefix + keyVaultVarName;
+            const string keyVaultVarValue = "KeyVaultVar-123";
+            const string properyInjectedValue = propertyPrefix + keyVaultVarValue;
 
             var injectorMock = new Mock<ISecretInjector>();
             injectorMock
-                .Setup(injector => injector.InjectAsync(It.IsAny<string>()))
-                .Returns<string>(input =>
-                {
-                    var tokenRegex = new Regex(@"\$\$([^\s$]+?)\$\$", RegexOptions.Compiled);
-
-                    System.Text.RegularExpressions.Match match;
-                    while ((match = tokenRegex.Match(input)).Success)
-                    {
-                        var keyName = match.Groups[1].Value;
-                        input = input.Replace($"$${keyName}$$", keyName + "-123");
-                    }
-
-                    return Task.FromResult(input);
-                });
+                .Setup(injector => injector.InjectAsync(propertyValue))
+                .ReturnsAsync(properyInjectedValue);
 
             var configurationBuilder = new ConfigurationBuilder()
                 .Add(new InjectedTestConfigurationSource(propertyValue, injectorMock.Object));
@@ -140,7 +132,7 @@ namespace NuGet.Services.Configuration.Tests
             var serviceProvider = CreateServiceProvider(services);
 
             var testConfiguration = serviceProvider.GetRequiredService<IOptionsSnapshot<TestConfiguration>>();
-            Assert.Equal("Value KeyVaultVar-123", testConfiguration.Value.Property);
+            Assert.Equal(properyInjectedValue, testConfiguration.Value.Property);
         }
 
         private static IConfigurationRoot CreateConfigurationRoot(string propertyValue, out Mock<Microsoft.Extensions.Configuration.IConfigurationProvider> configurationProviderMock)

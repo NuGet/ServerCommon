@@ -8,6 +8,8 @@ using NuGet.Services.KeyVault;
 
 namespace NuGet.Services.Configuration
 {
+    using Extensions = Microsoft.Extensions.Configuration;
+
     /// <summary>
     /// Configuration provider that wraps around another provider and does KeyVault secret injection.
     /// </summary>
@@ -16,12 +18,12 @@ namespace NuGet.Services.Configuration
     /// One needs <see cref="NonCachingOptionsSnapshot{TOptions}"/> as a <see cref="Microsoft.Extensions.Options.IOptionsSnapshot{TOptions}"/> implementation
     /// to make sure no caching happens.
     /// </remarks>
-    public class KeyVaultInjectingConfigurationProvider : Microsoft.Extensions.Configuration.IConfigurationProvider
+    public class KeyVaultInjectingConfigurationProvider : Extensions.IConfigurationProvider
     {
-        private readonly Microsoft.Extensions.Configuration.IConfigurationProvider _originalProvider;
+        private readonly Extensions.IConfigurationProvider _originalProvider;
         private readonly ISecretInjector _secretInjector;
 
-        public KeyVaultInjectingConfigurationProvider(Microsoft.Extensions.Configuration.IConfigurationProvider originalProvider, ISecretInjector secretInjector)
+        public KeyVaultInjectingConfigurationProvider(Extensions.IConfigurationProvider originalProvider, ISecretInjector secretInjector)
         {
             _originalProvider = originalProvider ?? throw new ArgumentNullException(nameof(originalProvider));
             _secretInjector = secretInjector ?? throw new ArgumentNullException(nameof(secretInjector));
