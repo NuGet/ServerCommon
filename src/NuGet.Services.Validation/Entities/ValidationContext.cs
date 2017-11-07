@@ -265,7 +265,8 @@ namespace NuGet.Services.Validation
             modelBuilder.Entity<PackageSignature>()
                 .HasMany(s => s.TrustedTimestamps)
                 .WithRequired(t => t.PackageSignature)
-                .HasForeignKey(t => t.PackageSignatureKey);
+                .HasForeignKey(t => t.PackageSignatureKey)
+                .WillCascadeOnDelete(false);
 
             modelBuilder.Entity<PackageSignature>()
                 .HasRequired(s => s.Certificate)

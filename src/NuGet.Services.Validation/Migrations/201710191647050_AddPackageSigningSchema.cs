@@ -64,7 +64,7 @@ namespace NuGet.Services.Validation
                     })
                 .PrimaryKey(t => t.Key)
                 .ForeignKey("signature.Certificates", t => t.CertificateKey, cascadeDelete: true)
-                .ForeignKey("signature.PackageSignatures", t => t.PackageSignatureKey, cascadeDelete: true)
+                .ForeignKey("signature.PackageSignatures", t => t.PackageSignatureKey)
                 .Index(t => t.PackageSignatureKey)
                 .Index(t => t.CertificateKey);
             
