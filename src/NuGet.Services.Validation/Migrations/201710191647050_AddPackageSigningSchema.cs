@@ -33,6 +33,7 @@ namespace NuGet.Services.Validation
                         CertificateKey = c.Long(nullable: false),
                         CreatedAt = c.DateTime(nullable: false, precision: 7, storeType: "datetime2"),
                         Status = c.Int(nullable: false),
+                        RowVersion = c.Binary(nullable: false, fixedLength: true, timestamp: true, storeType: "rowversion"),
                     })
                 .PrimaryKey(t => t.Key)
                 .ForeignKey("signature.Certificates", t => t.CertificateKey, cascadeDelete: true)

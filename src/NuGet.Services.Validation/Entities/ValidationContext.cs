@@ -263,6 +263,10 @@ namespace NuGet.Services.Validation
                 .HasColumnType("datetime2");
 
             modelBuilder.Entity<PackageSignature>()
+                .Property(c => c.RowVersion)
+                .IsRowVersion();
+
+            modelBuilder.Entity<PackageSignature>()
                 .HasMany(s => s.TrustedTimestamps)
                 .WithRequired(t => t.PackageSignature)
                 .HasForeignKey(t => t.PackageSignatureKey)
