@@ -270,12 +270,13 @@ namespace NuGet.Services.Validation
                 .HasMany(s => s.TrustedTimestamps)
                 .WithRequired(t => t.PackageSignature)
                 .HasForeignKey(t => t.PackageSignatureKey)
-                .WillCascadeOnDelete(false);
+                .WillCascadeOnDelete();
 
             modelBuilder.Entity<PackageSignature>()
                 .HasRequired(s => s.Certificate)
                 .WithMany(c => c.PackageSignatures)
-                .HasForeignKey(s => s.CertificateKey);
+                .HasForeignKey(s => s.CertificateKey)
+                .WillCascadeOnDelete(false);
 
             modelBuilder.Entity<TrustedTimestamp>()
                 .ToTable(TrustedTimestampsTable, SignatureSchema)
@@ -288,7 +289,8 @@ namespace NuGet.Services.Validation
             modelBuilder.Entity<TrustedTimestamp>()
                 .HasRequired(s => s.Certificate)
                 .WithMany(c => c.TrustedTimestamps)
-                .HasForeignKey(s => s.CertificateKey);
+                .HasForeignKey(s => s.CertificateKey)
+                .WillCascadeOnDelete(false);
 
             modelBuilder.Entity<Certificate>()
                 .ToTable(CertificatesTable, SignatureSchema)

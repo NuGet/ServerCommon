@@ -36,7 +36,7 @@ namespace NuGet.Services.Validation
                         RowVersion = c.Binary(nullable: false, fixedLength: true, timestamp: true, storeType: "rowversion"),
                     })
                 .PrimaryKey(t => t.Key)
-                .ForeignKey("signature.Certificates", t => t.CertificateKey, cascadeDelete: true)
+                .ForeignKey("signature.Certificates", t => t.CertificateKey)
                 .ForeignKey("signature.PackageSigningStates", t => t.PackageKey, cascadeDelete: true)
                 .Index(t => t.PackageKey, name: "IX_PackageSignatures_PackageKey")
                 .Index(t => t.CertificateKey, name: "IX_PackageSignatures_CertificateKey")
@@ -64,8 +64,8 @@ namespace NuGet.Services.Validation
                         Value = c.DateTime(nullable: false, precision: 7, storeType: "datetime2"),
                     })
                 .PrimaryKey(t => t.Key)
-                .ForeignKey("signature.Certificates", t => t.CertificateKey, cascadeDelete: true)
-                .ForeignKey("signature.PackageSignatures", t => t.PackageSignatureKey)
+                .ForeignKey("signature.Certificates", t => t.CertificateKey)
+                .ForeignKey("signature.PackageSignatures", t => t.PackageSignatureKey, cascadeDelete: true)
                 .Index(t => t.PackageSignatureKey)
                 .Index(t => t.CertificateKey);
             
