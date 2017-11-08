@@ -2,7 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information. 
 
 using System;
-using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
 
 namespace NuGet.Services.KeyVault
@@ -10,39 +10,58 @@ namespace NuGet.Services.KeyVault
     public class CachingSecretReader : ISecretReader
     {
         public const int DefaultRefreshIntervalSec = 60 * 60 * 24; // 1 day
-        private readonly int _refreshIntervalSec;
 
         private readonly ISecretReader _internalReader;
-        private readonly Dictionary<string, Tuple<string, DateTime>> _cache;
+        private readonly ConcurrentDictionary<string, CachedSecret> _cache;
+        private readonly TimeSpan _refreshInterval;
 
         public CachingSecretReader(ISecretReader secretReader, int refreshIntervalSec = DefaultRefreshIntervalSec)
         {
-            if (secretReader == null)
-            {
-                throw new ArgumentNullException(nameof(secretReader));
-            }
+            _internalReader = secretReader ?? throw new ArgumentNullException(nameof(secretReader)); ;
+            _cache = new ConcurrentDictionary<string, CachedSecret>();
 
-            _internalReader = secretReader;
-            _cache = new Dictionary<string, Tuple<string, DateTime>>();
-
-            _refreshIntervalSec = refreshIntervalSec;
-        }
-
-        public virtual bool IsSecretOutdated(Tuple<string, DateTime> cachedSecret)
-        {
-            return DateTime.UtcNow.Subtract(cachedSecret.Item2).TotalSeconds >= _refreshIntervalSec;
+            _refreshInterval = TimeSpan.FromSeconds(refreshIntervalSec);
         }
 
         public async Task<string> GetSecretAsync(string secretName)
         {
-            if (!_cache.ContainsKey(secretName) || IsSecretOutdated(_cache[secretName]))
+            // If the cache contains the secret and it is not expired, returned the cached value.
+            if (_cache.TryGetValue(secretName, out CachedSecret result))
             {
-                // Get the secret if it is not yet in the cache or it is outdated.
-                var secretValue = await _internalReader.GetSecretAsync(secretName);
-                _cache[secretName] = Tuple.Create(secretValue, DateTime.UtcNow);
+                if (!IsSecretOutdated(result))
+                {
+                    return result.Value;
+                }
             }
 
-            return _cache[secretName].Item1;
+            // The cache does not contain a fresh copy of the secret. Fetch and cache the secret.
+            result.Value = await _internalReader.GetSecretAsync(secretName);
+            result.CacheTimeUtc = DateTime.UtcNow;
+
+            var updatedResult = _cache.AddOrUpdate(secretName, result, (key, old) => result);
+
+            return updatedResult.Value;
+        }
+
+        private bool IsSecretOutdated(CachedSecret secret)
+        {
+            return (DateTime.UtcNow - secret.CacheTimeUtc) >= _refreshInterval;
+        }
+
+        /// <summary>
+        /// A cached secret.
+        /// </summary>
+        private struct CachedSecret
+        {
+            /// <summary>
+            /// The value of the cached secret.
+            /// </summary>
+            public string Value { get; set; }
+
+            /// <summary>
+            /// The time at which the secret was cached.
+            /// </summary>
+            public DateTime CacheTimeUtc { get; set; }
         }
     }
 }
