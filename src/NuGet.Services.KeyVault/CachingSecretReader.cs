@@ -25,7 +25,12 @@ namespace NuGet.Services.KeyVault
 
         public async Task<string> GetSecretAsync(string secretName)
         {
-            // If the cache contains the secret and it is not expired, returned the cached value.
+            if (string.IsNullOrEmpty(secretName))
+            {
+                throw new ArgumentException("Null or empty secret name", nameof(secretName));
+            }
+
+            // If the cache contains the secret and it is not expired, return the cached value.
             if (_cache.TryGetValue(secretName, out CachedSecret result))
             {
                 if (!IsSecretOutdated(result))
@@ -51,7 +56,7 @@ namespace NuGet.Services.KeyVault
         /// <summary>
         /// A cached secret.
         /// </summary>
-        private struct CachedSecret
+        private class CachedSecret
         {
             /// <summary>
             /// The value of the cached secret.
