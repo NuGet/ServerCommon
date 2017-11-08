@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -17,6 +18,11 @@ namespace NuGet.Services.ServiceBus
         /// The factory used to create independent dependency injection scopes for each message.
         /// </summary>
         private readonly IServiceScopeFactory _scopeFactory;
+
+        public ScopedMessageHandler(IServiceScopeFactory scopeFactory)
+        {
+            _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
+        }
 
         /// <summary>
         /// Handle the message in its own dependency injection scope.
