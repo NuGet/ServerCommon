@@ -17,7 +17,7 @@ namespace NuGet.Services.KeyVault
 
         public CachingSecretReader(ISecretReader secretReader, int refreshIntervalSec = DefaultRefreshIntervalSec)
         {
-            _internalReader = secretReader ?? throw new ArgumentNullException(nameof(secretReader)); ;
+            _internalReader = secretReader ?? throw new ArgumentNullException(nameof(secretReader));
             _cache = new ConcurrentDictionary<string, CachedSecret>();
 
             _refreshInterval = TimeSpan.FromSeconds(refreshIntervalSec);
@@ -31,26 +31,22 @@ namespace NuGet.Services.KeyVault
             }
 
             // If the cache contains the secret and it is not expired, return the cached value.
-            if (_cache.TryGetValue(secretName, out CachedSecret result))
+            if (_cache.TryGetValue(secretName, out CachedSecret result)
+                && !IsSecretOutdated(result))
             {
-                if (!IsSecretOutdated(result))
-                {
-                    return result.Value;
-                }
+                return result.Value;
             }
 
             // The cache does not contain a fresh copy of the secret. Fetch and cache the secret.
-            result.Value = await _internalReader.GetSecretAsync(secretName);
-            result.CacheTimeUtc = DateTime.UtcNow;
+            var updatedValue = new CachedSecret(await _internalReader.GetSecretAsync(secretName));
 
-            var updatedResult = _cache.AddOrUpdate(secretName, result, (key, old) => result);
-
-            return updatedResult.Value;
+            return _cache.AddOrUpdate(secretName, updatedValue, (key, old) => updatedValue)
+                         .Value;
         }
 
         private bool IsSecretOutdated(CachedSecret secret)
         {
-            return (DateTime.UtcNow - secret.CacheTimeUtc) >= _refreshInterval;
+            return (DateTime.UtcNow - secret.CacheTime) >= _refreshInterval;
         }
 
         /// <summary>
@@ -58,15 +54,21 @@ namespace NuGet.Services.KeyVault
         /// </summary>
         private class CachedSecret
         {
+            public CachedSecret(string value)
+            {
+                Value = value;
+                CacheTime = DateTimeOffset.UtcNow;
+            }
+
             /// <summary>
             /// The value of the cached secret.
             /// </summary>
-            public string Value { get; set; }
+            public string Value { get; }
 
             /// <summary>
             /// The time at which the secret was cached.
             /// </summary>
-            public DateTime CacheTimeUtc { get; set; }
+            public DateTimeOffset CacheTime { get; }
         }
     }
 }
