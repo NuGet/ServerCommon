@@ -5,7 +5,7 @@
 namespace NuGet.Services.Validation
 {
     /// <summary>
-    /// A X.509 Intermediary or Root Certificate used by one or more end-<see cref="Certificate" />s, 
+    /// A X.509 Intermediary or Root Certificate used by one or more end-<see cref="Validation.EndCertificate" />s, 
     /// together forming a certificate chain, used by one or more <see cref="PackageSignature"/>s.
     /// </summary>
     public class ParentCertificate
@@ -16,7 +16,7 @@ namespace NuGet.Services.Validation
         public long Key { get; set; }
 
         /// <summary>
-        /// The key to the end-<see cref="Certificate"/> of the certificate chain this parent-certificate is part of.
+        /// The key to the end-<see cref="Validation.EndCertificate"/> of the certificate chain this parent-certificate is part of.
         /// </summary>
         public long EndCertificateKey { get; set; }
 
@@ -26,8 +26,8 @@ namespace NuGet.Services.Validation
         public string Thumbprint { get; set; }
 
         /// <summary>
-        /// The end-<see cref="Certificate"/> of the certificate chain this parent-certificate is part of.
+        /// The end-<see cref="Validation.EndCertificate"/> of the certificate chain this parent-certificate is part of.
         /// </summary>
-        public virtual Certificate EndCertificate { get; set; }
+        public virtual EndCertificate EndCertificate { get; set; }
     }
 }

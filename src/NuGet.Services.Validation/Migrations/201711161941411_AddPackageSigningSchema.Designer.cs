@@ -7,13 +7,13 @@ namespace NuGet.Services.Validation
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.1.3-40302")]
-    public sealed partial class AddParentCertificatesTable : IMigrationMetadata
+    public sealed partial class AddPackageSigningSchema : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(AddParentCertificatesTable));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(AddPackageSigningSchema));
         
         string IMigrationMetadata.Id
         {
-            get { return "201711161418120_AddParentCertificatesTable"; }
+            get { return "201711161941411_AddPackageSigningSchema"; }
         }
         
         string IMigrationMetadata.Source

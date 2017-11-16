@@ -14,8 +14,8 @@ namespace NuGet.Services.Validation
         IDbSet<PackageSigningState> PackageSigningStates { get; }
         IDbSet<PackageSignature> PackageSignatures { get; }
         IDbSet<TrustedTimestamp> TrustedTimestamps { get; }
-        IDbSet<Certificate> Certificates { get; }
-        IDbSet<CertificateValidation> CertificateValidations { get; }
+        IDbSet<EndCertificate> EndCertificates { get; }
+        IDbSet<EndCertificateValidation> CertificateValidations { get; }
         IDbSet<ParentCertificate> ParentCertificates { get; }
 
         Task<int> SaveChangesAsync();
