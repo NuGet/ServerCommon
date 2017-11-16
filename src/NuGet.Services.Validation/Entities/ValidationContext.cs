@@ -36,6 +36,9 @@ namespace NuGet.Services.Validation
         private const string CertificatesTable = "Certificates";
         private const string CertificatesThumbprintIndex = "IX_Certificates_Thumbprint";
 
+        private const string ParentCertificatesTable = "ParentCertificates";
+        private const string ParentCertificatesEndCertificateKeyThumbprintIndex = "IX_ParentCertificates_EndCertificateKeyThumbprint";
+
         private const string CertificateValidationsTable = "CertificateValidations";
         private const string CertificateValidationsValidationIdIndex = "IX_CertificateValidations_ValidationId";
         private const string CertificateValidationsCertificateKeyValidationIdIndex = "IX_CertificateValidations_CertificateKey_ValidationId";
@@ -49,12 +52,12 @@ namespace NuGet.Services.Validation
         public IDbSet<PackageValidationSet> PackageValidationSets { get; set; }
         public IDbSet<PackageValidation> PackageValidations { get; set; }
         public IDbSet<ValidatorStatus> ValidatorStatuses { get; set; }
-
         public IDbSet<PackageSigningState> PackageSigningStates { get; set; }
         public IDbSet<PackageSignature> PackageSignatures { get; set; }
         public IDbSet<TrustedTimestamp> TrustedTimestamps { get; set; }
         public IDbSet<Certificate> Certificates { get; set; }
         public IDbSet<CertificateValidation> CertificateValidations { get; set; }
+        public IDbSet<ParentCertificate> ParentCertificates { get; set; }
 
         public ValidationEntitiesContext() : this("Validation.SqlServer")
         {
@@ -336,6 +339,38 @@ namespace NuGet.Services.Validation
                 .WithRequired(v => v.Certificate)
                 .HasForeignKey(v => v.CertificateKey)
                 .WillCascadeOnDelete();
+
+            modelBuilder.Entity<Certificate>()
+                .HasMany(c => c.ParentCertificates)
+                .WithRequired(v => v.EndCertificate)
+                .HasForeignKey(v => v.EndCertificateKey)
+                .WillCascadeOnDelete();
+
+            modelBuilder.Entity<ParentCertificate>()
+                .ToTable(ParentCertificatesTable, SignatureSchema)
+                .HasKey(c => c.Key);
+
+            modelBuilder.Entity<ParentCertificate>()
+                .Property(v => v.EndCertificateKey)
+                .IsRequired()
+                .HasColumnAnnotation(
+                    IndexAnnotation.AnnotationName,
+                    new IndexAnnotation(new[]
+                    {
+                        new IndexAttribute(ParentCertificatesEndCertificateKeyThumbprintIndex, 0)
+                    }));
+
+            modelBuilder.Entity<ParentCertificate>()
+                .Property(c => c.Thumbprint)
+                .HasMaxLength(20)
+                .HasColumnType("char")
+                .IsRequired()
+                .HasColumnAnnotation(
+                    IndexAnnotation.AnnotationName,
+                    new IndexAnnotation(new[]
+                    {
+                        new IndexAttribute(ParentCertificatesEndCertificateKeyThumbprintIndex, 1)
+                    }));
 
             modelBuilder.Entity<CertificateValidation>()
                 .ToTable(CertificateValidationsTable, SignatureSchema)

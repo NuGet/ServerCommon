@@ -79,5 +79,11 @@ namespace NuGet.Services.Validation
         /// of all validations performed for this certificate.
         /// </summary>
         public virtual ICollection<CertificateValidation> Validations { get; set; }
+
+        /// <summary>
+        /// An end-certificate part of a certificate chain has parent certificates (Intermediary and/or Root certificates).
+        /// Combined, this allows for revalidation of the certificate chain.
+        /// </summary>
+        public virtual ICollection<ParentCertificate> ParentCertificates { get; set; }
     }
 }
