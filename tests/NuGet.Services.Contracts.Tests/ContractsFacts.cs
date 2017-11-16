@@ -14,7 +14,6 @@ namespace NuGet.Services
         {
             // Arrange
             var assembly = typeof(ValidationStatus).Assembly;
-            var exceptions = new[] { typeof(ValidationResult) };
 
             // Act
             var types = assembly.GetTypes();
@@ -23,7 +22,7 @@ namespace NuGet.Services
             Assert.NotEmpty(types);
             foreach (var type in types)
             {
-                Assert.True(type.IsEnum || type.IsInterface || exceptions.Contains(type), $"{type.FullName} must either be an interface or an enum.");
+                Assert.True(type.IsEnum || type.IsInterface, $"{type.FullName} must either be an interface or an enum.");
             }
         }
     }
