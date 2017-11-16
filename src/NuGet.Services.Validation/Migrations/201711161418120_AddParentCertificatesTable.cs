@@ -13,7 +13,7 @@ namespace NuGet.Services.Validation
                     {
                         Key = c.Long(nullable: false, identity: true),
                         EndCertificateKey = c.Long(nullable: false),
-                        Thumbprint = c.String(nullable: false, maxLength: 20, fixedLength: true, unicode: false),
+                        Thumbprint = c.String(nullable: false, maxLength: 40, fixedLength: true, unicode: false),
                     })
                 .PrimaryKey(t => t.Key)
                 .ForeignKey("signature.Certificates", t => t.EndCertificateKey, cascadeDelete: true)

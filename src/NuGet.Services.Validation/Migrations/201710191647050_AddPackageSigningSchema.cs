@@ -12,7 +12,7 @@ namespace NuGet.Services.Validation
                 c => new
                     {
                         Key = c.Long(nullable: false, identity: true),
-                        Thumbprint = c.String(nullable: false, maxLength: 20, fixedLength: true, unicode: false),
+                        Thumbprint = c.String(nullable: false, maxLength: 40, fixedLength: true, unicode: false),
                         Status = c.Int(nullable: false),
                         StatusUpdateTime = c.DateTime(precision: 7, storeType: "datetime2"),
                         NextStatusUpdateTime = c.DateTime(precision: 7, storeType: "datetime2"),

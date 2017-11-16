@@ -301,7 +301,7 @@ namespace NuGet.Services.Validation
 
             modelBuilder.Entity<Certificate>()
                 .Property(c => c.Thumbprint)
-                .HasMaxLength(20)
+                .HasMaxLength(40)
                 .HasColumnType("char")
                 .IsRequired()
                 .HasColumnAnnotation(
@@ -362,7 +362,7 @@ namespace NuGet.Services.Validation
 
             modelBuilder.Entity<ParentCertificate>()
                 .Property(c => c.Thumbprint)
-                .HasMaxLength(20)
+                .HasMaxLength(40)
                 .HasColumnType("char")
                 .IsRequired()
                 .HasColumnAnnotation(
