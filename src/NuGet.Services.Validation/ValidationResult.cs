@@ -61,6 +61,6 @@ namespace NuGet.Services.Validation
         /// <summary>
         /// The errors that were encountered if the validation failed.
         /// </summary>
-        public IEnumerable<string> Errors { get; }
+        public IReadOnlyList<string> Errors { get; }
     }
 }
