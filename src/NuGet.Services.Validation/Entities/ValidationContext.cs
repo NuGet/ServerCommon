@@ -361,6 +361,9 @@ namespace NuGet.Services.Validation
                     new IndexAnnotation(new[]
                     {
                         new IndexAttribute(CertificateChainLinkEndCertificateKeyParentCertificateKeyIndex, 0)
+                        {
+                            IsUnique = true
+                        }
                     }));
 
             modelBuilder.Entity<CertificateChainLink>()
@@ -371,6 +374,9 @@ namespace NuGet.Services.Validation
                     new IndexAnnotation(new[]
                     {
                         new IndexAttribute(CertificateChainLinkEndCertificateKeyParentCertificateKeyIndex, 1)
+                        {
+                            IsUnique = true
+                        }
                     }));
 
             modelBuilder.Entity<ParentCertificate>()
@@ -393,6 +399,9 @@ namespace NuGet.Services.Validation
                     new IndexAnnotation(new[]
                     {
                         new IndexAttribute(ParentCertificatesThumbprintIndex)
+                        {
+                            IsUnique = true
+                        }
                     }));
 
             modelBuilder.Entity<EndCertificateValidation>()

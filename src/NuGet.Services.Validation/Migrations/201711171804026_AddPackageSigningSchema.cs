@@ -18,7 +18,7 @@ namespace NuGet.Services.Validation
                 .PrimaryKey(t => t.Key)
                 .ForeignKey("signature.EndCertificates", t => t.EndCertificateKey, cascadeDelete: true)
                 .ForeignKey("signature.ParentCertificates", t => t.ParentCertificateKey, cascadeDelete: true)
-                .Index(t => new { t.EndCertificateKey, t.ParentCertificateKey }, name: "IX_CertificateChainLinks_EndCertificateKeyParentCertificateKey");
+                .Index(t => new { t.EndCertificateKey, t.ParentCertificateKey }, unique: true, name: "IX_CertificateChainLinks_EndCertificateKeyParentCertificateKey");
             
             CreateTable(
                 "signature.EndCertificates",
@@ -104,7 +104,7 @@ namespace NuGet.Services.Validation
                         Thumbprint = c.String(nullable: false, maxLength: 40, fixedLength: true, unicode: false),
                     })
                 .PrimaryKey(t => t.Key)
-                .Index(t => t.Thumbprint, name: "IX_ParentCertificates_Thumbprint");
+                .Index(t => t.Thumbprint, unique: true, name: "IX_ParentCertificates_Thumbprint");
             
             CreateTable(
                 "dbo.ValidatorStatuses",
