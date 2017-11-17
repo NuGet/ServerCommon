@@ -8,18 +8,17 @@ namespace NuGet.Services.Validation
         public override void Up()
         {
             CreateTable(
-                "signature.EndCertificateValidations",
+                "signature.CertificateChainLinks",
                 c => new
                     {
                         Key = c.Long(nullable: false, identity: true),
                         EndCertificateKey = c.Long(nullable: false),
-                        ValidationId = c.Guid(nullable: false),
-                        Status = c.Int(),
+                        ParentCertificateKey = c.Long(nullable: false),
                     })
                 .PrimaryKey(t => t.Key)
                 .ForeignKey("signature.EndCertificates", t => t.EndCertificateKey, cascadeDelete: true)
-                .Index(t => new { t.EndCertificateKey, t.ValidationId }, name: "IX_EndCertificateValidations_EndCertificateKey_ValidationId")
-                .Index(t => t.ValidationId, name: "IX_EndCertificateValidations_ValidationId");
+                .ForeignKey("signature.ParentCertificates", t => t.ParentCertificateKey, cascadeDelete: true)
+                .Index(t => new { t.EndCertificateKey, t.ParentCertificateKey }, name: "IX_CertificateChainLinks_EndCertificateKeyParentCertificateKey");
             
             CreateTable(
                 "signature.EndCertificates",
@@ -84,16 +83,28 @@ namespace NuGet.Services.Validation
                 .Index(t => t.EndCertificateKey);
             
             CreateTable(
-                "signature.ParentCertificates",
+                "signature.EndCertificateValidations",
                 c => new
                     {
                         Key = c.Long(nullable: false, identity: true),
                         EndCertificateKey = c.Long(nullable: false),
-                        Thumbprint = c.String(nullable: false, maxLength: 40, fixedLength: true, unicode: false),
+                        ValidationId = c.Guid(nullable: false),
+                        Status = c.Int(),
                     })
                 .PrimaryKey(t => t.Key)
                 .ForeignKey("signature.EndCertificates", t => t.EndCertificateKey, cascadeDelete: true)
-                .Index(t => new { t.EndCertificateKey, t.Thumbprint }, name: "IX_ParentCertificates_EndCertificateKeyThumbprint");
+                .Index(t => new { t.EndCertificateKey, t.ValidationId }, name: "IX_EndCertificateValidations_EndCertificateKey_ValidationId")
+                .Index(t => t.ValidationId, name: "IX_EndCertificateValidations_ValidationId");
+            
+            CreateTable(
+                "signature.ParentCertificates",
+                c => new
+                    {
+                        Key = c.Long(nullable: false, identity: true),
+                        Thumbprint = c.String(nullable: false, maxLength: 40, fixedLength: true, unicode: false),
+                    })
+                .PrimaryKey(t => t.Key)
+                .Index(t => t.Thumbprint, name: "IX_ParentCertificates_Thumbprint");
             
             CreateTable(
                 "dbo.ValidatorStatuses",
@@ -112,14 +123,17 @@ namespace NuGet.Services.Validation
         
         public override void Down()
         {
+            DropForeignKey("signature.CertificateChainLinks", "ParentCertificateKey", "signature.ParentCertificates");
             DropForeignKey("signature.EndCertificateValidations", "EndCertificateKey", "signature.EndCertificates");
-            DropForeignKey("signature.ParentCertificates", "EndCertificateKey", "signature.EndCertificates");
             DropForeignKey("signature.TrustedTimestamps", "PackageSignatureKey", "signature.PackageSignatures");
             DropForeignKey("signature.TrustedTimestamps", "EndCertificateKey", "signature.EndCertificates");
             DropForeignKey("signature.PackageSignatures", "PackageKey", "signature.PackageSigningStates");
             DropForeignKey("signature.PackageSignatures", "EndCertificateKey", "signature.EndCertificates");
+            DropForeignKey("signature.CertificateChainLinks", "EndCertificateKey", "signature.EndCertificates");
             DropIndex("dbo.ValidatorStatuses", "IX_ValidatorStatuses_PackageKey");
-            DropIndex("signature.ParentCertificates", "IX_ParentCertificates_EndCertificateKeyThumbprint");
+            DropIndex("signature.ParentCertificates", "IX_ParentCertificates_Thumbprint");
+            DropIndex("signature.EndCertificateValidations", "IX_EndCertificateValidations_ValidationId");
+            DropIndex("signature.EndCertificateValidations", "IX_EndCertificateValidations_EndCertificateKey_ValidationId");
             DropIndex("signature.TrustedTimestamps", new[] { "EndCertificateKey" });
             DropIndex("signature.TrustedTimestamps", new[] { "PackageSignatureKey" });
             DropIndex("signature.PackageSigningStates", "IX_PackageSigningStates_PackageId_PackageNormalizedVersion");
@@ -127,15 +141,15 @@ namespace NuGet.Services.Validation
             DropIndex("signature.PackageSignatures", "IX_PackageSignatures_EndCertificateKey");
             DropIndex("signature.PackageSignatures", "IX_PackageSignatures_PackageKey");
             DropIndex("signature.EndCertificates", "IX_EndCertificates_Thumbprint");
-            DropIndex("signature.EndCertificateValidations", "IX_EndCertificateValidations_ValidationId");
-            DropIndex("signature.EndCertificateValidations", "IX_EndCertificateValidations_EndCertificateKey_ValidationId");
+            DropIndex("signature.CertificateChainLinks", "IX_CertificateChainLinks_EndCertificateKeyParentCertificateKey");
             DropTable("dbo.ValidatorStatuses");
             DropTable("signature.ParentCertificates");
+            DropTable("signature.EndCertificateValidations");
             DropTable("signature.TrustedTimestamps");
             DropTable("signature.PackageSigningStates");
             DropTable("signature.PackageSignatures");
             DropTable("signature.EndCertificates");
-            DropTable("signature.EndCertificateValidations");
+            DropTable("signature.CertificateChainLinks");
         }
     }
 }

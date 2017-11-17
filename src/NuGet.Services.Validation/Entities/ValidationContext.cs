@@ -36,7 +36,10 @@ namespace NuGet.Services.Validation
         private const string EndCertificatesThumbprintIndex = "IX_EndCertificates_Thumbprint";
 
         private const string ParentCertificatesTable = "ParentCertificates";
-        private const string ParentCertificatesEndCertificateKeyThumbprintIndex = "IX_ParentCertificates_EndCertificateKeyThumbprint";
+        private const string ParentCertificatesThumbprintIndex = "IX_ParentCertificates_Thumbprint";
+
+        private const string CertificateChainLinksTable = "CertificateChainLinks";
+        private const string CertificateChainLinkEndCertificateKeyParentCertificateKeyIndex = "IX_CertificateChainLinks_EndCertificateKeyParentCertificateKey";
 
         private const string EndCertificateValidationsTable = "EndCertificateValidations";
         private const string EndCertificateValidationsValidationIdIndex = "IX_EndCertificateValidations_ValidationId";
@@ -57,6 +60,7 @@ namespace NuGet.Services.Validation
         public IDbSet<EndCertificate> EndCertificates { get; set; }
         public IDbSet<EndCertificateValidation> CertificateValidations { get; set; }
         public IDbSet<ParentCertificate> ParentCertificates { get; set; }
+        public IDbSet<CertificateChainLink> CertificateChainLinks { get; set; }
 
         public ValidationEntitiesContext() : this("Validation.SqlServer")
         {
@@ -340,24 +344,44 @@ namespace NuGet.Services.Validation
                 .WillCascadeOnDelete();
 
             modelBuilder.Entity<EndCertificate>()
-                .HasMany(c => c.ParentCertificates)
+                .HasMany(c => c.CertificateChainLinks)
                 .WithRequired(v => v.EndCertificate)
                 .HasForeignKey(v => v.EndCertificateKey)
                 .WillCascadeOnDelete();
 
-            modelBuilder.Entity<ParentCertificate>()
-                .ToTable(ParentCertificatesTable, SignatureSchema)
-                .HasKey(c => c.Key);
+            modelBuilder.Entity<CertificateChainLink>()
+                .ToTable(CertificateChainLinksTable, SignatureSchema)
+                .HasKey(t => t.Key);
 
-            modelBuilder.Entity<ParentCertificate>()
+            modelBuilder.Entity<CertificateChainLink>()
                 .Property(v => v.EndCertificateKey)
                 .IsRequired()
                 .HasColumnAnnotation(
                     IndexAnnotation.AnnotationName,
                     new IndexAnnotation(new[]
                     {
-                        new IndexAttribute(ParentCertificatesEndCertificateKeyThumbprintIndex, 0)
+                        new IndexAttribute(CertificateChainLinkEndCertificateKeyParentCertificateKeyIndex, 0)
                     }));
+
+            modelBuilder.Entity<CertificateChainLink>()
+                .Property(v => v.ParentCertificateKey)
+                .IsRequired()
+                .HasColumnAnnotation(
+                    IndexAnnotation.AnnotationName,
+                    new IndexAnnotation(new[]
+                    {
+                        new IndexAttribute(CertificateChainLinkEndCertificateKeyParentCertificateKeyIndex, 1)
+                    }));
+
+            modelBuilder.Entity<ParentCertificate>()
+                .ToTable(ParentCertificatesTable, SignatureSchema)
+                .HasKey(c => c.Key);
+
+            modelBuilder.Entity<ParentCertificate>()
+                .HasMany(v => v.CertificateChainLinks)
+                .WithRequired(v => v.ParentCertificate)
+                .HasForeignKey(v => v.ParentCertificateKey)
+                .WillCascadeOnDelete();
 
             modelBuilder.Entity<ParentCertificate>()
                 .Property(c => c.Thumbprint)
@@ -368,7 +392,7 @@ namespace NuGet.Services.Validation
                     IndexAnnotation.AnnotationName,
                     new IndexAnnotation(new[]
                     {
-                        new IndexAttribute(ParentCertificatesEndCertificateKeyThumbprintIndex, 1)
+                        new IndexAttribute(ParentCertificatesThumbprintIndex)
                     }));
 
             modelBuilder.Entity<EndCertificateValidation>()

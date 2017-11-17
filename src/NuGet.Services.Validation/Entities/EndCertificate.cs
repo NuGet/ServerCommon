@@ -7,7 +7,8 @@ using System.Collections.Generic;
 namespace NuGet.Services.Validation
 {
     /// <summary>
-    /// A X.509 end-certificate used by one or more <see cref="PackageSignature" />s for one or more <see cref="PackageSigningState"/>s.
+    /// A X.509 end-certificate, either a signing certificate or a timestamp certificate, 
+    /// used by one or more <see cref="PackageSignature" />s for one or more <see cref="PackageSigningState"/>s.
     /// </summary>
     public class EndCertificate
     {
@@ -81,9 +82,9 @@ namespace NuGet.Services.Validation
         public virtual ICollection<EndCertificateValidation> Validations { get; set; }
 
         /// <summary>
-        /// An end-certificate part of a certificate chain has parent certificates (Intermediary and/or Root certificates).
+        /// An end-certificate is linked to its <see cref="ParentCertificate"/>s (Intermediary and/or Root certificates) by <see cref="CertificateChainLink"/>s.
         /// Combined, this allows for revalidation of the certificate chain.
         /// </summary>
-        public virtual ICollection<ParentCertificate> ParentCertificates { get; set; }
+        public virtual ICollection<CertificateChainLink> CertificateChainLinks { get; set; }
     }
 }

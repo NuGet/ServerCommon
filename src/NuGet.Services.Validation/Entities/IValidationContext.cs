@@ -16,6 +16,7 @@ namespace NuGet.Services.Validation
         IDbSet<TrustedTimestamp> TrustedTimestamps { get; }
         IDbSet<EndCertificate> EndCertificates { get; }
         IDbSet<EndCertificateValidation> CertificateValidations { get; }
+        IDbSet<CertificateChainLink> CertificateChainLinks { get; }
         IDbSet<ParentCertificate> ParentCertificates { get; }
 
         Task<int> SaveChangesAsync();
