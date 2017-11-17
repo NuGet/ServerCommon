@@ -49,6 +49,7 @@
     <Compile Include="Entities\PackageSignatureStatus.cs" />
     <Compile Include="Entities\PackageSigningStatus.cs" />
     <Compile Include="Entities\PackageValidation.cs" />
+    <Compile Include="Entities\PackageValidationError.cs" />
     <Compile Include="Entities\PackageValidationSet.cs" />
     <Compile Include="Entities\TrustedTimestamp.cs" />
     <Compile Include="Entities\ValidationContext.cs" />
@@ -63,6 +64,10 @@
     <Compile Include="Migrations\201710191647050_AddPackageSigningSchema.cs" />
     <Compile Include="Migrations\201710191647050_AddPackageSigningSchema.Designer.cs">
       <DependentUpon>201710191647050_AddPackageSigningSchema.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201711170114130_AddValidationErrors.cs" />
+    <Compile Include="Migrations\201711170114130_AddValidationErrors.Designer.cs">
+      <DependentUpon>201711170114130_AddValidationErrors.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\ValidationMigrationsConfiguration.cs" />
     <Compile Include="PackageValidationEnqueuer.cs" />
@@ -92,6 +97,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201710191647050_AddPackageSigningSchema.resx">
       <DependentUpon>201710191647050_AddPackageSigningSchema.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201711170114130_AddValidationErrors.resx">
+      <DependentUpon>201711170114130_AddValidationErrors.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
