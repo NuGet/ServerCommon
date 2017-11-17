@@ -74,7 +74,7 @@ namespace NuGet.Services.Validation
         /// </summary>
         /// <param name="errors">The errors for the failed validation result.</param>
         /// <returns>The failed validation result.</returns>
-        public static ValidationResult FailedResultWithErrors(params string[] errors)
+        public static ValidationResult FailedWithErrors(params string[] errors)
         {
             return new ValidationResult(ValidationStatus.Failed, (string[])errors.Clone());
         }
