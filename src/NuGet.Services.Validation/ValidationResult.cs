@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 
+using System;
 using System.Collections.Generic;
 
 namespace NuGet.Services.Validation
@@ -38,18 +39,23 @@ namespace NuGet.Services.Validation
         /// </summary>
         /// <param name="status">The result's status.</param>
         public ValidationResult(ValidationStatus status)
+            : this(status, null)
         {
-            Status = status;
-            Errors = new string[0];
         }
 
         /// <summary>
         /// Create a new failed validation result with the given errors.
         /// </summary>
-        /// <param name="errors">The errors that detail why the validation failed.</param>
-        public ValidationResult(params string[] errors)
+        /// <param name="status">The status of the validation.</param>
+        /// <param name="errors">If the validation has failed, the errors that detail why.</param>
+        public ValidationResult(ValidationStatus status, IReadOnlyList<string> errors)
         {
-            Status = ValidationStatus.Failed;
+            if (errors.Count > 0 && status != ValidationStatus.Failed)
+            {
+                throw new ArgumentException($"Cannot specify errors if the status is not '{ValidationStatus.Failed}'", nameof(status));
+            }
+
+            Status = status;
             Errors = errors ?? new string[0];
         }
 
@@ -62,5 +68,15 @@ namespace NuGet.Services.Validation
         /// The errors that were encountered if the validation failed.
         /// </summary>
         public IReadOnlyList<string> Errors { get; }
+
+        /// <summary>
+        /// Create a new failed <see cref="ValidationResult"/>.
+        /// </summary>
+        /// <param name="errors">The errors for the failed validation result.</param>
+        /// <returns>The failed validation result.</returns>
+        public static ValidationResult FailedResultWithErrors(params string[] errors)
+        {
+            return new ValidationResult(ValidationStatus.Failed, (string[])errors.Clone());
+        }
     }
 }
