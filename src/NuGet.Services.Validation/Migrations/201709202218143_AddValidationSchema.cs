@@ -11,7 +11,7 @@ namespace NuGet.Services.Validation
                 "dbo.PackageValidations",
                 c => new
                     {
-                        Key = c.Guid(nullable: false, identity: true),
+                        Key = c.Guid(nullable: false, identity: true, defaultValueSql: "newsequentialid()"),
                         PackageValidationSetKey = c.Long(nullable: false),
                         Type = c.String(nullable: false, maxLength: 255, unicode: false),
                         Started = c.DateTime(precision: 7, storeType: "datetime2"),
