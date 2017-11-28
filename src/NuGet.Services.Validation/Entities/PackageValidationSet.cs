@@ -63,5 +63,10 @@ namespace NuGet.Services.Validation
         /// The package validations in the validation set.
         /// </summary>
         public virtual ICollection<PackageValidation> PackageValidations { get; set; }
+
+        /// <summary>
+        /// The package validation errors in the validation set.
+        /// </summary>
+        public virtual ICollection<PackageValidationError> PackageValidationErrors { get; set; }
     }
 }

@@ -10,6 +10,7 @@ namespace NuGet.Services.Validation
     {
         IDbSet<PackageValidationSet> PackageValidationSets { get; }
         IDbSet<PackageValidation> PackageValidations { get; }
+        IDbSet<PackageValidationError> PackageValidationErrors { get; }
         IDbSet<ValidatorStatus> ValidatorStatuses { get; }
 
         IDbSet<PackageSigningState> PackageSigningStates { get; }
