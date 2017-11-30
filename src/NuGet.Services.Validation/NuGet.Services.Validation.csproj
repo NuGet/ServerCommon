@@ -67,10 +67,6 @@
     <Compile Include="Migrations\201711291837076_AddPackageSigningSchema.Designer.cs">
       <DependentUpon>201711291837076_AddPackageSigningSchema.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201711300225174_AddPackageValidationErrors.cs" />
-    <Compile Include="Migrations\201711300225174_AddPackageValidationErrors.Designer.cs">
-      <DependentUpon>201711300225174_AddPackageValidationErrors.cs</DependentUpon>
-    </Compile>
     <Compile Include="Migrations\ValidationMigrationsConfiguration.cs" />
     <Compile Include="PackageValidationEnqueuer.cs" />
     <Compile Include="PackageValidationMessageData.cs" />
@@ -101,9 +97,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201711291837076_AddPackageSigningSchema.resx">
       <DependentUpon>201711291837076_AddPackageSigningSchema.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201711300225174_AddPackageValidationErrors.resx">
-      <DependentUpon>201711300225174_AddPackageValidationErrors.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

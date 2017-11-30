@@ -14,7 +14,7 @@ namespace NuGet.Services.Validation
                         Key = c.Long(nullable: false, identity: true),
                         PackageValidationKey = c.Guid(nullable: false),
                         ErrorCode = c.Int(nullable: false),
-                        Arguments = c.String(),
+                        Data = c.String(),
                     })
                 .PrimaryKey(t => t.Key)
                 .ForeignKey("dbo.PackageValidations", t => t.PackageValidationKey, cascadeDelete: true)

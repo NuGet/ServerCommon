@@ -13,7 +13,7 @@ namespace NuGet.Services.Validation
         
         string IMigrationMetadata.Id
         {
-            get { return "201711300225174_AddPackageValidationErrors"; }
+            get { return "201711300351555_AddPackageValidationErrors"; }
         }
         
         string IMigrationMetadata.Source
