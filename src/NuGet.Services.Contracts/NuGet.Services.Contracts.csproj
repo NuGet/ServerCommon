@@ -47,7 +47,10 @@
     <Compile Include="ServiceBus\ISubscriptionClient.cs" />
     <Compile Include="ServiceBus\ITopicClient.cs" />
     <Compile Include="Validation\IValidationRequest.cs" />
+    <Compile Include="Validation\IValidationResult.cs" />
     <Compile Include="Validation\IValidator.cs" />
+    <Compile Include="Validation\IValidationError.cs" />
+    <Compile Include="Validation\ValidationErrorCode.cs" />
     <Compile Include="Validation\ValidationStatus.cs" />
   </ItemGroup>
   <ItemGroup>
