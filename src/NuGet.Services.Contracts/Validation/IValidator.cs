@@ -20,11 +20,11 @@ namespace NuGet.Services.Validation
         /// </summary>
         /// <param name="request">The validation request.</param>
         /// <returns>A task returning the current validation result.</returns>
-        Task<IValidationResult> GetStatusAsync(IValidationRequest request);
+        Task<IValidationResult> GetResultAsync(IValidationRequest request);
 
         /// <summary>
         /// A method that starts the validation on the provided package. If the validation has already started, this
-        /// method should simply return the current status as if <see cref="GetStatusAsync(IValidationRequest)"/> was
+        /// method should simply return the current status as if <see cref="GetResultAsync(IValidationRequest)"/> was
         /// called. If the validation has not been started yet, the implementation should start the validation and
         /// return the resulting <see cref="IValidationResult"/>. A result with a status of <see cref="ValidationStatus.NotStarted"/>
         /// should not be returned from this method and, if it is, the caller is free to repeat the method invocation until some

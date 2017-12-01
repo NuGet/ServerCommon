@@ -50,7 +50,7 @@ namespace NuGet.Services.Validation
         /// <param name="errors">If the validation has failed, the errors that detail why.</param>
         public ValidationResult(ValidationStatus status, IReadOnlyList<IValidationError> errors)
         {
-            if (errors.Count > 0 && status != ValidationStatus.Failed)
+            if (status != ValidationStatus.Failed && errors?.Count > 0)
             {
                 throw new ArgumentException($"Cannot specify errors if the status is not '{ValidationStatus.Failed}'", nameof(status));
             }
