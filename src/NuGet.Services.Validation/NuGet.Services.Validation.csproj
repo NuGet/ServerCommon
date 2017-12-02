@@ -56,6 +56,8 @@
     <Compile Include="Entities\ValidationEntitiesContext.cs" />
     <Compile Include="Entities\PackageValidationError.cs" />
     <Compile Include="Entities\ValidatorStatus.cs" />
+    <Compile Include="Errors\AbstractError.cs" />
+    <Compile Include="Errors\PackageIsSignedError.cs" />
     <Compile Include="IPackageValidationEnqueuer.cs" />
     <Compile Include="IServiceBusMessageSerializer.cs" />
     <Compile Include="Entities\EntitiesConfiguration.cs" />

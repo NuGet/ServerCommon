@@ -8,7 +8,9 @@ namespace NuGet.Services.Validation
     /// </summary>
     public enum ValidationErrorCode
     {
-        // Used when signed packages are not accepted.
-        PackageIsSignedError = 1,
+        /// <summary>
+        /// Signed packages are blocked.
+        /// </summary>
+        PackageIsSignedError,
     }
 }

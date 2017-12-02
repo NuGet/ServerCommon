@@ -1,8 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
-
 namespace NuGet.Services.Validation
 {
     /// <summary>
@@ -11,13 +9,20 @@ namespace NuGet.Services.Validation
     public interface IValidationError
     {
         /// <summary>
-        /// The code that classifies the error.
+        /// The code that classifies this error.
         /// </summary>
         ValidationErrorCode ErrorCode { get; }
 
         /// <summary>
-        /// The values that can be used to format the error message.
+        /// Serialize the contents of this validation error.
         /// </summary>
-        IReadOnlyDictionary<string, string> Arguments { get; }
+        /// <returns>A string containing this error's serialized contents, excluding the error code.</returns>
+        string Serialize();
+
+        /// <summary>
+        /// Get a message that describes this error. Used to display this error to end users.
+        /// </summary>
+        /// <returns>A well formatted message that describes this error.</returns>
+        string GetMessage();
     }
 }

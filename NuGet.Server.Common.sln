@@ -52,6 +52,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.Services.ServiceBus.T
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.Services.KeyVault.Tests", "tests\NuGet.Services.KeyVault.Tests\NuGet.Services.KeyVault.Tests.csproj", "{BA1FB5F1-8F6B-4558-862B-F47C3995B06A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.Services.Errors", "src\NuGet.Services.Errors\NuGet.Services.Errors.csproj", "{4F497FBD-91CF-4FA5-B948-4375BEBFD2C8}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -138,6 +140,10 @@ Global
 		{BA1FB5F1-8F6B-4558-862B-F47C3995B06A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BA1FB5F1-8F6B-4558-862B-F47C3995B06A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BA1FB5F1-8F6B-4558-862B-F47C3995B06A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F497FBD-91CF-4FA5-B948-4375BEBFD2C8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F497FBD-91CF-4FA5-B948-4375BEBFD2C8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F497FBD-91CF-4FA5-B948-4375BEBFD2C8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F497FBD-91CF-4FA5-B948-4375BEBFD2C8}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -163,6 +169,7 @@ Global
 		{79F72C83-E94D-4D04-B904-5A4DA161168E} = {7783A106-0F4C-4055-9AB4-413FB2C7B8F0}
 		{FF5CA51A-CD6A-463F-AE9A-5737FF0FCFA7} = {7783A106-0F4C-4055-9AB4-413FB2C7B8F0}
 		{BA1FB5F1-8F6B-4558-862B-F47C3995B06A} = {7783A106-0F4C-4055-9AB4-413FB2C7B8F0}
+		{4F497FBD-91CF-4FA5-B948-4375BEBFD2C8} = {8415FED7-1BED-4227-8B4F-BB7C24E041CD}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {AA413DB0-5475-4B5D-A3AF-6323DA8D538B}
