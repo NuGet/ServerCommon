@@ -16,7 +16,7 @@ namespace NuGet.Services.Validation
         ValidationStatus Status { get; }
 
         /// <summary>
-        /// The errors that were encountered if <see cref="Status"/> is <see cref="ValidationStatus.Failed"/>.
+        /// The errors that were encountered. Empty if <see cref="Status"/> is not <see cref="ValidationStatus.Failed"/>.
         /// </summary>
         IReadOnlyList<IValidationError> Errors { get; }
     }

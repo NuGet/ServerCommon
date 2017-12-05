@@ -1,19 +1,16 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="..\packages\xunit.runner.visualstudio.2.1.0\build\net20\xunit.runner.visualstudio.props" Condition="Exists('..\packages\xunit.runner.visualstudio.2.1.0\build\net20\xunit.runner.visualstudio.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{E7412F21-169C-4823-AB2C-F6EE20E6411E}</ProjectGuid>
+    <ProjectGuid>{4F497FBD-91CF-4FA5-B948-4375BEBFD2C8}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NuGet.Services.Errors.Tests</RootNamespace>
-    <AssemblyName>NuGet.Services.Errors.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
+    <RootNamespace>NuGet.Services.Validation.Errors</RootNamespace>
+    <AssemblyName>NuGet.Services.Validation.Errors</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -43,28 +40,21 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ValidationErrorFacts.cs" />
+    <Compile Include="UnknownError.cs" />
+    <Compile Include="ValidationError.cs" />
+    <Compile Include="PackageIsSignedError.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\AssemblyInfo.*.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\NuGet.Services.Contracts\NuGet.Services.Contracts.csproj">
+      <Project>{6674B4B4-2D0E-4840-8CF0-2356ACDE8863}</Project>
+      <Name>NuGet.Services.Contracts</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="project.json" />
   </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\src\NuGet.Services.Contracts\NuGet.Services.Contracts.csproj">
-      <Project>{6674B4B4-2D0E-4840-8CF0-2356ACDE8863}</Project>
-      <Name>NuGet.Services.Contracts</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\src\NuGet.Services.Errors\NuGet.Services.Errors.csproj">
-      <Project>{4f497fbd-91cf-4fa5-b948-4375bebfd2c8}</Project>
-      <Name>NuGet.Services.Errors</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\src\NuGet.Services.Validation\NuGet.Services.Validation.csproj">
-      <Project>{C1E36A2C-1C1B-4521-B256-AD42505D9EFB}</Project>
-      <Name>NuGet.Services.Validation</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="..\..\build\sign.targets" />
 </Project>

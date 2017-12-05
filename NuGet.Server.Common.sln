@@ -52,9 +52,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.Services.ServiceBus.T
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.Services.KeyVault.Tests", "tests\NuGet.Services.KeyVault.Tests\NuGet.Services.KeyVault.Tests.csproj", "{BA1FB5F1-8F6B-4558-862B-F47C3995B06A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.Services.Errors", "src\NuGet.Services.Errors\NuGet.Services.Errors.csproj", "{4F497FBD-91CF-4FA5-B948-4375BEBFD2C8}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.Services.Validation.Errors", "src\NuGet.Services.Validation.Errors\NuGet.Services.Validation.Errors.csproj", "{4F497FBD-91CF-4FA5-B948-4375BEBFD2C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.Services.Errors.Tests", "NuGet.Services.Errors.Tests\NuGet.Services.Errors.Tests.csproj", "{E7412F21-169C-4823-AB2C-F6EE20E6411E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.Services.Validation.Errors.Tests", "tests\NuGet.Services.Validation.Errors.Tests\NuGet.Services.Validation.Errors.Tests.csproj", "{E7412F21-169C-4823-AB2C-F6EE20E6411E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

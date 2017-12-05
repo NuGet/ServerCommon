@@ -4,7 +4,7 @@
 namespace NuGet.Services.Validation
 {
     /// <summary>
-    /// The error code for a type of asynchronous validation failure.
+    /// The error code for a type of asynchronous validation failure. <see cref="ValidationE"/>
     /// </summary>
     public enum ValidationErrorCode
     {
