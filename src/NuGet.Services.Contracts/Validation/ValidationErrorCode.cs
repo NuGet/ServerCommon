@@ -9,8 +9,13 @@ namespace NuGet.Services.Validation
     public enum ValidationErrorCode
     {
         /// <summary>
+        /// An unknown error has occurred.
+        /// </summary>
+        Unknown = 0,
+
+        /// <summary>
         /// Signed packages are blocked.
         /// </summary>
-        PackageIsSignedError,
+        PackageIsSignedError = 1,
     }
 }
