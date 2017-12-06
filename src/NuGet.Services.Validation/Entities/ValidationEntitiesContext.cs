@@ -179,6 +179,10 @@ namespace NuGet.Services.Validation
                 .Property(pv => pv.Key)
                 .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 
+            modelBuilder.Entity<PackageValidationIssue>()
+                .Property(pv => pv.Data)
+                .IsRequired();
+
             modelBuilder.Entity<ValidatorStatus>()
                 .ToTable(ValidatorStatusesTable)
                 .HasKey(s => s.ValidationId);
