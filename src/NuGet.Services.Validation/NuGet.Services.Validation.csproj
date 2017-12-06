@@ -54,7 +54,7 @@
     <Compile Include="Entities\ParentCertificate.cs" />
     <Compile Include="Entities\TrustedTimestamp.cs" />
     <Compile Include="Entities\ValidationEntitiesContext.cs" />
-    <Compile Include="Entities\PackageValidationError.cs" />
+    <Compile Include="Entities\PackageValidationIssue.cs" />
     <Compile Include="Entities\ValidatorStatus.cs" />
     <Compile Include="IPackageValidationEnqueuer.cs" />
     <Compile Include="IServiceBusMessageSerializer.cs" />

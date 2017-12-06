@@ -6,9 +6,9 @@ using System;
 namespace NuGet.Services.Validation
 {
     /// <summary>
-    /// An error found by a <see cref="PackageValidation" /> that should be displayed to the user.
+    /// An issue found by a <see cref="PackageValidation" /> that should be displayed to the user.
     /// </summary>
-    public class PackageValidationError
+    public class PackageValidationIssue
     {
         /// <summary>
         /// The unique key that identifies this error.
@@ -24,7 +24,7 @@ namespace NuGet.Services.Validation
         /// The code that this error represents. The NuGet Gallery should map this error
         /// to an actual error message using this code.
         /// </summary>
-        public ValidationErrorCode ErrorCode { get; set; }
+        public ValidationIssueCode IssueCode { get; set; }
 
         /// <summary>
         /// The error message's serialized data.

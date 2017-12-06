@@ -66,7 +66,7 @@ namespace NuGet.Services.Validation
 
         public IDbSet<PackageValidationSet> PackageValidationSets { get; set; }
         public IDbSet<PackageValidation> PackageValidations { get; set; }
-        public IDbSet<PackageValidationError> PackageValidationErrors { get; set; }
+        public IDbSet<PackageValidationIssue> PackageValidationIssues { get; set; }
         public IDbSet<ValidatorStatus> ValidatorStatuses { get; set; }
         public IDbSet<PackageSigningState> PackageSigningStates { get; set; }
         public IDbSet<PackageSignature> PackageSignatures { get; set; }
@@ -172,10 +172,10 @@ namespace NuGet.Services.Validation
                 .Property(pv => pv.RowVersion)
                 .IsRowVersion();
 
-            modelBuilder.Entity<PackageValidationError>()
+            modelBuilder.Entity<PackageValidationIssue>()
                 .HasKey(e => e.Key);
 
-            modelBuilder.Entity<PackageValidationError>()
+            modelBuilder.Entity<PackageValidationIssue>()
                 .Property(pv => pv.Key)
                 .HasDatabaseGeneratedOption(DatabaseGeneratedOption.Identity);
 

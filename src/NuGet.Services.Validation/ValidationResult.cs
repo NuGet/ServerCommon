@@ -25,12 +25,12 @@ namespace NuGet.Services.Validation
         public static IValidationResult Incomplete => incomplete;
 
         /// <summary>
-        /// A successful validation result.
+        /// A successful validation result with no issues.
         /// </summary>
         public static IValidationResult Succeeded => succeeded;
 
         /// <summary>
-        /// A failed validation result with no errors.
+        /// A failed validation result with no issues.
         /// </summary>
         public static IValidationResult Failed => failed;
 
@@ -47,16 +47,17 @@ namespace NuGet.Services.Validation
         /// Create a new failed validation result with the given errors.
         /// </summary>
         /// <param name="status">The status of the validation.</param>
-        /// <param name="errors">If the validation has failed, the errors that detail why.</param>
-        public ValidationResult(ValidationStatus status, IReadOnlyList<IValidationError> errors)
+        /// <param name="issues">The issues that were encountered during the validation. Must be empty if
+        /// status is not <see cref="ValidationStatus.Failed"/> or <see cref="Validation.ValidationStatus.Succeeded"/></param>
+        public ValidationResult(ValidationStatus status, IReadOnlyList<IValidationIssue> issues)
         {
-            if (status != ValidationStatus.Failed && errors?.Count > 0)
+            if (issues?.Count > 0 && status != ValidationStatus.Succeeded && status != ValidationStatus.Failed)
             {
-                throw new ArgumentException($"Cannot specify errors if the status is not '{ValidationStatus.Failed}'", nameof(status));
+                throw new ArgumentException($"Cannot specify issues if the validation is not in a terminal status'", nameof(status));
             }
 
             Status = status;
-            Errors = errors ?? new IValidationError[0];
+            Issues = issues ?? new IValidationIssue[0];
         }
 
         /// <summary>
@@ -65,18 +66,18 @@ namespace NuGet.Services.Validation
         public ValidationStatus Status { get; }
 
         /// <summary>
-        /// The errors that were encountered if the validation failed.
+        /// The issues that were encountered during the validation.
         /// </summary>
-        public IReadOnlyList<IValidationError> Errors { get; }
+        public IReadOnlyList<IValidationIssue> Issues { get; }
 
         /// <summary>
         /// Create a new failed <see cref="ValidationResult"/>.
         /// </summary>
-        /// <param name="errors">The errors for the failed validation result.</param>
+        /// <param name="issues">The issues for the failed validation result.</param>
         /// <returns>The failed validation result.</returns>
-        public static ValidationResult FailedWithErrors(params IValidationError[] errors)
+        public static ValidationResult FailedWithIssues(params IValidationIssue[] issues)
         {
-            return new ValidationResult(ValidationStatus.Failed, (IValidationError[])errors.Clone());
+            return new ValidationResult(ValidationStatus.Failed, (IValidationIssue[])issues.Clone());
         }
     }
 }

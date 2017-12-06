@@ -4,12 +4,12 @@
 namespace NuGet.Services.Validation
 {
     /// <summary>
-    /// The error code for a type of asynchronous validation failure. <see cref="ValidationE"/>
+    /// The codes for <see cref="IValidationIssue"/>.
     /// </summary>
-    public enum ValidationErrorCode
+    public enum ValidationIssueCode
     {
         /// <summary>
-        /// An unknown error has occurred.
+        /// An unknown issue has occurred.
         /// </summary>
         Unknown = 0,
 

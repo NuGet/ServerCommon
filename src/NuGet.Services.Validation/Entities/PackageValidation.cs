@@ -53,9 +53,9 @@ namespace NuGet.Services.Validation
         public PackageValidationSet PackageValidationSet { get; set; }
 
         /// <summary>
-        /// The validation errors found by this validation.
+        /// The validation issues found by this validation.
         /// </summary>
-        public virtual ICollection<PackageValidationError> PackageValidationErrors { get; set; }
+        public virtual ICollection<PackageValidationIssue> PackageValidationIssues { get; set; }
 
         /// <summary>
         /// Used for optimistic concurrency when updating the status of the validation.

@@ -49,8 +49,8 @@
     <Compile Include="Validation\IValidationRequest.cs" />
     <Compile Include="Validation\IValidationResult.cs" />
     <Compile Include="Validation\IValidator.cs" />
-    <Compile Include="Validation\IValidationError.cs" />
-    <Compile Include="Validation\ValidationErrorCode.cs" />
+    <Compile Include="Validation\IValidationIssue.cs" />
+    <Compile Include="Validation\ValidationIssueCode.cs" />
     <Compile Include="Validation\ValidationStatus.cs" />
   </ItemGroup>
   <ItemGroup>

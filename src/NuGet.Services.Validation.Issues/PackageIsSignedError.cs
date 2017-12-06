@@ -3,9 +3,9 @@
 
 using System;
 
-namespace NuGet.Services.Validation.Errors
+namespace NuGet.Services.Validation.Issues
 {
-    public class PackageIsSignedError : ValidationError
+    public class PackageIsSignedError : ValidationIssue
     {
         public PackageIsSignedError(string packageId, string packageVersion)
         {
@@ -23,7 +23,7 @@ namespace NuGet.Services.Validation.Errors
             PackageVersion = packageVersion;
         }
 
-        public override ValidationErrorCode ErrorCode => ValidationErrorCode.PackageIsSignedError;
+        public override ValidationIssueCode IssueCode => ValidationIssueCode.PackageIsSignedError;
 
         public string PackageId { get; }
 

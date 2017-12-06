@@ -12,12 +12,12 @@ namespace NuGet.Services.Validation
         /// This enum is persisted so the integer values must not change.
         /// </summary>
         [Theory]
-        [InlineData(0, ValidationErrorCode.Unknown)]
-        [InlineData(1, ValidationErrorCode.PackageIsSignedError)]
+        [InlineData(0, ValidationIssueCode.Unknown)]
+        [InlineData(1, ValidationIssueCode.PackageIsSignedError)]
         public void HasUnchangingValues(int expected, ValidationStatus input)
         {
             Assert.Equal(expected, (int)input);
-            Assert.Equal(2, Enum.GetValues(typeof(ValidationErrorCode)).Length);
+            Assert.Equal(2, Enum.GetValues(typeof(ValidationIssueCode)).Length);
         }
     }
 }

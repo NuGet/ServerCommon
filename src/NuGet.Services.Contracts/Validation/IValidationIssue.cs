@@ -4,23 +4,23 @@
 namespace NuGet.Services.Validation
 {
     /// <summary>
-    /// A validation error that failed an asynchronous validation.
+    /// A validation issue encountered during a validation.
     /// </summary>
-    public interface IValidationError
+    public interface IValidationIssue
     {
         /// <summary>
-        /// The code that classifies this error.
+        /// The code that classifies this issue.
         /// </summary>
-        ValidationErrorCode ErrorCode { get; }
+        ValidationIssueCode IssueCode { get; }
 
         /// <summary>
-        /// Serialize the contents of this validation error.
+        /// Serialize the contents of this validation issue.
         /// </summary>
         /// <returns>A string containing this error's serialized contents, excluding the error code.</returns>
         string Serialize();
 
         /// <summary>
-        /// Get a message that describes this error. Used to display this error to end users.
+        /// Get a message that describes this issue. Used to display this issue to end users.
         /// </summary>
         /// <returns>A well formatted message that describes this error.</returns>
         string GetMessage();

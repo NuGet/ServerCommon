@@ -8,8 +8,8 @@
     <ProjectGuid>{E7412F21-169C-4823-AB2C-F6EE20E6411E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NuGet.Services.Validation.Errors.Tests</RootNamespace>
-    <AssemblyName>NuGet.Services.Validation.Errors.Tests</AssemblyName>
+    <RootNamespace>NuGet.Services.Validation.Issues.Tests</RootNamespace>
+    <AssemblyName>NuGet.Services.Validation.Issues.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <NuGetPackageImportStamp>
@@ -43,7 +43,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ValidationErrorFacts.cs" />
+    <Compile Include="ValidationIssuesFacts.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -57,13 +57,13 @@
       <Project>{6674B4B4-2D0E-4840-8CF0-2356ACDE8863}</Project>
       <Name>NuGet.Services.Contracts</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\src\NuGet.Services.Validation.Issues\NuGet.Services.Validation.Issues.csproj">
+      <Project>{4f497fbd-91cf-4fa5-b948-4375bebfd2c8}</Project>
+      <Name>NuGet.Services.Validation.Issues</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\src\NuGet.Services.Validation\NuGet.Services.Validation.csproj">
       <Project>{C1E36A2C-1C1B-4521-B256-AD42505D9EFB}</Project>
       <Name>NuGet.Services.Validation</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\src\NuGet.Services.Validation.Errors\NuGet.Services.Validation.Errors.csproj">
-      <Project>{4f497fbd-91cf-4fa5-b948-4375bebfd2c8}</Project>
-      <Name>NuGet.Services.Validation.Errors</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

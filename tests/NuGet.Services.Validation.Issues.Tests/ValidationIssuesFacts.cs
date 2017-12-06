@@ -7,16 +7,16 @@ using System.Linq;
 using Newtonsoft.Json;
 using Xunit;
 
-namespace NuGet.Services.Validation.Errors.Tests
+namespace NuGet.Services.Validation.Issues.Tests
 {
-    public class ValidationErrorFacts
+    public class ValidationIssuesFacts
     {
-        private static string PackageIsSignedSerializedError => GetSerializedTestData(ValidationErrorCode.PackageIsSignedError);
+        private static string PackageIsSignedSerializedError => GetSerializedTestData(ValidationIssueCode.PackageIsSignedError);
 
         [Fact]
-        public void TheErrorCodeTypesPropertyValuesAllExtendValidationError()
+        public void TheIssueCodeTypesPropertyValuesAllExtendValidationIssue()
         {
-            Assert.True(ValidationError.ErrorCodeTypes.Values.All(t => t.IsSubclassOf(typeof(ValidationError))));
+            Assert.True(ValidationIssue.IssueCodeTypes.Values.All(t => t.IsSubclassOf(typeof(ValidationIssue))));
         }
 
         public class TheSerializeMethod
@@ -25,8 +25,8 @@ namespace NuGet.Services.Validation.Errors.Tests
             public void UnknownSerialization()
             {
                 // Arrange
-                var error = new UnknownError();
-                var result = error.Serialize();
+                var unknownIssue = new UnknownIssue();
+                var result = unknownIssue.Serialize();
 
                 // Assert
                 Assert.Equal("{}", result);
@@ -50,12 +50,12 @@ namespace NuGet.Services.Validation.Errors.Tests
             public void UnknownDeserialization()
             {
                 // Arrange & Act
-                var validationError = CreatePackageValidationError(ValidationErrorCode.Unknown, "{}");
-                var result = ValidationError.Deserialize(validationError.ErrorCode, validationError.Data) as UnknownError;
+                var validationIssue = CreatePackageValidationIssue(ValidationIssueCode.Unknown, "{}");
+                var result = ValidationIssue.Deserialize(validationIssue.IssueCode, validationIssue.Data) as UnknownIssue;
 
                 // Assert
                 Assert.NotNull(result);
-                Assert.Equal(ValidationErrorCode.Unknown, result.ErrorCode);
+                Assert.Equal(ValidationIssueCode.Unknown, result.IssueCode);
                 Assert.Equal("Package validation failed due to an unknown error.", result.GetMessage());
             }
 
@@ -63,39 +63,39 @@ namespace NuGet.Services.Validation.Errors.Tests
             public void InvalidDeserialization()
             {
                 // Arrange & Act & Assert
-                var validationError = CreatePackageValidationError(ValidationErrorCode.PackageIsSignedError, "HELLO THIS IS DOG");
+                var validationIssue = CreatePackageValidationIssue(ValidationIssueCode.PackageIsSignedError, "HELLO THIS IS DOG");
 
-                Assert.Throws<JsonReaderException>(() => ValidationError.Deserialize(validationError.ErrorCode, validationError.Data));
+                Assert.Throws<JsonReaderException>(() => ValidationIssue.Deserialize(validationIssue.IssueCode, validationIssue.Data));
             }
 
             [Fact]
             public void PackageIsSignedDeserialization()
             {
                 // Arrange & Act
-                var validationError = CreatePackageValidationError(ValidationErrorCode.PackageIsSignedError, PackageIsSignedSerializedError);
-                var result = ValidationError.Deserialize(validationError.ErrorCode, validationError.Data) as PackageIsSignedError;
+                var validationIssue = CreatePackageValidationIssue(ValidationIssueCode.PackageIsSignedError, PackageIsSignedSerializedError);
+                var result = ValidationIssue.Deserialize(validationIssue.IssueCode, validationIssue.Data) as PackageIsSignedError;
 
                 // Assert
                 Assert.NotNull(result);
-                Assert.Equal(ValidationErrorCode.PackageIsSignedError, result.ErrorCode);
+                Assert.Equal(ValidationIssueCode.PackageIsSignedError, result.IssueCode);
                 Assert.Equal("Hello.World", result.PackageId);
                 Assert.Equal("1.3.4", result.PackageVersion);
                 Assert.Equal("Package Hello.World 1.3.4 is signed.", result.GetMessage());
             }
 
-            private PackageValidationError CreatePackageValidationError(ValidationErrorCode errorCode, string data)
+            private PackageValidationIssue CreatePackageValidationIssue(ValidationIssueCode issueCode, string data)
             {
-                return new PackageValidationError
+                return new PackageValidationIssue
                 {
-                    ErrorCode = errorCode,
+                    IssueCode = issueCode,
                     Data = data
                 };
             }
         }
 
-        private static string GetSerializedTestData(ValidationErrorCode errorCode)
+        private static string GetSerializedTestData(ValidationIssueCode issueCode)
         {
-            return File.ReadAllText(Path.Combine("Data", $"{errorCode}.json"));
+            return File.ReadAllText(Path.Combine("Data", $"{issueCode}.json"));
         }
     }
 }

@@ -35,7 +35,7 @@ Function Run-Tests {
         "tests\NuGet.Services.Owin.Tests\bin\$Configuration\NuGet.Services.Owin.Tests.dll", `
         "tests\NuGet.Services.Validation.Tests\bin\$Configuration\NuGet.Services.Validation.Tests.dll", `
         "tests\NuGet.Services.Contracts.Tests\bin\$Configuration\NuGet.Services.Contracts.Tests.dll", `
-        "tests\NuGet.Services.Validation.Error.Tests\bin\$Configuration\NuGet.Services.Validation.Errors.Tests.dll"
+        "tests\NuGet.Services.Validation.Issues.Tests\bin\$Configuration\NuGet.Services.Validation.Issues.Tests.dll"
 
     $TestCount = 0
 
@@ -58,7 +58,7 @@ $TestErrors = @()
     
 Invoke-BuildStep 'Running tests' { Run-Tests } `
     -ev +TestErrors
-    
+
 Trace-Log ('-' * 60)
 
 ## Calculating Build time
