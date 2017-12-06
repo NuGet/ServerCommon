@@ -7,8 +7,8 @@
     <ProjectGuid>{4F497FBD-91CF-4FA5-B948-4375BEBFD2C8}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NuGet.Services.Validation.Errors</RootNamespace>
-    <AssemblyName>NuGet.Services.Validation.Errors</AssemblyName>
+    <RootNamespace>NuGet.Services.Validation.Issues</RootNamespace>
+    <AssemblyName>NuGet.Services.Validation.Issues</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
