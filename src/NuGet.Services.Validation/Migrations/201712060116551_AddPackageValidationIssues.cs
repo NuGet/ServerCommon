@@ -3,17 +3,17 @@ namespace NuGet.Services.Validation
     using System;
     using System.Data.Entity.Migrations;
     
-    public partial class AddPackageValidationErrors : DbMigration
+    public partial class AddPackageValidationIssues : DbMigration
     {
         public override void Up()
         {
             CreateTable(
-                "dbo.PackageValidationErrors",
+                "dbo.PackageValidationIssues",
                 c => new
                     {
                         Key = c.Long(nullable: false, identity: true),
                         PackageValidationKey = c.Guid(nullable: false),
-                        ErrorCode = c.Int(nullable: false),
+                        IssueCode = c.Int(nullable: false),
                         Data = c.String(),
                     })
                 .PrimaryKey(t => t.Key)
@@ -24,9 +24,9 @@ namespace NuGet.Services.Validation
         
         public override void Down()
         {
-            DropForeignKey("dbo.PackageValidationErrors", "PackageValidationKey", "dbo.PackageValidations");
-            DropIndex("dbo.PackageValidationErrors", new[] { "PackageValidationKey" });
-            DropTable("dbo.PackageValidationErrors");
+            DropForeignKey("dbo.PackageValidationIssues", "PackageValidationKey", "dbo.PackageValidations");
+            DropIndex("dbo.PackageValidationIssues", new[] { "PackageValidationKey" });
+            DropTable("dbo.PackageValidationIssues");
         }
     }
 }

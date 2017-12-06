@@ -7,13 +7,13 @@ namespace NuGet.Services.Validation
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.1.3-40302")]
-    public sealed partial class AddPackageValidationErrors : IMigrationMetadata
+    public sealed partial class AddPackageValidationIssues : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(AddPackageValidationErrors));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(AddPackageValidationIssues));
         
         string IMigrationMetadata.Id
         {
-            get { return "201711300351555_AddPackageValidationErrors"; }
+            get { return "201712060116551_AddPackageValidationIssues"; }
         }
         
         string IMigrationMetadata.Source
