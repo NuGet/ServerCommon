@@ -78,6 +78,24 @@ namespace NuGet.Services.Storage
             return false;
         }
 
+        public override async Task<bool> ExistsAsync(string fileName, CancellationToken cancellationToken)
+        {
+            Uri packageRegistrationUri = ResolveUri(fileName);
+            string blobName = GetName(packageRegistrationUri);
+
+            CloudBlockBlob blob = _directory.GetBlockBlobReference(blobName);
+
+            if (await blob.ExistsAsync(cancellationToken))
+            {
+                return true;
+            }
+            if (Verbose)
+            {
+                _logger.LogInformation("The blob {BlobUri} does not exist.", packageRegistrationUri);
+            }
+            return false;
+        }
+
         public override async Task<IEnumerable<StorageListItem>> List(CancellationToken cancellationToken)
         {
             var files = await _directory.ListBlobsAsync(cancellationToken);
