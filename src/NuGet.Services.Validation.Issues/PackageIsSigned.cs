@@ -5,9 +5,9 @@ using System;
 
 namespace NuGet.Services.Validation.Issues
 {
-    public class PackageIsSignedError : ValidationIssue
+    public class PackageIsSigned : ValidationIssue
     {
-        public PackageIsSignedError(string packageId, string packageVersion)
+        public PackageIsSigned(string packageId, string packageVersion)
         {
             if (string.IsNullOrEmpty(packageId))
             {
@@ -23,7 +23,7 @@ namespace NuGet.Services.Validation.Issues
             PackageVersion = packageVersion;
         }
 
-        public override ValidationIssueCode IssueCode => ValidationIssueCode.PackageIsSignedError;
+        public override ValidationIssueCode IssueCode => ValidationIssueCode.PackageIsSigned;
 
         public string PackageId { get; }
 

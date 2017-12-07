@@ -11,7 +11,7 @@ namespace NuGet.Services.Validation.Issues.Tests
 {
     public class ValidationIssuesFacts
     {
-        private static string PackageIsSignedSerializedError => GetSerializedTestData(ValidationIssueCode.PackageIsSignedError);
+        private static string PackageIsSignedSerializedError => GetSerializedTestData(ValidationIssueCode.PackageIsSigned);
 
         [Fact]
         public void TheIssueCodeTypesPropertyValuesAllExtendValidationIssue()
@@ -36,7 +36,7 @@ namespace NuGet.Services.Validation.Issues.Tests
             public void PackageIsSignedSerialization()
             {
                 // Arrange
-                var signedError = new PackageIsSignedError("Hello.World", "1.3.4");
+                var signedError = new PackageIsSigned("Hello.World", "1.3.4");
                 var result = signedError.Serialize();
 
                 // Assert
@@ -63,7 +63,7 @@ namespace NuGet.Services.Validation.Issues.Tests
             public void InvalidDeserialization()
             {
                 // Arrange & Act & Assert
-                var validationIssue = CreatePackageValidationIssue(ValidationIssueCode.PackageIsSignedError, "HELLO THIS IS DOG");
+                var validationIssue = CreatePackageValidationIssue(ValidationIssueCode.PackageIsSigned, "HELLO THIS IS DOG");
 
                 Assert.Throws<JsonReaderException>(() => ValidationIssue.Deserialize(validationIssue.IssueCode, validationIssue.Data));
             }
@@ -72,12 +72,12 @@ namespace NuGet.Services.Validation.Issues.Tests
             public void PackageIsSignedDeserialization()
             {
                 // Arrange & Act
-                var validationIssue = CreatePackageValidationIssue(ValidationIssueCode.PackageIsSignedError, PackageIsSignedSerializedError);
-                var result = ValidationIssue.Deserialize(validationIssue.IssueCode, validationIssue.Data) as PackageIsSignedError;
+                var validationIssue = CreatePackageValidationIssue(ValidationIssueCode.PackageIsSigned, PackageIsSignedSerializedError);
+                var result = ValidationIssue.Deserialize(validationIssue.IssueCode, validationIssue.Data) as PackageIsSigned;
 
                 // Assert
                 Assert.NotNull(result);
-                Assert.Equal(ValidationIssueCode.PackageIsSignedError, result.IssueCode);
+                Assert.Equal(ValidationIssueCode.PackageIsSigned, result.IssueCode);
                 Assert.Equal("Hello.World", result.PackageId);
                 Assert.Equal("1.3.4", result.PackageVersion);
                 Assert.Equal("Package Hello.World 1.3.4 is signed.", result.GetMessage());

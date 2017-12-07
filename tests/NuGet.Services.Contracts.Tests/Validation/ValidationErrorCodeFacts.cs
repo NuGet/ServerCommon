@@ -13,7 +13,7 @@ namespace NuGet.Services.Validation
         /// </summary>
         [Theory]
         [InlineData(0, ValidationIssueCode.Unknown)]
-        [InlineData(1, ValidationIssueCode.PackageIsSignedError)]
+        [InlineData(1, ValidationIssueCode.PackageIsSigned)]
         public void HasUnchangingValues(int expected, ValidationStatus input)
         {
             Assert.Equal(expected, (int)input);

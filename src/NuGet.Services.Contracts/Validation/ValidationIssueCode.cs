@@ -16,6 +16,6 @@ namespace NuGet.Services.Validation
         /// <summary>
         /// Signed packages are blocked.
         /// </summary>
-        PackageIsSignedError = 1,
+        PackageIsSigned = 1,
     }
 }

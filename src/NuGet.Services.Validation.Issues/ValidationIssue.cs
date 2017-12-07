@@ -14,7 +14,7 @@ namespace NuGet.Services.Validation.Issues
         /// </summary>
         public static readonly IReadOnlyDictionary<ValidationIssueCode, Type> IssueCodeTypes = new Dictionary<ValidationIssueCode, Type>
         {
-            { ValidationIssueCode.PackageIsSignedError, GetIssueType<PackageIsSignedError>() },
+            { ValidationIssueCode.PackageIsSigned, GetIssueType<PackageIsSigned>() },
         };
 
         /// <summary>
