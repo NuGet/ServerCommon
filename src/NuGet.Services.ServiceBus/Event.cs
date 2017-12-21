@@ -9,8 +9,11 @@ namespace NuGet.Services.ServiceBus
     {
         // should be sufficiently different from other event id's, but no strict
         // requirement, numbers mean nothing so far
-        private const int EventIdBase = 600; 
+        private const int EventIdBase = 600;
+        private const int SubscriptionMessageHandlerExceptionEventId = EventIdBase + 1;
 
-        public static EventId SubscriptionMessageHandlerException = new EventId(EventIdBase + 1, "Subscription event handler threw exception");
+        public static EventId SubscriptionMessageHandlerException = new EventId(
+            SubscriptionMessageHandlerExceptionEventId,
+            "Subscription event handler threw exception");
     }
 }
