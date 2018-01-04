@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.IO;
 using System.Linq;
 using Newtonsoft.Json;
@@ -11,7 +10,7 @@ namespace NuGet.Services.Validation.Issues.Tests
 {
     public class ValidationIssuesFacts
     {
-        private static string PackageIsSignedSerializedError => GetSerializedTestData(ValidationIssueCode.PackageIsSigned);
+        private static string PackageIsSignedMessage => GetTestData("PackageIsSignedMessage.txt");
 
         [Fact]
         public void TheIssueCodeTypesPropertyValuesAllExtendValidationIssue()
@@ -36,11 +35,11 @@ namespace NuGet.Services.Validation.Issues.Tests
             public void PackageIsSignedSerialization()
             {
                 // Arrange
-                var signedError = new PackageIsSigned("Hello.World", "1.3.4");
+                var signedError = new PackageIsSigned();
                 var result = signedError.Serialize();
 
                 // Assert
-                Assert.Equal(PackageIsSignedSerializedError, result);
+                Assert.Equal("{}", result);
             }
         }
 
@@ -72,15 +71,13 @@ namespace NuGet.Services.Validation.Issues.Tests
             public void PackageIsSignedDeserialization()
             {
                 // Arrange & Act
-                var validationIssue = CreatePackageValidationIssue(ValidationIssueCode.PackageIsSigned, PackageIsSignedSerializedError);
+                var validationIssue = CreatePackageValidationIssue(ValidationIssueCode.PackageIsSigned, "{}");
                 var result = ValidationIssue.Deserialize(validationIssue.IssueCode, validationIssue.Data) as PackageIsSigned;
 
                 // Assert
                 Assert.NotNull(result);
                 Assert.Equal(ValidationIssueCode.PackageIsSigned, result.IssueCode);
-                Assert.Equal("Hello.World", result.PackageId);
-                Assert.Equal("1.3.4", result.PackageVersion);
-                Assert.Equal("Package Hello.World 1.3.4 is signed.", result.GetMessage());
+                Assert.Equal(PackageIsSignedMessage, result.GetMessage());
             }
 
             private PackageValidationIssue CreatePackageValidationIssue(ValidationIssueCode issueCode, string data)
@@ -93,9 +90,9 @@ namespace NuGet.Services.Validation.Issues.Tests
             }
         }
 
-        private static string GetSerializedTestData(ValidationIssueCode issueCode)
+        private static string GetTestData(string fileName)
         {
-            return File.ReadAllText(Path.Combine("Data", $"{issueCode}.json"));
+            return File.ReadAllText(Path.Combine("Data", $"{fileName}"));
         }
     }
 }

@@ -7,28 +7,11 @@ namespace NuGet.Services.Validation.Issues
 {
     public class PackageIsSigned : ValidationIssue
     {
-        public PackageIsSigned(string packageId, string packageVersion)
-        {
-            if (string.IsNullOrEmpty(packageId))
-            {
-                throw new ArgumentNullException(nameof(packageId));
-            }
-
-            if (string.IsNullOrEmpty(packageVersion))
-            {
-                throw new ArgumentNullException(nameof(packageVersion));
-            }
-
-            PackageId = packageId;
-            PackageVersion = packageVersion;
-        }
-
         public override ValidationIssueCode IssueCode => ValidationIssueCode.PackageIsSigned;
 
-        public string PackageId { get; }
-
-        public string PackageVersion { get; }
-
-        public override string GetMessage() => $"Package {PackageId} {PackageVersion} is signed.";
+        public override string GetMessage() => "Package publishing failed: This package could not be published since it is signed. " +
+                                               "We do not accept signed packages at this moment. To be notified about package signing and more, " +
+                                               "watch our <a href=\"https://github.com/nuget/announcements/issues\">Announcements</a> page or follow us " +
+                                               "on <a href=\"https://twitter.com/nuget\">Twitter</a>.";
     }
 }
