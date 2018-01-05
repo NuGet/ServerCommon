@@ -1,1 +1,0 @@
-﻿Package publishing failed: This package could not be published since it is signed. We do not accept signed packages at this moment. To be notified about package signing and more, watch our <a href="https://github.com/nuget/announcements/issues">Announcements</a> page or follow us on <a href="https://twitter.com/nuget">Twitter</a>.

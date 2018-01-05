@@ -10,8 +10,6 @@ namespace NuGet.Services.Validation.Issues.Tests
 {
     public class ValidationIssuesFacts
     {
-        private static string PackageIsSignedMessage => GetTestData("PackageIsSignedMessage.txt");
-
         [Fact]
         public void TheIssueCodeTypesPropertyValuesAllExtendValidationIssue()
         {
@@ -28,7 +26,20 @@ namespace NuGet.Services.Validation.Issues.Tests
                 var result = unknownIssue.Serialize();
 
                 // Assert
-                Assert.Equal("{}", result);
+                Assert.Equal(Strings.EmptyJson, result);
+            }
+
+            [Fact]
+            public void ObsoleteTestingIssueSerialization()
+            {
+                // Arrange
+#pragma warning disable 618
+                var signedError = new ObsoleteTestingIssue("Hello", 123);
+#pragma warning restore 618
+                var result = signedError.Serialize();
+
+                // Assert
+                Assert.Equal(Strings.ObsoleteTestingIssueJson, result);
             }
 
             [Fact]
@@ -39,7 +50,7 @@ namespace NuGet.Services.Validation.Issues.Tests
                 var result = signedError.Serialize();
 
                 // Assert
-                Assert.Equal("{}", result);
+                Assert.Equal(Strings.EmptyJson, result);
             }
         }
 
@@ -49,7 +60,7 @@ namespace NuGet.Services.Validation.Issues.Tests
             public void UnknownDeserialization()
             {
                 // Arrange & Act
-                var validationIssue = CreatePackageValidationIssue(ValidationIssueCode.Unknown, "{}");
+                var validationIssue = CreatePackageValidationIssue(ValidationIssueCode.Unknown, Strings.EmptyJson);
                 var result = ValidationIssue.Deserialize(validationIssue.IssueCode, validationIssue.Data) as UnknownIssue;
 
                 // Assert
@@ -59,25 +70,30 @@ namespace NuGet.Services.Validation.Issues.Tests
             }
 
             [Fact]
-            public void InvalidDeserialization()
-            {
-                // Arrange & Act & Assert
-                var validationIssue = CreatePackageValidationIssue(ValidationIssueCode.PackageIsSigned, "HELLO THIS IS DOG");
-
-                Assert.Throws<JsonReaderException>(() => ValidationIssue.Deserialize(validationIssue.IssueCode, validationIssue.Data));
-            }
-
-            [Fact]
-            public void PackageIsSignedDeserialization()
+            public void ObsoleteTestingIssueDeserialization()
             {
                 // Arrange & Act
-                var validationIssue = CreatePackageValidationIssue(ValidationIssueCode.PackageIsSigned, "{}");
-                var result = ValidationIssue.Deserialize(validationIssue.IssueCode, validationIssue.Data) as PackageIsSigned;
+#pragma warning disable 618
+                var validationIssue = CreatePackageValidationIssue(ValidationIssueCode.ObsoleteTesting, Strings.ObsoleteTestingIssueJson);
+                var result = ValidationIssue.Deserialize(validationIssue.IssueCode, validationIssue.Data) as ObsoleteTestingIssue;
+#pragma warning restore 618
 
                 // Assert
                 Assert.NotNull(result);
-                Assert.Equal(ValidationIssueCode.PackageIsSigned, result.IssueCode);
-                Assert.Equal(PackageIsSignedMessage, result.GetMessage());
+#pragma warning disable 618
+                Assert.Equal(ValidationIssueCode.ObsoleteTesting, result.IssueCode);
+#pragma warning restore 618
+                Assert.Equal("Hello", result.A);
+                Assert.Equal(123, result.B);
+            }
+
+            [Fact]
+            public void InvalidDeserialization()
+            {
+                // Arrange & Act & Assert
+                var validationIssue = CreatePackageValidationIssue(ValidationIssueCode.PackageIsSigned, Strings.InvalidJson);
+
+                Assert.Throws<JsonReaderException>(() => ValidationIssue.Deserialize(validationIssue.IssueCode, validationIssue.Data));
             }
 
             private PackageValidationIssue CreatePackageValidationIssue(ValidationIssueCode issueCode, string data)
@@ -88,11 +104,6 @@ namespace NuGet.Services.Validation.Issues.Tests
                     Data = data
                 };
             }
-        }
-
-        private static string GetTestData(string fileName)
-        {
-            return File.ReadAllText(Path.Combine("Data", $"{fileName}"));
         }
     }
 }
