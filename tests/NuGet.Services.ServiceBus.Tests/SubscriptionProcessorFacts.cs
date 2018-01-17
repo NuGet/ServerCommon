@@ -167,7 +167,7 @@ namespace NuGet.Services.ServiceBus.Tests
             public async Task StopReturnsTrueIfClientCloseAsyncMethodFinishesFirst()
             {
                 // Arrange
-                _client.Setup(c => c.CloseAsync()).Returns(Task.Delay(TimeSpan.FromMilliseconds(5)));
+                _client.Setup(c => c.CloseAsync()).Returns(Task.Delay(TimeSpan.FromMilliseconds(1)));
 
                 // Act & Assert
                 Assert.True(await _target.StartShutdownAsync(timeout: TimeSpan.FromDays(1)));
@@ -180,7 +180,7 @@ namespace NuGet.Services.ServiceBus.Tests
                 _client.Setup(c => c.CloseAsync()).Returns(Task.Delay(TimeSpan.FromDays(1)));
 
                 // Act & Assert
-                Assert.False(await _target.StartShutdownAsync(timeout: TimeSpan.FromMilliseconds(5)));
+                Assert.False(await _target.StartShutdownAsync(timeout: TimeSpan.FromMilliseconds(1)));
             }
         }
 
