@@ -83,13 +83,29 @@ namespace NuGet.Services.ServiceBus
             }
         }
 
-        public async Task StartShutdownAsync()
+        public async Task<bool> StartShutdownAsync(TimeSpan timeout)
         {
             _logger.LogInformation(
                 "Shutting down the subscription listener with {NumberOfMessagesInProgress} messages in progress",
                 NumberOfMessagesInProgress);
 
-            await _client.CloseAsync();
+            // Start two tasks: one for the shutdown and one for the shutdown's timeout. The first task to finish will
+            // complete the "start shutdown" operation. Note that this method returns false if the timeout task completes first.
+            var shutdownTask = _client.CloseAsync();
+            var shutdownTimeoutTask = Task.Delay(timeout);
+
+            var shutdownResult = await Task.WhenAny(shutdownTask, shutdownTimeoutTask);
+
+            if (shutdownResult == shutdownTimeoutTask)
+            {
+                _logger.LogWarning(
+                    "Timeout reached when starting shutdown of subscription processor after {StartShutdownTimeout}",
+                    timeout);
+
+                return false;
+            }
+
+            return true;
         }
     }
 }

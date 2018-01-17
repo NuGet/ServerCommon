@@ -157,10 +157,30 @@ namespace NuGet.Services.ServiceBus.Tests
             public async Task StopCallsTheClientsCloseAsyncMethod()
             {
                 // Act
-                await _target.StartShutdownAsync();
+                await _target.StartShutdownAsync(TimeSpan.FromDays(1));
 
                 // Assert
                 _client.Verify(c => c.CloseAsync(), Times.Once);
+            }
+
+            [Fact]
+            public async Task StopReturnsTrueIfClientCloseAsyncMethodFinishesFirst()
+            {
+                // Arrange
+                _client.Setup(c => c.CloseAsync()).Returns(Task.Delay(TimeSpan.FromMilliseconds(5)));
+
+                // Act & Assert
+                Assert.True(await _target.StartShutdownAsync(timeout: TimeSpan.FromDays(1)));
+            }
+
+            [Fact]
+            public async Task StopReturnsFalseIfClientCloseAsyncMethodTakesTooLong()
+            {
+                // Arrange
+                _client.Setup(c => c.CloseAsync()).Returns(Task.Delay(TimeSpan.FromDays(1)));
+
+                // Act & Assert
+                Assert.False(await _target.StartShutdownAsync(timeout: TimeSpan.FromMilliseconds(5)));
             }
         }
 
