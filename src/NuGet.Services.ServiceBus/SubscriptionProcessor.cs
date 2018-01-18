@@ -63,7 +63,7 @@ namespace NuGet.Services.ServiceBus
 
         private async Task OnMessageAsync(IBrokeredMessage brokeredMessage)
         {
-            if (_running == false)
+            if (!running)
             {
                 _logger.LogWarning("Dropping message from Service Bus as shutdown has been initiated");
                 return;
