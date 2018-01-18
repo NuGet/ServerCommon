@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -11,6 +12,11 @@ namespace NuGet.Services.ServiceBus
 {
     public class SubscriptionProcessor<TMessage> : ISubscriptionProcessor<TMessage>
     {
+        /// <summary>
+        /// How quickly the shutdown task should check its status.
+        /// </summary>
+        private static readonly TimeSpan ShutdownPollTime = TimeSpan.FromSeconds(1);
+
         private readonly ISubscriptionClient _client;
         private readonly IBrokeredMessageSerializer<TMessage> _serializer;
         private readonly IMessageHandler<TMessage> _handler;
@@ -93,7 +99,36 @@ namespace NuGet.Services.ServiceBus
             }
         }
 
-        public async Task<bool> StartShutdownAsync(TimeSpan timeout)
+        public async Task<bool> ShutdownAsync(TimeSpan timeout)
+        {
+            // Wait until all in-flight messages complete, or, the maximum shutdown time is reached.
+            var stopwatch = Stopwatch.StartNew();
+
+            await StartShutdownAsync(timeout);
+
+            while (_numberOfMessagesInProgress > 0)
+            {
+                await Task.Delay(ShutdownPollTime);
+
+                _logger.LogInformation(
+                    "{NumberOfMessagesInProgress} certificate validations in progress after {TimeElapsed} seconds of graceful shutdown",
+                    _numberOfMessagesInProgress,
+                    stopwatch.Elapsed.TotalSeconds);
+
+                if (stopwatch.Elapsed >= timeout)
+                {
+                    _logger.LogWarning(
+                        "Forcefully shutting down even though there are {NumberOfMessagesInProgress} certificate validations in progress",
+                        _numberOfMessagesInProgress);
+
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        private async Task StartShutdownAsync(TimeSpan timeout)
         {
             _logger.LogInformation(
                 "Shutting down the subscription listener with {NumberOfMessagesInProgress} messages in progress",
@@ -114,11 +149,7 @@ namespace NuGet.Services.ServiceBus
                 _logger.LogWarning(
                     "Timeout reached when starting shutdown of subscription processor after {StartShutdownTimeout}",
                     timeout);
-
-                return false;
             }
-
-            return true;
         }
     }
 }

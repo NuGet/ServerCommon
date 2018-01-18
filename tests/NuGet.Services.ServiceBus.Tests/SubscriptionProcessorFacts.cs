@@ -151,36 +151,16 @@ namespace NuGet.Services.ServiceBus.Tests
             }
         }
 
-        public class TheStartShutdownAsyncMethod : Base
+        public class TheShutdownAsyncMethod : Base
         {
             [Fact]
             public async Task ShutdownCallsTheClientsCloseAsyncMethod()
             {
                 // Act
-                await _target.StartShutdownAsync(TimeSpan.FromDays(1));
+                await _target.ShutdownAsync(TimeSpan.FromDays(1));
 
                 // Assert
                 _client.Verify(c => c.CloseAsync(), Times.Once);
-            }
-
-            [Fact]
-            public async Task ShutdownReturnsTrueIfClientCloseAsyncMethodFinishesFirst()
-            {
-                // Arrange
-                _client.Setup(c => c.CloseAsync()).Returns(Task.Delay(TimeSpan.FromMilliseconds(1)));
-
-                // Act & Assert
-                Assert.True(await _target.StartShutdownAsync(timeout: TimeSpan.FromDays(1)));
-            }
-
-            [Fact]
-            public async Task ShutdownReturnsFalseIfClientCloseAsyncMethodTakesTooLong()
-            {
-                // Arrange
-                _client.Setup(c => c.CloseAsync()).Returns(Task.Delay(TimeSpan.FromDays(1)));
-
-                // Act & Assert
-                Assert.False(await _target.StartShutdownAsync(timeout: TimeSpan.FromMilliseconds(1)));
             }
 
             [Fact]
@@ -208,7 +188,7 @@ namespace NuGet.Services.ServiceBus.Tests
 
                 await onMessageAsync(_brokeredMessage.Object);
 
-                var shutdownTask = _target.StartShutdownAsync(TimeSpan.FromDays(1));
+                var shutdownTask = _target.ShutdownAsync(TimeSpan.FromDays(1));
 
                 await onMessageAsync(brokeredMessage2.Object);
                 await shutdownTask;

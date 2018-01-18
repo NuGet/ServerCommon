@@ -23,16 +23,15 @@ namespace NuGet.Services.ServiceBus
         void Start();
 
         /// <summary>
-        /// Deregisters the message handler.
+        /// Deregisters the message handler and waits until currently in-flight messages have been handled.
         /// </summary>
         /// <remarks>
         /// There may still be messages in progress after the returned <see cref="Task"/> has completed!
-        /// The <see cref="NumberOfMessagesInProgress"/> property should be polled to determine when all
+        /// The <see cref="NumberOfMessagesInProgress"/> property can be polled to determine when all
         /// messages have been completed.
         /// </remarks>
-        /// <param name="timeout">The maximum amount of time this method may take to start the shutdown.</param>
-        /// <returns>A task that completes with as <see cref="true"/> when the message handler has been
-        /// deregistered, or <see cref="false"/> if the timeout has been reached.</returns>
-        Task<bool> StartShutdownAsync(TimeSpan timeout);
+        /// <param name="timeout">The maximum amount of time the shutdown may take.</param>
+        /// <returns>A task that completes as true if the shutdown succeeded gracefully.</returns>
+        Task<bool> ShutdownAsync(TimeSpan timeout);
     }
 }
