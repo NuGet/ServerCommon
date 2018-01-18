@@ -16,6 +16,7 @@ namespace NuGet.Services.ServiceBus
         private readonly IMessageHandler<TMessage> _handler;
         private readonly ILogger<SubscriptionProcessor<TMessage>> _logger;
 
+        private bool _running;
         private int _numberOfMessagesInProgress;
 
         public int NumberOfMessagesInProgress => _numberOfMessagesInProgress;
@@ -38,12 +39,15 @@ namespace NuGet.Services.ServiceBus
             _handler = handler ?? throw new ArgumentNullException(nameof(handler));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
+            _running = false;
             _numberOfMessagesInProgress = 0;
         }
 
         public void Start()
         {
             _logger.LogInformation("Registering the handler to begin listening to the Service Bus subscription");
+
+            _running = true;
 
             _client.OnMessageAsync(OnMessageAsync, new OnMessageOptionsWrapper
             {
@@ -53,6 +57,12 @@ namespace NuGet.Services.ServiceBus
 
         private async Task OnMessageAsync(IBrokeredMessage brokeredMessage)
         {
+            if (_running == false)
+            {
+                _logger.LogWarning("Dropping message from Service Bus as shutdown has been initiated");
+                return;
+            }
+
             Interlocked.Increment(ref _numberOfMessagesInProgress);
 
             try
@@ -88,6 +98,9 @@ namespace NuGet.Services.ServiceBus
             _logger.LogInformation(
                 "Shutting down the subscription listener with {NumberOfMessagesInProgress} messages in progress",
                 NumberOfMessagesInProgress);
+
+            // Prevent "OnMessageAsync" from accepting more messages from Service Bus.
+            _running = false;
 
             // Start two tasks: one for the shutdown and one for the shutdown's timeout. The first task to finish will
             // complete the "start shutdown" operation. Note that this method returns false if the timeout task completes first.
