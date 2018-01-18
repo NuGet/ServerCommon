@@ -63,7 +63,7 @@ namespace NuGet.Services.ServiceBus
 
         private async Task OnMessageAsync(IBrokeredMessage brokeredMessage)
         {
-            if (!running)
+            if (!_running)
             {
                 _logger.LogWarning("Dropping message from Service Bus as shutdown has been initiated");
                 return;
@@ -111,14 +111,14 @@ namespace NuGet.Services.ServiceBus
                 await Task.Delay(ShutdownPollTime);
 
                 _logger.LogInformation(
-                    "{NumberOfMessagesInProgress} certificate validations in progress after {TimeElapsed} seconds of graceful shutdown",
+                    "{NumberOfMessagesInProgress} messages in progress after {TimeElapsed} seconds of graceful shutdown",
                     _numberOfMessagesInProgress,
                     stopwatch.Elapsed.TotalSeconds);
 
                 if (stopwatch.Elapsed >= timeout)
                 {
                     _logger.LogWarning(
-                        "Forcefully shutting down even though there are {NumberOfMessagesInProgress} certificate validations in progress",
+                        "Forcefully shutting down even though there are {NumberOfMessagesInProgress} messages in progress",
                         _numberOfMessagesInProgress);
 
                     return false;
