@@ -17,6 +17,9 @@ namespace NuGet.Services.Validation
         /// <summary>
         /// The <see cref="TrustedTimestamp" /> is valid and trusted.
         /// </summary>
+        /// <remarks>
+        /// Trusted timestamps may have this status before their certificates have been checked for revocation online.
+        /// </remarks>
         Valid = 1,
     }
 }
