@@ -75,7 +75,7 @@ namespace NuGet.Services.ServiceBus
             {
                 using (var scope = _logger.BeginScope($"{nameof(SubscriptionProcessor<TMessage>)}.{nameof(OnMessageAsync)} {{CallGuid}} {{CallStartTimestamp}}",
                     Guid.NewGuid(),
-                    DateTimeOffset.UtcNow.Ticks))
+                    DateTimeOffset.UtcNow.ToString("O")))
                 {
                     _logger.LogInformation("Received message from Service Bus subscription, processing");
 
