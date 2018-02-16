@@ -9,6 +9,7 @@ namespace NuGet.Services.ServiceBus
 {
     public interface IBrokeredMessage : IDisposable
     {
+        int DeliveryCount { get; }
         IDictionary<string, object> Properties { get; }
         DateTimeOffset ScheduledEnqueueTimeUtc { get; set; }
         Task CompleteAsync();
