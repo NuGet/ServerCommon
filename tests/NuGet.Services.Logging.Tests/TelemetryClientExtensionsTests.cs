@@ -35,15 +35,15 @@ namespace NuGet.Services.Logging.Tests
                 _target.Verify(t => t.TrackMetric(name, It.Is<double>(d => d > 0), properties));
             }
         }
-    }
 
-    public class Base
-    {
-        protected readonly Mock<ITelemetryClient> _target;
-
-        public Base()
+        public class Base
         {
-            _target = new Mock<ITelemetryClient>();
+            protected readonly Mock<ITelemetryClient> _target;
+
+            public Base()
+            {
+                _target = new Mock<ITelemetryClient>();
+            }
         }
     }
 }
