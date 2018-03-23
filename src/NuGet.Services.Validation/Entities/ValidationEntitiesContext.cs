@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure.Annotations;
@@ -27,6 +28,7 @@ namespace NuGet.Services.Validation
         private const string ThumbprintColumnType = "varchar";
 
         private const string SignatureSchema = "signature";
+        private const string ScanSchema = "scan";
 
         private const string PackageValidationSetsValidationTrackingId = "IX_PackageValidationSets_ValidationTrackingId";
         private const string PackageValidationSetsPackageKeyIndex = "IX_PackageValidationSets_PackageKey";
@@ -60,6 +62,10 @@ namespace NuGet.Services.Validation
         private const string EndCertificateValidationsCertificateKeyValidationIdIndex = "IX_EndCertificateValidations_EndCertificateKey_ValidationId";
 
         private const string PackageCompatibilityIssuesTable = "PackageCompatibilityIssues";
+
+        private const string ScanOperationStatesTable = "ScanOperationStates";
+        private const string ScanOperationStatesPackageValidationKeyAttemptIndex = "IX_ScanOperationStates_PackageValidationKey_AttemptIndex";
+        private const string ScanOperationStatesScanStateCreatedIndex = "IX_ScanOperationStates_ScanState_Created";
 
         static ValidationEntitiesContext()
         {
@@ -244,6 +250,7 @@ namespace NuGet.Services.Validation
                 .IsRequired();
 
             RegisterPackageSigningEntities(modelBuilder);
+            RegisterScanningEntities(modelBuilder);
 
             base.OnModelCreating(modelBuilder);
         }
@@ -503,6 +510,75 @@ namespace NuGet.Services.Validation
                         new IndexAttribute(EndCertificateValidationsValidationIdIndex),
                         new IndexAttribute(EndCertificateValidationsCertificateKeyValidationIdIndex, 2)
                     }));
+        }
+
+        private void RegisterScanningEntities(DbModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<ScanOperationState>()
+                .ToTable(ScanOperationStatesTable, ScanSchema)
+                .HasKey(p => p.Key);
+
+            modelBuilder.Entity<ScanOperationState>()
+                .Property(s => s.PackageValidationKey)
+                .HasColumnAnnotation(
+                    IndexAnnotation.AnnotationName,
+                    new IndexAnnotation(new[]
+                    {
+                        new IndexAttribute(ScanOperationStatesPackageValidationKeyAttemptIndex, 0)
+                        {
+                            IsUnique = true
+                        }
+                    }));
+
+            modelBuilder.Entity<ScanOperationState>()
+                .Property(s => s.AttemptIndex)
+                .HasColumnAnnotation(
+                    IndexAnnotation.AnnotationName,
+                    new IndexAnnotation(new[]
+                    {
+                        new IndexAttribute(ScanOperationStatesPackageValidationKeyAttemptIndex, 1)
+                        {
+                            IsUnique = true
+                        }
+                    }));
+
+            modelBuilder.Entity<ScanOperationState>()
+                .Property(s => s.ScanState)
+                .HasColumnAnnotation(
+                    IndexAnnotation.AnnotationName,
+                    new IndexAnnotation(new[] {
+                        new IndexAttribute(ScanOperationStatesScanStateCreatedIndex, 0)
+                    }));
+
+            modelBuilder.Entity<ScanOperationState>()
+                .Property(s => s.CreatedAt)
+                .IsRequired()
+                .HasColumnType("datetime2")
+                .HasColumnAnnotation(
+                    IndexAnnotation.AnnotationName,
+                    new IndexAnnotation(new[] {
+                        new IndexAttribute(ScanOperationStatesScanStateCreatedIndex, 1)
+                    }));
+
+            modelBuilder.Entity<ScanOperationState>()
+                .Property(s => s.StartedAt)
+                .HasColumnType("datetime2");
+
+            modelBuilder.Entity<ScanOperationState>()
+                .Property(s => s.FinishedAt)
+                .HasColumnType("datetime2");
+
+            modelBuilder.Entity<ScanOperationState>()
+                .Property(s => s.ResultUrl)
+                .HasMaxLength(512);
+
+            modelBuilder.Entity<ScanOperationState>()
+                .Property(s => s.OperationId)
+                .HasMaxLength(64);
+
+            modelBuilder.Entity<ScanOperationState>()
+                .Property(pvs => pvs.RowVersion)
+                .IsRowVersion();
         }
     }
 }
