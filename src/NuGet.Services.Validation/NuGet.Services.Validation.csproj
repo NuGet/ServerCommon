@@ -105,6 +105,10 @@
     <Compile Include="Migrations\201803212305281_AddValidatorStatusNupkgUrl.Designer.cs">
       <DependentUpon>201803212305281_AddValidatorStatusNupkgUrl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201803232215575_AddScanOperationStateTable.cs" />
+    <Compile Include="Migrations\201803232215575_AddScanOperationStateTable.Designer.cs">
+      <DependentUpon>201803232215575_AddScanOperationStateTable.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\ValidationMigrationsConfiguration.cs" />
     <Compile Include="PackageValidationEnqueuer.cs" />
     <Compile Include="PackageValidationMessageData.cs" />
@@ -159,6 +163,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201803212305281_AddValidatorStatusNupkgUrl.resx">
       <DependentUpon>201803212305281_AddValidatorStatusNupkgUrl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201803232215575_AddScanOperationStateTable.resx">
+      <DependentUpon>201803232215575_AddScanOperationStateTable.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
