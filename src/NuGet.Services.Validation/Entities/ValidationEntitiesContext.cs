@@ -85,6 +85,7 @@ namespace NuGet.Services.Validation
         public IDbSet<ParentCertificate> ParentCertificates { get; set; }
         public IDbSet<CertificateChainLink> CertificateChainLinks { get; set; }
         public IDbSet<PackageCompatibilityIssue> PackageCompatibilityIssues { get; set; }
+        public IDbSet<ScanOperationState> ScanOperationStates { get; set; }
 
         public ValidationEntitiesContext() : this("Validation.SqlServer")
         {
