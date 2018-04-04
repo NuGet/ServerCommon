@@ -41,14 +41,9 @@ namespace NuGet.Services.Validation
         public int AttemptIndex { get; set; }
 
         /// <summary>
-        /// Time when the validator detected operation request.
-        /// </summary>
-        public DateTime CreatedAt { get; set; }
-
-        /// <summary>
         /// Time when the operation actually started.
         /// </summary>
-        public DateTime? StartedAt{ get; set; }
+        public DateTime StartedAt{ get; set; }
 
         /// <summary>
         /// Time when the operation came to a terminal state.

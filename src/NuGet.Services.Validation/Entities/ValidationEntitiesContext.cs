@@ -65,7 +65,7 @@ namespace NuGet.Services.Validation
 
         private const string ScanOperationStatesTable = "ScanOperationStates";
         private const string ScanOperationStatesPackageValidationKeyAttemptIndex = "IX_ScanOperationStates_PackageValidationKey_AttemptIndex";
-        private const string ScanOperationStatesScanStateCreatedIndex = "IX_ScanOperationStates_ScanState_Created";
+        private const string ScanOperationStatesScanStateCreatedIndex = "IX_ScanOperationStates_ScanState_Started";
 
         static ValidationEntitiesContext()
         {
@@ -552,18 +552,13 @@ namespace NuGet.Services.Validation
                     }));
 
             modelBuilder.Entity<ScanOperationState>()
-                .Property(s => s.CreatedAt)
-                .IsRequired()
+                .Property(s => s.StartedAt)
                 .HasColumnType("datetime2")
                 .HasColumnAnnotation(
                     IndexAnnotation.AnnotationName,
                     new IndexAnnotation(new[] {
                         new IndexAttribute(ScanOperationStatesScanStateCreatedIndex, 1)
                     }));
-
-            modelBuilder.Entity<ScanOperationState>()
-                .Property(s => s.StartedAt)
-                .HasColumnType("datetime2");
 
             modelBuilder.Entity<ScanOperationState>()
                 .Property(s => s.FinishedAt)
