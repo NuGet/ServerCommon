@@ -16,8 +16,7 @@ namespace NuGet.Services.Validation
                         OperationType = c.Int(nullable: false),
                         ScanState = c.Int(nullable: false),
                         AttemptIndex = c.Int(nullable: false),
-                        CreatedAt = c.DateTime(nullable: false, precision: 7, storeType: "datetime2"),
-                        StartedAt = c.DateTime(precision: 7, storeType: "datetime2"),
+                        StartedAt = c.DateTime(nullable: false, precision: 7, storeType: "datetime2"),
                         FinishedAt = c.DateTime(precision: 7, storeType: "datetime2"),
                         ResultUrl = c.String(maxLength: 512),
                         OperationId = c.String(maxLength: 64),
@@ -25,13 +24,13 @@ namespace NuGet.Services.Validation
                     })
                 .PrimaryKey(t => t.Key)
                 .Index(t => new { t.PackageValidationKey, t.AttemptIndex }, unique: true, name: "IX_ScanOperationStates_PackageValidationKey_AttemptIndex")
-                .Index(t => new { t.ScanState, t.CreatedAt }, name: "IX_ScanOperationStates_ScanState_Created");
+                .Index(t => new { t.ScanState, t.StartedAt }, name: "IX_ScanOperationStates_ScanState_Started");
             
         }
         
         public override void Down()
         {
-            DropIndex("scan.ScanOperationStates", "IX_ScanOperationStates_ScanState_Created");
+            DropIndex("scan.ScanOperationStates", "IX_ScanOperationStates_ScanState_Started");
             DropIndex("scan.ScanOperationStates", "IX_ScanOperationStates_PackageValidationKey_AttemptIndex");
             DropTable("scan.ScanOperationStates");
         }
