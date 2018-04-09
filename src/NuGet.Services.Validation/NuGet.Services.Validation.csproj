@@ -110,6 +110,10 @@
     <Compile Include="Migrations\201803272331375_AddPackageSignatureType.Designer.cs">
       <DependentUpon>201803272331375_AddPackageSignatureType.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201804092202151_AddScanOperationStateTable.cs" />
+    <Compile Include="Migrations\201804092202151_AddScanOperationStateTable.Designer.cs">
+      <DependentUpon>201804092202151_AddScanOperationStateTable.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\ValidationMigrationsConfiguration.cs" />
     <Compile Include="PackageValidationEnqueuer.cs" />
     <Compile Include="PackageValidationMessageData.cs" />
@@ -167,6 +171,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201803272331375_AddPackageSignatureType.resx">
       <DependentUpon>201803272331375_AddPackageSignatureType.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201804092202151_AddScanOperationStateTable.resx">
+      <DependentUpon>201804092202151_AddScanOperationStateTable.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
