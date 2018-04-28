@@ -54,10 +54,17 @@
     <Compile Include="SecretInjector.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.*.cs" />
+    <Compile Include="Secret\BaseToken.cs" />
+    <Compile Include="Secret\IToken.cs" />
+    <Compile Include="Secret\ITokenizer.cs" />
+    <Compile Include="Secret\SecretToken.cs" />
+    <Compile Include="Secret\SimpleTokenizer.cs" />
+    <Compile Include="Secret\VerbatimStringToken.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="project.json" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="..\..\build\sign.targets" />
 </Project>
