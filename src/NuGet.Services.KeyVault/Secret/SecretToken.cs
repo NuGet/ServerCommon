@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 namespace NuGet.Services.KeyVault.Secret
 {
     /// <summary>
-    /// <see cref="IToken"/> that gets simple secret name -> secret value substitution
+    /// <see cref="IToken"/> that does simple secret name -> secret value substitution
     /// </summary>
-    public sealed class SecretToken : BaseToken<SecretToken>, IToken
+    public class SecretToken : BaseToken, IToken
     {
         private readonly ISecretReader _secretReader;
 

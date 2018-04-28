@@ -1,7 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Threading.Tasks;
 
 namespace NuGet.Services.KeyVault.Secret
@@ -9,7 +8,7 @@ namespace NuGet.Services.KeyVault.Secret
     /// <summary>
     /// Represents a token in the text with secrets
     /// </summary>
-    public interface IToken : IEquatable<IToken>
+    public interface IToken
     {
         /// <summary>
         /// Processes the string into its final form

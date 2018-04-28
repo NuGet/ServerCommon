@@ -71,10 +71,10 @@ namespace NuGet.Services.KeyVault.Tests
 
         [Theory]
         [MemberData(nameof(InputToTokenMap))]
-        public void ProducesCorrectTokenSequences(string inputString, IEnumerable<IToken> expectedTokens)
+        public void ProducesCorrectTokenSequences(string inputString, IEnumerable<BaseToken> expectedTokens)
         {
-            var response = _subject.Tokenize(inputString).ToList();
-            Assert.Equal(expectedTokens, response, EqualityComparer<IToken>.Default);
+            var response = _subject.Tokenize(inputString).OfType<BaseToken>().ToList();
+            Assert.Equal(expectedTokens, response, new BaseTokenEqualityComparer());
         }
 
         private static Mock<ISecretReader> _secretReader = new Mock<ISecretReader>();
@@ -85,7 +85,7 @@ namespace NuGet.Services.KeyVault.Tests
             _subject = new SimpleTokenizer("$$", _secretReader.Object);
         }
 
-        private static IToken[] Tokens(params IToken[] tokens)
+        private static BaseToken[] Tokens(params BaseToken[] tokens)
             => tokens;
 
         private static VerbatimStringToken Verbatim(string value)
@@ -93,5 +93,16 @@ namespace NuGet.Services.KeyVault.Tests
 
         private static SecretToken Secret(string value)
             => new SecretToken(value, _secretReader.Object);
+
+        private class BaseTokenEqualityComparer : IEqualityComparer<BaseToken>
+        {
+            public bool Equals(BaseToken x, BaseToken y)
+                => x.GetType() == y.GetType() && x.Value == y.Value;
+
+            public int GetHashCode(BaseToken obj)
+            {
+                throw new System.NotImplementedException();
+            }
+        }
     }
 }
