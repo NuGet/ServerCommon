@@ -73,8 +73,10 @@ namespace NuGet.Services.KeyVault.Tests
         [MemberData(nameof(InputToTokenMap))]
         public void ProducesCorrectTokenSequences(string inputString, IEnumerable<BaseToken> expectedTokens)
         {
-            var response = _subject.Tokenize(inputString).OfType<BaseToken>().ToList();
-            Assert.Equal(expectedTokens, response, new BaseTokenEqualityComparer());
+            var response = _subject.Tokenize(inputString).ToList();
+            var tokens = response.OfType<BaseToken>().ToList();
+            Assert.Equal(response.Count, tokens.Count);
+            Assert.Equal(expectedTokens, tokens, new BaseTokenEqualityComparer());
         }
 
         private static Mock<ISecretReader> _secretReader = new Mock<ISecretReader>();
