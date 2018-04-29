@@ -9,13 +9,21 @@ namespace NuGet.Services.KeyVault.Secret
     public class SimpleTokenizer : ITokenizer
     {
         private const string DefaultFrame = "$$";
-
+        private const string DefaultSeparator = "|";
+        private const string UrlEncodingTokenType = "urlencode";
         private readonly string _frame;
+        private readonly string _separator;
         private readonly ISecretReader _secretReader;
 
-        public SimpleTokenizer(string frame, ISecretReader secretReader)
+        public SimpleTokenizer(ISecretReader secretReader)
+            : this(DefaultFrame, DefaultSeparator, secretReader)
+        {
+        }
+
+        public SimpleTokenizer(string frame, string separator, ISecretReader secretReader)
         {
             _frame = frame ?? throw new ArgumentNullException(nameof(frame));
+            _separator = separator ?? throw new ArgumentNullException(nameof(separator));
             _secretReader = secretReader ?? throw new ArgumentNullException(nameof(secretReader));
         }
 
@@ -27,7 +35,7 @@ namespace NuGet.Services.KeyVault.Secret
             int frameStartIndex = 0;
 
             while ((foundIndex = input.IndexOf(_frame, frameStartIndex, StringComparison.InvariantCulture)) >= 0)
-            { 
+            {
                 if (insideFrame)
                 {
                     var secretTokenValue = input.Substring(frameStartIndex, foundIndex - frameStartIndex);
@@ -39,7 +47,7 @@ namespace NuGet.Services.KeyVault.Secret
                         {
                             yield return new VerbatimStringToken(precedingVerbatimText);
                         }
-                        yield return new SecretToken(secretTokenValue, _secretReader);
+                        yield return CreateNonVerbatimToken(secretTokenValue);
 
                         insideFrame = false;
                         verbatimStartIndex = foundIndex + _frame.Length;
@@ -63,6 +71,26 @@ namespace NuGet.Services.KeyVault.Secret
             {
                 yield return new VerbatimStringToken(trailingVerbatimText);
             }
+        }
+
+        private IToken CreateNonVerbatimToken(string name)
+        {
+            var separatorIndex = name.IndexOf(_separator);
+            if (separatorIndex >= 0)
+            {
+                var tokenType = name.Substring(0, separatorIndex);
+                var secretName = name.Substring(separatorIndex + 1);
+
+                if (!string.IsNullOrWhiteSpace(tokenType) && !string.IsNullOrWhiteSpace(secretName))
+                {
+                    switch (tokenType)
+                    {
+                    case UrlEncodingTokenType:
+                        return new UrlEncodingToken(secretName, _secretReader);
+                    }
+                }
+            }
+            return new SecretToken(name, _secretReader);
         }
     }
 }

@@ -59,6 +59,7 @@
     <Compile Include="Secret\ITokenizer.cs" />
     <Compile Include="Secret\SecretToken.cs" />
     <Compile Include="Secret\SimpleTokenizer.cs" />
+    <Compile Include="Secret\UrlEncodingToken.cs" />
     <Compile Include="Secret\VerbatimStringToken.cs" />
   </ItemGroup>
   <ItemGroup>

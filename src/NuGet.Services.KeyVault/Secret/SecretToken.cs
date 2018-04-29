@@ -21,7 +21,7 @@ namespace NuGet.Services.KeyVault.Secret
             _secretReader = secretReader ?? throw new ArgumentNullException(nameof(secretReader));
         }
 
-        public async Task<string> ProcessAsync()
+        public virtual async Task<string> ProcessAsync()
             => await _secretReader.GetSecretAsync(SecretName);
     }
 }

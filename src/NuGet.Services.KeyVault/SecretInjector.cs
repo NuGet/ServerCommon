@@ -10,11 +10,10 @@ namespace NuGet.Services.KeyVault
 {
     public class SecretInjector : ISecretInjector
     {
-        public const string DefaultFrame = "$$";
         private readonly ITokenizer _tokenizer;
 
         public SecretInjector(ISecretReader secretReader) 
-            : this(new SimpleTokenizer(DefaultFrame, secretReader))
+            : this(new SimpleTokenizer(secretReader))
         {
         }
 

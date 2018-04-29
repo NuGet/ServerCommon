@@ -67,6 +67,12 @@ namespace NuGet.Services.KeyVault.Tests
                     Verbatim(";Password="),
                     Secret("secret2"),
                     Verbatim(";Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"))},
+            new object[]{ "$$urlencode|secretName$$", Tokens(UrlEnc("secretName")) },
+            new object[]{ "SomeText=$$urlencode|secretName$$", Tokens(Verbatim("SomeText="), UrlEnc("secretName")) },
+            new object[]{ "$$urlencode|secretName$$postfix", Tokens(UrlEnc("secretName"), Verbatim("postfix")) },
+            new object[]{ "$$regularSecret$$$$urlencode|secretName$$", Tokens(Secret("regularSecret"), UrlEnc("secretName")) },
+            new object[]{ "$$urlencode|secretName$$$$regularLaterSecret$$", Tokens(UrlEnc("secretName"), Secret("regularLaterSecret")) },
+            new object[]{ "$$urlencode|secretName$$textbetween$$otherSecret$$", Tokens(UrlEnc("secretName"), Verbatim("textbetween"), Secret("otherSecret")) },
         };
 
         [Theory]
@@ -84,7 +90,7 @@ namespace NuGet.Services.KeyVault.Tests
 
         public SimpleTokenizerFacts()
         {
-            _subject = new SimpleTokenizer("$$", _secretReader.Object);
+            _subject = new SimpleTokenizer(_secretReader.Object);
         }
 
         private static BaseToken[] Tokens(params BaseToken[] tokens)
@@ -95,6 +101,9 @@ namespace NuGet.Services.KeyVault.Tests
 
         private static SecretToken Secret(string value)
             => new SecretToken(value, _secretReader.Object);
+
+        private static UrlEncodingToken UrlEnc(string value)
+            => new UrlEncodingToken(value, _secretReader.Object);
 
         private class BaseTokenEqualityComparer : IEqualityComparer<BaseToken>
         {
