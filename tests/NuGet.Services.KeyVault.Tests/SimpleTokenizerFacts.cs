@@ -67,12 +67,19 @@ namespace NuGet.Services.KeyVault.Tests
                     Verbatim(";Password="),
                     Secret("secret2"),
                     Verbatim(";Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"))},
+            new object[]{ "$$someNonExistenType|secretName$$", Tokens(Secret("someNonExistenType|secretName"))},
             new object[]{ "$$urlencode|secretName$$", Tokens(UrlEnc("secretName")) },
             new object[]{ "SomeText=$$urlencode|secretName$$", Tokens(Verbatim("SomeText="), UrlEnc("secretName")) },
             new object[]{ "$$urlencode|secretName$$postfix", Tokens(UrlEnc("secretName"), Verbatim("postfix")) },
             new object[]{ "$$regularSecret$$$$urlencode|secretName$$", Tokens(Secret("regularSecret"), UrlEnc("secretName")) },
             new object[]{ "$$urlencode|secretName$$$$regularLaterSecret$$", Tokens(UrlEnc("secretName"), Secret("regularLaterSecret")) },
             new object[]{ "$$urlencode|secretName$$textbetween$$otherSecret$$", Tokens(UrlEnc("secretName"), Verbatim("textbetween"), Secret("otherSecret")) },
+            new object[]{ "$$recurse|secretName$$", Tokens(Recursive("secretName")) },
+            new object[]{ "SomeText=$$recurse|secretName$$", Tokens(Verbatim("SomeText="), Recursive("secretName")) },
+            new object[]{ "$$recurse|secretName$$postfix", Tokens(Recursive("secretName"), Verbatim("postfix")) },
+            new object[]{ "$$regularSecret$$$$recurse|secretName$$", Tokens(Secret("regularSecret"), Recursive("secretName")) },
+            new object[]{ "$$recurse|secretName$$$$regularLaterSecret$$", Tokens(Recursive("secretName"), Secret("regularLaterSecret")) },
+            new object[]{ "$$recurse|secretName$$textbetween$$otherSecret$$", Tokens(Recursive("secretName"), Verbatim("textbetween"), Secret("otherSecret")) },
         };
 
         [Theory]
@@ -85,12 +92,13 @@ namespace NuGet.Services.KeyVault.Tests
             Assert.Equal(expectedTokens, tokens, new BaseTokenEqualityComparer());
         }
 
-        private static Mock<ISecretReader> _secretReader = new Mock<ISecretReader>();
+        private static Mock<ISecretReader> _secretReaderMock = new Mock<ISecretReader>();
+        private static Mock<ISecretInjector> _secretInjectorMock = new Mock<ISecretInjector>();
         private SimpleTokenizer _subject;
 
         public SimpleTokenizerFacts()
         {
-            _subject = new SimpleTokenizer(_secretReader.Object);
+            _subject = new SimpleTokenizer(_secretReaderMock.Object, _secretInjectorMock.Object);
         }
 
         private static BaseToken[] Tokens(params BaseToken[] tokens)
@@ -100,10 +108,13 @@ namespace NuGet.Services.KeyVault.Tests
             => new VerbatimStringToken(value);
 
         private static SecretToken Secret(string value)
-            => new SecretToken(value, _secretReader.Object);
+            => new SecretToken(value, _secretReaderMock.Object);
 
         private static UrlEncodingToken UrlEnc(string value)
-            => new UrlEncodingToken(value, _secretReader.Object);
+            => new UrlEncodingToken(value, _secretReaderMock.Object);
+
+        private static RecursiveToken Recursive(string value)
+            => new RecursiveToken(value, _secretReaderMock.Object, _secretInjectorMock.Object);
 
         private class BaseTokenEqualityComparer : IEqualityComparer<BaseToken>
         {

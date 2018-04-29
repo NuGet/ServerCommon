@@ -11,20 +11,23 @@ namespace NuGet.Services.KeyVault.Secret
         private const string DefaultFrame = "$$";
         private const string DefaultSeparator = "|";
         private const string UrlEncodingTokenType = "urlencode";
+        private const string RecursiveTokenType = "recurse";
         private readonly string _frame;
         private readonly string _separator;
         private readonly ISecretReader _secretReader;
+        private readonly ISecretInjector _secretInjector;
 
-        public SimpleTokenizer(ISecretReader secretReader)
-            : this(DefaultFrame, DefaultSeparator, secretReader)
+        public SimpleTokenizer(ISecretReader secretReader, ISecretInjector secretInjector)
+            : this(DefaultFrame, DefaultSeparator, secretReader, secretInjector)
         {
         }
 
-        public SimpleTokenizer(string frame, string separator, ISecretReader secretReader)
+        public SimpleTokenizer(string frame, string separator, ISecretReader secretReader, ISecretInjector secretInjector)
         {
             _frame = frame ?? throw new ArgumentNullException(nameof(frame));
             _separator = separator ?? throw new ArgumentNullException(nameof(separator));
             _secretReader = secretReader ?? throw new ArgumentNullException(nameof(secretReader));
+            _secretInjector = secretInjector ?? throw new ArgumentNullException(nameof(secretInjector));
         }
 
         public IEnumerable<IToken> Tokenize(string input)
@@ -81,12 +84,14 @@ namespace NuGet.Services.KeyVault.Secret
                 var tokenType = name.Substring(0, separatorIndex);
                 var secretName = name.Substring(separatorIndex + 1);
 
-                if (!string.IsNullOrWhiteSpace(tokenType) && !string.IsNullOrWhiteSpace(secretName))
+                if (!string.IsNullOrWhiteSpace(tokenType))
                 {
                     switch (tokenType)
                     {
                     case UrlEncodingTokenType:
                         return new UrlEncodingToken(secretName, _secretReader);
+                    case RecursiveTokenType:
+                        return new RecursiveToken(secretName, _secretReader, _secretInjector);
                     }
                 }
             }

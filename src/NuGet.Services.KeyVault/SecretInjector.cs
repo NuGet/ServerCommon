@@ -13,8 +13,8 @@ namespace NuGet.Services.KeyVault
         private readonly ITokenizer _tokenizer;
 
         public SecretInjector(ISecretReader secretReader) 
-            : this(new SimpleTokenizer(secretReader))
         {
+            _tokenizer = new SimpleTokenizer(secretReader, this);
         }
 
         public SecretInjector(ITokenizer tokenizer)
