@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace NuGet.Services.KeyVault.Secret
 {
+    /// <summary>
+    /// <see cref="SecretToken"/> that urlencodes its value.
+    /// </summary>
     public class UrlEncodingToken : SecretToken, IToken
     {
         public UrlEncodingToken(string secretName, ISecretReader secretReader)

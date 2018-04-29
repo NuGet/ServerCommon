@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 
 namespace NuGet.Services.KeyVault.Secret
 {
+    /// <summary>
+    /// <see cref="SecretToken"/> that treats its value as a string containing other secrets and does
+    /// additional (single) level of expansion.
+    /// </summary>
     public class RecursiveToken : SecretToken, IToken
     {
         private readonly ISecretInjector _secretInjector;
