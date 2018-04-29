@@ -42,6 +42,7 @@
     <Compile Include="CachingSecretReaderFacts.cs" />
     <Compile Include="KeyVaultReaderFormatterFacts.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RecursiveTokenFacts.cs" />
     <Compile Include="SecretTokenFacts.cs" />
     <Compile Include="SimpleTokenizerFacts.cs" />
     <Compile Include="UrlEncodingTokenFacts.cs" />

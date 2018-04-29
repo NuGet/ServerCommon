@@ -57,6 +57,7 @@
     <Compile Include="Secret\BaseToken.cs" />
     <Compile Include="Secret\IToken.cs" />
     <Compile Include="Secret\ITokenizer.cs" />
+    <Compile Include="Secret\RecursiveToken.cs" />
     <Compile Include="Secret\SecretToken.cs" />
     <Compile Include="Secret\SimpleTokenizer.cs" />
     <Compile Include="Secret\UrlEncodingToken.cs" />
