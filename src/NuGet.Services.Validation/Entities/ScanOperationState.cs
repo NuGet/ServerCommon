@@ -26,7 +26,7 @@ namespace NuGet.Services.Validation
         public int OperationType { get; set; }
 
         /// <summary>
-        /// State of the scan.
+        /// Internal state of the scanning service for the current operation.
         /// </summary>
         public int ScanState { get; set; }
 
@@ -57,7 +57,7 @@ namespace NuGet.Services.Validation
         public string ResultUrl { get; set; }
 
         /// <summary>
-        /// Third party operation ID.
+        /// Third party operation ID. Used to look up operation status in external services.
         /// </summary>
         public string OperationId { get; set; }
 
