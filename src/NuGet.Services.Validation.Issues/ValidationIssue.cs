@@ -17,6 +17,7 @@ namespace NuGet.Services.Validation.Issues
         public static ValidationIssue OnlySignatureFormatVersion1Supported { get; } = new NoDataValidationIssue(ValidationIssueCode.OnlySignatureFormatVersion1Supported);
         public static ValidationIssue AuthorCounterSignaturesNotSupported { get; } = new NoDataValidationIssue(ValidationIssueCode.AuthorCounterSignaturesNotSupported);
         public static ValidationIssue PackageIsNotSigned { get; } = new NoDataValidationIssue(ValidationIssueCode.PackageIsNotSigned);
+        public static ValidationIssue PackageIsSignedWithUnauthorizedCertificate { get; }
 
         /// <summary>
         /// The map of issue codes to the type that represents the issues. The types MUST extend <see cref="ValidationIssue"/>.
@@ -24,6 +25,7 @@ namespace NuGet.Services.Validation.Issues
         internal static readonly IReadOnlyDictionary<ValidationIssueCode, Type> IssueCodeTypes = new Dictionary<ValidationIssueCode, Type>
         {
             { ValidationIssueCode.ClientSigningVerificationFailure, GetIssueType<ClientSigningVerificationFailure>() },
+            { ValidationIssueCode.PackageIsSignedWithUnauthorizedCertificate, GetIssueType<UnauthorizedCertificateFailure>() },
 #pragma warning disable 618
             { ValidationIssueCode.ObsoleteTesting, GetIssueType<ObsoleteTestingIssue>() }
 #pragma warning restore 618
@@ -61,7 +63,7 @@ namespace NuGet.Services.Validation.Issues
             {
                 return Unknown;
             }
-            
+
             try
             {
                 var issue = JsonConvert.DeserializeObject(data, deserializationType) as ValidationIssue;
