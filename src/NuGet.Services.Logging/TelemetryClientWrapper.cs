@@ -55,7 +55,7 @@ namespace NuGet.Services.Logging
         {
             try
             {
-                var metricTelemetry = new MetricTelemetry()
+                var metricTelemetry = new MetricTelemetry
                 {
                     Timestamp = timestamp,
                     Name = metricName,
@@ -64,7 +64,7 @@ namespace NuGet.Services.Logging
 
                 if (properties != null)
                 {
-                    foreach (var key in properties?.Keys)
+                    foreach (var key in properties.Keys)
                     {
                         metricTelemetry.Properties.Add(key, properties[key]);
                     }

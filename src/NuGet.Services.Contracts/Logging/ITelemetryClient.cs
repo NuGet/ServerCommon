@@ -12,6 +12,7 @@ namespace NuGet.Services.Logging
             string metricName,
             double value,
             IDictionary<string, string> properties = null);
+
         void TrackMetric(
             DateTimeOffset timestamp,
             string metricName,
