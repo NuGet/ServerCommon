@@ -47,6 +47,7 @@
     <Compile Include="Entities\EndCertificateUse.cs" />
     <Compile Include="Entities\EndCertificateValidation.cs" />
     <Compile Include="Entities\IValidationContext.cs" />
+    <Compile Include="Entities\PackageRevalidation.cs" />
     <Compile Include="Entities\PackageSignatureType.cs" />
     <Compile Include="Entities\PackageSigningState.cs" />
     <Compile Include="Entities\PackageSignature.cs" />

@@ -66,6 +66,10 @@ namespace NuGet.Services.Validation
         private const string ScanOperationStatesPackageValidationKeyAttemptIndex = "IX_ScanOperationStates_PackageValidationKey_AttemptIndex";
         private const string ScanOperationStatesScanStateCreatedIndex = "IX_ScanOperationStates_ScanState_Created";
 
+        private const string PackageRevalidationPackageIdPackageVersionIndex = "IX_PackageRevalidations_PackageId_PackageNormalizedVersion";
+        private const string PackageRevalidationEnqueuedIndex = "IX_PackageRevalidations_Enqueued";
+        private const string PackageRevalidationValidationTrackingIdIndex = "IX_PackageRevalidations_ValidationTrackingId";
+
         static ValidationEntitiesContext()
         {
             // Don't run migrations, ever!
@@ -85,6 +89,7 @@ namespace NuGet.Services.Validation
         public IDbSet<CertificateChainLink> CertificateChainLinks { get; set; }
         public IDbSet<PackageCompatibilityIssue> PackageCompatibilityIssues { get; set; }
         public IDbSet<ScanOperationState> ScanOperationStates { get; set; }
+        public IDbSet<PackageRevalidation> PackageRevalidations { get; set; }
 
         public ValidationEntitiesContext() : this("Validation.SqlServer")
         {
@@ -251,6 +256,7 @@ namespace NuGet.Services.Validation
 
             RegisterPackageSigningEntities(modelBuilder);
             RegisterScanningEntities(modelBuilder);
+            RegisterPackageRevalidationEntities(modelBuilder);
 
             base.OnModelCreating(modelBuilder);
         }
@@ -591,6 +597,65 @@ namespace NuGet.Services.Validation
 
             modelBuilder.Entity<ScanOperationState>()
                 .Property(pvs => pvs.RowVersion)
+                .IsRowVersion();
+        }
+
+        private void RegisterPackageRevalidationEntities(DbModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<PackageRevalidation>()
+                .HasKey(r => r.Key);
+
+            modelBuilder.Entity<PackageRevalidation>()
+                .Property(r => r.PackageId)
+                .HasMaxLength(128)
+                .IsRequired()
+                .HasColumnAnnotation(
+                    IndexAnnotation.AnnotationName,
+                    new IndexAnnotation(new[]
+                    {
+                        new IndexAttribute(PackageRevalidationPackageIdPackageVersionIndex, 1)
+                    }));
+
+            modelBuilder.Entity<PackageRevalidation>()
+                .Property(r => r.PackageNormalizedVersion)
+                .HasMaxLength(64)
+                .IsRequired()
+                .HasColumnAnnotation(
+                    IndexAnnotation.AnnotationName,
+                    new IndexAnnotation(new[]
+                    {
+                        new IndexAttribute(PackageRevalidationPackageIdPackageVersionIndex, 2)
+                    }));
+
+            modelBuilder.Entity<PackageRevalidation>()
+                .Property(r => r.Enqueued)
+                .HasColumnType("datetime2")
+                .HasColumnAnnotation(
+                    IndexAnnotation.AnnotationName,
+                    new IndexAnnotation(new[]
+                    {
+                        new IndexAttribute(PackageRevalidationEnqueuedIndex)
+                    })); ;
+
+            modelBuilder.Entity<PackageRevalidation>()
+                .Property(r => r.ValidationTrackingId)
+                .IsRequired()
+                .HasColumnAnnotation(
+                    IndexAnnotation.AnnotationName,
+                    new IndexAnnotation(new[]
+                    {
+                        new IndexAttribute(PackageRevalidationValidationTrackingIdIndex)
+                        {
+                            IsUnique = true,
+                        }
+                    }));
+
+            modelBuilder.Entity<PackageRevalidation>()
+                .Property(r => r.Completed)
+                .IsRequired();
+
+            modelBuilder.Entity<PackageRevalidation>()
+                .Property(r => r.RowVersion)
                 .IsRowVersion();
         }
     }
