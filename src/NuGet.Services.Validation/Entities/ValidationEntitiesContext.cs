@@ -20,6 +20,9 @@ namespace NuGet.Services.Validation
         /// </summary>
         private const int MaximumThumbprintLength = 256;
 
+        private const int MaximumPackageIdLength = 128;
+        private const int MaximumPackageVersionLength = 64;
+
         /// <summary>
         /// Since we encode thumbprints using hexadecimal, NVARCHAR is not necessary. Additionally, we use varchar
         /// instead of char so that hash algorithm changes do no require schema changes.
@@ -129,7 +132,7 @@ namespace NuGet.Services.Validation
 
             modelBuilder.Entity<PackageValidationSet>()
                 .Property(pvs => pvs.PackageId)
-                .HasMaxLength(128)
+                .HasMaxLength(MaximumPackageIdLength)
                 .IsRequired()
                 .HasColumnAnnotation(
                     IndexAnnotation.AnnotationName,
@@ -140,7 +143,7 @@ namespace NuGet.Services.Validation
 
             modelBuilder.Entity<PackageValidationSet>()
                 .Property(pvs => pvs.PackageNormalizedVersion)
-                .HasMaxLength(64)
+                .HasMaxLength(MaximumPackageVersionLength)
                 .IsRequired()
                 .HasColumnAnnotation(
                     IndexAnnotation.AnnotationName,
@@ -256,7 +259,7 @@ namespace NuGet.Services.Validation
 
             RegisterPackageSigningEntities(modelBuilder);
             RegisterScanningEntities(modelBuilder);
-            RegisterPackageRevalidationEntities(modelBuilder);
+            RegisterRevalidationEntities(modelBuilder);
 
             base.OnModelCreating(modelBuilder);
         }
@@ -273,7 +276,7 @@ namespace NuGet.Services.Validation
 
             modelBuilder.Entity<PackageSigningState>()
                 .Property(p => p.PackageId)
-                .HasMaxLength(128)
+                .HasMaxLength(MaximumPackageIdLength)
                 .IsRequired()
                 .HasColumnAnnotation(
                     IndexAnnotation.AnnotationName,
@@ -284,7 +287,7 @@ namespace NuGet.Services.Validation
 
             modelBuilder.Entity<PackageSigningState>()
                 .Property(p => p.PackageNormalizedVersion)
-                .HasMaxLength(64)
+                .HasMaxLength(MaximumPackageVersionLength)
                 .IsRequired()
                 .HasColumnAnnotation(
                     IndexAnnotation.AnnotationName,
@@ -600,14 +603,14 @@ namespace NuGet.Services.Validation
                 .IsRowVersion();
         }
 
-        private void RegisterPackageRevalidationEntities(DbModelBuilder modelBuilder)
+        private void RegisterRevalidationEntities(DbModelBuilder modelBuilder)
         {
             modelBuilder.Entity<PackageRevalidation>()
                 .HasKey(r => r.Key);
 
             modelBuilder.Entity<PackageRevalidation>()
                 .Property(r => r.PackageId)
-                .HasMaxLength(128)
+                .HasMaxLength(MaximumPackageIdLength)
                 .IsRequired()
                 .HasColumnAnnotation(
                     IndexAnnotation.AnnotationName,
@@ -618,7 +621,7 @@ namespace NuGet.Services.Validation
 
             modelBuilder.Entity<PackageRevalidation>()
                 .Property(r => r.PackageNormalizedVersion)
-                .HasMaxLength(64)
+                .HasMaxLength(MaximumPackageVersionLength)
                 .IsRequired()
                 .HasColumnAnnotation(
                     IndexAnnotation.AnnotationName,
@@ -639,7 +642,6 @@ namespace NuGet.Services.Validation
 
             modelBuilder.Entity<PackageRevalidation>()
                 .Property(r => r.ValidationTrackingId)
-                .IsRequired()
                 .HasColumnAnnotation(
                     IndexAnnotation.AnnotationName,
                     new IndexAnnotation(new[]

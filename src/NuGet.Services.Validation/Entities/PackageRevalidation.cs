@@ -32,9 +32,11 @@ namespace NuGet.Services.Validation
         public DateTime? Enqueued { get; set; }
 
         /// <summary>
-        /// This revalidation's unique tracking identifier.
+        /// The GUID used when enqueueing the revalidation. This will be used by the Orchestrator to generate
+        /// a validation set. This cannot be a foreign key constraint because this record is inserted before the
+        /// validation set is created.
         /// </summary>
-        public Guid ValidationTrackingId { get; set; }
+        public Guid? ValidationTrackingId { get; set; }
 
         /// <summary>
         /// Whether this revalidation has been completed.

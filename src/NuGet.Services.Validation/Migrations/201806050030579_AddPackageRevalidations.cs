@@ -15,7 +15,7 @@ namespace NuGet.Services.Validation
                         PackageId = c.String(nullable: false, maxLength: 128),
                         PackageNormalizedVersion = c.String(nullable: false, maxLength: 64),
                         Enqueued = c.DateTime(precision: 7, storeType: "datetime2"),
-                        ValidationTrackingId = c.Guid(nullable: false),
+                        ValidationTrackingId = c.Guid(),
                         Completed = c.Boolean(nullable: false),
                         RowVersion = c.Binary(nullable: false, fixedLength: true, timestamp: true, storeType: "rowversion"),
                     })
