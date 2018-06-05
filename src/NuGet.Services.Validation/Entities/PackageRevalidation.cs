@@ -29,7 +29,7 @@ namespace NuGet.Services.Validation
         /// <summary>
         /// The time at which the revalidation was enqueued, or null if the revalidation hasn't started yet.
         /// </summary>
-        public DateTime Enqueued { get; set; }
+        public DateTime? Enqueued { get; set; }
 
         /// <summary>
         /// This revalidation's unique tracking identifier.
