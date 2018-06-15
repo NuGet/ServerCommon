@@ -30,13 +30,9 @@ namespace NuGet.Services.Validation
             return new PackageValidationMessageData(
                 data.PackageId,
                 data.PackageVersion,
-<<<<<<< HEAD
                 data.PackageNormalizedVersion,
-                data.ValidationTrackingId);
-=======
                 data.ValidationTrackingId,
                 message.DeliveryCount);
->>>>>>> master
         }
 
         [Schema(Name = PackageValidationSchemaName, Version = 1)]
