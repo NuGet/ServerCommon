@@ -15,6 +15,7 @@ namespace NuGet.Services.Validation.Tests
         private const string SchemaVersionKey = "SchemaVersion";
         private const string PackageId = "NuGet.Versioning";
         private const string PackageVersion = "4.3.0";
+        private const string PackageNormalizedVersion = "4.3.0";
         private static readonly Guid ValidationTrackingId = new Guid("14b4c1b8-40e2-4d60-9db7-4b7195e807f5");
         private const string PackageValidationMessageDataType = "PackageValidationMessageData";
         private const int SchemaVersion1 = 1;
@@ -25,7 +26,7 @@ namespace NuGet.Services.Validation.Tests
             public void ProducesExpectedMessage()
             {
                 // Arrange
-                var input = new PackageValidationMessageData(PackageId, PackageVersion, ValidationTrackingId);
+                var input = new PackageValidationMessageData(PackageId, PackageVersion, PackageNormalizedVersion, ValidationTrackingId);
 
                 // Act
                 var output = _target.SerializePackageValidationMessageData(input);

@@ -61,7 +61,7 @@ namespace NuGet.Services.Validation.Tests {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {&quot;PackageId&quot;:&quot;NuGet.Versioning&quot;,&quot;PackageVersion&quot;:&quot;4.3.0&quot;,&quot;ValidationTrackingId&quot;:&quot;14b4c1b8-40e2-4d60-9db7-4b7195e807f5&quot;}.
+        ///   Looks up a localized string similar to {&quot;PackageId&quot;:&quot;NuGet.Versioning&quot;,&quot;PackageVersion&quot;:&quot;4.3.0&quot;,&quot;PackageNormalizedVersion&quot;:&quot;4.3.0&quot;,&quot;ValidationTrackingId&quot;:&quot;14b4c1b8-40e2-4d60-9db7-4b7195e807f5&quot;}.
         /// </summary>
         internal static string SerializedPackageValidationMessageData1 {
             get {
