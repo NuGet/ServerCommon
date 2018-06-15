@@ -21,9 +21,9 @@ namespace NuGet.Services.Validation
         public long PackageSignatureKey { get; set; }
 
         /// <summary>
-        /// The key to the end <see cref="Certificate"/> used to create this trusted timestamp.
+        /// The key to the end <see cref="EndCertificate"/> used to create this trusted timestamp.
         /// </summary>
-        public long CertificateKey { get; set; }
+        public long EndCertificateKey { get; set; }
 
         /// <summary>
         /// The value contained by this trusted timestamp, in UTC.
@@ -31,16 +31,21 @@ namespace NuGet.Services.Validation
         public DateTime Value { get; set; }
 
         /// <summary>
+        /// The last known status for this timestamp. This may be stale.
+        /// </summary>
+        public TrustedTimestampStatus Status { get; set; }
+
+        /// <summary>
         /// The <see cref="PackageSignature"/> that depends on this trusted timestamp. If this
-        /// timestamp's <see cref="Certificate"/> is revoked, the signatures MUST be invalidated.
+        /// timestamp's <see cref="EndCertificate"/> is revoked, the signatures MUST be invalidated.
         /// </summary>
         public PackageSignature PackageSignature { get; set; }
 
         /// <summary>
-        /// The end <see cref="Certificate"/> used to create this trusted timestamp. If this certificate
+        /// The end <see cref="EndCertificate"/> used to create this trusted timestamp. If this certificate
         /// is revoked, the <see cref="PackageSignature"/> MUST be invalidated. However, if the certificate
         /// expires, the signature SHOULD NOT be invalidated.
         /// </summary>
-        public Certificate Certificate { get; set; }
+        public EndCertificate EndCertificate { get; set; }
     }
 }

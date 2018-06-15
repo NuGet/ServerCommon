@@ -22,9 +22,9 @@ namespace NuGet.Services.Validation
         public int PackageKey { get; set; }
 
         /// <summary>
-        /// The key to the end <see cref="Validation.Certificate"/> used to create this package signature.
+        /// The key to the end <see cref="Validation.EndCertificate"/> used to create this package signature.
         /// </summary>
-        public long CertificateKey { get; set; }
+        public long EndCertificateKey { get; set; }
 
         /// <summary>
         /// The time at which this record was created, used to detect signatures that are
@@ -36,6 +36,11 @@ namespace NuGet.Services.Validation
         /// The status for this signature.
         /// </summary>
         public PackageSignatureStatus Status { get; set; }
+
+        /// <summary>
+        /// The type of this signature.
+        /// </summary>
+        public PackageSignatureType Type { get; set; }
 
         /// <summary>
         /// Used for optimistic concurrency when updating package signatures.
@@ -56,8 +61,8 @@ namespace NuGet.Services.Validation
         public virtual ICollection<TrustedTimestamp> TrustedTimestamps { get; set; }
 
         /// <summary>
-        /// The end <see cref="Validation.Certificate"/> used to create this package signature.
+        /// The end <see cref="Validation.EndCertificate"/> used to create this package signature.
         /// </summary>
-        public virtual Certificate Certificate { get; set; }
+        public virtual EndCertificate EndCertificate { get; set; }
     }
 }

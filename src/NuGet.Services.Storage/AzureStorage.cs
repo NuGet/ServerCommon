@@ -1,5 +1,6 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -62,12 +63,30 @@ namespace NuGet.Services.Storage
         //Blob exists
         public override bool Exists(string fileName)
         {
-            Uri packageRegistrationUri = ResolveUri(fileName);
-            string blobName = GetName(packageRegistrationUri);
+            var packageRegistrationUri = ResolveUri(fileName);
+            var blobName = GetName(packageRegistrationUri);
 
-            CloudBlockBlob blob = _directory.GetBlockBlobReference(blobName);
+            var blob = _directory.GetBlockBlobReference(blobName);
 
             if (blob.Exists())
+            {
+                return true;
+            }
+            if (Verbose)
+            {
+                _logger.LogInformation("The blob {BlobUri} does not exist.", packageRegistrationUri);
+            }
+            return false;
+        }
+
+        public override async Task<bool> ExistsAsync(string fileName, CancellationToken cancellationToken)
+        {
+            var packageRegistrationUri = ResolveUri(fileName);
+            var blobName = GetName(packageRegistrationUri);
+
+            var blob = _directory.GetBlockBlobReference(blobName);
+
+            if (await blob.ExistsAsync(cancellationToken))
             {
                 return true;
             }
@@ -93,13 +112,15 @@ namespace NuGet.Services.Storage
         }
 
         //  save
-        protected override async Task OnSave(Uri resourceUri, StorageContent content, CancellationToken cancellationToken)
+        protected override async Task OnSave(Uri resourceUri, StorageContent content, bool overwrite, CancellationToken cancellationToken)
         {
             string name = GetName(resourceUri);
 
             CloudBlockBlob blob = _directory.GetBlockBlobReference(name);
             blob.Properties.ContentType = content.ContentType;
             blob.Properties.CacheControl = content.CacheControl;
+
+            var accessCondition = overwrite ? null : AccessCondition.GenerateIfNotExistsCondition();
 
             if (CompressContent)
             {
@@ -114,7 +135,14 @@ namespace NuGet.Services.Storage
                     }
 
                     destinationStream.Seek(0, SeekOrigin.Begin);
-                    await blob.UploadFromStreamAsync(destinationStream, cancellationToken);
+
+                    await blob.UploadFromStreamAsync(
+                        destinationStream,
+                        accessCondition,
+                        options: null,
+                        operationContext: null,
+                        cancellationToken: cancellationToken);
+
                     _logger.LogInformation("Saved compressed blob {BlobUri} to container {ContainerName}", blob.Uri.ToString(), _directory.Container.Name);
                 }
             }
@@ -122,7 +150,13 @@ namespace NuGet.Services.Storage
             {
                 using (Stream stream = content.GetContentStream())
                 {
-                    await blob.UploadFromStreamAsync(stream, cancellationToken);
+                    await blob.UploadFromStreamAsync(
+                        stream,
+                        accessCondition,
+                        options: null,
+                        operationContext: null,
+                        cancellationToken: cancellationToken);
+
                     _logger.LogInformation("Saved uncompressed blob {BlobUri} to container {ContainerName}", blob.Uri.ToString(), _directory.Container.Name);
                 }
             }
@@ -143,29 +177,27 @@ namespace NuGet.Services.Storage
                 MemoryStream originalStream = new MemoryStream();
                 await blob.DownloadToStreamAsync(originalStream, cancellationToken);
 
-                originalStream.Seek(0, SeekOrigin.Begin);
-
-                string content;
+                originalStream.Position = 0;
+                
+                MemoryStream content;
 
                 if (blob.Properties.ContentEncoding == "gzip")
                 {
                     using (var uncompressedStream = new GZipStream(originalStream, CompressionMode.Decompress))
                     {
-                        using (var reader = new StreamReader(uncompressedStream))
-                        {
-                            content = await reader.ReadToEndAsync();
-                        }
+                        content = new MemoryStream();
+
+                        await uncompressedStream.CopyToAsync(content);
                     }
+
+                    content.Position = 0;
                 }
                 else
                 {
-                    using (var reader = new StreamReader(originalStream))
-                    {
-                        content = await reader.ReadToEndAsync();
-                    }
+                    content = originalStream;
                 }
 
-                return new StringStorageContent(content);
+                return new StreamStorageContent(content);
             }
 
             if (Verbose)

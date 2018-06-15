@@ -40,18 +40,29 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Entities\Certificate.cs" />
-    <Compile Include="Entities\CertificateStatus.cs" />
-    <Compile Include="Entities\CertificateValidation.cs" />
+    <Compile Include="Entities\BaseValidationIssue.cs" />
+    <Compile Include="Entities\CertificateChainLink.cs" />
+    <Compile Include="Entities\EndCertificate.cs" />
+    <Compile Include="Entities\EndCertificateStatus.cs" />
+    <Compile Include="Entities\EndCertificateUse.cs" />
+    <Compile Include="Entities\EndCertificateValidation.cs" />
     <Compile Include="Entities\IValidationContext.cs" />
+    <Compile Include="Entities\PackageRevalidation.cs" />
+    <Compile Include="Entities\PackageSignatureType.cs" />
     <Compile Include="Entities\PackageSigningState.cs" />
     <Compile Include="Entities\PackageSignature.cs" />
     <Compile Include="Entities\PackageSignatureStatus.cs" />
     <Compile Include="Entities\PackageSigningStatus.cs" />
     <Compile Include="Entities\PackageValidation.cs" />
+    <Compile Include="Entities\PackageCompatibilityIssue.cs" />
     <Compile Include="Entities\PackageValidationSet.cs" />
+    <Compile Include="Entities\ParentCertificate.cs" />
+    <Compile Include="Entities\ScanOperationState.cs" />
     <Compile Include="Entities\TrustedTimestamp.cs" />
-    <Compile Include="Entities\ValidationContext.cs" />
+    <Compile Include="Entities\TrustedTimestampStatus.cs" />
+    <Compile Include="Entities\ValidationEntitiesContext.cs" />
+    <Compile Include="Entities\PackageValidationIssue.cs" />
+    <Compile Include="Entities\ValidatorIssue.cs" />
     <Compile Include="Entities\ValidatorStatus.cs" />
     <Compile Include="IPackageValidationEnqueuer.cs" />
     <Compile Include="IServiceBusMessageSerializer.cs" />
@@ -60,9 +71,57 @@
     <Compile Include="Migrations\201709202218143_AddValidationSchema.Designer.cs">
       <DependentUpon>201709202218143_AddValidationSchema.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201710191647050_AddPackageSigningSchema.cs" />
-    <Compile Include="Migrations\201710191647050_AddPackageSigningSchema.Designer.cs">
-      <DependentUpon>201710191647050_AddPackageSigningSchema.cs</DependentUpon>
+    <Compile Include="Migrations\201711291837076_AddPackageSigningSchema.cs" />
+    <Compile Include="Migrations\201711291837076_AddPackageSigningSchema.Designer.cs">
+      <DependentUpon>201711291837076_AddPackageSigningSchema.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201712060116551_AddPackageValidationIssues.cs" />
+    <Compile Include="Migrations\201712060116551_AddPackageValidationIssues.Designer.cs">
+      <DependentUpon>201712060116551_AddPackageValidationIssues.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201801092335421_AddValidatorIssues.cs" />
+    <Compile Include="Migrations\201801092335421_AddValidatorIssues.Designer.cs">
+      <DependentUpon>201801092335421_AddValidatorIssues.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201801222056549_AddEndCertificateUse.cs" />
+    <Compile Include="Migrations\201801222056549_AddEndCertificateUse.Designer.cs">
+      <DependentUpon>201801222056549_AddEndCertificateUse.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201801232345348_MakeSignatureAndTimestampUniquePerPackage.cs" />
+    <Compile Include="Migrations\201801232345348_MakeSignatureAndTimestampUniquePerPackage.Designer.cs">
+      <DependentUpon>201801232345348_MakeSignatureAndTimestampUniquePerPackage.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201802052051419_AddTrustedTimestampStatus.cs" />
+    <Compile Include="Migrations\201802052051419_AddTrustedTimestampStatus.Designer.cs">
+      <DependentUpon>201802052051419_AddTrustedTimestampStatus.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201802212317262_AddPackageCompatibilityIssuesTable.cs" />
+    <Compile Include="Migrations\201802212317262_AddPackageCompatibilityIssuesTable.Designer.cs">
+      <DependentUpon>201802212317262_AddPackageCompatibilityIssuesTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201803120118455_AddPackageETag.cs" />
+    <Compile Include="Migrations\201803120118455_AddPackageETag.Designer.cs">
+      <DependentUpon>201803120118455_AddPackageETag.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201803212305281_AddValidatorStatusNupkgUrl.cs" />
+    <Compile Include="Migrations\201803212305281_AddValidatorStatusNupkgUrl.Designer.cs">
+      <DependentUpon>201803212305281_AddValidatorStatusNupkgUrl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201803272331375_AddPackageSignatureType.cs" />
+    <Compile Include="Migrations\201803272331375_AddPackageSignatureType.Designer.cs">
+      <DependentUpon>201803272331375_AddPackageSignatureType.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201804092202151_AddScanOperationStateTable.cs" />
+    <Compile Include="Migrations\201804092202151_AddScanOperationStateTable.Designer.cs">
+      <DependentUpon>201804092202151_AddScanOperationStateTable.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201805222305347_ScanBlobSize.cs" />
+    <Compile Include="Migrations\201805222305347_ScanBlobSize.Designer.cs">
+      <DependentUpon>201805222305347_ScanBlobSize.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806050030579_AddPackageRevalidations.cs" />
+    <Compile Include="Migrations\201806050030579_AddPackageRevalidations.Designer.cs">
+      <DependentUpon>201806050030579_AddPackageRevalidations.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\ValidationMigrationsConfiguration.cs" />
     <Compile Include="PackageValidationEnqueuer.cs" />
@@ -70,9 +129,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.*.cs" />
     <Compile Include="ServiceBusMessageSerializer.cs" />
+    <Compile Include="ValidationResult.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="app.config" />
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="project.json" />
   </ItemGroup>
   <ItemGroup>
@@ -89,8 +151,44 @@
     <EmbeddedResource Include="Migrations\201709202218143_AddValidationSchema.resx">
       <DependentUpon>201709202218143_AddValidationSchema.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201710191647050_AddPackageSigningSchema.resx">
-      <DependentUpon>201710191647050_AddPackageSigningSchema.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201711291837076_AddPackageSigningSchema.resx">
+      <DependentUpon>201711291837076_AddPackageSigningSchema.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201712060116551_AddPackageValidationIssues.resx">
+      <DependentUpon>201712060116551_AddPackageValidationIssues.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801092335421_AddValidatorIssues.resx">
+      <DependentUpon>201801092335421_AddValidatorIssues.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801222056549_AddEndCertificateUse.resx">
+      <DependentUpon>201801222056549_AddEndCertificateUse.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801232345348_MakeSignatureAndTimestampUniquePerPackage.resx">
+      <DependentUpon>201801232345348_MakeSignatureAndTimestampUniquePerPackage.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201802052051419_AddTrustedTimestampStatus.resx">
+      <DependentUpon>201802052051419_AddTrustedTimestampStatus.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201802212317262_AddPackageCompatibilityIssuesTable.resx">
+      <DependentUpon>201802212317262_AddPackageCompatibilityIssuesTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201803120118455_AddPackageETag.resx">
+      <DependentUpon>201803120118455_AddPackageETag.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201803212305281_AddValidatorStatusNupkgUrl.resx">
+      <DependentUpon>201803212305281_AddValidatorStatusNupkgUrl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201803272331375_AddPackageSignatureType.resx">
+      <DependentUpon>201803272331375_AddPackageSignatureType.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201804092202151_AddScanOperationStateTable.resx">
+      <DependentUpon>201804092202151_AddScanOperationStateTable.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805222305347_ScanBlobSize.resx">
+      <DependentUpon>201805222305347_ScanBlobSize.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806050030579_AddPackageRevalidations.resx">
+      <DependentUpon>201806050030579_AddPackageRevalidations.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

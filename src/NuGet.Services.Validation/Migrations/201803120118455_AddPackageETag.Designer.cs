@@ -7,13 +7,13 @@ namespace NuGet.Services.Validation
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.1.3-40302")]
-    public sealed partial class AddPackageSigningSchema : IMigrationMetadata
+    public sealed partial class AddPackageETag : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(AddPackageSigningSchema));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(AddPackageETag));
         
         string IMigrationMetadata.Id
         {
-            get { return "201710191647050_AddPackageSigningSchema"; }
+            get { return "201803120118455_AddPackageETag"; }
         }
         
         string IMigrationMetadata.Source

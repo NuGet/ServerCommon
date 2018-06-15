@@ -8,7 +8,21 @@ namespace NuGet.Services.Validation
 {
     public class PackageValidationMessageData
     {
-        public PackageValidationMessageData(string packageId, string packageVersion, string packageNormalizedVersion, Guid validationTrackingId)
+        public PackageValidationMessageData(
+            string packageId,
+            string packageVersion,
+            string packageNormalizedVersion,
+            Guid validationTrackingId)
+          : this(packageId, packageVersion, packageNormalizedVersion, validationTrackingId, deliveryCount: 0)
+        {
+        }
+
+        internal PackageValidationMessageData(
+            string packageId,
+            string packageVersion,
+            string packageNormalizedVersion,
+            Guid validationTrackingId,
+            int deliveryCount)
         {
             if (validationTrackingId == Guid.Empty)
             {
@@ -24,12 +38,14 @@ namespace NuGet.Services.Validation
                 throw new ArgumentNullException($"{nameof(packageVersion)} and {nameof(packageNormalizedVersion)}");
             }
             ValidationTrackingId = validationTrackingId;
+            DeliveryCount = deliveryCount;
         }
 
         public string PackageId { get; }
         public string PackageVersion { get; }
         public string PackageNormalizedVersion { get; }
         public Guid ValidationTrackingId { get; }
+        public int DeliveryCount { get; }
 
         private static string Normalize(string version)
         {
