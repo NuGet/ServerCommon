@@ -6,7 +6,6 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
-using Microsoft.ServiceBus.Messaging;
 
 namespace NuGet.Services.ServiceBus
 {
@@ -20,10 +19,12 @@ namespace NuGet.Services.ServiceBus
         private readonly ISubscriptionClient _client;
         private readonly IBrokeredMessageSerializer<TMessage> _serializer;
         private readonly IMessageHandler<TMessage> _handler;
+        private readonly ISubscriptionProcessorTelemetryService _telemetryService;
         private readonly ILogger<SubscriptionProcessor<TMessage>> _logger;
 
         private bool _running;
         private int _numberOfMessagesInProgress;
+        private Action<TimeSpan> _messageLagCallback;
 
         public int NumberOfMessagesInProgress => _numberOfMessagesInProgress;
 
@@ -38,15 +39,18 @@ namespace NuGet.Services.ServiceBus
             ISubscriptionClient client,
             IBrokeredMessageSerializer<TMessage> serializer,
             IMessageHandler<TMessage> handler,
+            ISubscriptionProcessorTelemetryService telemetryService,
             ILogger<SubscriptionProcessor<TMessage>> logger)
         {
             _client = client ?? throw new ArgumentNullException(nameof(client));
             _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
             _handler = handler ?? throw new ArgumentNullException(nameof(handler));
+            _telemetryService = telemetryService ?? throw new ArgumentNullException(nameof(telemetryService));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
             _running = false;
             _numberOfMessagesInProgress = 0;
+            _messageLagCallback = null;
         }
 
         public void Start()
@@ -70,6 +74,8 @@ namespace NuGet.Services.ServiceBus
             }
 
             Interlocked.Increment(ref _numberOfMessagesInProgress);
+
+            TrackMessageLags(brokeredMessage);
 
             try
             {
@@ -155,6 +161,16 @@ namespace NuGet.Services.ServiceBus
                     "Timeout reached when starting shutdown of subscription processor after {StartShutdownTimeout}",
                     timeout);
             }
+        }
+
+        private void TrackMessageLags(IBrokeredMessage brokeredMessage)
+        {
+            try
+            {
+                _telemetryService.TrackMessageDeliveryLag(DateTimeOffset.UtcNow - brokeredMessage.ScheduledEnqueueTimeUtc);
+                _telemetryService.TrackEnqueueLag(brokeredMessage.EnqueuedTimeUtc - brokeredMessage.ScheduledEnqueueTimeUtc);
+            }
+            catch { }
         }
     }
 }
