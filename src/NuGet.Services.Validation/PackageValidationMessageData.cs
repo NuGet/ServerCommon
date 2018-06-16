@@ -11,16 +11,14 @@ namespace NuGet.Services.Validation
         public PackageValidationMessageData(
             string packageId,
             string packageVersion,
-            string packageNormalizedVersion,
             Guid validationTrackingId)
-          : this(packageId, packageVersion, packageNormalizedVersion, validationTrackingId, deliveryCount: 0)
+          : this(packageId, packageVersion, validationTrackingId, deliveryCount: 0)
         {
         }
 
         internal PackageValidationMessageData(
             string packageId,
             string packageVersion,
-            string packageNormalizedVersion,
             Guid validationTrackingId,
             int deliveryCount)
         {
@@ -31,12 +29,8 @@ namespace NuGet.Services.Validation
 
             PackageId = packageId ?? throw new ArgumentNullException(nameof(packageId));
             // This is the first step in the transition from PackageVersion to PackageNormalizedVersion
-            PackageNormalizedVersion = packageNormalizedVersion ?? Normalize(packageVersion);
-            PackageVersion = packageVersion ?? packageNormalizedVersion;
-            if (PackageVersion == null && PackageNormalizedVersion == null)
-            {
-                throw new ArgumentNullException($"{nameof(packageVersion)} and {nameof(packageNormalizedVersion)}");
-            }
+            PackageVersion = packageVersion ?? throw new ArgumentNullException(nameof(packageVersion));
+            PackageNormalizedVersion = Normalize(packageVersion);
             ValidationTrackingId = validationTrackingId;
             DeliveryCount = deliveryCount;
         }

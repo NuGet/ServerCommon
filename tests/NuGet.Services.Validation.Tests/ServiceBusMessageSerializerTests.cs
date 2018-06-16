@@ -27,7 +27,7 @@ namespace NuGet.Services.Validation.Tests
             public void ProducesExpectedMessage()
             {
                 // Arrange
-                var input = new PackageValidationMessageData(PackageId, PackageVersion, PackageNormalizedVersion, ValidationTrackingId);
+                var input = new PackageValidationMessageData(PackageId, PackageVersion, ValidationTrackingId);
 
                 // Act
                 var output = _target.SerializePackageValidationMessageData(input);

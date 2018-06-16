@@ -30,7 +30,6 @@ namespace NuGet.Services.Validation
             return new PackageValidationMessageData(
                 data.PackageId,
                 data.PackageVersion,
-                data.PackageNormalizedVersion,
                 data.ValidationTrackingId,
                 message.DeliveryCount);
         }
