@@ -28,9 +28,8 @@ namespace NuGet.Services.Validation
             }
 
             PackageId = packageId ?? throw new ArgumentNullException(nameof(packageId));
-            // This is the first step in the transition from PackageVersion to PackageNormalizedVersion
             PackageVersion = packageVersion ?? throw new ArgumentNullException(nameof(packageVersion));
-            PackageNormalizedVersion = Normalize(packageVersion);
+            PackageNormalizedVersion = NuGetVersion.Parse(packageVersion).ToNormalizedString();
             ValidationTrackingId = validationTrackingId;
             DeliveryCount = deliveryCount;
         }
@@ -40,20 +39,5 @@ namespace NuGet.Services.Validation
         public string PackageNormalizedVersion { get; }
         public Guid ValidationTrackingId { get; }
         public int DeliveryCount { get; }
-
-        private static string Normalize(string version)
-        {
-            if(version == null)
-            {
-                return null;
-            }
-            NuGetVersion parsed;
-            if (!NuGetVersion.TryParse(version, out parsed))
-            {
-                return version;
-            }
-
-            return parsed.ToNormalizedString();
-        }
     }
 }
