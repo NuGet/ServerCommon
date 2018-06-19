@@ -38,7 +38,7 @@ namespace NuGet.Services.Validation.Tests
                 Assert.Contains(SchemaName, output.Properties.Keys);
                 Assert.Equal(PackageValidationMessageDataType, output.Properties[SchemaName]);
                 var body = output.GetBody();
-                Assert.Equal(TestData.SerializedPackageValidationMessageData1, body);
+                Assert.Equal(TestData.SerializedPackageValidationMessageData2, body);
             }
         }
 
