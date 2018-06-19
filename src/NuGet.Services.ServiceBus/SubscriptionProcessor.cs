@@ -168,6 +168,8 @@ namespace NuGet.Services.ServiceBus
             try
             {
                 _telemetryService.TrackMessageDeliveryLag(DateTimeOffset.UtcNow - brokeredMessage.ScheduledEnqueueTimeUtc);
+                // we expect the "enqueue lag" to be zero or really close to zero pretty much all the time, logging it just in case it is not
+                // and for historical perspective if we need one.
                 _telemetryService.TrackEnqueueLag(brokeredMessage.EnqueuedTimeUtc - brokeredMessage.ScheduledEnqueueTimeUtc);
             }
             catch { }
