@@ -33,6 +33,7 @@ namespace NuGet.Services.ServiceBus
         /// <param name="client">The client used to receive messages from the subscription.</param>
         /// <param name="serializer">The serializer used to deserialize received messages.</param>
         /// <param name="handler">The handler used to handle received messages.</param>
+        /// <param name="telemetryService">The telemetry service reference to which this class submits telemetry.</param>
         /// <param name="logger">The logger used to record debug information.</param>
         public SubscriptionProcessor(
             ISubscriptionClient client,
