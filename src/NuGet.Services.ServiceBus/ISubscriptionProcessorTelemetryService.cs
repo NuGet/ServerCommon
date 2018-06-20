@@ -20,7 +20,7 @@ namespace NuGet.Services.ServiceBus
         /// scheduled delivery time set to T+S and was actually received at T+S+L, the reported
         /// value is going to be: (T+S+L) - (T+S) = L.
         /// </remarks>
-        void TrackMessageDeliveryLag(TimeSpan deliveryLag);
+        void TrackMessageDeliveryLag<TMessage>(TimeSpan deliveryLag);
 
         /// <summary>
         /// Tracks the time difference between the scheduled enqueue time and actual enqueue time.
@@ -29,6 +29,6 @@ namespace NuGet.Services.ServiceBus
         /// This time being noticeably greater than zero might indicate perf issues on Service Bus
         /// side, if we ever to see any.
         /// </remarks>
-        void TrackEnqueueLag(TimeSpan enqueueLag);
+        void TrackEnqueueLag<TMessage>(TimeSpan enqueueLag);
     }
 }

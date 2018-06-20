@@ -24,7 +24,6 @@ namespace NuGet.Services.ServiceBus
 
         private bool _running;
         private int _numberOfMessagesInProgress;
-        private Action<TimeSpan> _messageLagCallback;
 
         public int NumberOfMessagesInProgress => _numberOfMessagesInProgress;
 
@@ -50,7 +49,6 @@ namespace NuGet.Services.ServiceBus
 
             _running = false;
             _numberOfMessagesInProgress = 0;
-            _messageLagCallback = null;
         }
 
         public void Start()
@@ -165,14 +163,10 @@ namespace NuGet.Services.ServiceBus
 
         private void TrackMessageLags(IBrokeredMessage brokeredMessage)
         {
-            try
-            {
-                _telemetryService.TrackMessageDeliveryLag(DateTimeOffset.UtcNow - brokeredMessage.ScheduledEnqueueTimeUtc);
-                // we expect the "enqueue lag" to be zero or really close to zero pretty much all the time, logging it just in case it is not
-                // and for historical perspective if we need one.
-                _telemetryService.TrackEnqueueLag(brokeredMessage.EnqueuedTimeUtc - brokeredMessage.ScheduledEnqueueTimeUtc);
-            }
-            catch { }
+            _telemetryService.TrackMessageDeliveryLag<TMessage>(DateTimeOffset.UtcNow - brokeredMessage.ScheduledEnqueueTimeUtc);
+            // we expect the "enqueue lag" to be zero or really close to zero pretty much all the time, logging it just in case it is not
+            // and for historical perspective if we need one.
+            _telemetryService.TrackEnqueueLag<TMessage>(brokeredMessage.EnqueuedTimeUtc - brokeredMessage.ScheduledEnqueueTimeUtc);
         }
     }
 }

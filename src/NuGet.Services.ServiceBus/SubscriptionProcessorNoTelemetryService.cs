@@ -11,11 +11,11 @@ namespace NuGet.Services.ServiceBus
     /// </summary>
     public class SubscriptionProcessorNoTelemetryService : ISubscriptionProcessorTelemetryService
     {
-        public void TrackMessageDeliveryLag(TimeSpan deliveryLag)
+        public void TrackMessageDeliveryLag<TMessage>(TimeSpan deliveryLag)
         {
         }
 
-        public void TrackEnqueueLag(TimeSpan enqueueLag)
+        public void TrackEnqueueLag<TMessage>(TimeSpan enqueueLag)
         {
 
         }

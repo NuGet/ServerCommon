@@ -166,9 +166,9 @@ namespace NuGet.Services.ServiceBus.Tests
                 await onMessageAsync(_brokeredMessage.Object);
 
                 _telemetryService
-                    .Verify(ts => ts.TrackMessageDeliveryLag(It.IsAny<TimeSpan>()), Times.Once);
+                    .Verify(ts => ts.TrackMessageDeliveryLag<TestMessage>(It.IsAny<TimeSpan>()), Times.Once);
                 _telemetryService
-                    .Verify(ts => ts.TrackEnqueueLag(It.IsAny<TimeSpan>()), Times.Once);
+                    .Verify(ts => ts.TrackEnqueueLag<TestMessage>(It.IsAny<TimeSpan>()), Times.Once);
             }
         }
 
