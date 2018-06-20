@@ -153,7 +153,22 @@ namespace NuGet.Services.ServiceBus.Tests
             [Fact]
             public async Task TracksMessageLag()
             {
+                Func<IBrokeredMessage, Task> onMessageAsync = null;
+                _client
+                    .Setup(c => c.OnMessageAsync(
+                                    It.IsAny<Func<IBrokeredMessage, Task>>(),
+                                    It.IsAny<IOnMessageOptions>()))
+                    .Callback<Func<IBrokeredMessage, Task>, IOnMessageOptions>((callback, options) => onMessageAsync = callback);
 
+
+                _target.Start();
+
+                await onMessageAsync(_brokeredMessage.Object);
+
+                _telemetryService
+                    .Verify(ts => ts.TrackMessageDeliveryLag(It.IsAny<TimeSpan>()), Times.Once);
+                _telemetryService
+                    .Verify(ts => ts.TrackEnqueueLag(It.IsAny<TimeSpan>()), Times.Once);
             }
         }
 
