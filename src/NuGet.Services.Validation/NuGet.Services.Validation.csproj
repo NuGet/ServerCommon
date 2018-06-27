@@ -123,12 +123,17 @@
     <Compile Include="Migrations\201806050030579_AddPackageRevalidations.Designer.cs">
       <DependentUpon>201806050030579_AddPackageRevalidations.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201806221830326_AddValidatingEntityType.cs" />
+    <Compile Include="Migrations\201806221830326_AddValidatingEntityType.Designer.cs">
+      <DependentUpon>201806221830326_AddValidatingEntityType.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\ValidationMigrationsConfiguration.cs" />
     <Compile Include="PackageValidationEnqueuer.cs" />
     <Compile Include="PackageValidationMessageData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.*.cs" />
     <Compile Include="ServiceBusMessageSerializer.cs" />
+    <Compile Include="ValidatingEntityType.cs" />
     <Compile Include="ValidationResult.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -189,6 +194,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201806050030579_AddPackageRevalidations.resx">
       <DependentUpon>201806050030579_AddPackageRevalidations.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806221830326_AddValidatingEntityType.resx">
+      <DependentUpon>201806221830326_AddValidatingEntityType.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
