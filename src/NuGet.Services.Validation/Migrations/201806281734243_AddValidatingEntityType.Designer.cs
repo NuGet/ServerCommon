@@ -13,7 +13,7 @@ namespace NuGet.Services.Validation
         
         string IMigrationMetadata.Id
         {
-            get { return "201806221830326_AddValidatingEntityType"; }
+            get { return "201806281734243_AddValidatingEntityType"; }
         }
         
         string IMigrationMetadata.Source

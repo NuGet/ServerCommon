@@ -79,7 +79,7 @@ namespace NuGet.Services.Validation.Tests
                 Assert.Equal(PackageNormalizedVersion, output.PackageNormalizedVersion);
                 Assert.Equal(ValidationTrackingId, output.ValidationTrackingId);
                 Assert.Equal(DeliveryCount, output.DeliveryCount);
-                Assert.Equal(ValidatingEntityType.Package, output.ValidatingEntityType);
+                Assert.Equal(ValidatingEntityType.Package, output.ValidatingType);
             }
 
             [Fact]
@@ -97,7 +97,7 @@ namespace NuGet.Services.Validation.Tests
                 Assert.Equal(PackageNormalizedVersion, output.PackageNormalizedVersion);
                 Assert.Equal(ValidationTrackingId, output.ValidationTrackingId);
                 Assert.Equal(DeliveryCount, output.DeliveryCount);
-                Assert.Equal(ValidatingEntityType.Package, output.ValidatingEntityType);
+                Assert.Equal(ValidatingEntityType.Package, output.ValidatingType);
             }
 
             [Fact]
@@ -115,7 +115,7 @@ namespace NuGet.Services.Validation.Tests
                 Assert.Equal(PackageNormalizedVersion, output.PackageNormalizedVersion);
                 Assert.Equal(ValidationTrackingId, output.ValidationTrackingId);
                 Assert.Equal(DeliveryCount, output.DeliveryCount);
-                Assert.Equal(ValidatingEntityType.SymbolPackage, output.ValidatingEntityType);
+                Assert.Equal(ValidatingEntityType.SymbolPackage, output.ValidatingType);
             }
 
 

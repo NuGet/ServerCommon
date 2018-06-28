@@ -75,7 +75,7 @@ namespace NuGet.Services.Validation
         /// <summary>
         /// The entity type to be validated.
         /// </summary>
-        public ValidatingEntityType ValidatingEntityType { get; set; }
+        public ValidatingEntityType ValidatingType { get; set; }
 
     }
 }

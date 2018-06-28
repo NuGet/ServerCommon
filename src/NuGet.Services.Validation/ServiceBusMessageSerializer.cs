@@ -20,7 +20,7 @@ namespace NuGet.Services.Validation
                 PackageVersion = message.PackageVersion,
                 PackageNormalizedVersion = message.PackageNormalizedVersion,
                 ValidationTrackingId = message.ValidationTrackingId,
-                ValidatingEntityType = message.ValidatingEntityType
+                ValidatingEntityType = message.ValidatingType
             });
         }
 

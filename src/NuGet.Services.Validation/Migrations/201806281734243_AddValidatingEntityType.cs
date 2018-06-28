@@ -7,12 +7,12 @@ namespace NuGet.Services.Validation
     {
         public override void Up()
         {
-            AddColumn("dbo.PackageValidationSets", "ValidatingEntityType", c => c.Int(nullable: false));
+            AddColumn("dbo.PackageValidationSets", "ValidatingType", c => c.Int(nullable: false));
         }
         
         public override void Down()
         {
-            DropColumn("dbo.PackageValidationSets", "ValidatingEntityType");
+            DropColumn("dbo.PackageValidationSets", "ValidatingType");
         }
     }
 }

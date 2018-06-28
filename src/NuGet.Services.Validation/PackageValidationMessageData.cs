@@ -20,8 +20,8 @@ namespace NuGet.Services.Validation
             string packageId,
             string packageVersion,
             Guid validationTrackingId,
-            ValidatingEntityType validatingEntityType)
-          : this(packageId, packageVersion, validationTrackingId, validatingEntityType, deliveryCount: 0)
+            ValidatingEntityType validatingType)
+          : this(packageId, packageVersion, validationTrackingId, validatingType, deliveryCount: 0)
         {
         }
 
@@ -42,7 +42,7 @@ namespace NuGet.Services.Validation
             PackageNormalizedVersion = NuGetVersion.Parse(packageVersion).ToNormalizedString();
             ValidationTrackingId = validationTrackingId;
             DeliveryCount = deliveryCount;
-            ValidatingEntityType = validatingEntityType;
+            ValidatingType = validatingEntityType;
         }
 
         public string PackageId { get; }
@@ -50,6 +50,6 @@ namespace NuGet.Services.Validation
         public string PackageNormalizedVersion { get; }
         public Guid ValidationTrackingId { get; }
         public int DeliveryCount { get; }
-        public ValidatingEntityType ValidatingEntityType { get; }
+        public ValidatingEntityType ValidatingType { get; }
     }
 }
