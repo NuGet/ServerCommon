@@ -12,7 +12,7 @@ namespace NuGet.Services.Validation
            string packageId,
            string packageVersion,
            Guid validationTrackingId)
-         : this(packageId, packageVersion, validationTrackingId, validatingEntityType: ValidatingEntityType.Package, deliveryCount: 0)
+         : this(packageId, packageVersion, validationTrackingId, validatingType: ValidatingType.Package, deliveryCount: 0)
         {
         }
 
@@ -20,7 +20,7 @@ namespace NuGet.Services.Validation
             string packageId,
             string packageVersion,
             Guid validationTrackingId,
-            ValidatingEntityType validatingType)
+            ValidatingType validatingType)
           : this(packageId, packageVersion, validationTrackingId, validatingType, deliveryCount: 0)
         {
         }
@@ -29,7 +29,7 @@ namespace NuGet.Services.Validation
             string packageId,
             string packageVersion,
             Guid validationTrackingId,
-            ValidatingEntityType validatingEntityType,
+            ValidatingType validatingType,
             int deliveryCount)
         {
             if (validationTrackingId == Guid.Empty)
@@ -42,7 +42,7 @@ namespace NuGet.Services.Validation
             PackageNormalizedVersion = NuGetVersion.Parse(packageVersion).ToNormalizedString();
             ValidationTrackingId = validationTrackingId;
             DeliveryCount = deliveryCount;
-            ValidatingType = validatingEntityType;
+            ValidatingType = validatingType;
         }
 
         public string PackageId { get; }
@@ -50,6 +50,6 @@ namespace NuGet.Services.Validation
         public string PackageNormalizedVersion { get; }
         public Guid ValidationTrackingId { get; }
         public int DeliveryCount { get; }
-        public ValidatingEntityType ValidatingType { get; }
+        public ValidatingType ValidatingType { get; }
     }
 }

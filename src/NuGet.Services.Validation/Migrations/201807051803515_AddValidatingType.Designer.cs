@@ -7,13 +7,13 @@ namespace NuGet.Services.Validation
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.1.3-40302")]
-    public sealed partial class AddValidatingEntityType : IMigrationMetadata
+    public sealed partial class AddValidatingType : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(AddValidatingEntityType));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(AddValidatingType));
         
         string IMigrationMetadata.Id
         {
-            get { return "201806282031108_AddValidatingEntityType"; }
+            get { return "201807051803515_AddValidatingType"; }
         }
         
         string IMigrationMetadata.Source

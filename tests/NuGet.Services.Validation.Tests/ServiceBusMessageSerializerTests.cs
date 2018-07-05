@@ -45,7 +45,7 @@ namespace NuGet.Services.Validation.Tests
             public void ProducesExpectedMessageForSymbols()
             {
                 // Arrange
-                var input = new PackageValidationMessageData(PackageId, PackageVersion, ValidationTrackingId, ValidatingEntityType.SymbolPackage);
+                var input = new PackageValidationMessageData(PackageId, PackageVersion, ValidationTrackingId, ValidatingType.SymbolPackage);
 
                 // Act
                 var output = _target.SerializePackageValidationMessageData(input);
@@ -79,7 +79,7 @@ namespace NuGet.Services.Validation.Tests
                 Assert.Equal(PackageNormalizedVersion, output.PackageNormalizedVersion);
                 Assert.Equal(ValidationTrackingId, output.ValidationTrackingId);
                 Assert.Equal(DeliveryCount, output.DeliveryCount);
-                Assert.Equal(ValidatingEntityType.Package, output.ValidatingType);
+                Assert.Equal(ValidatingType.Package, output.ValidatingType);
             }
 
             [Fact]
@@ -97,7 +97,7 @@ namespace NuGet.Services.Validation.Tests
                 Assert.Equal(PackageNormalizedVersion, output.PackageNormalizedVersion);
                 Assert.Equal(ValidationTrackingId, output.ValidationTrackingId);
                 Assert.Equal(DeliveryCount, output.DeliveryCount);
-                Assert.Equal(ValidatingEntityType.Package, output.ValidatingType);
+                Assert.Equal(ValidatingType.Package, output.ValidatingType);
             }
 
             [Fact]
@@ -115,7 +115,7 @@ namespace NuGet.Services.Validation.Tests
                 Assert.Equal(PackageNormalizedVersion, output.PackageNormalizedVersion);
                 Assert.Equal(ValidationTrackingId, output.ValidationTrackingId);
                 Assert.Equal(DeliveryCount, output.DeliveryCount);
-                Assert.Equal(ValidatingEntityType.SymbolPackage, output.ValidatingType);
+                Assert.Equal(ValidatingType.SymbolPackage, output.ValidatingType);
             }
 
 

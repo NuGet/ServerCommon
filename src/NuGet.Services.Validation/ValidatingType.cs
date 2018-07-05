@@ -7,7 +7,7 @@ namespace NuGet.Services.Validation
     /// The type of the entity that will be validated.
     /// It will be persisted in the PackageValidationSet table.
     /// </summary>
-    public enum ValidatingEntityType
+    public enum ValidatingType
     {
         Package = 0,
         SymbolPackage = 1
