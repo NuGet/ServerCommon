@@ -1,0 +1,15 @@
+﻿{
+  "dependencies": {
+    "System.Net.Http": "4.3.3",
+    "Moq": "4.5.23",
+    "SerilogTraceListener": "2.0.10027",
+    "xunit": "2.3.1",
+    "Test.Utility": "4.8.0-preview4.5289"
+  },
+  "frameworks": {
+    "net46": {}
+  },
+  "runtimes": {
+    "win": {}
+  }
+}
