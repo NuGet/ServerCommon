@@ -1,4 +1,7 @@
-﻿namespace NuGet.Services.Status
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+namespace NuGet.Services.Status
 {
     /// <summary>
     /// Describes whether or not a <see cref="IReadOnlyComponent"/> is performing as expected.
