@@ -4,6 +4,9 @@ using System.Linq;
 
 namespace NuGet.Services.Status
 {
+    /// <summary>
+    /// Default implementation of <see cref="IComponent"/>.
+    /// </summary>
     public abstract class Component : IComponent
     {
         public static string ComponentPathDivider = "/";

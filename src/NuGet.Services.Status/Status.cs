@@ -4,6 +4,9 @@ using Newtonsoft.Json;
 
 namespace NuGet.Services.Status
 {
+    /// <summary>
+    /// Describes the status of an entire service.
+    /// </summary>
     public class Status
     {
         public Status(IReadOnlyComponent rootComponent, IEnumerable<IEvent> events)
@@ -24,8 +27,17 @@ namespace NuGet.Services.Status
         {
         }
 
+        /// <summary>
+        /// The time this status was generated.
+        /// </summary>
         public DateTime LastUpdated { get; }
+        /// <summary>
+        /// The <see cref="IReadOnlyComponent"/> that describes the entire service. Its <see cref="IReadOnlyComponent.SubComponents"/> represent portions of the service.
+        /// </summary>
         public IReadOnlyComponent RootComponent { get; }
+        /// <summary>
+        /// A list of <see cref="IEvent"/>s that have affected the service recently.
+        /// </summary>
         public IEnumerable<IEvent> Events { get; }
     }
 }

@@ -1,8 +1,13 @@
 ﻿using System.Collections.Generic;
-using System.Linq;
 
 namespace NuGet.Services.Status
 {
+    /// <summary>
+    /// An <see cref="IComponent"/> that ignores the status of its secondary subcomponents if its primary subcomponent is up.
+    /// </summary>
+    /// <remarks>
+    /// The primary subcomponent is the first subcomponent in its <see cref="IReadOnlyComponent.SubComponents"/>.
+    /// </remarks>
     public class PrimarySecondaryComponent : Component
     {
         public PrimarySecondaryComponent(

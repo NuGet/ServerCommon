@@ -3,6 +3,9 @@ using System.Linq;
 
 namespace NuGet.Services.Status
 {
+    /// <summary>
+    /// Wrapper class for <see cref="IReadOnlyComponent"/> that sets <see cref="IReadOnlyComponent.Path"/> as expected.
+    /// </summary>
     public class ReadOnlySubComponent : IReadOnlyComponent
     {
         private readonly IReadOnlyComponent _component;

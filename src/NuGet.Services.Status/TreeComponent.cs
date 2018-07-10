@@ -3,6 +3,9 @@ using System.Linq;
 
 namespace NuGet.Services.Status
 {
+    /// <summary>
+    /// A <see cref="Component"/> that treats all of its <see cref="IReadOnlyComponent.SubComponents"/> equally.
+    /// </summary>
     public class TreeComponent : Component
     {
         public TreeComponent(
