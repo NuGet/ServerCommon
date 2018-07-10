@@ -18,7 +18,7 @@ namespace NuGet.Services.Status
         public string Description => _component.Description;
         public ComponentStatus Status => _component.Status;
         public IEnumerable<IReadOnlyComponent> SubComponents => _component.SubComponents?.Select(s => new ReadOnlySubComponent(s, this));
-        public string Path => _parent.Path + Component.ComponentPathDivider + Name;
+        public string Path => _parent.Path + Constants.ComponentPathDivider + Name;
 
         public ReadOnlySubComponent(IReadOnlyComponent component, IReadOnlyComponent parent)
         {

@@ -12,8 +12,6 @@ namespace NuGet.Services.Status
     /// </summary>
     public abstract class Component : IComponent
     {
-        public static string ComponentPathDivider = "/";
-
         public string Name { get; }
         public string Description { get; }
         public abstract ComponentStatus Status { get; set; }

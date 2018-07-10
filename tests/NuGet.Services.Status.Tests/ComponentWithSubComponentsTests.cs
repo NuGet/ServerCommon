@@ -22,13 +22,26 @@ namespace NuGet.Services.Status.Tests
         [Fact]
         public void PropagatesPathCorrectly()
         {
-            var innermostSubComponent = CreateComponent("innermostSubComponent", "innermostSubDescription");
-            var middleSubComponent = CreateComponent("middleSubComponent", "middleSubDescription", new[] { innermostSubComponent });
-            var rootComponent = CreateComponent("rootComponent", "rootDescription", new[] { middleSubComponent });
+            var innermostComponent = CreateComponent("innermostSubComponent", "innermostSubDescription");
+            var middleComponent = CreateComponent("middleSubComponent", "middleSubDescription", new[] { innermostComponent });
+            var rootComponent = CreateComponent("rootComponent", "rootDescription", new[] { middleComponent });
 
-            Assert.Equal(rootComponent.Name, rootComponent.Path);
-            Assert.Equal(string.Join(Component.ComponentPathDivider, rootComponent.Name, middleSubComponent.Name), rootComponent.SubComponents.First().Path);
-            Assert.Equal(string.Join(Component.ComponentPathDivider, rootComponent.Name, middleSubComponent.Name, innermostSubComponent.Name), rootComponent.SubComponents.First().SubComponents.First().Path);
+            var expectedRootComponentPath = rootComponent.Name;
+            AssertPath(rootComponent, rootComponent, expectedRootComponentPath);
+
+            var middleSubComponent = rootComponent.SubComponents.First();
+            var expectedMiddleSubComponentPath = string.Join(Constants.ComponentPathDivider.ToString(), rootComponent.Name, middleComponent.Name);
+            AssertPath(rootComponent, middleSubComponent, expectedMiddleSubComponentPath);
+
+            var innermostSubComponent = rootComponent.SubComponents.First().SubComponents.First();
+            var expectedInnermostSubComponentPath = string.Join(Constants.ComponentPathDivider.ToString(), rootComponent.Name, middleComponent.Name, innermostComponent.Name);
+            AssertPath(rootComponent, innermostSubComponent, expectedInnermostSubComponentPath);
+        }
+
+        private void AssertPath(IReadOnlyComponent root, IReadOnlyComponent subComponent, string expectedPath)
+        {
+            Assert.Equal(expectedPath, subComponent.Path);
+            AssertUtility.AssertComponent(subComponent, root.GetByPath(expectedPath));
         }
 
         [Fact]

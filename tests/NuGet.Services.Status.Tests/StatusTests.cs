@@ -19,7 +19,7 @@ namespace NuGet.Services.Status.Tests
             var statusString = JsonConvert.SerializeObject(expected);
             var actual = JsonConvert.DeserializeObject<Status>(statusString);
 
-            AssertStatus(expected, actual);
+            AssertUtility.AssertStatus(expected, actual);
         }
 
         private static Status CreateStatus()
@@ -66,81 +66,6 @@ namespace NuGet.Services.Status.Tests
             }
 
             return component;
-        }
-
-        private static void AssertStatus(Status expected, Status actual)
-        {
-            AssertFieldEqual(expected, actual, i => i.LastUpdated);
-            AssertFieldEqual(expected, actual, i => i.RootComponent, AssertComponent);
-            AssertFieldEqual(expected, actual, i => i.Events, AssertEvent);
-        }
-
-        private static void AssertComponent(IReadOnlyComponent expected, IReadOnlyComponent actual)
-        {
-            AssertFieldEqual(expected, actual, i => i.Description);
-            AssertFieldEqual(expected, actual, i => i.Name);
-            AssertFieldEqual(expected, actual, i => i.Status);
-            AssertFieldEqual(expected, actual, i => i.SubComponents, AssertComponent);
-            AssertFieldEqual(expected, actual, i => i.Path);
-        }
-
-        private static void AssertEvent(IEvent expected, IEvent actual)
-        {
-            AssertFieldEqual(expected, actual, i => i.AffectedComponentPath);
-            AssertFieldEqual(expected, actual, i => i.AffectedComponentStatus);
-            AssertFieldEqual(expected, actual, i => i.EndTime);
-            AssertFieldEqual(expected, actual, i => i.StartTime);
-            AssertFieldEqual(expected, actual, i => i.Messages, AssertMessage);
-        }
-
-        private static void AssertMessage(IMessage expected, IMessage actual)
-        {
-            AssertFieldEqual(expected, actual, i => i.Contents);
-            AssertFieldEqual(expected, actual, i => i.Time);
-        }
-
-        private static void AssertFieldEqual<TParent, TField>(
-            TParent expected,
-            TParent actual,
-            Func<TParent, TField> accessor)
-        {
-            Assert.Equal(accessor(expected), accessor(actual));
-        }
-
-        private static void AssertFieldEqual<TParent, TField>(
-            TParent expected,
-            TParent actual,
-            Func<TParent, TField> accessor,
-            Action<TField, TField> assert)
-        {
-            assert(accessor(expected), accessor(actual));
-        }
-
-        private static void AssertFieldEqual<TParent, TField>(
-            TParent expected,
-            TParent actual,
-            Func<TParent, IEnumerable<TField>> accessor,
-            Action<TField, TField> assert)
-        {
-            AssertAll(accessor(expected), accessor(actual), assert);
-        }
-
-        private static void AssertAll<T>(IEnumerable<T> expecteds, IEnumerable<T> actuals, Action<T, T> assert)
-        {
-            if (expecteds == null)
-            {
-                Assert.Null(actuals);
-
-                return;
-            }
-
-            Assert.Equal(expecteds.Count(), actuals.Count());
-            var expectedsArray = expecteds.ToArray();
-            var actualsArray = actuals.ToArray();
-            for (int i = 0; i < expecteds.Count(); i++)
-            {
-                assert(expectedsArray[i], actualsArray[i]);
-            }
         }
 
         private static int _currentStatusIndex = 0;
