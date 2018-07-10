@@ -38,10 +38,11 @@ namespace NuGet.Services.Status.Tests
             AssertPath(rootComponent, innermostSubComponent, expectedInnermostSubComponentPath);
         }
 
-        private void AssertPath(IReadOnlyComponent root, IReadOnlyComponent subComponent, string expectedPath)
+        private void AssertPath(IComponent root, IComponent subComponent, string expectedPath)
         {
             Assert.Equal(expectedPath, subComponent.Path);
-            AssertUtility.AssertComponent(subComponent, root.GetByPath(expectedPath));
+            AssertUtility.AssertComponent(subComponent, ((IReadOnlyComponent)root).GetByPath(expectedPath));
+            AssertUtility.AssertComponent(subComponent, ((IComponent)root).GetByPath(expectedPath));
         }
 
         [Fact]

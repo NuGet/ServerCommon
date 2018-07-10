@@ -38,5 +38,32 @@ namespace NuGet.Services.Status
 
             return component;
         }
+
+        public static IComponent GetByPath(this IComponent root, string path)
+        {
+            var componentNames = path.Split(Constants.ComponentPathDivider);
+            return root.GetByPath(componentNames);
+        }
+
+        public static IComponent GetByPath(this IComponent root, params string[] componentNames)
+        {
+            if (componentNames.First() != root.Name)
+            {
+                return null;
+            }
+
+            IComponent component = root;
+            foreach (var componentName in componentNames.Skip(1))
+            {
+                component = component.SubComponents.FirstOrDefault(c => c.Name == componentName);
+
+                if (component == null)
+                {
+                    break;
+                }
+            }
+
+            return component;
+        }
     }
 }
