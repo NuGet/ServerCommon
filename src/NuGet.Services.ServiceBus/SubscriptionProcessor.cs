@@ -56,12 +56,29 @@ namespace NuGet.Services.ServiceBus
         {
             _logger.LogInformation("Registering the handler to begin listening to the Service Bus subscription");
 
-            _running = true;
-
-            _client.OnMessageAsync(OnMessageAsync, new OnMessageOptionsWrapper
+            StartInternal(new OnMessageOptionsWrapper
             {
                 AutoComplete = false,
             });
+        }
+
+        public void Start(int maxConcurrentCalls)
+        {
+            _logger.LogInformation("Registering the handler to begin listening to the Service Bus subscription with maxConcurrentCalls = {MaxConcurrentCalls}",
+                maxConcurrentCalls);
+
+            StartInternal(new OnMessageOptionsWrapper
+            {
+                AutoComplete = false,
+                MaxConcurrentCalls = maxConcurrentCalls
+            });
+        }
+
+        private void StartInternal(OnMessageOptionsWrapper onMessageOptions)
+        {
+            _running = true;
+
+            _client.OnMessageAsync(OnMessageAsync, onMessageOptions);
         }
 
         private async Task OnMessageAsync(IBrokeredMessage brokeredMessage)
