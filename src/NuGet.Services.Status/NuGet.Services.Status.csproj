@@ -43,7 +43,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Component.cs" />
-    <Compile Include="ComponentExtensions.cs" />
+    <Compile Include="ComponentUtility.cs" />
     <Compile Include="Constants.cs" />
     <Compile Include="IEvent.cs" />
     <Compile Include="IMessage.cs" />

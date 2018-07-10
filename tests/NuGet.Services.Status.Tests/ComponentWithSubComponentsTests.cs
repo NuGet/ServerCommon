@@ -26,15 +26,15 @@ namespace NuGet.Services.Status.Tests
             var middleComponent = CreateComponent("middleSubComponent", "middleSubDescription", new[] { innermostComponent });
             var rootComponent = CreateComponent("rootComponent", "rootDescription", new[] { middleComponent });
 
-            var expectedRootComponentPath = rootComponent.Name;
+            var expectedRootComponentPath = ComponentUtility.GetPath(rootComponent.Name);
             AssertPath(rootComponent, rootComponent, expectedRootComponentPath);
 
             var middleSubComponent = rootComponent.SubComponents.First();
-            var expectedMiddleSubComponentPath = string.Join(Constants.ComponentPathDivider.ToString(), rootComponent.Name, middleComponent.Name);
+            var expectedMiddleSubComponentPath = ComponentUtility.GetPath(rootComponent.Name, middleComponent.Name);
             AssertPath(rootComponent, middleSubComponent, expectedMiddleSubComponentPath);
 
             var innermostSubComponent = rootComponent.SubComponents.First().SubComponents.First();
-            var expectedInnermostSubComponentPath = string.Join(Constants.ComponentPathDivider.ToString(), rootComponent.Name, middleComponent.Name, innermostComponent.Name);
+            var expectedInnermostSubComponentPath = ComponentUtility.GetPath(rootComponent.Name, middleComponent.Name, innermostComponent.Name);
             AssertPath(rootComponent, innermostSubComponent, expectedInnermostSubComponentPath);
         }
 
