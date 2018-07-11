@@ -45,7 +45,7 @@ namespace NuGet.Services.Status
                     if (subComponent.Status == ComponentStatus.Up)
                     {
                         // If the first component is up, the status is up.
-                        // If any child component is up, the status is degraded.
+                        // If any child component is up but the first component is not up, the status is degraded.
                         return isFirst ? ComponentStatus.Up : ComponentStatus.Degraded;
                     }
 

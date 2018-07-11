@@ -20,29 +20,60 @@ namespace NuGet.Services.Status.Tests
         }
 
         [Fact]
-        public void PropagatesPathCorrectly()
+        public void GetByPathReturnsExistingSubComponents()
+        {
+            var innermostComponent = CreateComponent("innermostSubComponent", "innermostSubDescription");
+            var middleComponent = CreateComponent("middleSubComponent", "middleSubDescription", new[] { innermostComponent });
+            var rootComponent = CreateComponent("rootComponent", "rootDescription", new[] { middleComponent });
+            
+            AssertPath(rootComponent, rootComponent, rootComponent.Name);
+
+            var middleSubComponent = rootComponent.SubComponents.First();
+            AssertPath(rootComponent, middleSubComponent, rootComponent.Name, middleComponent.Name);
+
+            var innermostSubComponent = rootComponent.SubComponents.First().SubComponents.First();
+            AssertPath(rootComponent, innermostSubComponent, rootComponent.Name, middleComponent.Name, innermostComponent.Name);
+        }
+
+        private void AssertPath<TComponent>(TComponent root, TComponent subComponent, params string[] componentNames)
+            where TComponent : class, IReadOnlyComponent, IComponentRoot<TComponent>
+        {
+            AssertUtility.AssertComponent(subComponent, root.GetByNames(componentNames));
+
+            var expectedPath = ComponentUtility.GetPath(componentNames);
+            Assert.Equal(expectedPath, subComponent.Path);
+            AssertUtility.AssertComponent(subComponent, root.GetByPath(expectedPath));
+        }
+
+        [Fact]
+        public void GetByPathReturnsNullForMissingSubComponents()
         {
             var innermostComponent = CreateComponent("innermostSubComponent", "innermostSubDescription");
             var middleComponent = CreateComponent("middleSubComponent", "middleSubDescription", new[] { innermostComponent });
             var rootComponent = CreateComponent("rootComponent", "rootDescription", new[] { middleComponent });
 
-            var expectedRootComponentPath = ComponentUtility.GetPath(rootComponent.Name);
-            AssertPath(rootComponent, rootComponent, expectedRootComponentPath);
+            Assert.Throws<ArgumentNullException>(() => ComponentUtility.GetPath((string[])null));
+            
+            AssertMissingPath(rootComponent, (string)null);
+            AssertMissingPath(rootComponent, "missingRootComponent");
+            AssertMissingPath(rootComponent, "missingRootComponent", "withSubComponent");
 
-            var middleSubComponent = rootComponent.SubComponents.First();
-            var expectedMiddleSubComponentPath = ComponentUtility.GetPath(rootComponent.Name, middleComponent.Name);
-            AssertPath(rootComponent, middleSubComponent, expectedMiddleSubComponentPath);
+            AssertMissingPath(rootComponent, rootComponent.Name, null);
+            AssertMissingPath(rootComponent, rootComponent.Name, "missingSubComponent");
+            AssertMissingPath(rootComponent, rootComponent.Name, "missingSubComponent", "withSubSubComponent");
 
-            var innermostSubComponent = rootComponent.SubComponents.First().SubComponents.First();
-            var expectedInnermostSubComponentPath = ComponentUtility.GetPath(rootComponent.Name, middleComponent.Name, innermostComponent.Name);
-            AssertPath(rootComponent, innermostSubComponent, expectedInnermostSubComponentPath);
+            AssertMissingPath(rootComponent, rootComponent.Name, middleComponent.Name, null);
+            AssertMissingPath(rootComponent, rootComponent.Name, middleComponent.Name, "missingSubSubComponent");
+            AssertMissingPath(rootComponent, rootComponent.Name, middleComponent.Name, "missingSubSubComponent", "withSubSubSubComponent");
         }
 
-        private void AssertPath(IComponent root, IComponent subComponent, string expectedPath)
+        private void AssertMissingPath<TComponent>(TComponent root, params string[] componentNames)
+            where TComponent : class, IReadOnlyComponent, IComponentRoot<TComponent>
         {
-            Assert.Equal(expectedPath, subComponent.Path);
-            AssertUtility.AssertComponent(subComponent, ((IReadOnlyComponent)root).GetByPath(expectedPath));
-            AssertUtility.AssertComponent(subComponent, ((IComponent)root).GetByPath(expectedPath));
+            Assert.Null(root.GetByNames(componentNames));
+
+            var missingPath = ComponentUtility.GetPath(componentNames);
+            Assert.Null(root.GetByPath(missingPath));
         }
 
         [Fact]

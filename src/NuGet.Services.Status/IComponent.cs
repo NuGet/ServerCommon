@@ -8,9 +8,16 @@ namespace NuGet.Services.Status
     /// <summary>
     /// A writable <see cref="IReadOnlyComponent"/> that allows setting its status.
     /// </summary>
-    public interface IComponent : IReadOnlyComponent
+    public interface IComponent : IReadOnlyComponent, IComponentRoot<IComponent>
     {
+        /// <summary>
+        /// The status of this part of the service.
+        /// </summary>
         new ComponentStatus Status { get; set; }
+
+        /// <summary>
+        /// A list of writable subcomponents that make up this part of the service.
+        /// </summary>
         new IEnumerable<IComponent> SubComponents { get; }
     }
 }

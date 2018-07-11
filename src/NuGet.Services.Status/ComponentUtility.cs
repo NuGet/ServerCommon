@@ -1,69 +1,81 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace NuGet.Services.Status
 {
     public static class ComponentUtility
     {
+        /// <summary>
+        /// Concatenates a set of <see cref="IReadOnlyComponent.Name"/>s into a <see cref="IReadOnlyComponent.Path"/>.
+        /// </summary>
         public static string GetPath(params string[] componentNames)
         {
+            componentNames = componentNames ?? throw new ArgumentNullException(nameof(componentNames));
+
             return string.Join(Constants.ComponentPathDivider.ToString(), componentNames);
         }
 
-        public static IReadOnlyComponent GetByPath(this IReadOnlyComponent root, string path)
+        /// <summary>
+        /// Gets the subcomponent of <paramref name="component"/> with <see cref="IReadOnlyComponent.Path"/> <paramref name="path"/>.
+        /// If none exists, returns <c>null</c>.
+        /// </summary>
+        public static TComponent GetByPath<TComponent>(this TComponent component, string path)
+            where TComponent : class, IReadOnlyComponent, IComponentRoot<TComponent>
         {
-            var componentNames = path.Split(Constants.ComponentPathDivider);
-            return root.GetByPath(componentNames);
-        }
-
-        public static IReadOnlyComponent GetByPath(this IReadOnlyComponent root, params string[] componentNames)
-        {
-            if (componentNames.First() != root.Name)
+            if (path == null)
             {
                 return null;
             }
 
-            IReadOnlyComponent component = root;
-            foreach (var componentName in componentNames.Skip(1))
-            {
-                component = component.SubComponents.FirstOrDefault(c => c.Name == componentName);
-
-                if (component == null)
-                {
-                    break;
-                }
-            }
-
-            return component;
-        }
-
-        public static IComponent GetByPath(this IComponent root, string path)
-        {
             var componentNames = path.Split(Constants.ComponentPathDivider);
-            return root.GetByPath(componentNames);
+            return component.GetByNames(componentNames);
         }
 
-        public static IComponent GetByPath(this IComponent root, params string[] componentNames)
+        /// <summary>
+        /// Gets the subcomponent of <paramref name="component"/> by iterating its subcomponents in the order of <paramref name="componentNames"/>.
+        /// If none exists, returns <c>null</c>.
+        /// </summary>
+        public static TComponent GetByNames<TComponent>(this TComponent component, params string[] componentNames)
+            where TComponent : class, IReadOnlyComponent, IComponentRoot<TComponent>
         {
-            if (componentNames.First() != root.Name)
+            if (componentNames == null)
             {
                 return null;
             }
 
-            IComponent component = root;
-            foreach (var componentName in componentNames.Skip(1))
+            TComponent currentComponent = null;
+            IComponentRoot<TComponent> currentRoot = new GetByNamesHelper<TComponent>(component);
+            foreach (var componentName in componentNames)
             {
-                component = component.SubComponents.FirstOrDefault(c => c.Name == componentName);
+                currentComponent = currentRoot.SubComponents.FirstOrDefault(c => c.Name == componentName);
 
-                if (component == null)
+                if (currentComponent == null)
                 {
                     break;
                 }
+
+                currentRoot = currentComponent;
             }
 
-            return component;
+            return currentComponent;
+        }
+
+        /// <remarks>
+        /// Dummy implementation of <see cref="IComponentRoot{TComponent}"/> used by <see cref="GetByNames{TComponent}(TComponent, string[])"/>.
+        /// </remarks>
+        private class GetByNamesHelper<TComponent> : IComponentRoot<TComponent>
+            where TComponent : IReadOnlyComponent
+        {
+            public IEnumerable<TComponent> SubComponents { get; }
+
+            public GetByNamesHelper(TComponent root)
+            {
+                SubComponents = new[] { root };
+            }
         }
     }
 }

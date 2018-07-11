@@ -15,18 +15,22 @@ namespace NuGet.Services.Status
         /// The <see cref="IReadOnlyComponent.Path"/> of the <see cref="IReadOnlyComponent"/> affected.
         /// </summary>
         string AffectedComponentPath { get; }
+
         /// <summary>
         /// The <see cref="IReadOnlyComponent.Status"/> of the <see cref="IReadOnlyComponent"/> affected.
         /// </summary>
         ComponentStatus AffectedComponentStatus { get; }
+
         /// <summary>
         /// When the event began.
         /// </summary>
         DateTime StartTime { get; }
+
         /// <summary>
         /// When the event ended, or <c>null</c> if the event is still active.
         /// </summary>
         DateTime? EndTime { get; }
+
         /// <summary>
         /// A set of <see cref="IMessage"/>s related to this event.
         /// </summary>

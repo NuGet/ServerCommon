@@ -14,6 +14,7 @@ namespace NuGet.Services.Status
         /// The time the message was posted.
         /// </summary>
         DateTime Time { get; }
+
         /// <summary>
         /// The contents of the message.
         /// </summary>

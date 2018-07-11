@@ -12,6 +12,21 @@ namespace NuGet.Services.Status
     /// </summary>
     public class Status
     {
+        /// <summary>
+        /// The time this status was generated.
+        /// </summary>
+        public DateTime LastUpdated { get; }
+
+        /// <summary>
+        /// The <see cref="IReadOnlyComponent"/> that describes the entire service. Its <see cref="IReadOnlyComponent.SubComponents"/> represent portions of the service.
+        /// </summary>
+        public IReadOnlyComponent RootComponent { get; }
+
+        /// <summary>
+        /// A list of <see cref="IEvent"/>s that have affected the service recently.
+        /// </summary>
+        public IEnumerable<IEvent> Events { get; }
+
         public Status(IReadOnlyComponent rootComponent, IEnumerable<IEvent> events)
             : this(DateTime.Now, rootComponent, events)
         {
@@ -29,18 +44,5 @@ namespace NuGet.Services.Status
             : this(lastUpdated, (IReadOnlyComponent)rootComponent, events)
         {
         }
-
-        /// <summary>
-        /// The time this status was generated.
-        /// </summary>
-        public DateTime LastUpdated { get; }
-        /// <summary>
-        /// The <see cref="IReadOnlyComponent"/> that describes the entire service. Its <see cref="IReadOnlyComponent.SubComponents"/> represent portions of the service.
-        /// </summary>
-        public IReadOnlyComponent RootComponent { get; }
-        /// <summary>
-        /// A list of <see cref="IEvent"/>s that have affected the service recently.
-        /// </summary>
-        public IEnumerable<IEvent> Events { get; }
     }
 }

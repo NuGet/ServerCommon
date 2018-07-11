@@ -9,7 +9,7 @@ namespace NuGet.Services.Status
     /// <summary>
     /// Wrapper class for <see cref="IReadOnlyComponent"/> that sets <see cref="IReadOnlyComponent.Path"/> as expected.
     /// </summary>
-    public class ReadOnlySubComponent : IReadOnlyComponent
+    internal class ReadOnlyComponentWrapper : IReadOnlyComponent
     {
         private readonly IReadOnlyComponent _component;
         private readonly IReadOnlyComponent _parent;
@@ -17,13 +17,15 @@ namespace NuGet.Services.Status
         public string Name => _component.Name;
         public string Description => _component.Description;
         public ComponentStatus Status => _component.Status;
-        public IEnumerable<IReadOnlyComponent> SubComponents => _component.SubComponents?.Select(s => new ReadOnlySubComponent(s, this));
+        public IEnumerable<IReadOnlyComponent> SubComponents { get; }
         public string Path => _parent.Path + Constants.ComponentPathDivider + Name;
 
-        public ReadOnlySubComponent(IReadOnlyComponent component, IReadOnlyComponent parent)
+        public ReadOnlyComponentWrapper(IReadOnlyComponent component, IReadOnlyComponent parent)
         {
             _component = component;
             _parent = parent;
+            SubComponents = _component.SubComponents?.Select(s => new ReadOnlyComponentWrapper(s, this)).ToList()
+                ?? Enumerable.Empty<IReadOnlyComponent>();
         }
     }
 }

@@ -10,21 +10,16 @@ namespace NuGet.Services.Status
     /// <summary>
     /// Default implementation of <see cref="IComponent"/>.
     /// </summary>
-    public abstract class Component : IComponent
+    public abstract class Component : ReadOnlyComponent, IComponent
     {
-        public string Name { get; }
-        public string Description { get; }
-        public abstract ComponentStatus Status { get; set; }
-        public IEnumerable<IComponent> SubComponents { get; }
-        IEnumerable<IReadOnlyComponent> IReadOnlyComponent.SubComponents => SubComponents;
-        public string Path => Name;
+        public new abstract ComponentStatus Status { get; set; }
+        public new IEnumerable<IComponent> SubComponents { get; }
 
         public Component(
             string name,
             string description)
+            : base(name, description)
         {
-            Name = name ?? throw new ArgumentNullException(nameof(name));
-            Description = description ?? "";
             SubComponents = Enumerable.Empty<IComponent>();
         }
 
@@ -32,9 +27,9 @@ namespace NuGet.Services.Status
             string name,
             string description,
             IEnumerable<IComponent> subComponents)
-            : this(name, description)
+            : base(name, description, subComponents)
         {
-            SubComponents = subComponents?.Select(s => new SubComponent(s, this))
+            SubComponents = subComponents?.Select(s => new ComponentWrapper(s, this)).ToList()
                 ?? throw new ArgumentNullException(nameof(subComponents));
         }
     }

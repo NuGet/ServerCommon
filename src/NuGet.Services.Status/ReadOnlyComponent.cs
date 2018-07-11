@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -15,17 +16,32 @@ namespace NuGet.Services.Status
         public IEnumerable<IReadOnlyComponent> SubComponents { get; }
         public string Path => Name;
 
+        protected ReadOnlyComponent(
+            string name,
+            string description)
+        {
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+            Description = description;
+        }
+
+        protected ReadOnlyComponent(
+            string name,
+            string description,
+            IEnumerable<IReadOnlyComponent> subComponents)
+            : this(name, description)
+        {
+            SubComponents = subComponents?.Select(s => new ReadOnlyComponentWrapper(s, this)).ToList()
+                ?? Enumerable.Empty<IReadOnlyComponent>();
+        }
+
         public ReadOnlyComponent(
             string name,
             string description,
             ComponentStatus status,
             IEnumerable<IReadOnlyComponent> subComponents)
+            : this(name, description, subComponents)
         {
-            Name = name;
-            Description = description;
             Status = status;
-            SubComponents = subComponents?.Select(s => new ReadOnlySubComponent(s, this))
-                ?? Enumerable.Empty<IReadOnlyComponent>();
         }
 
         [JsonConstructor]
