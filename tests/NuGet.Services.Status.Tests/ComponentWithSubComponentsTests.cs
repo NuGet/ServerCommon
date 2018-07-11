@@ -53,6 +53,9 @@ namespace NuGet.Services.Status.Tests
             var rootComponent = CreateComponent("rootComponent", "rootDescription", new[] { middleComponent });
 
             Assert.Throws<ArgumentNullException>(() => ComponentUtility.GetPath((string[])null));
+
+            Assert.Null(rootComponent.GetByPath(null));
+            Assert.Null(rootComponent.GetByNames((string[])null));
             
             AssertMissingPath(rootComponent, (string)null);
             AssertMissingPath(rootComponent, "missingRootComponent");
