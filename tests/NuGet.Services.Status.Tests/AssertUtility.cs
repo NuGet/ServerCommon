@@ -10,10 +10,10 @@ namespace NuGet.Services.Status.Tests
 {
     public static class AssertUtility
     {
-        public static void AssertStatus(Status expected, Status actual)
+        public static void AssertStatus(ServiceStatus expected, ServiceStatus actual)
         {
             AssertFieldEqual(expected, actual, i => i.LastUpdated);
-            AssertFieldEqual(expected, actual, i => i.RootComponent, AssertComponent);
+            AssertFieldEqual(expected, actual, i => i.ServiceRootComponent, AssertComponent);
             AssertFieldEqual(expected, actual, i => i.Events, AssertEvent);
         }
 

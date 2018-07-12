@@ -9,7 +9,7 @@ using Xunit;
 
 namespace NuGet.Services.Status.Tests
 {
-    public class StatusTests
+    public class ServiceStatusTests
     {
         [Fact]
         public void SerializesAndDeserializesCorrectly()
@@ -17,14 +17,14 @@ namespace NuGet.Services.Status.Tests
             var expected = CreateStatus();
 
             var statusString = JsonConvert.SerializeObject(expected);
-            var actual = JsonConvert.DeserializeObject<Status>(statusString);
+            var actual = JsonConvert.DeserializeObject<ServiceStatus>(statusString);
 
             AssertUtility.AssertStatus(expected, actual);
         }
 
-        private static Status CreateStatus()
+        private static ServiceStatus CreateStatus()
         {
-            return new Status(GetDate(), CreateRootComponent(), new[] { CreateEvent(), CreateEvent(), CreateEvent() });
+            return new ServiceStatus(GetDate(), CreateRootComponent(), new[] { CreateEvent(), CreateEvent(), CreateEvent() });
         }
 
         private static IComponent CreateRootComponent()

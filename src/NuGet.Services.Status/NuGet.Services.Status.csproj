@@ -57,7 +57,7 @@
     <Compile Include="PrimarySecondaryComponent.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReadOnlyComponentWrapper.cs" />
-    <Compile Include="Status.cs" />
+    <Compile Include="ServiceStatus.cs" />
     <Compile Include="ComponentWrapper.cs" />
     <Compile Include="TreeComponent.cs" />
     <Compile Include="IComponent.cs" />

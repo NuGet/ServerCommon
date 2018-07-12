@@ -9,6 +9,11 @@ namespace NuGet.Services.Status
     /// <summary>
     /// Wrapper class for <see cref="IReadOnlyComponent"/> that sets <see cref="IReadOnlyComponent.Path"/> as expected.
     /// </summary>
+    /// <remarks>
+    /// If we don't wrap or clone the subcomponents of a component, it wouldn't be possible to reuse the same component in multiple component trees.
+    /// Although reusing a component in multiple component trees is an unlikely scenario, it would be difficult to disallow it with this design.
+    /// As a result, a component only has a path when accessed as a subcomponent of another component.
+    /// </remarks>
     internal class ReadOnlyComponentWrapper : IReadOnlyComponent
     {
         private readonly IReadOnlyComponent _component;

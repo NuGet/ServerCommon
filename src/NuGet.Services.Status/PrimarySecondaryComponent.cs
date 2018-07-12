@@ -11,6 +11,12 @@ namespace NuGet.Services.Status
     /// <remarks>
     /// The primary subcomponent is the first subcomponent in its <see cref="IReadOnlyComponent.SubComponents"/>.
     /// </remarks>
+    /// <example>
+    /// A website is deployed to two regions, region A and region B.
+    /// If region A is performing as expected, traffic is directed to region A.
+    /// If region A is not performing as expected, traffic is directed to region B.
+    /// Customers will never see an impact as long as region A is up, even if region B is completely down.
+    /// </example>
     public class PrimarySecondaryComponent : Component
     {
         public PrimarySecondaryComponent(

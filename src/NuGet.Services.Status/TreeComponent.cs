@@ -9,6 +9,12 @@ namespace NuGet.Services.Status
     /// <summary>
     /// A <see cref="Component"/> that treats all of its <see cref="IReadOnlyComponent.SubComponents"/> equally.
     /// </summary>
+    /// <example>
+    /// A website is deployed to two regions, region A and region B.
+    /// Region A handles all traffic from users near it.
+    /// Region B handles all traffic from users near it.
+    /// If either region A or region B are down, some customers are impacted.
+    /// </example>
     public class TreeComponent : Component
     {
         public TreeComponent(

@@ -48,7 +48,7 @@
     <Compile Include="LeafComponentTests.cs" />
     <Compile Include="PrimarySecondaryComponentTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StatusTests.cs" />
+    <Compile Include="ServiceStatusTests.cs" />
     <Compile Include="TestDataClass.cs" />
     <Compile Include="AssertUtility.cs" />
     <Compile Include="TreeComponentTests.cs" />

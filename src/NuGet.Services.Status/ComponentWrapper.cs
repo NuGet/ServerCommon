@@ -7,7 +7,7 @@ using System.Linq;
 namespace NuGet.Services.Status
 {
     /// <summary>
-    /// Wrapper class for <see cref="IComponent"/> that sets <see cref="IReadOnlyComponent.Path"/> as expected.
+    /// Wrapper class for <see cref="IComponent"/> that sets <see cref="IComponent.Path"/> as expected.
     /// </summary>
     internal class ComponentWrapper : ReadOnlyComponentWrapper, IComponent
     {
