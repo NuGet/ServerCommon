@@ -14,6 +14,7 @@ namespace NuGet.Services.Status
         public string Description { get; }
         public ComponentStatus Status { get; }
         public IEnumerable<IReadOnlyComponent> SubComponents { get; }
+        [JsonIgnore]
         public string Path => Name;
 
         protected ReadOnlyComponent(
@@ -50,7 +51,7 @@ namespace NuGet.Services.Status
             string description, 
             ComponentStatus status, 
             IEnumerable<ReadOnlyComponent> subComponents)
-            : this(name, description, status, subComponents.Cast<IReadOnlyComponent>())
+            : this(name, description, status, subComponents?.Cast<IReadOnlyComponent>())
         {
         }
     }
