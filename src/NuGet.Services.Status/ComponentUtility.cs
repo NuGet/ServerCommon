@@ -24,7 +24,7 @@ namespace NuGet.Services.Status
         /// If none exists, returns <c>null</c>.
         /// </summary>
         public static TComponent GetByPath<TComponent>(this TComponent component, string path)
-            where TComponent : class, IReadOnlyComponent, IComponentRoot<TComponent>
+            where TComponent : class, IReadOnlyComponent, IRootComponent<TComponent>
         {
             if (path == null)
             {
@@ -40,7 +40,7 @@ namespace NuGet.Services.Status
         /// If none exists, returns <c>null</c>.
         /// </summary>
         public static TComponent GetByNames<TComponent>(this TComponent component, params string[] componentNames)
-            where TComponent : class, IReadOnlyComponent, IComponentRoot<TComponent>
+            where TComponent : class, IReadOnlyComponent, IRootComponent<TComponent>
         {
             if (component == null)
             {
@@ -53,7 +53,7 @@ namespace NuGet.Services.Status
             }
 
             TComponent currentComponent = null;
-            IComponentRoot<TComponent> currentRoot = new GetByNamesHelper<TComponent>(component);
+            IRootComponent<TComponent> currentRoot = new GetByNamesHelper<TComponent>(component);
             foreach (var componentName in componentNames)
             {
                 currentComponent = currentRoot.SubComponents.FirstOrDefault(c => c.Name == componentName);
@@ -70,9 +70,9 @@ namespace NuGet.Services.Status
         }
 
         /// <remarks>
-        /// Dummy implementation of <see cref="IComponentRoot{TComponent}"/> used by <see cref="GetByNames{TComponent}(TComponent, string[])"/>.
+        /// Dummy implementation of <see cref="IRootComponent{TComponent}"/> used by <see cref="GetByNames{TComponent}(TComponent, string[])"/>.
         /// </remarks>
-        private class GetByNamesHelper<TComponent> : IComponentRoot<TComponent>
+        private class GetByNamesHelper<TComponent> : IRootComponent<TComponent>
             where TComponent : IReadOnlyComponent
         {
             public IEnumerable<TComponent> SubComponents { get; }

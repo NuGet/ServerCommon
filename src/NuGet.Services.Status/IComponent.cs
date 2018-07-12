@@ -8,7 +8,7 @@ namespace NuGet.Services.Status
     /// <summary>
     /// A writable <see cref="IReadOnlyComponent"/> that allows setting its status.
     /// </summary>
-    public interface IComponent : IReadOnlyComponent, IComponentRoot<IComponent>
+    public interface IComponent : IReadOnlyComponent, IRootComponent<IComponent>
     {
         /// <summary>
         /// The status of this part of the service.

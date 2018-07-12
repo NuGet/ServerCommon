@@ -1,14 +1,12 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Collections.Generic;
-
 namespace NuGet.Services.Status
 {
     /// <summary>
     /// Represents a part of the service that has a status.
     /// </summary>
-    public interface IReadOnlyComponent : IComponentRoot<IReadOnlyComponent>
+    public interface IReadOnlyComponent : IRootComponent<IReadOnlyComponent>
     {
         /// <summary>
         /// The name of this part of the service.
@@ -24,11 +22,6 @@ namespace NuGet.Services.Status
         /// The status of this part of the service.
         /// </summary>
         ComponentStatus Status { get; }
-
-        /// <summary>
-        /// A list of subcomponents that make up this part of the service.
-        /// </summary>
-        new IEnumerable<IReadOnlyComponent> SubComponents { get; }
 
         /// <summary>
         /// A string path used to identify this part of the service when accessed by a root component.
