@@ -42,6 +42,11 @@ namespace NuGet.Services.Status
         public static TComponent GetByNames<TComponent>(this TComponent component, params string[] componentNames)
             where TComponent : class, IReadOnlyComponent, IComponentRoot<TComponent>
         {
+            if (component == null)
+            {
+                return null;
+            }
+
             if (componentNames == null)
             {
                 return null;
