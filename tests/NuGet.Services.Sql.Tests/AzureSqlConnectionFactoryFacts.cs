@@ -15,19 +15,11 @@ namespace NuGet.Services.Sql.Tests
     {
         public const string AadTenant = "aadTenant";
         public const string AadClientId = "aadClientId";
-        public const string TestAccessToken = "aadAccessToken";
 
         public const string BaseConnectionString = "Data Source=tcp:DB.database.windows.net;Initial Catalog=DB";
 
         public static readonly string SqlConnectionString = $"{BaseConnectionString};User ID=$$user$$;Password=$$pass$$";
         public static readonly string AadSqlConnectionString = $"{BaseConnectionString};AadTenant={AadTenant};AadClientId={AadClientId};AadCertificate=$$cert$$";
-
-        public static readonly X509Certificate2 TestCertificate;
-
-        static AzureSqlConnectionFactoryFacts()
-        {
-            TestCertificate = new Mock<X509Certificate2>().Object;
-        }
 
         public class TheConstructor
         {
@@ -58,10 +50,10 @@ namespace NuGet.Services.Sql.Tests
             public async Task WhenSqlConnectionString_InjectsSecrets(bool shouldOpen)
             {
                 // Arrange
-                var factory = new TestAzureSqlConnectionFactory(SqlConnectionString);
+                var factory = new MockFactory(SqlConnectionString);
 
                 // Act
-                var connection = shouldOpen ? await factory.OpenAsync() : await factory.CreateAsync();
+                var connection = await ConnectAsync(factory, shouldOpen);
 
                 // Assert
                 factory.MockSecretReader.Verify(x => x.GetSecretAsync(It.IsAny<string>()), Times.Exactly(2));
@@ -80,10 +72,10 @@ namespace NuGet.Services.Sql.Tests
             public async Task WhenAadConnectionString_InjectsSecrets(bool shouldOpen)
             {
                 // Arrange
-                var factory = new TestAzureSqlConnectionFactory(AadSqlConnectionString);
+                var factory = new MockFactory(AadSqlConnectionString);
 
                 // Act
-                var connection = shouldOpen ? await factory.OpenAsync() : await factory.CreateAsync();
+                var connection = await ConnectAsync(factory, shouldOpen);
 
                 // Assert
                 factory.MockSecretReader.Verify(x => x.GetSecretAsync("cert"), Times.Once);
@@ -101,10 +93,10 @@ namespace NuGet.Services.Sql.Tests
             public async Task WhenSqlConnectionString_DoesNotAcquireAccessToken(bool shouldOpen)
             {
                 // Arrange
-                var factory = new TestAzureSqlConnectionFactory(SqlConnectionString);
+                var factory = new MockFactory(SqlConnectionString);
 
                 // Act
-                var connection = shouldOpen ? await factory.OpenAsync() : await factory.CreateAsync();
+                var connection = await ConnectAsync(factory, shouldOpen);
 
                 // Assert
                 Assert.True(string.IsNullOrEmpty(connection.AccessToken));
@@ -119,71 +111,20 @@ namespace NuGet.Services.Sql.Tests
             public async Task WhenAadConnectionString_AcquiresAccessToken(bool shouldOpen)
             {
                 // Arrange
-                var factory = new TestAzureSqlConnectionFactory(AadSqlConnectionString);
+                var factory = new MockFactory(AadSqlConnectionString);
 
                 // Act
-                var connection = shouldOpen ? await factory.OpenAsync() : await factory.CreateAsync();
+                var connection = await ConnectAsync(factory, shouldOpen);
 
                 // Assert
-                Assert.Equal(TestAccessToken, connection.AccessToken);
-                Assert.Equal($"https://login.microsoftonline.com/{AadTenant}/v2.0", factory.AcquireTokenArguments.Item1);
-                Assert.Equal(AadClientId, factory.AcquireTokenArguments.Item2);
-                Assert.True(factory.AcquireTokenArguments.Item3);
-                Assert.Equal(TestCertificate, factory.AcquireTokenArguments.Item4);
-
+                Assert.Equal("valid", connection.AccessToken);
+                Assert.Equal(1, factory.MockAuthenticator.AcquireTokenCounter);
                 Assert.Equal(shouldOpen, factory.Opened);
             }
-        }
 
-        public class TestAzureSqlConnectionFactory : AzureSqlConnectionFactory
-        {
-            public Mock<ISecretReader> MockSecretReader { get; }
-
-            public Tuple<string, string, bool, X509Certificate2> AcquireTokenArguments { get; private set; }
-
-            public bool Opened { get; private set; }
-
-            public TestAzureSqlConnectionFactory(string connectionString)
-                : this(connectionString, CreateMockSecretReader())
+            private Task<SqlConnection> ConnectAsync(MockFactory factory, bool shouldOpen)
             {
-            }
-
-            public TestAzureSqlConnectionFactory(string connectionString, Mock<ISecretReader> mockSecretReader)
-             : base(connectionString, new SecretInjector(mockSecretReader.Object))
-            {
-                MockSecretReader = mockSecretReader;
-            }
-
-            protected override Task<string> GetAccessTokenAsync(string authority, string clientId, bool sendX5c, X509Certificate2 certificate)
-            {
-                AcquireTokenArguments = Tuple.Create(authority, clientId, sendX5c, certificate);
-
-                return Task.FromResult(TestAccessToken);
-            }
-
-            protected override Task OpenConnectionAsync(SqlConnection sqlConnection)
-            {
-                Opened = true;
-                return Task.CompletedTask;
-            }
-
-            protected override X509Certificate2 SecretToCertificate(string certificateData)
-            {
-                return TestCertificate;
-            }
-
-            private static Mock<ISecretReader> CreateMockSecretReader()
-            {
-                var mockSecretReader = new Mock<ISecretReader>();
-
-                mockSecretReader.Setup(x => x.GetSecretAsync(It.IsAny<string>()))
-                    .Returns<string>(key =>
-                    {
-                        return Task.FromResult(key.Replace("$$", string.Empty));
-                    })
-                    .Verifiable();
-
-                return mockSecretReader;
+                return shouldOpen ? factory.OpenAsync() : factory.CreateAsync();
             }
         }
     }

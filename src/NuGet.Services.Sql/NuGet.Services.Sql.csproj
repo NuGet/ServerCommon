@@ -40,7 +40,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AuthenticationResultWrapper.cs" />
+    <Compile Include="AzureSqlClientAuthenticator.cs" />
     <Compile Include="AzureSqlConnectionStringBuilder.cs" />
+    <Compile Include="IAuthenticationResult.cs" />
     <Compile Include="ISqlConnectionFactory.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.*.cs" />

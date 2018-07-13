@@ -2,33 +2,42 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Collections.Concurrent;
 using System.Data.SqlClient;
-using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
 using NuGet.Services.KeyVault;
 
 namespace NuGet.Services.Sql
 {
     public class AzureSqlConnectionFactory : ISqlConnectionFactory
     {
-        private const string AzureSqlResourceId = "https://database.windows.net/";
+        private static ConcurrentDictionary<string, AzureSqlClientAuthenticator> AuthenticatorsCache { get; }
 
-        private AzureSqlConnectionStringBuilder ConnectionStringBuilder { get; }
+        private static SemaphoreSlim AuthenticatorsCacheLock = new SemaphoreSlim(1, 1);
+
+        public string CacheKey { get; set; }
+
+        private AzureSqlConnectionStringBuilder ConnectionString { get; }
 
         private ISecretInjector SecretInjector { get; }
 
         #region SqlConnectionStringBuilder properies
 
-        public string ApplicationName => ConnectionStringBuilder.Sql.ApplicationName;
+        public string ApplicationName => ConnectionString.Sql.ApplicationName;
 
-        public int ConnectRetryInterval => ConnectionStringBuilder.Sql.ConnectRetryInterval;
+        public int ConnectRetryInterval => ConnectionString.Sql.ConnectRetryInterval;
 
-        public string DataSource => ConnectionStringBuilder.Sql.DataSource;
+        public string DataSource => ConnectionString.Sql.DataSource;
 
-        public string InitialCatalog => ConnectionStringBuilder.Sql.InitialCatalog;
+        public string InitialCatalog => ConnectionString.Sql.InitialCatalog;
 
         #endregion
+
+        static AzureSqlConnectionFactory()
+        {
+            AuthenticatorsCache = new ConcurrentDictionary<string, AzureSqlClientAuthenticator>();
+        }
 
         public AzureSqlConnectionFactory(string connectionString, ISecretInjector secretInjector)
         {
@@ -37,8 +46,10 @@ namespace NuGet.Services.Sql
                 throw new ArgumentException("Value cannot be null or empty", nameof(connectionString));
             }
 
-            ConnectionStringBuilder = new AzureSqlConnectionStringBuilder(connectionString);
             SecretInjector = secretInjector ?? throw new ArgumentNullException(nameof(secretInjector));
+
+            CacheKey = connectionString;
+            ConnectionString = new AzureSqlConnectionStringBuilder(connectionString);
         }
 
         public Task<SqlConnection> CreateAsync()
@@ -48,56 +59,25 @@ namespace NuGet.Services.Sql
 
         public async Task<SqlConnection> OpenAsync()
         {
-            try
-            {
-                return await ConnectAsync(shouldOpen: true);
-            }
-            catch (Exception e) when (IsAdalException(e))
-            {
-                // SqlConnection.OpenAsync already contains retry logic. Keeping a retry here on our side
-                // in case secrets are refreshed at runtime.
-                await Task.Delay(ConnectRetryInterval * 1000);
+            var connection = await ConnectAsync();
 
-                return await ConnectAsync(shouldOpen: true);
-            }
-        }
-
-        private async Task<SqlConnection> ConnectAsync(bool shouldOpen = false)
-        {
-            var connectionString = await SecretInjector.InjectAsync(ConnectionStringBuilder.ConnectionString);
-            var connection = new SqlConnection(connectionString);
-
-            if (!string.IsNullOrWhiteSpace(ConnectionStringBuilder.AadAuthority))
-            {
-                var certificateData = await SecretInjector.InjectAsync(ConnectionStringBuilder.AadCertificate);
-                if (!string.IsNullOrEmpty(certificateData))
-                {
-                    var certificate = SecretToCertificate(certificateData);
-
-                    connection.AccessToken = await GetAccessTokenAsync(
-                        ConnectionStringBuilder.AadAuthority,
-                        ConnectionStringBuilder.AadClientId,
-                        ConnectionStringBuilder.AadSendX5c,
-                        certificate);
-                }
-            }
-
-            if (shouldOpen)
-            {
-                await OpenConnectionAsync(connection);
-            }
+            await OpenConnectionAsync(connection);
 
             return connection;
         }
 
-        protected virtual async Task<string> GetAccessTokenAsync(string authority, string clientId, bool sendX5c, X509Certificate2 certificate)
+        private async Task<SqlConnection> ConnectAsync()
         {
-            var clientAssertion = new ClientAssertionCertificate(clientId, certificate);
-            var authenticationContext = new AuthenticationContext(authority);
+            var connectionString = await SecretInjector.InjectAsync(ConnectionString.ConnectionString);
+            var connection = new SqlConnection(connectionString);
 
-            var result = await authenticationContext.AcquireTokenAsync(AzureSqlResourceId, clientAssertion, sendX5c);
+            if (!string.IsNullOrWhiteSpace(ConnectionString.AadAuthority))
+            {
+                var authenticator = await GetClientAuthenticatorAsync();
+                connection.AccessToken = await authenticator.AcquireTokenAsync();
+            }
 
-            return result.AccessToken;
+            return connection;
         }
 
         protected virtual Task OpenConnectionAsync(SqlConnection sqlConnection)
@@ -105,14 +85,46 @@ namespace NuGet.Services.Sql
             return sqlConnection.OpenAsync();
         }
 
-        protected virtual X509Certificate2 SecretToCertificate(string certificateData)
+        private async Task<AzureSqlClientAuthenticator> GetClientAuthenticatorAsync()
         {
-            return new X509Certificate2(Convert.FromBase64String(certificateData), string.Empty);
+            var clientCertificateData = await SecretInjector.InjectAsync(ConnectionString.AadCertificate);
+
+            AzureSqlClientAuthenticator authenticator;
+            if (AuthenticatorsCache.TryGetValue(CacheKey, out authenticator))
+            {
+                if (!authenticator.ClientCertificateHasChanged(clientCertificateData))
+                {
+                    return authenticator;
+                }
+            }
+
+            await AuthenticatorsCacheLock.WaitAsync().ConfigureAwait(false);
+
+            try
+            {
+                if (AuthenticatorsCache.TryGetValue(CacheKey, out authenticator))
+                {
+                    if (!authenticator.ClientCertificateHasChanged(clientCertificateData))
+                    {
+                        return authenticator;
+                    }
+                }
+
+                authenticator = CreateAuthenticator(clientCertificateData);
+
+                AuthenticatorsCache.AddOrUpdate(CacheKey, authenticator, (k, v) => authenticator);
+
+                return authenticator;
+            }
+            finally
+            {
+                AuthenticatorsCacheLock.Release();
+            }
         }
 
-        private static bool IsAdalException(Exception e)
+        protected virtual AzureSqlClientAuthenticator CreateAuthenticator(string clientCertificateData)
         {
-            return e is AdalException || (e.InnerException != null && IsAdalException(e.InnerException));
+            return new AzureSqlClientAuthenticator(ConnectionString, clientCertificateData);
         }
     }
 }
