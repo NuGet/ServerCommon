@@ -25,7 +25,7 @@ namespace NuGet.Services.Sql.Tests
         public MockAuthenticator(
             string certificateData = "certificate",
             IAuthenticationResult initialResult = null)
-            : base(certificateData)
+            : base(GetClientAssertionCertificateMock(certificateData))
         {
             AuthenticationResult = initialResult;
         }
@@ -43,6 +43,13 @@ namespace NuGet.Services.Sql.Tests
             mockToken.Setup(m => m.AccessToken).Returns(token);
             mockToken.Setup(m => m.ExpiresOn).Returns(expiresOn);
             return mockToken.Object;
+        }
+
+        private static IClientAssertionCertificate GetClientAssertionCertificateMock(string certificateData)
+        {
+            var clientAssertionCertificate = new Mock<IClientAssertionCertificate>();
+            clientAssertionCertificate.Setup(x => x.GetRawData()).Returns(certificateData);
+            return clientAssertionCertificate.Object;
         }
     }
 }

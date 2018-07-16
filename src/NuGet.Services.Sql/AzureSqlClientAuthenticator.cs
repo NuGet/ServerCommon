@@ -20,11 +20,9 @@ namespace NuGet.Services.Sql
 
         private AzureSqlConnectionStringBuilder ConnectionString { get; }
 
-        private string ClientCertificateData { get; }
-
         private AuthenticationContext AuthenticationContext { get; }
 
-        private ClientAssertionCertificate ClientAssertionCertificate { get; }
+        private IClientAssertionCertificate ClientAssertionCertificate { get; }
 
         /// <summary>
         /// Cached AAD access token, because acquiring the access token takes an external request which can
@@ -43,13 +41,11 @@ namespace NuGet.Services.Sql
                 throw new ArgumentNullException(nameof(clientCertificateData), $"Argument must be specified");
             }
 
-            ClientCertificateData = clientCertificateData;
+            var certificate = new X509Certificate2(Convert.FromBase64String(clientCertificateData), string.Empty);
 
-            var certificate = new X509Certificate2(Convert.FromBase64String(ClientCertificateData), string.Empty);
-
-            ClientAssertionCertificate = new ClientAssertionCertificate(
-                ConnectionString.AadClientId,
-                certificate);
+            ClientAssertionCertificate = new ClientAssertionCertificateWrapper(
+                new ClientAssertionCertificate(ConnectionString.AadClientId, certificate)
+                );
 
             // Do not use the default TokenCache, which is not thread-safe.
             // see: https://docs.microsoft.com/en-us/azure/architecture/multitenant-identity/token-cache
@@ -62,14 +58,15 @@ namespace NuGet.Services.Sql
         /// Test constructor that doesn't initialize AAD objects.
         /// </summary>
         /// <param name="clientCertificateData"></param>
-        protected AzureSqlClientAuthenticator(string clientCertificateData)
+        protected AzureSqlClientAuthenticator(IClientAssertionCertificate clientAssertionCertificate)
         {
-            ClientCertificateData = clientCertificateData ?? throw new ArgumentNullException(nameof(clientCertificateData));
+            ClientAssertionCertificate = clientAssertionCertificate ?? throw new ArgumentNullException(nameof(clientAssertionCertificate));
         }
 
         public bool ClientCertificateHasChanged(string clientCertificateData)
         {
-            return !ClientCertificateData.Equals(clientCertificateData, StringComparison.InvariantCulture);
+            var certificateData = ClientAssertionCertificate.GetRawData();
+            return !certificateData.Equals(clientCertificateData, StringComparison.InvariantCulture);
         }
 
         public async Task<string> AcquireTokenAsync()
@@ -120,7 +117,7 @@ namespace NuGet.Services.Sql
             return new AuthenticationResultWrapper(
                 await AuthenticationContext.AcquireTokenAsync(
                     AzureSqlResourceId,
-                    ClientAssertionCertificate,
+                    ClientAssertionCertificate.Instance,
                     ConnectionString.AadSendX5c
                     ));
         }
