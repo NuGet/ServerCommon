@@ -8,19 +8,27 @@ namespace NuGet.Services.Sql
 {
     public class AuthenticationResultWrapper : IAuthenticationResult
     {
-        private AuthenticationResult Instance { get; }
+        public AuthenticationResult Instance { get; }
 
         public AuthenticationResultWrapper(AuthenticationResult instance)
         {
             Instance = instance ?? throw new ArgumentNullException(nameof(instance));
         }
 
-        public string AccessToken => Instance.AccessToken;
+        public string AccessToken
+        {
+            get
+            {
+                return Instance.AccessToken;
+            }
+        }
 
-        public DateTimeOffset ExpiresOn => Instance.ExpiresOn;
-
-        public string TenantId => Instance.TenantId;
-
-        public string Authority => Instance.Authority;
+        public DateTimeOffset ExpiresOn
+        {
+            get
+            {
+                return Instance.ExpiresOn;
+            }
+        }
     }
 }

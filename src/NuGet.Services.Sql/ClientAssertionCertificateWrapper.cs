@@ -8,16 +8,19 @@ namespace NuGet.Services.Sql
 {
     public class ClientAssertionCertificateWrapper : IClientAssertionCertificate
     {
-        public ClientAssertionCertificate Instance { get; private set; }
+        private ClientAssertionCertificate Instance { get; }
 
         public ClientAssertionCertificateWrapper(ClientAssertionCertificate instance)
         {
             Instance = instance ?? throw new ArgumentNullException(nameof(instance));
         }
 
-        public string GetRawData()
+        public string RawData
         {
-            return Convert.ToBase64String(Instance.Certificate.RawData);
+            get
+            {
+                return Convert.ToBase64String(Instance.Certificate.RawData);
+            }
         }
     }
 }

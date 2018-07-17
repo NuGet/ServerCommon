@@ -12,14 +12,6 @@ namespace NuGet.Services.Sql.Tests
 {
     public class AzureSqlConnectionFactoryFacts
     {
-        public const string AadTenant = "aadTenant";
-        public const string AadClientId = "aadClientId";
-
-        public const string BaseConnectionString = "Data Source=tcp:DB.database.windows.net;Initial Catalog=DB";
-
-        public static readonly string SqlConnectionString = $"{BaseConnectionString};User ID=$$user$$;Password=$$pass$$";
-        public static readonly string AadSqlConnectionString = $"{BaseConnectionString};AadTenant={AadTenant};AadClientId={AadClientId};AadCertificate=$$cert$$";
-
         public class TheConstructor
         {
             [Theory]
@@ -36,8 +28,14 @@ namespace NuGet.Services.Sql.Tests
             public void WhenSecretInjectorIsNull_ThrowsArgumentException()
             {
                 Assert.Throws<ArgumentNullException>(() => new AzureSqlConnectionFactory(
-                    SqlConnectionString,
+                    MockConnectionStrings.SqlConnectionString,
                     null));
+            }
+
+            [Fact]
+            public void WhenLoggerIsNull_DoesNotThrowArgumentException()
+            {
+                new AzureSqlConnectionFactory(MockConnectionStrings.SqlConnectionString, new Mock<ISecretInjector>().Object);
             }
         }
 
@@ -49,7 +47,7 @@ namespace NuGet.Services.Sql.Tests
             public async Task WhenSqlConnectionString_InjectsSecrets(bool shouldOpen)
             {
                 // Arrange
-                var factory = new MockFactory(SqlConnectionString);
+                var factory = new MockFactory(MockConnectionStrings.SqlConnectionString);
 
                 // Act
                 var connection = await ConnectAsync(factory, shouldOpen);
@@ -60,7 +58,7 @@ namespace NuGet.Services.Sql.Tests
                 factory.MockSecretReader.Verify(x => x.GetSecretAsync("pass"), Times.Once);
 
                 Assert.True(connection.ConnectionString.Equals(
-                    $"{BaseConnectionString};User ID=user;Password=pass", StringComparison.InvariantCultureIgnoreCase));
+                    $"{MockConnectionStrings.BaseConnectionString};User ID=user;Password=pass", StringComparison.InvariantCultureIgnoreCase));
 
                 Assert.Equal(shouldOpen, factory.Opened);
             }
@@ -71,7 +69,7 @@ namespace NuGet.Services.Sql.Tests
             public async Task WhenAadConnectionString_InjectsSecrets(bool shouldOpen)
             {
                 // Arrange
-                var factory = new MockFactory(AadSqlConnectionString);
+                var factory = new MockFactory(MockConnectionStrings.AadSqlConnectionString);
 
                 // Act
                 var connection = await ConnectAsync(factory, shouldOpen);
@@ -81,7 +79,7 @@ namespace NuGet.Services.Sql.Tests
 
                 // Note that AAD keys are extracted for internal use only
                 Assert.True(connection.ConnectionString.Equals(
-                    $"{BaseConnectionString}", StringComparison.InvariantCultureIgnoreCase));
+                    $"{MockConnectionStrings.BaseConnectionString}", StringComparison.InvariantCultureIgnoreCase));
 
                 Assert.Equal(shouldOpen, factory.Opened);
             }
@@ -92,14 +90,14 @@ namespace NuGet.Services.Sql.Tests
             public async Task WhenSqlConnectionString_DoesNotAcquireAccessToken(bool shouldOpen)
             {
                 // Arrange
-                var factory = new MockFactory(SqlConnectionString);
+                var factory = new MockFactory(MockConnectionStrings.SqlConnectionString);
 
                 // Act
                 var connection = await ConnectAsync(factory, shouldOpen);
 
                 // Assert
                 Assert.True(string.IsNullOrEmpty(connection.AccessToken));
-                Assert.Null(factory.AcquireTokenArguments);
+                Assert.Equal(0, factory.AcquireAccessTokenCalls);
 
                 Assert.Equal(shouldOpen, factory.Opened);
             }
@@ -110,14 +108,14 @@ namespace NuGet.Services.Sql.Tests
             public async Task WhenAadConnectionString_AcquiresAccessToken(bool shouldOpen)
             {
                 // Arrange
-                var factory = new MockFactory(AadSqlConnectionString);
+                var factory = new MockFactory(MockConnectionStrings.AadSqlConnectionString);
 
                 // Act
                 var connection = await ConnectAsync(factory, shouldOpen);
 
                 // Assert
-                Assert.Equal("valid", connection.AccessToken);
-                Assert.Equal(1, factory.MockAuthenticator.AcquireTokenCounter);
+                Assert.Equal("accessToken", connection.AccessToken);
+                Assert.Equal(1, factory.AcquireAccessTokenCalls);
                 Assert.Equal(shouldOpen, factory.Opened);
             }
 

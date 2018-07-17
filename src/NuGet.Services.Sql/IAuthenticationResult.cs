@@ -10,9 +10,5 @@ namespace NuGet.Services.Sql
         string AccessToken { get; }
 
         DateTimeOffset ExpiresOn { get; }
-
-        string TenantId { get; }
-
-        string Authority { get; }
     }
 }

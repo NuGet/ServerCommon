@@ -1,9 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
 using System.Data.SqlClient;
-using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using Moq;
 using NuGet.Services.KeyVault;
@@ -14,11 +12,9 @@ namespace NuGet.Services.Sql.Tests
     {
         public Mock<ISecretReader> MockSecretReader { get; }
 
-        public MockAuthenticator MockAuthenticator { get; }
-
-        public Tuple<string, string, bool, X509Certificate2> AcquireTokenArguments { get; private set; }
-
         public bool Opened { get; private set; }
+
+        public int AcquireAccessTokenCalls { get; private set; }
 
         public MockFactory(string connectionString)
             : this(connectionString, CreateMockSecretReader())
@@ -29,14 +25,18 @@ namespace NuGet.Services.Sql.Tests
          : base(connectionString, new SecretInjector(mockSecretReader.Object))
         {
             MockSecretReader = mockSecretReader;
-
-            MockAuthenticator = new MockAuthenticator();
         }
 
         protected override Task OpenConnectionAsync(SqlConnection sqlConnection)
         {
             Opened = true;
             return Task.CompletedTask;
+        }
+
+        protected override Task<string> AcquireAccessTokenAsync(string clientCertificateData)
+        {
+            AcquireAccessTokenCalls++;
+            return Task.FromResult("accessToken");
         }
 
         private static Mock<ISecretReader> CreateMockSecretReader()
@@ -51,11 +51,6 @@ namespace NuGet.Services.Sql.Tests
                 .Verifiable();
 
             return mockSecretReader;
-        }
-
-        protected override AzureSqlClientAuthenticator CreateAuthenticator(string clientCertificateData)
-        {
-            return MockAuthenticator;
         }
     }
 }
