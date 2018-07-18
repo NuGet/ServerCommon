@@ -17,7 +17,7 @@ namespace NuGet.Services.Sql.Tests
             public async Task WhenCannotAcquireToken_ThrowsInvalidOperationException()
             {
                 // Arrange.
-                var tokenCache = new MockAccessTokenCache();
+                var tokenCache = new MockAccessTokenCache(throwOnAcquireToken: true);
 
                 // Act.
                 await Assert.ThrowsAsync<InvalidOperationException>(async () => {
@@ -34,7 +34,7 @@ namespace NuGet.Services.Sql.Tests
             public async Task WhenNoTokenInCache_AcquiresNew()
             {
                 // Arrange.
-                var token1 = MockAccessTokenCache.CreateMockAccessToken("valid", DateTimeOffset.Now + TimeSpan.FromMinutes(60));
+                var token1 = MockAccessTokenCache.CreateValidAccessToken();
                 var tokenCache = new MockAccessTokenCache(mockTokens: token1);
 
                 // Act.
@@ -52,7 +52,7 @@ namespace NuGet.Services.Sql.Tests
             {
                 // Arrange.
                 var token0 = MockAccessTokenCache.CreateMockAccessToken("expired", DateTimeOffset.Now);
-                var token1 = MockAccessTokenCache.CreateMockAccessToken("valid", DateTimeOffset.Now + TimeSpan.FromMinutes(60));
+                var token1 = MockAccessTokenCache.CreateValidAccessToken();
                 var tokenCache = new MockAccessTokenCache(initialValue: token0, mockTokens: token1);
 
                 // Act.
@@ -70,7 +70,7 @@ namespace NuGet.Services.Sql.Tests
             {
                 // Arrange.
                 var token0 = MockAccessTokenCache.CreateMockAccessToken("nearExpired", DateTimeOffset.Now + TimeSpan.FromMinutes(10));
-                var token1 = MockAccessTokenCache.CreateMockAccessToken("valid", DateTimeOffset.Now + TimeSpan.FromMinutes(60));
+                var token1 = MockAccessTokenCache.CreateValidAccessToken();
                 var tokenCache = new MockAccessTokenCache(initialValue: token0, mockTokens: token1);
 
                 // Act.
@@ -90,7 +90,7 @@ namespace NuGet.Services.Sql.Tests
             {
                 // Arrange.
                 var certData0 = "initialCertificateData";
-                var token0 = MockAccessTokenCache.CreateMockAccessToken("valid0", DateTimeOffset.Now + TimeSpan.FromMinutes(60));
+                var token0 = MockAccessTokenCache.CreateValidAccessToken("valid0");
                 var token1 = MockAccessTokenCache.CreateMockAccessToken("valid1", DateTimeOffset.Now + TimeSpan.FromMinutes(120));
                 var tokenCache = new MockAccessTokenCache(initialCertData: certData0, initialValue: token0, mockTokens: token1);
 
@@ -110,7 +110,7 @@ namespace NuGet.Services.Sql.Tests
             public async Task WhenValidTokenInCache_ReturnsExisting()
             {
                 // Arrange.
-                var token0 = MockAccessTokenCache.CreateMockAccessToken("valid", DateTimeOffset.Now + TimeSpan.FromMinutes(60));
+                var token0 = MockAccessTokenCache.CreateValidAccessToken();
                 var token1 = token0;
                 var tokenCache = new MockAccessTokenCache(initialValue: token0, mockTokens: token1);
 

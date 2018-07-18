@@ -8,11 +8,15 @@ using Moq;
 
 namespace NuGet.Services.Sql.Tests
 {
-    public class MockAccessTokenCache : AccessTokenCache
+    internal class MockAccessTokenCache : AccessTokenCache
     {
         public const string DefaultCertificateData = "certificateData";
 
+        public static readonly IAuthenticationResult DefaultAccessToken = CreateValidAccessToken("default");
+
         public int AcquireTokenCount { get; private set; }
+
+        public bool ThrowOnAcquireToken { get; }
 
         public AccessTokenCacheValue InitialValue { get; private set; }
 
@@ -22,16 +26,15 @@ namespace NuGet.Services.Sql.Tests
             string initialCertData = DefaultCertificateData,
             string certData = DefaultCertificateData,
             IAuthenticationResult initialValue = null,
+            bool throwOnAcquireToken = false,
             params IAuthenticationResult[] mockTokens)
         {
-            var clientCertificate = new Mock<IClientAssertionCertificate>();
-            clientCertificate.Setup(c => c.RawData).Returns(certData);
-
             InitialValue = (initialValue == null)
                 ? null
-                : new AccessTokenCacheValue(clientCertificate.Object, initialValue);
+                : new AccessTokenCacheValue(initialCertData, initialValue);
 
-            MockValues = mockTokens.Select(t => new AccessTokenCacheValue(clientCertificate.Object, t)).ToArray();
+            ThrowOnAcquireToken = throwOnAcquireToken;
+            MockValues = mockTokens.Select(t => new AccessTokenCacheValue(certData, t)).ToArray();
         }
 
         protected override bool TryGetValue(
@@ -55,9 +58,14 @@ namespace NuGet.Services.Sql.Tests
         {
             try
             {
+                if (ThrowOnAcquireToken)
+                {
+                    throw new InvalidOperationException("Could not acquire token");
+                }
+
                 if (MockValues.Length == 0)
                 {
-                    return null;
+                    return Task.FromResult(new AccessTokenCacheValue(clientCertificateData, DefaultAccessToken));
                 }
 
                 var tokenIndex = Math.Max(AcquireTokenCount, MockValues.Length - 1);
@@ -67,6 +75,11 @@ namespace NuGet.Services.Sql.Tests
             {
                 AcquireTokenCount++;
             }
+        }
+
+        public static IAuthenticationResult CreateValidAccessToken(string value = "valid")
+        {
+            return CreateMockAccessToken(value, DateTimeOffset.Now + TimeSpan.FromHours(1));
         }
 
         public static IAuthenticationResult CreateMockAccessToken(string value, DateTimeOffset expiresOn)

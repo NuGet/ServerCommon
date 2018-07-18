@@ -6,7 +6,7 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace NuGet.Services.Sql
 {
-    public class AuthenticationResultWrapper : IAuthenticationResult
+    internal class AuthenticationResultWrapper : IAuthenticationResult
     {
         public AuthenticationResult Instance { get; }
 

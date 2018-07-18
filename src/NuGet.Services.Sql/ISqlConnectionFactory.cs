@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NuGet.Services.Sql
 {
-    public interface ISqlConnectionFactory
+    internal interface ISqlConnectionFactory
     {
         string ApplicationName { get; }
 

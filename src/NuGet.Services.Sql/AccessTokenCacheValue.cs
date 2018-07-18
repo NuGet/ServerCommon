@@ -5,21 +5,21 @@ using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace NuGet.Services.Sql
 {
-    public class AccessTokenCacheValue
+    internal class AccessTokenCacheValue
     {
-        public AccessTokenCacheValue(ClientAssertionCertificate certificate, AuthenticationResult authenticationResult)
+        public AccessTokenCacheValue(string clientCertificateData, AuthenticationResult authenticationResult)
         {
-            ClientAssertionCertificate = new ClientAssertionCertificateWrapper(certificate);
+            ClientCertificateData = clientCertificateData;
             AuthenticationResult = new AuthenticationResultWrapper(authenticationResult);
         }
 
-        public AccessTokenCacheValue(IClientAssertionCertificate certificate, IAuthenticationResult authenticationResult)
+        public AccessTokenCacheValue(string clientCertificateData, IAuthenticationResult authenticationResult)
         {
-            ClientAssertionCertificate = certificate;
+            ClientCertificateData = clientCertificateData;
             AuthenticationResult = authenticationResult;
         }
 
-        public IClientAssertionCertificate ClientAssertionCertificate { get; }
+        public string ClientCertificateData { get; }
 
         public IAuthenticationResult AuthenticationResult { get; }
     }

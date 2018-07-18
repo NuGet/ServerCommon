@@ -3,20 +3,28 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace NuGet.Services.Sql
 {
-    public class AccessTokenCache
+    internal class AccessTokenCache
     {
         private const string AzureSqlResourceTokenUrl = "https://database.windows.net/";
 
         private const double DefaultMinExpirationInMinutes = 30;
 
         private ConcurrentDictionary<string, AccessTokenCacheValue> _cache = new ConcurrentDictionary<string, AccessTokenCacheValue>();
+
+        private SemaphoreSlim AcquireTokenLock = new SemaphoreSlim(1, 1);
+
+        private const int RefreshTimeoutMillisecondsBlocking = 6000;
+
+        private const int RefreshTimeoutMillisecondsNonBlocking = 250;
 
         public async Task<IAuthenticationResult> GetAsync(
             AzureSqlConnectionStringBuilder connectionString,
@@ -38,7 +46,7 @@ namespace NuGet.Services.Sql
             }
 
             // Acquire token in foreground, first time or if already expired.
-            if (await TryRefreshAccessTokenAsync(connectionString, clientCertificateData, logger))
+            if (await TryRefreshAccessTokenAsync(connectionString, clientCertificateData, logger, RefreshTimeoutMillisecondsBlocking))
             {
                 if (TryGetValue(connectionString, out accessToken))
                 {
@@ -47,46 +55,6 @@ namespace NuGet.Services.Sql
             }
 
             throw new InvalidOperationException($"Failed to acquire access token for {connectionString.Sql.InitialCatalog}.");
-        }
-
-        /// <summary>
-        /// Refresh the access token for a specific connection string, on a background thread.
-        /// </summary>
-        private void TriggerBackgroundRefresh(AzureSqlConnectionStringBuilder connectionString, string clientCertificateData, ILogger logger = null)
-        {
-            Task.Run(async () =>
-            {
-                await TryRefreshAccessTokenAsync(connectionString, clientCertificateData, logger);
-            });
-        }
-
-        /// <summary>
-        /// Refresh the access token for a specific connection string, on the current thread.
-        /// </summary>
-        private async Task<bool> TryRefreshAccessTokenAsync(
-            AzureSqlConnectionStringBuilder connectionString,
-            string clientCertificateData,
-            ILogger logger = null)
-        {
-            try
-            {
-                using (logger?.BeginScope($"Refreshing access token for {connectionString.Sql.InitialCatalog}."))
-                {
-                    var accessToken = await AcquireAccessTokenAsync(connectionString, clientCertificateData);
-                    if (accessToken != null)
-                    {
-                        _cache.AddOrUpdate(connectionString.ConnectionString, accessToken, (k, v) => accessToken);
-
-                        return true;
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                logger?.LogError($"Error acquiring access token for {connectionString.Sql.InitialCatalog}: {e}");
-            }
-
-            return false;
         }
 
         /// <summary>
@@ -113,8 +81,7 @@ namespace NuGet.Services.Sql
             AccessTokenCacheValue accessToken,
             string clientCertificateData)
         {
-            var result  = accessToken.ClientAssertionCertificate.RawData;
-            return result.Equals(clientCertificateData, StringComparison.InvariantCulture);
+            return !accessToken.ClientCertificateData.Equals(clientCertificateData, StringComparison.InvariantCulture);
         }
 
         private bool TokenExpiresIn(IAuthenticationResult token, double expirationInMinutes)
@@ -129,17 +96,100 @@ namespace NuGet.Services.Sql
             return _cache.TryGetValue(connectionString.ConnectionString, out accessToken);
         }
 
+        /// <summary>
+        /// Attempt non-blocking refresh of access token in background with retries.
+        /// </summary>
+        private void TriggerBackgroundRefresh(
+            AzureSqlConnectionStringBuilder connectionString,
+            string clientCertificateData,
+            ILogger logger)
+        {
+            Task.Run(async () =>
+            {
+                await TryRefreshAccessTokenAsync(connectionString, clientCertificateData, logger,
+                    refreshTimeoutMilliseconds: RefreshTimeoutMillisecondsNonBlocking);
+            });
+        }
+
+        /// <summary>
+        /// Try to refresh the access token in the token cache.
+        /// </summary>
+        private async Task<bool> TryRefreshAccessTokenAsync(
+            AzureSqlConnectionStringBuilder connectionString,
+            string clientCertificateData,
+            ILogger logger,
+            int refreshTimeoutMilliseconds)
+        {
+            if (!await AcquireTokenLock.WaitAsync(refreshTimeoutMilliseconds))
+            {
+                return false;
+            }
+
+            try
+            {
+                TryGetValue(connectionString, out var accessToken);
+                if (accessToken == null || IsNearExpiry(accessToken)
+                    || ClientCertificateHasChanged(accessToken, clientCertificateData))
+                {
+                    return await RefreshAccessTokenAsync(connectionString, clientCertificateData, logger);
+                }
+            }
+            finally
+            {
+                AcquireTokenLock.Release();
+            }
+
+            return true;
+        }
+
+        /// <summary>
+        /// Refresh the access token in the token cache.
+        /// </summary>
+        private async Task<bool> RefreshAccessTokenAsync(
+            AzureSqlConnectionStringBuilder connectionString,
+            string clientCertificateData,
+            ILogger logger)
+        {
+            try
+            {
+                var start = DateTimeOffset.Now;
+                var accessToken = await AcquireAccessTokenAsync(connectionString, clientCertificateData);
+
+                Debug.Assert(accessToken != null);
+
+                logger?.LogInformation("Refreshed access token for {initialCatalog} in {elapsedMilliseconds}.",
+                    connectionString.Sql.InitialCatalog,
+                    (DateTimeOffset.Now - start).TotalMilliseconds);
+
+                _cache.AddOrUpdate(connectionString.ConnectionString, accessToken, (k, v) => accessToken);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                logger?.LogError("Failed to refresh access token for {initialCatalog}: {error}",
+                    connectionString.Sql.InitialCatalog, ex);
+
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Request an access token from the token service.
+        /// </summary>
         protected virtual async Task<AccessTokenCacheValue> AcquireAccessTokenAsync(
             AzureSqlConnectionStringBuilder connectionString,
             string clientCertificateData)
         {
-            var certificate = new X509Certificate2(Convert.FromBase64String(clientCertificateData), string.Empty);
-            var clientAssertion = new ClientAssertionCertificate(connectionString.AadClientId, certificate);
-            var authContext = new AuthenticationContext(connectionString.AadAuthority, tokenCache: null);
+            using (var certificate = new X509Certificate2(Convert.FromBase64String(clientCertificateData), string.Empty))
+            {
+                var clientAssertion = new ClientAssertionCertificate(connectionString.AadClientId, certificate);
+                var authContext = new AuthenticationContext(connectionString.AadAuthority, tokenCache: null);
 
-            var authResult = await authContext.AcquireTokenAsync(AzureSqlResourceTokenUrl, clientAssertion, connectionString.AadSendX5c);
+                var authResult = await authContext.AcquireTokenAsync(AzureSqlResourceTokenUrl, clientAssertion, connectionString.AadSendX5c);
 
-            return new AccessTokenCacheValue(clientAssertion, authResult);
+                return new AccessTokenCacheValue(clientCertificateData, authResult);
+            }
         }
     }
 }
