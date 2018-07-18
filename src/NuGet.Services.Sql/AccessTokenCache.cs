@@ -22,9 +22,9 @@ namespace NuGet.Services.Sql
 
         private SemaphoreSlim AcquireTokenLock = new SemaphoreSlim(1, 1);
 
-        private const int RefreshTimeoutMillisecondsBlocking = 6000;
+        private const int ForegroundRefreshTimeoutMilliseconds = 6000;
 
-        private const int RefreshTimeoutMillisecondsNonBlocking = 250;
+        private const int BackgroundRefreshTimeoutMilliseconds = 250;
 
         public async Task<IAuthenticationResult> GetAsync(
             AzureSqlConnectionStringBuilder connectionString,
@@ -46,7 +46,7 @@ namespace NuGet.Services.Sql
             }
 
             // Acquire token in foreground, first time or if already expired.
-            if (await TryRefreshAccessTokenAsync(connectionString, clientCertificateData, logger, RefreshTimeoutMillisecondsBlocking))
+            if (await TryRefreshAccessTokenAsync(connectionString, clientCertificateData, logger, ForegroundRefreshTimeoutMilliseconds))
             {
                 if (TryGetValue(connectionString, out accessToken))
                 {
@@ -107,7 +107,7 @@ namespace NuGet.Services.Sql
             Task.Run(async () =>
             {
                 await TryRefreshAccessTokenAsync(connectionString, clientCertificateData, logger,
-                    refreshTimeoutMilliseconds: RefreshTimeoutMillisecondsNonBlocking);
+                    refreshTimeoutMilliseconds: BackgroundRefreshTimeoutMilliseconds);
             });
         }
 
