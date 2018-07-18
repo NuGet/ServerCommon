@@ -63,6 +63,16 @@ namespace NuGet.Services.Validation
         PackageIsSignedWithUnauthorizedCertificate = 9,
 
         /// <summary>
+        /// Symbol checksum does not match with the binary assembly.
+        /// </summary>
+        ChecksumDoesNotMatch = 200,
+
+        /// <summary>
+        /// The pdb is not portable or did not have a binary assembly file associated.
+        /// </summary>
+        MatchingPortablePDBNotFound = 201,
+
+        /// <summary>
         /// Obsolete testing issue - do NOT use this!
         /// </summary>
         [Obsolete("This issue code should only be used for testing")]
