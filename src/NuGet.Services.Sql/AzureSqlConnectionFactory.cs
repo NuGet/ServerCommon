@@ -29,8 +29,10 @@ namespace NuGet.Services.Sql
 
         public string InitialCatalog => ConnectionString.Sql.InitialCatalog;
 
+        public SqlConnectionStringBuilder SqlConnectionStringBuilder => ConnectionString.Sql;
+
         #endregion
-        
+
         public AzureSqlConnectionFactory(string connectionString, ISecretInjector secretInjector, ILogger logger = null)
         {
             if (string.IsNullOrEmpty(connectionString))

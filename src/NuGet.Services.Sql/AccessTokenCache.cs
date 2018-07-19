@@ -74,7 +74,7 @@ namespace NuGet.Services.Sql
         }
         
         /// <summary>
-        /// AKV client certificate has been rotated, and client assertion and tokens should be refreshed soon. Old certificate
+        /// KeyVault certificate has been rotated, and client assertion and tokens should be refreshed soon. Old certificate
         /// (and tokens) should still be valid, so long as the rotation policy is not set to 100% of certificate lifetime.
         /// </summary>
         private bool ClientCertificateHasChanged(
@@ -157,7 +157,7 @@ namespace NuGet.Services.Sql
 
                 Debug.Assert(accessToken != null);
 
-                logger?.LogInformation("Refreshed access token for {initialCatalog} in {elapsedMilliseconds}.",
+                logger?.LogInformation("Refreshed access token for {InitialCatalog} in {ElapsedMilliseconds}.",
                     connectionString.Sql.InitialCatalog,
                     (DateTimeOffset.Now - start).TotalMilliseconds);
 
@@ -167,8 +167,8 @@ namespace NuGet.Services.Sql
             }
             catch (Exception ex)
             {
-                logger?.LogError("Failed to refresh access token for {initialCatalog}: {error}",
-                    connectionString.Sql.InitialCatalog, ex);
+                logger?.LogError(0, ex, "Failed to refresh access token for {InitialCatalog}.",
+                    connectionString.Sql.InitialCatalog);
 
                 return false;
             }
