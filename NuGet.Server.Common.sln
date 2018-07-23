@@ -66,7 +66,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.Services.Status", "sr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.Services.Status.Tests", "tests\NuGet.Services.Status.Tests\NuGet.Services.Status.Tests.csproj", "{EA54BC71-F9AD-4863-8DC6-8CC41776C881}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.Services.Incidents", "NuGet.Services.Incidents\NuGet.Services.Incidents.csproj", "{09B15FA8-8B24-4C9A-B2AC-1265ACCB9EB1}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NuGet.Services.Incidents", "src\NuGet.Services.Incidents\NuGet.Services.Incidents.csproj", "{09B15FA8-8B24-4C9A-B2AC-1265ACCB9EB1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
