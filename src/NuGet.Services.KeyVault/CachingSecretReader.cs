@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Concurrent;
+using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 
 namespace NuGet.Services.KeyVault
@@ -12,18 +13,30 @@ namespace NuGet.Services.KeyVault
         public const int DefaultRefreshIntervalSec = 60 * 60 * 24; // 1 day
 
         private readonly ISecretReader _internalReader;
-        private readonly ConcurrentDictionary<string, CachedSecret> _cache;
+        private readonly ConcurrentDictionary<string, CachedSecret<string>> _stringCache;
+        private readonly ConcurrentDictionary<string, CachedSecret<X509Certificate2>> _certCache;
         private readonly TimeSpan _refreshInterval;
 
         public CachingSecretReader(ISecretReader secretReader, int refreshIntervalSec = DefaultRefreshIntervalSec)
         {
             _internalReader = secretReader ?? throw new ArgumentNullException(nameof(secretReader));
-            _cache = new ConcurrentDictionary<string, CachedSecret>();
+            _stringCache = new ConcurrentDictionary<string, CachedSecret<string>>();
+            _certCache = new ConcurrentDictionary<string, CachedSecret<X509Certificate2>>();
 
             _refreshInterval = TimeSpan.FromSeconds(refreshIntervalSec);
         }
 
-        public async Task<string> GetSecretAsync(string secretName)
+        public Task<string> GetSecretAsync(string secretName)
+        {
+            return Get(secretName, _stringCache, s => _internalReader.GetSecretAsync(s));
+        }
+
+        public Task<X509Certificate2> GetCertificateAsync(string secretName)
+        {
+            return Get(secretName, _certCache, s => _internalReader.GetCertificateAsync(s));
+        }
+
+        private async Task<T> Get<T>(string secretName, ConcurrentDictionary<string, CachedSecret<T>> cache, Func<string, Task<T>> getSecret)
         {
             if (string.IsNullOrEmpty(secretName))
             {
@@ -31,20 +44,20 @@ namespace NuGet.Services.KeyVault
             }
 
             // If the cache contains the secret and it is not expired, return the cached value.
-            if (_cache.TryGetValue(secretName, out CachedSecret result)
+            if (cache.TryGetValue(secretName, out CachedSecret<T> result)
                 && !IsSecretOutdated(result))
             {
                 return result.Value;
             }
 
             // The cache does not contain a fresh copy of the secret. Fetch and cache the secret.
-            var updatedValue = new CachedSecret(await _internalReader.GetSecretAsync(secretName));
+            var updatedValue = new CachedSecret<T>(await getSecret(secretName));
 
-            return _cache.AddOrUpdate(secretName, updatedValue, (key, old) => updatedValue)
+            return cache.AddOrUpdate(secretName, updatedValue, (key, old) => updatedValue)
                          .Value;
         }
 
-        private bool IsSecretOutdated(CachedSecret secret)
+        private bool IsSecretOutdated<T>(CachedSecret<T> secret)
         {
             return (DateTime.UtcNow - secret.CacheTime) >= _refreshInterval;
         }
@@ -52,9 +65,9 @@ namespace NuGet.Services.KeyVault
         /// <summary>
         /// A cached secret.
         /// </summary>
-        private class CachedSecret
+        private class CachedSecret<T>
         {
-            public CachedSecret(string value)
+            public CachedSecret(T value)
             {
                 Value = value;
                 CacheTime = DateTimeOffset.UtcNow;
@@ -63,7 +76,7 @@ namespace NuGet.Services.KeyVault
             /// <summary>
             /// The value of the cached secret.
             /// </summary>
-            public string Value { get; }
+            public T Value { get; }
 
             /// <summary>
             /// The time at which the secret was cached.
