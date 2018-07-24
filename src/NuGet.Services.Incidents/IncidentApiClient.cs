@@ -39,7 +39,7 @@ namespace NuGet.Services.Incidents
             do
             {
                 var incidentList = await GetIncidentApiResponse<IncidentList>(nextLink);
-                incidents.Concat(incidentList.Incidents);
+                incidents.AddRange(incidentList.Incidents);
                 nextLink = incidentList.NextLink;
             } while (nextLink != null);
 
