@@ -22,6 +22,7 @@ namespace NuGet.Services.Validation
         IDbSet<PackageCompatibilityIssue> PackageCompatibilityIssues { get; }
         IDbSet<ScanOperationState> ScanOperationStates { get; }
         IDbSet<PackageRevalidation> PackageRevalidations { get; set; }
+        IDbSet<VSTSSymbolsServerRequest> VSTSSymbolsServerRequests { get; set; }
 
         Task<int> SaveChangesAsync();
     }
