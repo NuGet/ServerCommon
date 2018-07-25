@@ -8,7 +8,7 @@ using Xunit;
 
 namespace NuGet.Services.Validation.Tests.Entities
 {
-    public class VSTSSymbolServerRequestTests
+    public class SymbolServerRequestTests
     {
         private static readonly IReadOnlyDictionary<int, SymbolsPackageIngestRequestStatus> ExpectedRequestStatus = 
             new Dictionary<int, SymbolsPackageIngestRequestStatus>
@@ -26,21 +26,23 @@ namespace NuGet.Services.Validation.Tests.Entities
         }
 
         [Fact]
-        public void CanCreateVSTSSymbolServerRequest()
+        public void CanCreateSymbolServerRequest()
         {
             // Arrange
-            var request = new VSTSSymbolsServerRequest()
+            var request = new SymbolsServerRequest()
             {
                 Created = new DateTime(2018, 4, 1),
                 RequestName = "vstsrequest",
                 RequestStatusKey = SymbolsPackageIngestRequestStatus.Ingested,
-                SymbolsKey = 7
+                SymbolsKey = 7,
+                LastUpdated = new DateTime(2018, 4, 1)
             };
 
             // Assert 
             Assert.Equal("vstsrequest", request.RequestName);
             Assert.Equal(7, request.SymbolsKey);
             Assert.Equal(2018, request.Created.Year);
+            Assert.Equal(2018, request.LastUpdated.Year);
             Assert.Equal(SymbolsPackageIngestRequestStatus.Ingested, request.RequestStatusKey);
         }
 

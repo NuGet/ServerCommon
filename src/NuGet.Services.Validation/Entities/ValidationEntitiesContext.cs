@@ -95,7 +95,7 @@ namespace NuGet.Services.Validation
         public IDbSet<PackageCompatibilityIssue> PackageCompatibilityIssues { get; set; }
         public IDbSet<ScanOperationState> ScanOperationStates { get; set; }
         public IDbSet<PackageRevalidation> PackageRevalidations { get; set; }
-        public IDbSet<VSTSSymbolsServerRequest> VSTSSymbolsServerRequests { get; set; }
+        public IDbSet<SymbolsServerRequest> SymbolsServerRequests { get; set; }
 
         public ValidationEntitiesContext() : this("Validation.SqlServer")
         {
@@ -673,10 +673,10 @@ namespace NuGet.Services.Validation
 
         private void RegisterSymbolEntities(DbModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<VSTSSymbolsServerRequest>()
+            modelBuilder.Entity<SymbolsServerRequest>()
                 .HasKey(r => r.SymbolsKey);
 
-            modelBuilder.Entity<VSTSSymbolsServerRequest>()
+            modelBuilder.Entity<SymbolsServerRequest>()
                .Property(s => s.RowVersion)
                .IsRowVersion();
         }

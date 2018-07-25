@@ -64,7 +64,7 @@
     <Compile Include="Entities\PackageValidationIssue.cs" />
     <Compile Include="Entities\ValidatorIssue.cs" />
     <Compile Include="Entities\ValidatorStatus.cs" />
-    <Compile Include="Entities\VSTSSymbolsServerRequest.cs" />
+    <Compile Include="Entities\SymbolsServerRequest.cs" />
     <Compile Include="IPackageValidationEnqueuer.cs" />
     <Compile Include="IServiceBusMessageSerializer.cs" />
     <Compile Include="Entities\EntitiesConfiguration.cs" />
@@ -132,9 +132,9 @@
     <Compile Include="Migrations\201807242030031_AddPackageSignaturesTypeStatusIndex.Designer.cs">
       <DependentUpon>201807242030031_AddPackageSignaturesTypeStatusIndex.cs</DependentUpon>
     </Compile>
-    <Compile Include="Migrations\201807252026539_AddVSTSSymbolsServerRequest.cs" />
-    <Compile Include="Migrations\201807252026539_AddVSTSSymbolsServerRequest.Designer.cs">
-      <DependentUpon>201807252026539_AddVSTSSymbolsServerRequest.cs</DependentUpon>
+    <Compile Include="Migrations\201807252343358_AddSymbolsServerRequest.cs" />
+    <Compile Include="Migrations\201807252343358_AddSymbolsServerRequest.Designer.cs">
+      <DependentUpon>201807252343358_AddSymbolsServerRequest.cs</DependentUpon>
     </Compile>
     <Compile Include="Migrations\ValidationMigrationsConfiguration.cs" />
     <Compile Include="PackageValidationEnqueuer.cs" />
@@ -211,8 +211,8 @@
     <EmbeddedResource Include="Migrations\201807242030031_AddPackageSignaturesTypeStatusIndex.resx">
       <DependentUpon>201807242030031_AddPackageSignaturesTypeStatusIndex.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201807252026539_AddVSTSSymbolsServerRequest.resx">
-      <DependentUpon>201807252026539_AddVSTSSymbolsServerRequest.cs</DependentUpon>
+    <EmbeddedResource Include="Migrations\201807252343358_AddSymbolsServerRequest.resx">
+      <DependentUpon>201807252343358_AddSymbolsServerRequest.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace NuGet.Services.Validation
 {
-    public class VSTSSymbolsServerRequest
+    public class SymbolsServerRequest
     {
         /// <summary>
         /// The key of the symbols package.
@@ -14,7 +14,7 @@ namespace NuGet.Services.Validation
         public int SymbolsKey { get; set; }
 
         /// <summary>
-        /// The request name used for ingestion in VSTS.
+        /// The request name used for ingestion.
         /// </summary>
         public string RequestName { get; set; }
 
@@ -28,6 +28,11 @@ namespace NuGet.Services.Validation
         /// </summary>
         [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
         public DateTime Created { get; set; }
+
+        /// <summary>
+        /// Timestamp when this symbol was last updated.
+        /// </summary>
+        public DateTime LastUpdated { get; set; }
 
         /// <summary>
         /// Used for optimistic concurrency when updating the status.

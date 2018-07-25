@@ -7,13 +7,13 @@ namespace NuGet.Services.Validation
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.1.3-40302")]
-    public sealed partial class AddVSTSSymbolsServerRequest : IMigrationMetadata
+    public sealed partial class AddSymbolsServerRequest : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(AddVSTSSymbolsServerRequest));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(AddSymbolsServerRequest));
         
         string IMigrationMetadata.Id
         {
-            get { return "201807252026539_AddVSTSSymbolsServerRequest"; }
+            get { return "201807252343358_AddSymbolsServerRequest"; }
         }
         
         string IMigrationMetadata.Source
