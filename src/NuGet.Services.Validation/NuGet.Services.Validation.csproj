@@ -128,6 +128,10 @@
     <Compile Include="Migrations\201807051803515_AddValidatingType.Designer.cs">
       <DependentUpon>201807051803515_AddValidatingType.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201807242030031_AddPackageSignaturesTypeStatusIndex.cs" />
+    <Compile Include="Migrations\201807242030031_AddPackageSignaturesTypeStatusIndex.Designer.cs">
+      <DependentUpon>201807242030031_AddPackageSignaturesTypeStatusIndex.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\201807252026539_AddVSTSSymbolsServerRequest.cs" />
     <Compile Include="Migrations\201807252026539_AddVSTSSymbolsServerRequest.Designer.cs">
       <DependentUpon>201807252026539_AddVSTSSymbolsServerRequest.cs</DependentUpon>
@@ -203,6 +207,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807051803515_AddValidatingType.resx">
       <DependentUpon>201807051803515_AddValidatingType.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807242030031_AddPackageSignaturesTypeStatusIndex.resx">
+      <DependentUpon>201807242030031_AddPackageSignaturesTypeStatusIndex.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201807252026539_AddVSTSSymbolsServerRequest.resx">
       <DependentUpon>201807252026539_AddVSTSSymbolsServerRequest.cs</DependentUpon>
