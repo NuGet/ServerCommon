@@ -12,7 +12,7 @@ namespace NuGet.Services.Validation
                 c => new
                     {
                         SymbolsKey = c.Int(nullable: false, identity: true),
-                        RequestName = c.String(),
+                        RequestName = c.String(nullable: false),
                         RequestStatusKey = c.Int(nullable: false),
                         Created = c.DateTime(nullable: false),
                         LastUpdated = c.DateTime(nullable: false),

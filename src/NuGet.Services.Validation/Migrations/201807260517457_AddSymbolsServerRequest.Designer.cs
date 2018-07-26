@@ -13,7 +13,7 @@ namespace NuGet.Services.Validation
         
         string IMigrationMetadata.Id
         {
-            get { return "201807252343358_AddSymbolsServerRequest"; }
+            get { return "201807260517457_AddSymbolsServerRequest"; }
         }
         
         string IMigrationMetadata.Source
