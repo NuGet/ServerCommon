@@ -133,7 +133,7 @@ namespace AzureSqlConnectionTest
         private async Task ConnectionTestAsync(Guid instanceId, SqlConnection connection)
         {
             // AccessToken value is only available before the connection is opened.
-            var token = connection.AccessToken.GetHashCode();
+            var token = connection.AccessToken?.GetHashCode();
             if (connection.State != ConnectionState.Open)
             {
                 await connection.OpenAsync();
@@ -143,7 +143,8 @@ namespace AzureSqlConnectionTest
             using (var cmd = new SqlCommand("SELECT CURRENT_USER", connection))
             {
                 var result = await cmd.ExecuteScalarAsync();
-                Console.WriteLine($"Connected [{instanceId}]: {result} C:({connectionId}) T:({token})");
+                var tokenStr = token?.ToString() ?? "persisted";
+                Console.WriteLine($"Connected [{instanceId}]: {result} C:({connectionId}) T:({tokenStr})");
             }
         }
 
