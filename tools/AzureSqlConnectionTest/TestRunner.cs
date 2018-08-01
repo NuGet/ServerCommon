@@ -43,7 +43,7 @@ namespace AzureSqlConnectionTest
             bool persist,
             bool useAdalOnly)
         {
-            Console.WriteLine($"Test started: {count} clients, {durationInSeconds}s duration, {intervalInSeconds}s interval, persist = {persist}, adal = {useAdalOnly}");
+            LogMessage($"Test started: {count} clients, {durationInSeconds}s duration, {intervalInSeconds}s interval, persist = {persist}, adal = {useAdalOnly}{Environment.NewLine}");
 
             var testAsync = persist ? (Func<int, int, bool, Task<int>>)
                 TestPersistentConnectionAsync
@@ -62,7 +62,8 @@ namespace AzureSqlConnectionTest
 
             var errorCount = clients.Sum(c => c.Result);
 
-            Console.WriteLine($"Test completed: {errorCount} error(s).");
+            LogMessage($"{Environment.NewLine}Test completed: {errorCount} error(s). Press any key to exit.");
+            Console.ReadKey();
 
             return errorCount;
         }
@@ -115,7 +116,7 @@ namespace AzureSqlConnectionTest
                 catch (Exception e)
                 {
                     errorCount++;
-                    Console.WriteLine($"Failed [{instanceId}]: {e}");
+                    LogMessage($"Failed [{instanceId}]: {e}");
                 }
 
                 await Task.Delay(intervalInSeconds * 1000);
@@ -144,7 +145,7 @@ namespace AzureSqlConnectionTest
             {
                 var result = await cmd.ExecuteScalarAsync();
                 var tokenStr = token?.ToString() ?? "persisted";
-                Console.WriteLine($"Connected [{instanceId}]: {result} C:({connectionId}) T:({tokenStr})");
+                LogMessage($"Connected [{instanceId}]: {result} C:({connectionId}) T:({tokenStr})");
             }
         }
 
@@ -191,6 +192,12 @@ namespace AzureSqlConnectionTest
             connection.AccessToken = token.AccessToken;
 
             return connection;
+        }
+
+        private void LogMessage(string s)
+        {
+            var timestamp = DateTime.Now.ToString("s");
+            Console.WriteLine($"[{timestamp}] {s}");
         }
     }
 }

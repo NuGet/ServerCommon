@@ -54,10 +54,10 @@ namespace AzureSqlConnectionTest
             SpawnClients = Option("-spawn", "Spawn client processes", CommandOptionType.NoValue);
             UseAdalOnly = Option("-adal", "Use ADAL only (default token cache)", CommandOptionType.NoValue);
 
-            OnExecute(() => OnTestExecute());
+            OnExecute(() => ExecuteAsync().GetAwaiter().GetResult());
         }
 
-        public int OnTestExecute()
+        public async Task<int> ExecuteAsync()
         {
             if (!Help.HasValue())
             {
@@ -67,12 +67,7 @@ namespace AzureSqlConnectionTest
 
                 if (count > 1 && SpawnClients.HasValue())
                 {
-                    return Task.Run(
-                        async () => await SpawnTestClients(
-                            count,
-                            durationInSeconds,
-                            intervalInSeconds)
-                        ).Result;
+                    return await SpawnTestClients(count, durationInSeconds, intervalInSeconds);
                 }
 
                 var persist = PersistConnections.HasValue();
@@ -93,14 +88,12 @@ namespace AzureSqlConnectionTest
                             ConnectionString.Value(),
                             keyVaultConfig);
 
-                        return Task.Run(
-                            async () => await runner.TestConnectionsAsync(
-                                count,
-                                durationInSeconds,
-                                intervalInSeconds,
-                                persist,
-                                useAdalOnly)
-                            ).Result;
+                        return await runner.TestConnectionsAsync(
+                            count,
+                            durationInSeconds,
+                            intervalInSeconds,
+                            persist,
+                            useAdalOnly);
                     }
                 }
             }
@@ -171,7 +164,7 @@ namespace AzureSqlConnectionTest
         private static X509Certificate2 GetKeyVaultCertificate(string kvCertThumbprint)
         {
             return CertificateUtility.FindCertificateByThumbprint(
-                StoreName.My, StoreLocation.LocalMachine, kvCertThumbprint, true);
+                StoreName.My, StoreLocation.LocalMachine, kvCertThumbprint, validationRequired: true);
         }
     }
 }
