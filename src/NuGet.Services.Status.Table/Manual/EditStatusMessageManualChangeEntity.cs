@@ -6,7 +6,6 @@ namespace NuGet.Services.Status.Table.Manual
     {
         public EditStatusMessageManualChangeEntity(
             string eventAffectedComponentPath,
-            ComponentStatus eventAffectedComponentStatus,
             DateTime eventStartTime,
             DateTime messageTimestamp,
             string messageContents)
