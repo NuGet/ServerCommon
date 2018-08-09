@@ -43,6 +43,8 @@
     <Compile Include="CursorEntity.cs" />
     <Compile Include="EventEntity.cs" />
     <Compile Include="IncidentEntity.cs" />
+    <Compile Include="ManualStatusChangeEntity.cs" />
+    <Compile Include="ManualStatusChangeType.cs" />
     <Compile Include="MessageEntity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility.cs" />

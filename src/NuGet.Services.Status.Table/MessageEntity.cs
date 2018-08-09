@@ -34,7 +34,7 @@ namespace NuGet.Services.Status.Table
             return new Message(Time, Contents);
         }
 
-        private static string GetRowKey(EventEntity eventEntity, DateTime time)
+        public static string GetRowKey(EventEntity eventEntity, DateTime time)
         {
             return $"{eventEntity.RowKey}_{time.ToString("o")}";
         }
