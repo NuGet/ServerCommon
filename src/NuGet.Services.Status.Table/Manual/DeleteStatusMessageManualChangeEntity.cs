@@ -4,6 +4,10 @@ namespace NuGet.Services.Status.Table.Manual
 {
     public class DeleteStatusMessageManualChangeEntity : ManualStatusChangeEntity
     {
+        public DeleteStatusMessageManualChangeEntity()
+        {
+        }
+
         public DeleteStatusMessageManualChangeEntity(
             string eventAffectedComponentPath,
             DateTime eventStartTime,

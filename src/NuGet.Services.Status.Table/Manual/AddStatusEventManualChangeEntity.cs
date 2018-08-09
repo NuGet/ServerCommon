@@ -2,6 +2,10 @@
 {
     public class AddStatusEventManualChangeEntity : ManualStatusChangeEntity
     {
+        public AddStatusEventManualChangeEntity()
+        {
+        }
+
         public AddStatusEventManualChangeEntity(
             string eventAffectedComponentPath,
             ComponentStatus eventAffectedComponentStatus,

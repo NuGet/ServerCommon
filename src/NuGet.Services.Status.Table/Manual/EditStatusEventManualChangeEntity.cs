@@ -4,6 +4,10 @@ namespace NuGet.Services.Status.Table.Manual
 {
     public class EditStatusEventManualChangeEntity : ManualStatusChangeEntity
     {
+        public EditStatusEventManualChangeEntity()
+        {
+        }
+
         public EditStatusEventManualChangeEntity(
             string eventAffectedComponentPath,
             ComponentStatus eventAffectedComponentStatus,
