@@ -15,14 +15,18 @@ namespace NuGet.Services.Status.Table
         }
 
         public CursorEntity(string name, DateTime value)
-            : base(DefaultPartitionKey, name)
+            : base(DefaultPartitionKey, GetRowKey(name))
         {
-            Name = name;
             Value = value;
         }
 
-        public string Name { get; set; }
+        public string Name => RowKey;
 
         public DateTime Value { get; set; }
+
+        public static string GetRowKey(string name)
+        {
+            return name;
+        }
     }
 }

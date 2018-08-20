@@ -15,21 +15,13 @@ namespace NuGet.Services.Status.Table.Manual
         }
 
         private ManualStatusChangeEntity(
-            DateTime changeTimestamp,
             ManualStatusChangeType type)
-            : base(DefaultPartitionKey, GetRowKey(changeTimestamp))
+            : base(DefaultPartitionKey, GetRowKey(Guid.NewGuid()))
         {
-            ChangeTimestamp = changeTimestamp;
             Type = (int)type;
         }
 
-        protected ManualStatusChangeEntity(
-            ManualStatusChangeType type)
-            : this(DateTime.UtcNow, type)
-        {
-        }
-
-        public DateTime ChangeTimestamp { get; set; }
+        public Guid Guid => Guid.Parse(RowKey);
 
         /// <remarks>
         /// This should be a <see cref="ManualStatusChangeType"/> converted to an enum.
@@ -37,9 +29,9 @@ namespace NuGet.Services.Status.Table.Manual
         /// </remarks>
         public int Type { get; set; }
 
-        public static string GetRowKey(DateTime changeTimestamp)
+        public static string GetRowKey(Guid guid)
         {
-            return $"{changeTimestamp.ToString("o")}";
+            return guid.ToString();
         }
     }
 }
