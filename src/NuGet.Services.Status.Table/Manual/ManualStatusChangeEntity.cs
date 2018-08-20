@@ -14,7 +14,7 @@ namespace NuGet.Services.Status.Table.Manual
         {
         }
 
-        private ManualStatusChangeEntity(
+        protected ManualStatusChangeEntity(
             ManualStatusChangeType type)
             : base(DefaultPartitionKey, GetRowKey(Guid.NewGuid()))
         {
