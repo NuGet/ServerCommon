@@ -14,7 +14,7 @@ namespace NuGet.Services.Status.Table.Manual
             DateTime messageTimestamp)
             : base(ManualStatusChangeType.DeleteStatusMessage)
         {
-            EventAffectedComponentPath = eventAffectedComponentPath;
+            EventAffectedComponentPath = eventAffectedComponentPath ?? throw new ArgumentNullException(nameof(eventAffectedComponentPath));
             EventStartTime = eventStartTime;
             MessageTimestamp = messageTimestamp;
         }

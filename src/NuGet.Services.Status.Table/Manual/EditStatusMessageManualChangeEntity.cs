@@ -15,10 +15,10 @@ namespace NuGet.Services.Status.Table.Manual
             string messageContents)
             : base(ManualStatusChangeType.EditStatusMessage)
         {
-            EventAffectedComponentPath = eventAffectedComponentPath;
+            EventAffectedComponentPath = eventAffectedComponentPath ?? throw new ArgumentNullException(nameof(eventAffectedComponentPath));
             EventStartTime = eventStartTime;
             MessageTimestamp = messageTimestamp;
-            MessageContents = messageContents;
+            MessageContents = messageContents ?? throw new ArgumentNullException(nameof(messageContents));
         }
 
         public string EventAffectedComponentPath { get; set; }

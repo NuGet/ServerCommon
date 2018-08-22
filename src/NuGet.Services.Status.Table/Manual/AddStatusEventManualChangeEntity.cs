@@ -1,4 +1,6 @@
-﻿namespace NuGet.Services.Status.Table.Manual
+﻿using System;
+
+namespace NuGet.Services.Status.Table.Manual
 {
     public class AddStatusEventManualChangeEntity : ManualStatusChangeEntity
     {
@@ -13,9 +15,9 @@
             bool eventIsActive)
             : base(ManualStatusChangeType.AddStatusEvent)
         {
-            EventAffectedComponentPath = eventAffectedComponentPath;
+            EventAffectedComponentPath = eventAffectedComponentPath ?? throw new ArgumentNullException(nameof(eventAffectedComponentPath));
             EventAffectedComponentStatus = (int)eventAffectedComponentStatus;
-            MessageContents = messageContents;
+            MessageContents = messageContents ?? throw new ArgumentNullException(nameof(messageContents));
             EventIsActive = eventIsActive;
         }
 

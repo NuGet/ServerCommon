@@ -15,7 +15,7 @@ namespace NuGet.Services.Status.Table.Manual
             bool eventIsActive)
             : base(ManualStatusChangeType.EditStatusEvent)
         {
-            EventAffectedComponentPath = eventAffectedComponentPath;
+            EventAffectedComponentPath = eventAffectedComponentPath ?? throw new ArgumentNullException(nameof(eventAffectedComponentPath));
             EventAffectedComponentStatus = (int)eventAffectedComponentStatus;
             EventStartTime = eventStartTime;
             EventIsActive = eventIsActive;

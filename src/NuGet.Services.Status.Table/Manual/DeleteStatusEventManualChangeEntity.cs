@@ -13,7 +13,7 @@ namespace NuGet.Services.Status.Table.Manual
             DateTime eventStartTime)
             : base(ManualStatusChangeType.DeleteStatusEvent)
         {
-            EventAffectedComponentPath = eventAffectedComponentPath;
+            EventAffectedComponentPath = eventAffectedComponentPath ?? throw new ArgumentNullException(nameof(eventAffectedComponentPath));
             EventStartTime = eventStartTime;
         }
 
