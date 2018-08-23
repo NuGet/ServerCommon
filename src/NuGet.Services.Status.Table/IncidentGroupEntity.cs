@@ -1,38 +1,48 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.WindowsAzure.Storage.Table;
 using System;
+using Microsoft.WindowsAzure.Storage.Table;
 
 namespace NuGet.Services.Status.Table
 {
-    /// <summary>
-    /// Class used to serialize an incident in a table.
-    /// </summary>
-    public class IncidentEntity : TableEntity
+    public class IncidentGroupEntity : TableEntity
     {
-        public const string DefaultPartitionKey = "incidents";
+        public const string DefaultPartitionKey = "groups";
 
-        public IncidentEntity()
+        public IncidentGroupEntity()
         {
         }
 
-        public IncidentEntity(
-            string id, 
-            string affectedComponentPath, 
-            ComponentStatus affectedComponentStatus, 
-            DateTime creationTime, 
-            DateTime? mitigationTime)
-            : base(DefaultPartitionKey, GetRowKey(id, affectedComponentPath, affectedComponentStatus))
+        public IncidentGroupEntity(
+            string affectedComponentPath,
+            int affectedComponentStatus,
+            DateTime startTime,
+            DateTime? endTime = null)
+            : base(DefaultPartitionKey, GetRowKey(affectedComponentPath, startTime))
         {
-            IncidentApiId = id;
             AffectedComponentPath = affectedComponentPath;
-            AffectedComponentStatus = (int)affectedComponentStatus;
-            CreationTime = creationTime;
-            MitigationTime = mitigationTime;
+            AffectedComponentStatus = affectedComponentStatus;
+            StartTime = startTime;
+            EndTime = endTime;
         }
 
-        public string IncidentGroupRowKey { get; set; }
+        public IncidentGroupEntity(
+            string affectedComponentPath,
+            ComponentStatus affectedComponentStatus,
+            DateTime startTime,
+            DateTime? endTime = null)
+            : this(affectedComponentPath, (int)affectedComponentStatus, startTime, endTime)
+        {
+        }
+
+        public IncidentGroupEntity(IncidentEntity incidentEntity)
+            : this(incidentEntity.AffectedComponentPath, incidentEntity.AffectedComponentStatus, incidentEntity.CreationTime)
+        {
+            incidentEntity.IncidentGroupRowKey = RowKey;
+        }
+
+        public string EventRowKey { get; set; }
 
         /// <remarks>
         /// This is a readonly property we would like to serialize.
@@ -40,13 +50,11 @@ namespace NuGet.Services.Status.Table
         /// The empty setter is intended to trick <see cref="TableEntity"/> into serializing it.
         /// See https://github.com/Azure/azure-storage-net/blob/e01de1b34c316255f1ffe8f5e80917150325b088/Lib/Common/Table/TableEntity.cs#L426
         /// </remarks>
-        public bool IsLinkedToIncidentGroup
+        public bool IsLinkedToEvent
         {
-            get { return !string.IsNullOrEmpty(IncidentGroupRowKey); }
+            get { return !string.IsNullOrEmpty(EventRowKey); }
             set { }
         }
-
-        public string IncidentApiId { get; set; }
 
         public string AffectedComponentPath { get; set; }
 
@@ -56,9 +64,9 @@ namespace NuGet.Services.Status.Table
         /// </remarks>
         public int AffectedComponentStatus { get; set; }
 
-        public DateTime CreationTime { get; set; }
+        public DateTime StartTime { get; set; }
 
-        public DateTime? MitigationTime { get; set; }
+        public DateTime? EndTime { get; set; }
 
         /// <remarks>
         /// This is a readonly property we would like to serialize.
@@ -68,13 +76,13 @@ namespace NuGet.Services.Status.Table
         /// </remarks>
         public bool IsActive
         {
-            get { return MitigationTime == null; }
+            get { return EndTime == null; }
             set { }
         }
 
-        public static string GetRowKey(string id, string affectedComponentPath, ComponentStatus affectedComponentStatus)
+        public static string GetRowKey(string affectedComponentPath, DateTime startTime)
         {
-            return $"{id}_{Utility.ToRowKeySafeComponentPath(affectedComponentPath)}_{affectedComponentStatus}";
+            return $"{Utility.ToRowKeySafeComponentPath(affectedComponentPath)}_{startTime.ToString("o")}";
         }
     }
 }

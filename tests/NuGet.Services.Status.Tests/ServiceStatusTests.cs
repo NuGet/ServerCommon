@@ -24,27 +24,64 @@ namespace NuGet.Services.Status.Tests
 
         private static ServiceStatus CreateStatus()
         {
-            return new ServiceStatus(GetDate(), CreateRootComponent(), new[] { CreateEvent(), CreateEvent(), CreateEvent() });
+            return new ServiceStatus(
+                GetDate(), 
+                CreateRootComponent(), 
+                Enumerable.Repeat<Func<Event>>(() => CreateEvent(), 6).Select(f => f()).ToList());
         }
 
         private static IComponent CreateRootComponent()
         {
-            return CreateComponent(new TreeComponent(GetString(), GetString(), new[] { CreateTreeComponent(), CreatePrimarySecondaryComponent(), CreateSubComponent(), CreateTreeComponent(), CreatePrimarySecondaryComponent(), CreateSubComponent() }));
+            return CreateComponent(
+                new TreeComponent(
+                    GetString(), 
+                    GetString(), 
+                    new[] 
+                    {
+                        CreateTreeComponent(),
+                        CreatePrimarySecondaryComponent(),
+                        CreateSubComponent(),
+                        CreateTreeComponent(),
+                        CreatePrimarySecondaryComponent(),
+                        CreateSubComponent(),
+                        CreateTreeComponent(),
+                        CreatePrimarySecondaryComponent(),
+                        CreateSubComponent()
+                    }));
         }
 
         private static IComponent CreateTreeComponent()
         {
-            return CreateComponent(new TreeComponent(GetString(), GetString(), new[] { CreateSubComponent(), CreateSubComponent() }));
+            return CreateComponent(
+                new TreeComponent(
+                    GetString(), 
+                    GetString(), 
+                    new[] 
+                    {
+                        CreateSubComponent(),
+                        CreateSubComponent()
+                    }));
         }
 
         private static IComponent CreatePrimarySecondaryComponent()
         {
-            return CreateComponent(new PrimarySecondaryComponent(GetString(), GetString(), new[] { CreateSubComponent(), CreateSubComponent() }));
+            return CreateComponent(
+                new PrimarySecondaryComponent(
+                    GetString(), 
+                    GetString(), 
+                    new[] 
+                    {
+                        CreateSubComponent(),
+                        CreateSubComponent()
+                    }));
         }
 
         private static IComponent CreateSubComponent()
         {
-            return CreateComponent(new LeafComponent(GetString(), GetString()));
+            return CreateComponent(
+                new LeafComponent(
+                    GetString(), 
+                    GetString()));
         }
 
         private static Event CreateEvent()
@@ -88,7 +125,7 @@ namespace NuGet.Services.Status.Tests
             }
             else
             {
-                _currentString = _currentString.Substring(0, _currentString.Length - 1) + (last + 1);
+                _currentString = _currentString.Substring(0, _currentString.Length - 1) + (char)(last + 1);
             }
 
             return _currentString;

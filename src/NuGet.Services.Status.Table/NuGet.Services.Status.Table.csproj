@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IncidentGroupEntity.cs" />
     <Compile Include="Manual\AddStatusEventManualChangeEntity.cs" />
     <Compile Include="Manual\AddStatusMessageManualChangeEntity.cs" />
     <Compile Include="CursorEntity.cs" />
