@@ -41,6 +41,11 @@ namespace NuGet.Services.Status
                     return _status.Value;
                 }
 
+                if (!SubComponents.Any())
+                {
+                    return ComponentStatus.Up;
+                }
+
                 return SubComponents.Min(s => s.Status);
             }
             set
