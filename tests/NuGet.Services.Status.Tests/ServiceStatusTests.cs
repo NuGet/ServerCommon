@@ -39,7 +39,7 @@ namespace NuGet.Services.Status.Tests
 
         private static IComponent CreatePrimarySecondaryComponent()
         {
-            return CreateComponent(new PrimarySecondaryComponent(GetString(), GetString(), new[] { CreateSubComponent(), CreateSubComponent() }));
+            return CreateComponent(new ActivePassiveComponent(GetString(), GetString(), new[] { CreateSubComponent(), CreateSubComponent() }));
         }
 
         private static IComponent CreateSubComponent()
