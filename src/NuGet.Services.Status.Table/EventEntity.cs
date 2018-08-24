@@ -20,6 +20,7 @@ namespace NuGet.Services.Status.Table
 
         public EventEntity(
             string affectedComponentPath,
+            ComponentStatus affectedComponentStatus,
             DateTime startTime,
             DateTime? endTime = null)
             : base(DefaultPartitionKey, GetRowKey(affectedComponentPath, startTime))
@@ -30,12 +31,22 @@ namespace NuGet.Services.Status.Table
         }
 
         public EventEntity(IncidentGroupEntity incidentGroupEntity)
-            : this(incidentGroupEntity.AffectedComponentPath, incidentGroupEntity.StartTime, incidentGroupEntity.EndTime)
+            : this(
+                  incidentGroupEntity.AffectedComponentPath, 
+                  (ComponentStatus)incidentGroupEntity.AffectedComponentStatus, 
+                  incidentGroupEntity.StartTime, 
+                  incidentGroupEntity.EndTime)
         {
             incidentGroupEntity.EventRowKey = RowKey;
         }
 
         public string AffectedComponentPath { get; set; }
+
+        /// <remarks>
+        /// This should be a <see cref="ComponentStatus"/> converted to an enum.
+        /// See https://github.com/Azure/azure-storage-net/issues/383
+        /// </remarks>
+        public int AffectedComponentStatus { get; set; }
 
         public DateTime StartTime { get; set; }
 
@@ -53,9 +64,9 @@ namespace NuGet.Services.Status.Table
             set { }
         }
 
-        public Event AsEvent(ComponentStatus affectedComponentStatus, IEnumerable<Message> messages)
+        public Event AsEvent(IEnumerable<Message> messages)
         {
-            return new Event(AffectedComponentPath, affectedComponentStatus, StartTime, EndTime, messages);
+            return new Event(AffectedComponentPath, (ComponentStatus)AffectedComponentStatus, StartTime, EndTime, messages);
         }
 
         public static string GetRowKey(string affectedComponentPath, DateTime startTime)
