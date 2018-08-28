@@ -40,6 +40,11 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IAggregatedEntity.cs" />
+    <Compile Include="IEntityAggregation.cs" />
+    <Compile Include="ILinkedEntity.cs" />
+    <Compile Include="IncidentGroupEntity.cs" />
+    <Compile Include="IComponentAffectingEntity.cs" />
     <Compile Include="Manual\AddStatusEventManualChangeEntity.cs" />
     <Compile Include="Manual\AddStatusMessageManualChangeEntity.cs" />
     <Compile Include="CursorEntity.cs" />

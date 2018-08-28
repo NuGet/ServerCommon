@@ -18,6 +18,7 @@ namespace NuGet.Services.Status
     {
         public new abstract ComponentStatus Status { get; set; }
         public new IEnumerable<IComponent> SubComponents { get; }
+        public bool DisplaySubComponents { get; }
 
         public Component(
             string name,
@@ -25,16 +26,20 @@ namespace NuGet.Services.Status
             : base(name, description)
         {
             SubComponents = Enumerable.Empty<IComponent>();
+            DisplaySubComponents = true;
         }
 
         public Component(
             string name,
             string description,
-            IEnumerable<IComponent> subComponents)
+            IEnumerable<IComponent> subComponents,
+            bool displaySubComponents = true)
             : base(name, description, subComponents)
         {
             SubComponents = subComponents?.Select(s => new ComponentWrapper(s, this)).ToList()
                 ?? throw new ArgumentNullException(nameof(subComponents));
+
+            DisplaySubComponents = displaySubComponents;
         }
     }
 }

@@ -1,35 +1,45 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.WindowsAzure.Storage.Table;
 using System;
+using Microsoft.WindowsAzure.Storage.Table;
 
 namespace NuGet.Services.Status.Table
 {
-    /// <summary>
-    /// Class used to serialize an incident in a table.
-    /// </summary>
-    public class IncidentEntity : TableEntity, IAggregatedEntity
+    public class IncidentGroupEntity : TableEntity, IEntityAggregation, IAggregatedEntity
     {
-        public const string DefaultPartitionKey = "incidents";
+        public const string DefaultPartitionKey = "groups";
 
-        public IncidentEntity()
+        public IncidentGroupEntity()
         {
         }
 
-        public IncidentEntity(
-            string id, 
-            string affectedComponentPath, 
-            ComponentStatus affectedComponentStatus, 
-            DateTime creationTime, 
-            DateTime? mitigationTime)
-            : base(DefaultPartitionKey, GetRowKey(id, affectedComponentPath, affectedComponentStatus))
+        public IncidentGroupEntity(
+            string affectedComponentPath,
+            int affectedComponentStatus,
+            DateTime startTime,
+            DateTime? endTime = null)
+            : base(DefaultPartitionKey, GetRowKey(affectedComponentPath, startTime))
         {
-            IncidentApiId = id;
             AffectedComponentPath = affectedComponentPath;
-            AffectedComponentStatus = (int)affectedComponentStatus;
-            StartTime = creationTime;
-            EndTime = mitigationTime;
+            AffectedComponentStatus = affectedComponentStatus;
+            StartTime = startTime;
+            EndTime = endTime;
+        }
+
+        public IncidentGroupEntity(
+            string affectedComponentPath,
+            ComponentStatus affectedComponentStatus,
+            DateTime startTime,
+            DateTime? endTime = null)
+            : this(affectedComponentPath, (int)affectedComponentStatus, startTime, endTime)
+        {
+        }
+
+        public IncidentGroupEntity(IncidentEntity incidentEntity)
+            : this(incidentEntity.AffectedComponentPath, incidentEntity.AffectedComponentStatus, incidentEntity.StartTime)
+        {
+            incidentEntity.ParentRowKey = RowKey;
         }
 
         public string ParentRowKey { get; set; }
@@ -45,8 +55,6 @@ namespace NuGet.Services.Status.Table
             get { return !string.IsNullOrEmpty(ParentRowKey); }
             set { }
         }
-
-        public string IncidentApiId { get; set; }
 
         public string AffectedComponentPath { get; set; }
 
@@ -72,9 +80,9 @@ namespace NuGet.Services.Status.Table
             set { }
         }
 
-        public static string GetRowKey(string id, string affectedComponentPath, ComponentStatus affectedComponentStatus)
+        public static string GetRowKey(string affectedComponentPath, DateTime startTime)
         {
-            return $"{id}_{Utility.ToRowKeySafeComponentPath(affectedComponentPath)}_{affectedComponentStatus}";
+            return $"{Utility.ToRowKeySafeComponentPath(affectedComponentPath)}_{startTime.ToString("o")}";
         }
     }
 }
