@@ -19,5 +19,7 @@ namespace NuGet.Services.Status
         /// A list of writable subcomponents that make up this part of the service.
         /// </summary>
         new IEnumerable<IComponent> SubComponents { get; }
+
+        bool DisplaySubComponents { get; }
     }
 }

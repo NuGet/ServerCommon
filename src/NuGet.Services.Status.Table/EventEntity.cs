@@ -20,7 +20,6 @@ namespace NuGet.Services.Status.Table
 
         public EventEntity(
             string affectedComponentPath,
-            ComponentStatus affectedComponentStatus,
             DateTime startTime,
             DateTime? endTime = null)
             : base(DefaultPartitionKey, GetRowKey(affectedComponentPath, startTime))
@@ -33,7 +32,6 @@ namespace NuGet.Services.Status.Table
         public EventEntity(IncidentGroupEntity incidentGroupEntity)
             : this(
                   incidentGroupEntity.AffectedComponentPath, 
-                  (ComponentStatus)incidentGroupEntity.AffectedComponentStatus, 
                   incidentGroupEntity.StartTime, 
                   incidentGroupEntity.EndTime)
         {
