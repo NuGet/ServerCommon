@@ -10,7 +10,7 @@ namespace NuGet.Services.Status.Table
     /// <summary>
     /// Class used to serialize an <see cref="Event"/> in a table.
     /// </summary>
-    public class EventEntity : TableEntity, IEntityGroup
+    public class EventEntity : TableEntity, IEntityAggregation
     {
         public const string DefaultPartitionKey = "events";
 

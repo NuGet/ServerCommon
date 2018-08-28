@@ -9,7 +9,7 @@ namespace NuGet.Services.Status.Table
     /// <summary>
     /// Class used to serialize an incident in a table.
     /// </summary>
-    public class IncidentEntity : TableEntity, IGroupedEntity
+    public class IncidentEntity : TableEntity, IAggregatedEntity
     {
         public const string DefaultPartitionKey = "incidents";
 
@@ -28,8 +28,8 @@ namespace NuGet.Services.Status.Table
             IncidentApiId = id;
             AffectedComponentPath = affectedComponentPath;
             AffectedComponentStatus = (int)affectedComponentStatus;
-            CreationTime = creationTime;
-            MitigationTime = mitigationTime;
+            StartTime = creationTime;
+            EndTime = mitigationTime;
         }
 
         public string ParentRowKey { get; set; }
@@ -56,9 +56,9 @@ namespace NuGet.Services.Status.Table
         /// </remarks>
         public int AffectedComponentStatus { get; set; }
 
-        public DateTime CreationTime { get; set; }
+        public DateTime StartTime { get; set; }
 
-        public DateTime? MitigationTime { get; set; }
+        public DateTime? EndTime { get; set; }
 
         /// <remarks>
         /// This is a readonly property we would like to serialize.
@@ -68,7 +68,7 @@ namespace NuGet.Services.Status.Table
         /// </remarks>
         public bool IsActive
         {
-            get { return MitigationTime == null; }
+            get { return EndTime == null; }
             set { }
         }
 

@@ -9,7 +9,7 @@ namespace NuGet.Services.Status.Table
     /// <summary>
     /// Class used to serialize a <see cref="Message"/> in a table.
     /// </summary>
-    public class MessageEntity : TableEntity, IGroupedEntity
+    public class MessageEntity : TableEntity, ILinkedEntity
     {
         public const string DefaultPartitionKey = "messages";
 

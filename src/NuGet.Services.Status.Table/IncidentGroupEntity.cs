@@ -6,7 +6,7 @@ using Microsoft.WindowsAzure.Storage.Table;
 
 namespace NuGet.Services.Status.Table
 {
-    public class IncidentGroupEntity : TableEntity, IEntityGroup, IGroupedEntity
+    public class IncidentGroupEntity : TableEntity, IEntityAggregation, IAggregatedEntity
     {
         public const string DefaultPartitionKey = "groups";
 
@@ -37,7 +37,7 @@ namespace NuGet.Services.Status.Table
         }
 
         public IncidentGroupEntity(IncidentEntity incidentEntity)
-            : this(incidentEntity.AffectedComponentPath, incidentEntity.AffectedComponentStatus, incidentEntity.CreationTime)
+            : this(incidentEntity.AffectedComponentPath, incidentEntity.AffectedComponentStatus, incidentEntity.StartTime)
         {
             incidentEntity.ParentRowKey = RowKey;
         }
