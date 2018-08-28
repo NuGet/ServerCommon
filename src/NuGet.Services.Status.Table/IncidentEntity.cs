@@ -9,7 +9,7 @@ namespace NuGet.Services.Status.Table
     /// <summary>
     /// Class used to serialize an incident in a table.
     /// </summary>
-    public class IncidentEntity : TableEntity
+    public class IncidentEntity : TableEntity, IGroupedEntity
     {
         public const string DefaultPartitionKey = "incidents";
 
@@ -32,7 +32,7 @@ namespace NuGet.Services.Status.Table
             MitigationTime = mitigationTime;
         }
 
-        public string IncidentGroupRowKey { get; set; }
+        public string ParentRowKey { get; set; }
 
         /// <remarks>
         /// This is a readonly property we would like to serialize.
@@ -40,9 +40,9 @@ namespace NuGet.Services.Status.Table
         /// The empty setter is intended to trick <see cref="TableEntity"/> into serializing it.
         /// See https://github.com/Azure/azure-storage-net/blob/e01de1b34c316255f1ffe8f5e80917150325b088/Lib/Common/Table/TableEntity.cs#L426
         /// </remarks>
-        public bool IsLinkedToIncidentGroup
+        public bool IsLinked
         {
-            get { return !string.IsNullOrEmpty(IncidentGroupRowKey); }
+            get { return !string.IsNullOrEmpty(ParentRowKey); }
             set { }
         }
 

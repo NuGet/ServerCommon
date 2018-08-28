@@ -6,7 +6,7 @@ using Microsoft.WindowsAzure.Storage.Table;
 
 namespace NuGet.Services.Status.Table
 {
-    public class IncidentGroupEntity : TableEntity
+    public class IncidentGroupEntity : TableEntity, IEntityGroup, IGroupedEntity
     {
         public const string DefaultPartitionKey = "groups";
 
@@ -39,10 +39,10 @@ namespace NuGet.Services.Status.Table
         public IncidentGroupEntity(IncidentEntity incidentEntity)
             : this(incidentEntity.AffectedComponentPath, incidentEntity.AffectedComponentStatus, incidentEntity.CreationTime)
         {
-            incidentEntity.IncidentGroupRowKey = RowKey;
+            incidentEntity.ParentRowKey = RowKey;
         }
 
-        public string EventRowKey { get; set; }
+        public string ParentRowKey { get; set; }
 
         /// <remarks>
         /// This is a readonly property we would like to serialize.
@@ -50,9 +50,9 @@ namespace NuGet.Services.Status.Table
         /// The empty setter is intended to trick <see cref="TableEntity"/> into serializing it.
         /// See https://github.com/Azure/azure-storage-net/blob/e01de1b34c316255f1ffe8f5e80917150325b088/Lib/Common/Table/TableEntity.cs#L426
         /// </remarks>
-        public bool IsLinkedToEvent
+        public bool IsLinked
         {
-            get { return !string.IsNullOrEmpty(EventRowKey); }
+            get { return !string.IsNullOrEmpty(ParentRowKey); }
             set { }
         }
 

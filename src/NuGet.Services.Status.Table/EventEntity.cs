@@ -10,7 +10,7 @@ namespace NuGet.Services.Status.Table
     /// <summary>
     /// Class used to serialize an <see cref="Event"/> in a table.
     /// </summary>
-    public class EventEntity : TableEntity
+    public class EventEntity : TableEntity, IEntityGroup
     {
         public const string DefaultPartitionKey = "events";
 
@@ -37,7 +37,7 @@ namespace NuGet.Services.Status.Table
                   incidentGroupEntity.StartTime, 
                   incidentGroupEntity.EndTime)
         {
-            incidentGroupEntity.EventRowKey = RowKey;
+            incidentGroupEntity.ParentRowKey = RowKey;
         }
 
         public string AffectedComponentPath { get; set; }
