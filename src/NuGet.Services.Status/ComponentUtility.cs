@@ -19,6 +19,16 @@ namespace NuGet.Services.Status
             return string.Join(Constants.ComponentPathDivider.ToString(), componentNames);
         }
 
+        public static string[] GetNames(string path)
+        {
+            if (string.IsNullOrEmpty(path))
+            {
+                return new string[0];
+            }
+
+            return path.Split(Constants.ComponentPathDivider);
+        }
+
         /// <summary>
         /// Gets the subcomponent of <paramref name="component"/> with <see cref="IReadOnlyComponent.Path"/> <paramref name="path"/>.
         /// If none exists, returns <c>null</c>.
@@ -31,7 +41,7 @@ namespace NuGet.Services.Status
                 return null;
             }
 
-            var componentNames = path.Split(Constants.ComponentPathDivider);
+            var componentNames = GetNames(path);
             return component.GetByNames(componentNames);
         }
 
