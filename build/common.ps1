@@ -596,6 +596,10 @@ Function New-ProjectPackage {
     $opts += "/p:Configuration=$Configuration;BuildNumber=$(Format-BuildNumber $BuildNumber)"
     $opts += "/p:PackageOutputPath=$Artifacts"
     
+    if ($PackageId) {
+        $opts += "/p:PackageId=$PackageId"
+    }
+    
     if ($Version){
         $PackageVersion = $Version
     }
