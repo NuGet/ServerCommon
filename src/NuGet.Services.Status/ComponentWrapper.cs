@@ -16,6 +16,7 @@ namespace NuGet.Services.Status
 
         public new ComponentStatus Status { get { return _component.Status; } set { _component.Status = value; } }
         public new IEnumerable<IComponent> SubComponents { get; }
+        public bool DisplaySubComponents => _component.DisplaySubComponents;
 
         public ComponentWrapper(IComponent component, IComponent parent)
             : base(component, parent)
