@@ -29,13 +29,20 @@ namespace NuGet.Services.Status.Table
             EndTime = endTime;
         }
 
-        public EventEntity(IncidentGroupEntity incidentGroupEntity)
+        public EventEntity(IncidentGroupEntity incidentGroupEntity, string affectedComponentPath)
             : this(
-                  incidentGroupEntity.AffectedComponentPath, 
-                  incidentGroupEntity.StartTime, 
+                  affectedComponentPath,
+                  incidentGroupEntity.StartTime,
                   incidentGroupEntity.EndTime)
         {
             incidentGroupEntity.ParentRowKey = RowKey;
+        }
+
+        public EventEntity(IncidentGroupEntity incidentGroupEntity)
+            : this(
+                  incidentGroupEntity,
+                  incidentGroupEntity.AffectedComponentPath)
+        {
         }
 
         public string AffectedComponentPath { get; set; }
