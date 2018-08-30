@@ -1,10 +1,9 @@
 ﻿using System;
-using Microsoft.WindowsAzure.Storage.Table;
 
 namespace NuGet.Services.Status.Table
 {
     public class ChildComponentAffectingEntity<T> : ComponentAffectingEntity, IAggregatedEntity<T>
-        where T : ITableEntity, IComponentAffectingEntity
+        where T : ComponentAffectingEntity
     {
         public ChildComponentAffectingEntity()
         {

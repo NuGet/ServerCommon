@@ -4,7 +4,7 @@ using Microsoft.WindowsAzure.Storage.Table;
 namespace NuGet.Services.Status.Table
 {
     public class ChildEntity<T> : TableEntity, IChildEntity<T>
-        where T : ITableEntity
+        where T : TableEntity
     {
         public ChildEntity()
         {
