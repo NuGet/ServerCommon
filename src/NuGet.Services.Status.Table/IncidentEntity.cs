@@ -9,7 +9,7 @@ namespace NuGet.Services.Status.Table
     /// <summary>
     /// Class used to serialize an incident in a table.
     /// </summary>
-    public class IncidentEntity : TableEntity, IAggregatedEntity
+    public class IncidentEntity : TableEntity, IAggregatedEntity<IncidentGroupEntity>
     {
         public const string DefaultPartitionKey = "incidents";
 

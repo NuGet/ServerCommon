@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace NuGet.Services.Status.Table
 {
-    public interface IAggregatedEntity : ILinkedEntity, IComponentAffectingEntity
+    public interface IAggregatedEntity<T> : ILinkedEntity<T>, IComponentAffectingEntity
+        where T : IComponentAffectingEntity
     {
     }
 }

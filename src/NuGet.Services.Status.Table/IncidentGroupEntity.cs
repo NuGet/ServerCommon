@@ -6,7 +6,7 @@ using Microsoft.WindowsAzure.Storage.Table;
 
 namespace NuGet.Services.Status.Table
 {
-    public class IncidentGroupEntity : TableEntity, IEntityAggregation, IAggregatedEntity
+    public class IncidentGroupEntity : TableEntity, IAggregatedEntity<EventEntity>
     {
         public const string DefaultPartitionKey = "groups";
 

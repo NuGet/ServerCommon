@@ -1,8 +1,9 @@
 ﻿using System;
+using Microsoft.WindowsAzure.Storage.Table;
 
 namespace NuGet.Services.Status.Table
 {
-    public interface IComponentAffectingEntity
+    public interface IComponentAffectingEntity : ITableEntity
     {
         string AffectedComponentPath { get; set; }
 
