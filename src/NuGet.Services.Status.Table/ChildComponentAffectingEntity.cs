@@ -7,6 +7,7 @@ namespace NuGet.Services.Status.Table
     {
         public ChildComponentAffectingEntity()
         {
+            _parent = new ChildEntity<T>();
         }
 
         public ChildComponentAffectingEntity(

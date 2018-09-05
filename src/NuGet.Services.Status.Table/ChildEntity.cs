@@ -11,12 +11,20 @@ namespace NuGet.Services.Status.Table
         }
 
         public ChildEntity(
+            string partitionKey,
+            string rowKey,
+            string parentRowKey)
+            : base(partitionKey, rowKey)
+        {
+            ParentRowKey = parentRowKey;
+        }
+
+        public ChildEntity(
             string partitionKey, 
             string rowKey, 
             T entity)
-            : base(partitionKey, rowKey)
+            : this(partitionKey, rowKey, entity.RowKey)
         {
-            ParentRowKey = entity.RowKey;
         }
 
         public string ParentRowKey { get; set; }
