@@ -16,7 +16,7 @@ namespace NuGet.Services.Status.Table
         {
         }
 
-        public MessageEntity(EventEntity eventEntity, DateTime time, string contents)
+        public MessageEntity(EventEntity eventEntity, DateTime time, string contents, MessageType type)
             : base(
                   DefaultPartitionKey,
                   GetRowKey(eventEntity, time),
@@ -24,11 +24,18 @@ namespace NuGet.Services.Status.Table
         {
             Time = time;
             Contents = contents;
+            Type = (int)type;
         }
 
         public DateTime Time { get; set; }
 
         public string Contents { get; set; }
+
+        /// <remarks>
+        /// This should be a <see cref="MessageType"/> converted to an enum.
+        /// See https://github.com/Azure/azure-storage-net/issues/383
+        /// </remarks>
+        public int Type { get; set; }
 
         public Message AsMessage()
         {

@@ -59,6 +59,7 @@
     <Compile Include="Manual\ManualStatusChangeEntity.cs" />
     <Compile Include="Manual\ManualStatusChangeType.cs" />
     <Compile Include="MessageEntity.cs" />
+    <Compile Include="MessageType.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utility.cs" />
   </ItemGroup>
