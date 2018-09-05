@@ -30,7 +30,7 @@ namespace NuGet.Services.Status.Table
         public bool IsLinked
         {
             get { return !string.IsNullOrEmpty(ParentRowKey); }
-            set { throw new NotSupportedException(); }
+            set { }
         }
     }
 }

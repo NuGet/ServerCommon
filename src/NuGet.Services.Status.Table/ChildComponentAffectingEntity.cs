@@ -29,7 +29,17 @@ namespace NuGet.Services.Status.Table
         }
 
         private readonly ChildEntity<T> _parent;
-        public string ParentRowKey => _parent.ParentRowKey;
-        public bool IsLinked => _parent.IsLinked;
+        
+        public string ParentRowKey
+        {
+            get { return _parent.ParentRowKey; }
+            set { _parent.ParentRowKey = value; }
+        }
+        
+        public bool IsLinked
+        {
+            get { return _parent.IsLinked; }
+            set { _parent.IsLinked = value; }
+        }
     }
 }

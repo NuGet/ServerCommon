@@ -45,7 +45,7 @@ namespace NuGet.Services.Status.Table
         public bool IsActive
         {
             get { return EndTime == null; }
-            set { throw new NotSupportedException(); }
+            set { }
         }
     }
 }
