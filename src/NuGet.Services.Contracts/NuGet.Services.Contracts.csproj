@@ -40,6 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="FeatureFlag\IFeatureFlagService.cs" />
     <Compile Include="Logging\ITelemetryClient.cs" />
     <Compile Include="ServiceBus\IBrokeredMessage.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
