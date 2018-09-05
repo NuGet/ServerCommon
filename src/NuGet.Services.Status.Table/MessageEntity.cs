@@ -30,8 +30,6 @@ namespace NuGet.Services.Status.Table
 
         public string Contents { get; set; }
 
-        public bool IsManual { get; set; }
-
         public Message AsMessage()
         {
             return new Message(Time, Contents);
