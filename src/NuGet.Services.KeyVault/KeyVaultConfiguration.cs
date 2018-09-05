@@ -12,10 +12,7 @@ namespace NuGet.Services.KeyVault
         public string ClientId { get; }
         public X509Certificate2 Certificate { get; }
         public bool SendX5c { get; }
-        public KeyVaultConfiguration(string vaultName, string clientId, X509Certificate2 certificate) : this(vaultName, clientId, certificate, false)
-        {
-        }
-        public KeyVaultConfiguration(string vaultName, string clientId, X509Certificate2 certificate, bool sendX5c)
+        public KeyVaultConfiguration(string vaultName, string clientId, X509Certificate2 certificate, bool sendX5c=false)
         {
             if (string.IsNullOrWhiteSpace(vaultName))
             {
