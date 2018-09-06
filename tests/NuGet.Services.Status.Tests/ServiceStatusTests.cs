@@ -86,7 +86,7 @@ namespace NuGet.Services.Status.Tests
 
         private static Event CreateEvent()
         {
-            return new Event(GetString(), GetComponentStatus(), GetDate(), GetDate(), new[] { CreateMessage(), CreateMessage() });
+            return new Event(GetString(), GetDate(), GetDate(), new[] { CreateMessage(), CreateMessage() });
         }
 
         private static Message CreateMessage()
