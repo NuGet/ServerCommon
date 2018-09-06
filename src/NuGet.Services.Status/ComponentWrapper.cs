@@ -19,7 +19,7 @@ namespace NuGet.Services.Status
         public ComponentStatus Status { get { return _component.Status; } set { _component.Status = value; } }
         public IEnumerable<IComponent> SubComponents { get; }
         public bool DisplaySubComponents => _component.DisplaySubComponents;
-        public string Path => _parent.Path + Constants.ComponentPathDivider + Name;
+        public string Path => ComponentUtility.GetSubPath(_parent, _component);
 
         public ComponentWrapper(IComponent component, IComponent parent)
         {

@@ -10,7 +10,7 @@ namespace NuGet.Services.Status
     public static class ComponentUtility
     {
         /// <summary>
-        /// Concatenates a set of <see cref="IReadOnlyComponent.Name"/>s into a <see cref="IReadOnlyComponent.Path"/>.
+        /// Concatenates a set of <see cref="IComponentDescription.Name"/>s into a <see cref="IComponentDescription.Path"/>.
         /// </summary>
         public static string GetPath(params string[] componentNames)
         {
@@ -30,7 +30,7 @@ namespace NuGet.Services.Status
         }
 
         /// <summary>
-        /// Gets the subcomponent of <paramref name="component"/> with <see cref="IReadOnlyComponent.Path"/> <paramref name="path"/>.
+        /// Gets the subcomponent of <paramref name="component"/> with <see cref="IComponentDescription.Path"/> <paramref name="path"/>.
         /// If none exists, returns <c>null</c>.
         /// </summary>
         public static TComponent GetByPath<TComponent>(this TComponent component, string path)
@@ -91,6 +91,14 @@ namespace NuGet.Services.Status
             {
                 SubComponents = new[] { root };
             }
+        }
+
+        /// <summary>
+        /// Returns the path of <paramref name="child"/> as a subcomponent of <paramref name="parent"/>.
+        /// </summary>
+        internal static string GetSubPath(IComponentDescription parent, IComponentDescription child)
+        {
+            return parent.Path + Constants.ComponentPathDivider + child.Name;
         }
     }
 }

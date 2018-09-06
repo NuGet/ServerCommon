@@ -8,12 +8,12 @@ using Newtonsoft.Json;
 namespace NuGet.Services.Status
 {
     /// <summary>
-    /// Represents an event affecting a <see cref="IReadOnlyComponent"/>.
+    /// Represents an event affecting a component.
     /// </summary>
     public class Event
     {
         /// <summary>
-        /// The <see cref="IReadOnlyComponent.Path"/> of the <see cref="IReadOnlyComponent"/> affected.
+        /// The <see cref="IComponentDescription.Path"/> of the component affected.
         /// </summary>
         public string AffectedComponentPath { get; }
 

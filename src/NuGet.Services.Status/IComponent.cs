@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 namespace NuGet.Services.Status
 {
     /// <summary>
-    /// A writable <see cref="IReadOnlyComponent"/> that allows setting its status.
+    /// A part of the service that has a writable status.
     /// </summary>
     public interface IComponent : IComponentDescription, IRootComponent<IComponent>
     {
