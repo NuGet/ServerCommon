@@ -5,7 +5,11 @@ using System;
 
 namespace NuGet.Services.Status.Table
 {
-    public class IncidentEntity : ChildComponentAffectingEntity<IncidentGroupEntity>
+    /// <summary>
+    /// An incident that affects a component.
+    /// Is aggregated by <see cref="IncidentGroupEntity"/>.
+    /// </summary>
+    public class IncidentEntity : AggregatedEntity<IncidentGroupEntity>
     {
         public const string DefaultPartitionKey = "incidents";
 

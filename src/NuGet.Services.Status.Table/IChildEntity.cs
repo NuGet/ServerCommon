@@ -3,6 +3,9 @@
 
 namespace NuGet.Services.Status.Table
 {
+    /// <summary>
+    /// An entity that has a parent.
+    /// </summary>
     public interface IChildEntity<T>
     {
         string ParentRowKey { get; }

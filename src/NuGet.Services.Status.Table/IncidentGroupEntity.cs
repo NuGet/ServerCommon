@@ -5,7 +5,11 @@ using System;
 
 namespace NuGet.Services.Status.Table
 {
-    public class IncidentGroupEntity : ChildComponentAffectingEntity<EventEntity>
+    /// <summary>
+    /// An aggregation of all of the <see cref="IncidentEntity"/>s affecting a single component during a time period.
+    /// Is aggregated by <see cref="EventEntity"/>.
+    /// </summary>
+    public class IncidentGroupEntity : AggregatedEntity<EventEntity>
     {
         public const string DefaultPartitionKey = "groups";
 

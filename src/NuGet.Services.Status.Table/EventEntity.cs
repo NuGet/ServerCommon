@@ -2,12 +2,12 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using System.Collections.Generic;
 
 namespace NuGet.Services.Status.Table
 {
     /// <summary>
-    /// Class used to serialize an <see cref="Event"/> in a table.
+    /// An aggregation of all <see cref="IncidentGroupEntity"/>s affecting a component and its subcomponents during a period of time.
+    /// See <see cref="Event"/>.
     /// </summary>
     public class EventEntity : ComponentAffectingEntity
     {

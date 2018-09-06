@@ -40,7 +40,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ChildComponentAffectingEntity.cs" />
+    <Compile Include="AggregatedEntity.cs" />
     <Compile Include="ComponentAffectingEntity.cs" />
     <Compile Include="IAggregatedEntity.cs" />
     <Compile Include="IChildEntity.cs" />

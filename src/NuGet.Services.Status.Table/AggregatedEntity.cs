@@ -2,15 +2,15 @@
 
 namespace NuGet.Services.Status.Table
 {
-    public class ChildComponentAffectingEntity<T> : ComponentAffectingEntity, IAggregatedEntity<T>
+    public class AggregatedEntity<T> : ComponentAffectingEntity, IAggregatedEntity<T>
         where T : ComponentAffectingEntity
     {
-        public ChildComponentAffectingEntity()
+        public AggregatedEntity()
         {
             _parent = new ChildEntity<T>();
         }
 
-        public ChildComponentAffectingEntity(
+        public AggregatedEntity(
             string partitionKey, 
             string rowKey,
             T entity,

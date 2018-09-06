@@ -2,6 +2,9 @@
 
 namespace NuGet.Services.Status.Table
 {
+    /// <summary>
+    /// An entity that describes a period of time during which a component was affected.
+    /// </summary>
     public interface IComponentAffectingEntity
     {
         string AffectedComponentPath { get; }
