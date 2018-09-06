@@ -32,11 +32,6 @@ namespace NuGet.Services.Status.Table
         {
         }
 
-        public Event AsEvent(IEnumerable<Message> messages)
-        {
-            return new Event(AffectedComponentPath, (ComponentStatus)AffectedComponentStatus, StartTime, EndTime, messages);
-        }
-
         public static string GetRowKey(string affectedComponentPath, DateTime startTime)
         {
             return $"{Utility.ToRowKeySafeComponentPath(affectedComponentPath)}_{startTime.ToString("o")}";

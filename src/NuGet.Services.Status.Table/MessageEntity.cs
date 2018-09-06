@@ -37,11 +37,6 @@ namespace NuGet.Services.Status.Table
         /// </remarks>
         public int Type { get; set; }
 
-        public Message AsMessage()
-        {
-            return new Message(Time, Contents);
-        }
-
         public static string GetRowKey(string eventRowKey, DateTime time)
         {
             return $"{eventRowKey}_{time.ToString("o")}";
