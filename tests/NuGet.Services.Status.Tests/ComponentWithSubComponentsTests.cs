@@ -36,7 +36,7 @@ namespace NuGet.Services.Status.Tests
         }
 
         private void AssertPath<TComponent>(TComponent root, TComponent subComponent, params string[] componentNames)
-            where TComponent : class, IReadOnlyComponent, IRootComponent<TComponent>
+            where TComponent : class, IComponentDescription, IRootComponent<TComponent>
         {
             AssertUtility.AssertComponent(subComponent, root.GetByNames(componentNames));
 
@@ -71,7 +71,7 @@ namespace NuGet.Services.Status.Tests
         }
 
         private void AssertMissingPath<TComponent>(TComponent root, params string[] componentNames)
-            where TComponent : class, IReadOnlyComponent, IRootComponent<TComponent>
+            where TComponent : class, IComponentDescription, IRootComponent<TComponent>
         {
             Assert.Null(root.GetByNames(componentNames));
 

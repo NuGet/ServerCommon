@@ -34,7 +34,7 @@ namespace NuGet.Services.Status
         /// If none exists, returns <c>null</c>.
         /// </summary>
         public static TComponent GetByPath<TComponent>(this TComponent component, string path)
-            where TComponent : class, IReadOnlyComponent, IRootComponent<TComponent>
+            where TComponent : class, IComponentDescription, IRootComponent<TComponent>
         {
             if (path == null)
             {
@@ -50,7 +50,7 @@ namespace NuGet.Services.Status
         /// If none exists, returns <c>null</c>.
         /// </summary>
         public static TComponent GetByNames<TComponent>(this TComponent component, params string[] componentNames)
-            where TComponent : class, IReadOnlyComponent, IRootComponent<TComponent>
+            where TComponent : class, IComponentDescription, IRootComponent<TComponent>
         {
             if (component == null)
             {
@@ -83,7 +83,7 @@ namespace NuGet.Services.Status
         /// Dummy implementation of <see cref="IRootComponent{TComponent}"/> used by <see cref="GetByNames{TComponent}(TComponent, string[])"/>.
         /// </remarks>
         private class GetByNamesHelper<TComponent> : IRootComponent<TComponent>
-            where TComponent : IReadOnlyComponent
+            where TComponent : IComponentDescription
         {
             public IEnumerable<TComponent> SubComponents { get; }
 

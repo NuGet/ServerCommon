@@ -45,6 +45,7 @@
     <Compile Include="Component.cs" />
     <Compile Include="ComponentUtility.cs" />
     <Compile Include="Constants.cs" />
+    <Compile Include="IComponentDescription.cs" />
     <Compile Include="IRootComponent.cs" />
     <Compile Include="LeafComponent.cs" />
     <Compile Include="ReadOnlyComponent.cs" />

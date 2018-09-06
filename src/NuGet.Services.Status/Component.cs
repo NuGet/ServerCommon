@@ -14,17 +14,21 @@ namespace NuGet.Services.Status
     /// An <see cref="IComponent"/> should calculate its <see cref="Status"/> based on its <see cref="SubComponents"/>.
     /// Different subclasses of <see cref="Component"/> should calculate their <see cref="Status"/> differently.
     /// </remarks>
-    public abstract class Component : ReadOnlyComponent, IComponent
+    public abstract class Component : IComponent
     {
-        public new abstract ComponentStatus Status { get; set; }
-        public new IEnumerable<IComponent> SubComponents { get; }
+        public string Name { get; }
+        public string Description { get; }
+        public abstract ComponentStatus Status { get; set; }
+        public IEnumerable<IComponent> SubComponents { get; }
+        public string Path => Name;
         public bool DisplaySubComponents { get; }
 
         public Component(
             string name,
             string description)
-            : base(name, description)
         {
+            Name = name ?? throw new ArgumentNullException(nameof(name));
+            Description = description;
             SubComponents = Enumerable.Empty<IComponent>();
             DisplaySubComponents = true;
         }
@@ -34,7 +38,7 @@ namespace NuGet.Services.Status
             string description,
             IEnumerable<IComponent> subComponents,
             bool displaySubComponents = true)
-            : base(name, description, subComponents)
+            : this(name, description)
         {
             SubComponents = subComponents?.Select(s => new ComponentWrapper(s, this)).ToList()
                 ?? throw new ArgumentNullException(nameof(subComponents));

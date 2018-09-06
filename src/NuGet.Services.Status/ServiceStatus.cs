@@ -33,11 +33,21 @@ namespace NuGet.Services.Status
         {
         }
 
+        public ServiceStatus(IComponent serviceRootComponent, IEnumerable<Event> events)
+            : this(DateTime.Now, serviceRootComponent, events)
+        {
+        }
+
         public ServiceStatus(DateTime lastUpdated, IReadOnlyComponent serviceRootComponent, IEnumerable<Event> events)
         {
             LastUpdated = lastUpdated;
             ServiceRootComponent = serviceRootComponent;
             Events = events;
+        }
+
+        public ServiceStatus(DateTime lastUpdated, IComponent serviceRootComponent, IEnumerable<Event> events)
+            : this(lastUpdated, new ReadOnlyComponent(serviceRootComponent), events)
+        {
         }
 
         [JsonConstructor]
