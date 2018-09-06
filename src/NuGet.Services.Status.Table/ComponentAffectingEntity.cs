@@ -1,8 +1,14 @@
-﻿using System;
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
 using Microsoft.WindowsAzure.Storage.Table;
 
 namespace NuGet.Services.Status.Table
 {
+    /// <summary>
+    /// Base implementation of <see cref="IComponentAffectingEntity"/>.
+    /// </summary>
     public class ComponentAffectingEntity : TableEntity, IComponentAffectingEntity
     {
         public ComponentAffectingEntity()
