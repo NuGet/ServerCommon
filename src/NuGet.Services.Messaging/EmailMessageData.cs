@@ -42,7 +42,7 @@ namespace NuGet.Services.Messaging
             Subject = subject ?? throw new ArgumentNullException(nameof(subject));
             To = to;
             CC = cc;
-            BCC = bcc;
+            Bcc = bcc;
         }
 
         public Guid MessageTrackingId { get; }
@@ -52,6 +52,6 @@ namespace NuGet.Services.Messaging
         public string Sender { get; }
         public IEnumerable<string> To { get; }
         public IEnumerable<string> CC { get; }
-        public IEnumerable<string> BCC { get; }
+        public IEnumerable<string> Bcc { get; }
     }
 }

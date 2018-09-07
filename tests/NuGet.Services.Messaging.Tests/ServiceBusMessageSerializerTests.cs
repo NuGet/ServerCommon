@@ -72,7 +72,7 @@ namespace NuGet.Services.Messaging.Tests
                 Assert.Equal(Sender, output.Sender);
                 Assert.Equal(To, output.To);
                 Assert.Equal(CC, output.CC);
-                Assert.Equal(BCC, output.BCC);
+                Assert.Equal(BCC, output.Bcc);
                 Assert.Equal(MessageTrackingId, output.MessageTrackingId);
                 Assert.Equal(DeliveryCount, output.DeliveryCount);
             }

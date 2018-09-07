@@ -23,7 +23,7 @@ namespace NuGet.Services.Messaging
                 data.Sender,
                 data.To,
                 data.CC,
-                data.BCC,
+                data.Bcc,
                 data.MessageTrackingId,
                 message.DeliveryCount);
         }
@@ -37,7 +37,7 @@ namespace NuGet.Services.Messaging
                 Sender = message.Sender,
                 To = message.To,
                 CC = message.CC,
-                BCC = message.BCC,
+                Bcc = message.Bcc,
                 MessageTrackingId = message.MessageTrackingId
             });
         }
@@ -51,7 +51,7 @@ namespace NuGet.Services.Messaging
             public Guid MessageTrackingId { get; set; }
             public IEnumerable<string> To { get; set; }
             public IEnumerable<string> CC { get; set; }
-            public IEnumerable<string> BCC { get; set; }
+            public IEnumerable<string> Bcc { get; set; }
         }
     }
 }
