@@ -30,7 +30,7 @@ namespace NuGet.Services.Status
             Name = name ?? throw new ArgumentNullException(nameof(name));
             Description = description;
             SubComponents = Enumerable.Empty<IComponent>();
-            DisplaySubComponents = true;
+            DisplaySubComponents = false;
         }
 
         public Component(
