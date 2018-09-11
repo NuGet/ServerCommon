@@ -99,6 +99,47 @@ namespace NuGet.Services.Status
         }
 
         /// <summary>
+        /// Recursively iterates through the subcomponents of <paramref name="component"/> and returns all components found, including <paramref name="component"/> itself.
+        /// </summary>
+        public static IEnumerable<IReadOnlyComponent> GetAllComponents(this IReadOnlyComponent component)
+        {
+            if (component == null)
+            {
+                yield break;
+            }
+
+            yield return component;
+
+            foreach (var subcomponent in component.SubComponents.SelectMany(s => s.GetAllComponents()))
+            {
+                yield return subcomponent;
+            }
+        }
+
+        /// <summary>
+        /// Recursively iterates through the subcomponents of <paramref name="component"/> and returns all components found, including <paramref name="component"/> itself.
+        /// </summary>
+        public static IEnumerable<IComponent> GetAllComponents(this IComponent component)
+        {
+            if (component == null)
+            {
+                yield break;
+            }
+
+            yield return component;
+
+            if (!component.DisplaySubComponents)
+            {
+                yield break;
+            }
+
+            foreach (var subcomponent in component.SubComponents.SelectMany(s => s.GetAllComponents()))
+            {
+                yield return subcomponent;
+            }
+        }
+
+        /// <summary>
         /// Returns the deepest common ancestor of <paramref name="firstComponent"/> and <paramref name="secondComponent"/>.
         /// </summary>
         public static string GetLeastCommonAncestorPath<TComponent>(TComponent firstComponent, TComponent secondComponent)
