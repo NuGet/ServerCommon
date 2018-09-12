@@ -14,7 +14,8 @@ namespace NuGet.Services.Messaging.Tests
         private const string SchemaName = "SchemaName";
         private const string SchemaVersionKey = "SchemaVersion";
         private const string Subject = "Email subject";
-        private const string Body = "Email body";
+        private const string PlainTextBody = "Email plain-text body";
+        private const string HtmlBody = "<html><h1>HTML Body</h1></html>";
         private const string Sender = "sender@domain.tld";
         private static readonly IEnumerable<string> To = new[] { "to@domain.tld" };
         private static readonly IEnumerable<string> CC = new[] { "cc@domain.tld" };
@@ -33,7 +34,8 @@ namespace NuGet.Services.Messaging.Tests
                 // Arrange
                 var input = new EmailMessageData(
                     Subject,
-                    Body,
+                    PlainTextBody,
+                    HtmlBody,
                     Sender,
                     To,
                     CC,
@@ -68,7 +70,8 @@ namespace NuGet.Services.Messaging.Tests
 
                 // Assert
                 Assert.Equal(Subject, output.Subject);
-                Assert.Equal(Body, output.Body);
+                Assert.Equal(PlainTextBody, output.PlainTextBody);
+                Assert.Equal(HtmlBody, output.HtmlBody);
                 Assert.Equal(Sender, output.Sender);
                 Assert.Equal(To, output.To);
                 Assert.Equal(CC, output.CC);

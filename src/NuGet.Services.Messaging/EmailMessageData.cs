@@ -10,19 +10,21 @@ namespace NuGet.Services.Messaging
     {
         public EmailMessageData(
             string subject,
-            string body,
+            string plainTextBody,
+            string htmlBody,
             string sender,
             IEnumerable<string> to,
             IEnumerable<string> cc,
             IEnumerable<string> bcc,
             Guid messageTrackingId)
-            : this(subject, body, sender, to, cc, bcc, messageTrackingId, deliveryCount: 0)
+            : this(subject, plainTextBody, htmlBody, sender, to, cc, bcc, messageTrackingId, deliveryCount: 0)
         {
         }
 
         public EmailMessageData(
             string subject,
-            string body,
+            string plainTextBody,
+            string htmlBody,
             string sender,
             IEnumerable<string> to,
             IEnumerable<string> cc,
@@ -38,7 +40,8 @@ namespace NuGet.Services.Messaging
             MessageTrackingId = messageTrackingId;
             DeliveryCount = deliveryCount;
             Sender = sender ?? throw new ArgumentNullException(nameof(sender));
-            Body = body ?? throw new ArgumentNullException(nameof(body));
+            PlainTextBody = plainTextBody ?? throw new ArgumentNullException(nameof(plainTextBody));
+            HtmlBody = htmlBody ?? throw new ArgumentNullException(nameof(htmlBody));
             Subject = subject ?? throw new ArgumentNullException(nameof(subject));
             To = to;
             CC = cc;
@@ -47,7 +50,8 @@ namespace NuGet.Services.Messaging
 
         public Guid MessageTrackingId { get; }
         public int DeliveryCount { get; }
-        public string Body { get; }
+        public string PlainTextBody { get; }
+        public string HtmlBody { get; }
         public string Subject { get; }
         public string Sender { get; }
         public IEnumerable<string> To { get; }

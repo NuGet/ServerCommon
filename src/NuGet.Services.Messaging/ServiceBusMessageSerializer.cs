@@ -19,7 +19,8 @@ namespace NuGet.Services.Messaging
 
             return new EmailMessageData(
                 data.Subject,
-                data.Body,
+                data.PlainTextBody,
+                data.HtmlBody,
                 data.Sender,
                 data.To,
                 data.CC,
@@ -33,7 +34,8 @@ namespace NuGet.Services.Messaging
             return _serializer.Serialize(new EmailMessageData1
             {
                 Subject = message.Subject,
-                Body = message.Body,
+                PlainTextBody = message.PlainTextBody,
+                HtmlBody = message.HtmlBody,
                 Sender = message.Sender,
                 To = message.To,
                 CC = message.CC,
@@ -46,7 +48,8 @@ namespace NuGet.Services.Messaging
         private class EmailMessageData1
         {
             public string Subject { get; set; }
-            public string Body { get; set; }
+            public string PlainTextBody { get; set; }
+            public string HtmlBody { get; set; }
             public string Sender { get; set; }
             public Guid MessageTrackingId { get; set; }
             public IEnumerable<string> To { get; set; }
