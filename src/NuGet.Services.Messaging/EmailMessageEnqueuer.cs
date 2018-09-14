@@ -1,7 +1,9 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 using NuGet.Services.ServiceBus;
 
 namespace NuGet.Services.Messaging
@@ -10,17 +12,43 @@ namespace NuGet.Services.Messaging
     {
         private readonly ITopicClient _topicClient;
         private readonly IServiceBusMessageSerializer _serializer;
+        private readonly ILogger<EmailMessageEnqueuer> _logger;
 
-        public EmailMessageEnqueuer(ITopicClient topicClient, IServiceBusMessageSerializer serializer)
+        public EmailMessageEnqueuer(
+            ITopicClient topicClient, 
+            IServiceBusMessageSerializer serializer,
+            ILogger<EmailMessageEnqueuer> logger)
         {
-            _topicClient = topicClient;
-            _serializer = serializer;
+            _topicClient = topicClient ?? throw new ArgumentNullException(nameof(topicClient));
+            _serializer = serializer ?? throw new ArgumentNullException(nameof(serializer));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public async Task SendEmailMessageAsync(EmailMessageData message)
         {
+            _logger.LogInformation(
+                "Serializing EmailMessageData with tracking id {MessageTrackingId} and delivery count {DeliveryCount}.",
+                message.MessageTrackingId,
+                message.DeliveryCount);
+
             var brokeredMessage = _serializer.SerializeEmailMessageData(message);
+
+            _logger.LogInformation(
+                "Successfully serialized EmailMessageData with tracking id {MessageTrackingId} and delivery count {DeliveryCount}.",
+                message.MessageTrackingId,
+                message.DeliveryCount);
+
+            _logger.LogInformation(
+                "Enqueuing EmailMessageData with tracking id {MessageTrackingId} and delivery count {DeliveryCount}.",
+                message.MessageTrackingId,
+                message.DeliveryCount);
+
             await _topicClient.SendAsync(brokeredMessage);
+
+            _logger.LogInformation(
+                "Successfully enqueued EmailMessageData with tracking id {MessageTrackingId} and delivery count {DeliveryCount}.",
+                message.MessageTrackingId,
+                message.DeliveryCount);
         }
     }
 }

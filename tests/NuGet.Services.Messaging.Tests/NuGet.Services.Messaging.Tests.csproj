@@ -36,6 +36,7 @@
     <Reference Include="Microsoft.CSharp" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EmailMessageEnqueuerTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ServiceBusMessageSerializerTests.cs" />
     <Compile Include="TestData.Designer.cs">
