@@ -52,9 +52,9 @@ namespace NuGet.Services.Messaging
             public string HtmlBody { get; set; }
             public string Sender { get; set; }
             public Guid MessageTrackingId { get; set; }
-            public IEnumerable<string> To { get; set; }
-            public IEnumerable<string> CC { get; set; }
-            public IEnumerable<string> Bcc { get; set; }
+            public IReadOnlyList<string> To { get; set; }
+            public IReadOnlyList<string> CC { get; set; }
+            public IReadOnlyList<string> Bcc { get; set; }
         }
     }
 }

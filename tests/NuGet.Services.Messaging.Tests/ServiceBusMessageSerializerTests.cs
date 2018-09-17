@@ -17,9 +17,9 @@ namespace NuGet.Services.Messaging.Tests
         private const string PlainTextBody = "Email plain-text body";
         private const string HtmlBody = "<html><h1>HTML Body</h1></html>";
         private const string Sender = "sender@domain.tld";
-        private static readonly IEnumerable<string> To = new[] { "to@domain.tld" };
-        private static readonly IEnumerable<string> CC = new[] { "cc@domain.tld" };
-        private static readonly IEnumerable<string> BCC = new[] { "bcc@domain.tld" };
+        private static readonly IReadOnlyList<string> To = new[] { "to@domain.tld" };
+        private static readonly IReadOnlyList<string> CC = new[] { "cc@domain.tld" };
+        private static readonly IReadOnlyList<string> BCC = new[] { "bcc@domain.tld" };
         private static readonly Guid MessageTrackingId = new Guid("331FE761-0409-46F4-9EE3-35990E4EBEBB");
 
         private const string EmailMessageDataType = "EmailMessageData";

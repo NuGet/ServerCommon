@@ -13,9 +13,9 @@ namespace NuGet.Services.Messaging
             string plainTextBody,
             string htmlBody,
             string sender,
-            IEnumerable<string> to,
-            IEnumerable<string> cc,
-            IEnumerable<string> bcc,
+            IReadOnlyList<string> to,
+            IReadOnlyList<string> cc,
+            IReadOnlyList<string> bcc,
             Guid messageTrackingId)
             : this(subject, plainTextBody, htmlBody, sender, to, cc, bcc, messageTrackingId, deliveryCount: 0)
         {
@@ -26,9 +26,9 @@ namespace NuGet.Services.Messaging
             string plainTextBody,
             string htmlBody,
             string sender,
-            IEnumerable<string> to,
-            IEnumerable<string> cc,
-            IEnumerable<string> bcc,
+            IReadOnlyList<string> to,
+            IReadOnlyList<string> cc,
+            IReadOnlyList<string> bcc,
             Guid messageTrackingId,
             int deliveryCount)
         {
@@ -43,7 +43,7 @@ namespace NuGet.Services.Messaging
             PlainTextBody = plainTextBody ?? throw new ArgumentNullException(nameof(plainTextBody));
             HtmlBody = htmlBody ?? throw new ArgumentNullException(nameof(htmlBody));
             Subject = subject ?? throw new ArgumentNullException(nameof(subject));
-            To = to;
+            To = to ?? throw new ArgumentNullException(nameof(to));
             CC = cc;
             Bcc = bcc;
         }
@@ -54,8 +54,8 @@ namespace NuGet.Services.Messaging
         public string HtmlBody { get; }
         public string Subject { get; }
         public string Sender { get; }
-        public IEnumerable<string> To { get; }
-        public IEnumerable<string> CC { get; }
-        public IEnumerable<string> Bcc { get; }
+        public IReadOnlyList<string> To { get; }
+        public IReadOnlyList<string> CC { get; }
+        public IReadOnlyList<string> Bcc { get; }
     }
 }
