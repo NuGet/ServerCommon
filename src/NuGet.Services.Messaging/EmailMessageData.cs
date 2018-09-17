@@ -48,10 +48,29 @@ namespace NuGet.Services.Messaging
             Bcc = bcc;
         }
 
+        /// <summary>
+        /// Unique identifier for the email message to allow for server and client-side tracking and correlation.
+        /// </summary>
         public Guid MessageTrackingId { get; }
+
+        /// <summary>
+        /// Tracks how many times this particular message has been delivered to a processing message handler.
+        /// </summary>
         public int DeliveryCount { get; }
+
+        /// <summary>
+        /// The email body in plain-text format.
+        /// </summary>
         public string PlainTextBody { get; }
+
+        /// <summary>
+        /// The email body in HTML format.
+        /// </summary>
         public string HtmlBody { get; }
+
+        /// <summary>
+        /// The email subject.
+        /// </summary>
         public string Subject { get; }
         public string Sender { get; }
         public IReadOnlyList<string> To { get; }
