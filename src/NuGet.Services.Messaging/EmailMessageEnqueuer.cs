@@ -26,13 +26,13 @@ namespace NuGet.Services.Messaging
 
         public async Task SendEmailMessageAsync(EmailMessageData message)
         {
-            _logger.LogInformation(
+            _logger.LogTrace(
                 "Serializing EmailMessageData with tracking id {MessageTrackingId}.",
                 message.MessageTrackingId);
 
             var brokeredMessage = _serializer.SerializeEmailMessageData(message);
 
-            _logger.LogInformation(
+            _logger.LogTrace(
                 "Successfully serialized EmailMessageData with tracking id {MessageTrackingId}.",
                 message.MessageTrackingId);
 
