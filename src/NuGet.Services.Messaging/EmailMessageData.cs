@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NuGet.Services.Messaging
 {
@@ -44,6 +45,12 @@ namespace NuGet.Services.Messaging
             HtmlBody = htmlBody ?? throw new ArgumentNullException(nameof(htmlBody));
             Subject = subject ?? throw new ArgumentNullException(nameof(subject));
             To = to ?? throw new ArgumentNullException(nameof(to));
+
+            if (!To.Any())
+            {
+                throw new ArgumentOutOfRangeException(nameof(to), "At least 1 value should be defined for this argument.");
+            }
+
             CC = cc ?? new List<string>();
             Bcc = bcc ?? new List<string>();
         }
