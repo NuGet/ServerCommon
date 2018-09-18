@@ -27,28 +27,24 @@ namespace NuGet.Services.Messaging
         public async Task SendEmailMessageAsync(EmailMessageData message)
         {
             _logger.LogInformation(
-                "Serializing EmailMessageData with tracking id {MessageTrackingId} and delivery count {DeliveryCount}.",
-                message.MessageTrackingId,
-                message.DeliveryCount);
+                "Serializing EmailMessageData with tracking id {MessageTrackingId}.",
+                message.MessageTrackingId);
 
             var brokeredMessage = _serializer.SerializeEmailMessageData(message);
 
             _logger.LogInformation(
-                "Successfully serialized EmailMessageData with tracking id {MessageTrackingId} and delivery count {DeliveryCount}.",
-                message.MessageTrackingId,
-                message.DeliveryCount);
+                "Successfully serialized EmailMessageData with tracking id {MessageTrackingId}.",
+                message.MessageTrackingId);
 
             _logger.LogInformation(
-                "Enqueuing EmailMessageData with tracking id {MessageTrackingId} and delivery count {DeliveryCount}.",
-                message.MessageTrackingId,
-                message.DeliveryCount);
+                "Enqueuing EmailMessageData with tracking id {MessageTrackingId}.",
+                message.MessageTrackingId);
 
             await _topicClient.SendAsync(brokeredMessage);
 
             _logger.LogInformation(
-                "Successfully enqueued EmailMessageData with tracking id {MessageTrackingId} and delivery count {DeliveryCount}.",
-                message.MessageTrackingId,
-                message.DeliveryCount);
+                "Successfully enqueued EmailMessageData with tracking id {MessageTrackingId}.",
+                message.MessageTrackingId);
         }
     }
 }
