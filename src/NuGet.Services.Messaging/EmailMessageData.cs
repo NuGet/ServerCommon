@@ -44,8 +44,8 @@ namespace NuGet.Services.Messaging
             HtmlBody = htmlBody ?? throw new ArgumentNullException(nameof(htmlBody));
             Subject = subject ?? throw new ArgumentNullException(nameof(subject));
             To = to ?? throw new ArgumentNullException(nameof(to));
-            CC = cc;
-            Bcc = bcc;
+            CC = cc ?? new List<string>();
+            Bcc = bcc ?? new List<string>();
         }
 
         /// <summary>
