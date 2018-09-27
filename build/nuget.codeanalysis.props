@@ -16,7 +16,7 @@
     <!-- Default includes 'Excluded' (suppressions) -->
     <CodeAnalysisSaveMessagesToReport>Active</CodeAnalysisSaveMessagesToReport>
     
-    <CodeAnalysisLogFile Condition="'$(FXCOP_OUTPUT_DIRECTORY)' != ''">$(FXCOP_OUTPUT_DIRECTORY)/$(TargetFileName).CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisLogFile Condition="'$(FXCOP_OUTPUT_DIRECTORY)' != ''">$(FXCOP_OUTPUT_DIRECTORY)/$(AssemblyName).CodeAnalysisLog.xml</CodeAnalysisLogFile>
   </PropertyGroup>
   
   <!-- Custom FxCop execution for build agents -->
