@@ -15,6 +15,8 @@
     
     <!-- Default includes 'Excluded' (suppressions) -->
     <CodeAnalysisSaveMessagesToReport>Active</CodeAnalysisSaveMessagesToReport>
+    
+    <CodeAnalysisLogFile Condition="'$(FXCOP_OUTPUT_DIRECTORY)' != ''">$(FXCOP_OUTPUT_DIRECTORY)/$(TargetFileName).CodeAnalysisLog.xml</CodeAnalysisLogFile>
   </PropertyGroup>
   
   <!-- Custom FxCop execution for build agents -->
@@ -29,8 +31,6 @@
     
     <CodeAnalysisProject Condition="'$(FXCOP_PROJECT)' != ''">$(FXCOP_PROJECT)</CodeAnalysisProject>
     <CodeAnalysisRuleSet Condition="'$(FXCOP_RULESET)' != ''">$(FXCOP_RULESET)</CodeAnalysisRuleSet>
-    
-    <CodeAnalysisLogFile Condition="'$(FXCOP_OUTPUT_DIRECTORY)' != ''">$(FXCOP_OUTPUT_DIRECTORY)/$(TargetFileName).CodeAnalysisLog.xml</CodeAnalysisLogFile>
   </PropertyGroup>
   
 </Project>
