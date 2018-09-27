@@ -277,12 +277,13 @@ Function Invoke-FxCop {
                 throw "Failed to find $FxCopRuleSet under $FxCopDirectory"
             }
         }
+    }
+    
+    # Write FxCop logs to specific output directory
+    if ($FxCopOutputDirectory) {
+        $env:FXCOP_OUTPUT_DIRECTORY = $FxCopOutputDirectory
         
-        if ($FxCopOutputDirectory) {
-            $env:FXCOP_OUTPUT_DIRECTORY = $FxCopOutputDirectory
-            
-            Trace-Log "Using FXCOP_OUTPUT_DIRECTORY=$FxCopOutputDirectory"
-        }
+        Trace-Log "Using FXCOP_OUTPUT_DIRECTORY=$FxCopOutputDirectory"
     }
     
     # Invoke using the msbuild RunCodeAnalysis target
