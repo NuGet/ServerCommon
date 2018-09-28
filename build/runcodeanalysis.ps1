@@ -10,25 +10,6 @@ param (
     [string]$FxCopOutputDirectory
 )
 
-Function Get-BuildBranch() {
-    $buildScriptPath = "$PSScriptRoot/../build.ps1"
-    if (-not $(Test-Path $buildScriptPath)) {
-        throw "Could not find build script '$buildScriptPath'."
-    }
-    $buildContent = Get-Content $buildScriptPath
-    
-    $regexOpts = ([System.Text.RegularExpressions.RegexOptions]::None)
-    $regexTimeout = New-TimeSpan -Seconds 60
-    $buildBranchRegex = "BuildBranch\s*=\s*[''""]?([^''""]+)[''""]?"
-    
-    $result = [regex]::Match($buildContent, $buildBranchRegex, $regexOptions, $regexTimeout)
-    if (-not ($result -and ($result.Groups.Count -gt 1))) {
-        throw "Could not determine build branch from $buildScriptPath."
-    }
-    
-    $result.Groups[1].Value
-}
-
 # Enable TLS 1.2 since GitHub requires it.
 [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
 
@@ -45,11 +26,8 @@ if (-not (Test-Path $SolutionPath)) {
     throw "Solution $SolutionPath does not exist!"
 }
 
-# Discover the build branch from the solution's build script
-$buildBranch = Get-BuildBranch
-
 # Sync to the solution's build tools version
-. "$PSScriptRoot/init.ps1" -BuildBranch "$buildBranch"
+. "$PSScriptRoot/common.ps1"
 
 Write-Host ("`r`n" * 3)
 Trace-Log ('=' * 60)
