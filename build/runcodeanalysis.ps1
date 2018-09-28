@@ -29,7 +29,10 @@ if (-not (Test-Path $SolutionPath)) {
 # Discover the build branch from the solution's build script
 $buildScript = "$PSScriptRoot/../build.ps1"
 $buildBranchRegex = "(BuildBranch\s?=\s?[''""]?)(([^''""]*)+)[''""]?$"
-$buildBranchFound = gc $buildScript | where { $_ -match $buildBranchRegex }
+# Powershell hang seen on non-matching expression, so we should always run with timeout.
+$regexTimeout = New-TimeSpan -Seconds 60
+$regex = New-Object -TypeName regex -ArgumentList '$buildBranchRegex', ([System.Text.RegularExpressions.RegexOptions]::None), $regexTimeout
+$buildBranchFound = gc $buildScript | where { $_ -match $regex }
 if ($buildBranchFound) {
     $buildBranch = $Matches[2]
     
