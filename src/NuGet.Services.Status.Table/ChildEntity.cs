@@ -8,8 +8,8 @@ namespace NuGet.Services.Status.Table
     /// <summary>
     /// Base implementation of <see cref="IChildEntity{T}"/>.
     /// </summary>
-    public class ChildEntity<T> : TableEntity, IChildEntity<T>
-        where T : TableEntity
+    public class ChildEntity<TParent> : TableEntity, IChildEntity<TParent>
+        where TParent : TableEntity
     {
         public ChildEntity()
         {
@@ -27,7 +27,7 @@ namespace NuGet.Services.Status.Table
         public ChildEntity(
             string partitionKey, 
             string rowKey, 
-            T entity)
+            TParent entity)
             : this(partitionKey, rowKey, entity.RowKey)
         {
         }

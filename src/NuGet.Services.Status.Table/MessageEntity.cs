@@ -6,7 +6,9 @@ using System;
 namespace NuGet.Services.Status.Table
 {
     /// <summary>
-    /// Class used to serialize a <see cref="Message"/> in a table.
+    /// A message posted on the status page to inform users of a change in the service's status.
+    /// Each message is correlated to a <see cref="EventEntity"/>.
+    /// See <see cref="Message"/>.
     /// </summary>
     public class MessageEntity : ChildEntity<EventEntity>
     {

@@ -6,20 +6,20 @@ using System;
 namespace NuGet.Services.Status.Table
 {
     /// <summary>
-    /// Base implementation of <see cref="IAggregatedEntity{T}"/>.
+    /// Base implementation of <see cref="IAggregatedComponentAffectingEntity{T}"/>.
     /// </summary>
-    public class AggregatedEntity<T> : ComponentAffectingEntity, IAggregatedEntity<T>
-        where T : ComponentAffectingEntity
+    public class AggregatedComponentAffectingEntity<TAggregation> : ComponentAffectingEntity, IAggregatedComponentAffectingEntity<TAggregation>
+        where TAggregation : ComponentAffectingEntity
     {
-        public AggregatedEntity()
+        public AggregatedComponentAffectingEntity()
         {
-            _parent = new ChildEntity<T>();
+            _parent = new ChildEntity<TAggregation>();
         }
 
-        public AggregatedEntity(
+        public AggregatedComponentAffectingEntity(
             string partitionKey, 
             string rowKey,
-            T entity,
+            TAggregation entity,
             string affectedComponentPath,
             DateTime startTime,
             ComponentStatus affectedComponentStatus = ComponentStatus.Up,
@@ -32,10 +32,10 @@ namespace NuGet.Services.Status.Table
                   affectedComponentStatus, 
                   endTime)
         {
-            _parent = new ChildEntity<T>(partitionKey, rowKey, entity);
+            _parent = new ChildEntity<TAggregation>(partitionKey, rowKey, entity);
         }
 
-        private readonly ChildEntity<T> _parent;
+        private readonly ChildEntity<TAggregation> _parent;
         
         public string ParentRowKey
         {

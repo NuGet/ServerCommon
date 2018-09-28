@@ -40,9 +40,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AggregatedEntity.cs" />
+    <Compile Include="AggregatedComponentAffectingEntity.cs" />
     <Compile Include="ComponentAffectingEntity.cs" />
-    <Compile Include="IAggregatedEntity.cs" />
+    <Compile Include="IAggregatedComponentAffectingEntity.cs" />
     <Compile Include="IChildEntity.cs" />
     <Compile Include="IncidentGroupEntity.cs" />
     <Compile Include="IComponentAffectingEntity.cs" />

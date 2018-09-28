@@ -7,9 +7,10 @@ namespace NuGet.Services.Status.Table
 {
     /// <summary>
     /// An incident that affects a component.
+    /// This incident can be used to calculate whether or not there is a downtime on the site.
     /// Is aggregated by <see cref="IncidentGroupEntity"/>.
     /// </summary>
-    public class IncidentEntity : AggregatedEntity<IncidentGroupEntity>
+    public class IncidentEntity : AggregatedComponentAffectingEntity<IncidentGroupEntity>
     {
         public const string DefaultPartitionKey = "incidents";
 
@@ -36,6 +37,9 @@ namespace NuGet.Services.Status.Table
             IncidentApiId = id;
         }
 
+        /// <summary>
+        /// The ID in the incident API that refers to this incident.
+        /// </summary>
         public string IncidentApiId { get; set; }
 
         public static string GetRowKey(string id, string affectedComponentPath, ComponentStatus affectedComponentStatus)

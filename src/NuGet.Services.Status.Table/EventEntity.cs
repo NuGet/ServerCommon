@@ -6,7 +6,9 @@ using System;
 namespace NuGet.Services.Status.Table
 {
     /// <summary>
-    /// An aggregation of all <see cref="IncidentGroupEntity"/>s affecting a component and its subcomponents during a period of time.
+    /// Represents a downtime that can be shown to users on the status page.
+    /// Can be considered an aggregation of all <see cref="IncidentGroupEntity"/>s affecting a component and its subcomponents during a period of time.
+    /// All messaging is related to an event.
     /// See <see cref="Event"/>.
     /// </summary>
     public class EventEntity : ComponentAffectingEntity
