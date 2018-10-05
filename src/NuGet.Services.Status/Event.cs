@@ -18,11 +18,6 @@ namespace NuGet.Services.Status
         public string AffectedComponentPath { get; }
 
         /// <summary>
-        /// The <see cref="IReadOnlyComponent.Status"/> of the <see cref="IReadOnlyComponent"/> affected.
-        /// </summary>
-        public ComponentStatus AffectedComponentStatus { get; }
-
-        /// <summary>
         /// When the event began.
         /// </summary>
         public DateTime StartTime { get; }
@@ -40,13 +35,11 @@ namespace NuGet.Services.Status
         [JsonConstructor]
         public Event(
             string affectedComponentPath,
-            ComponentStatus affectedComponentStatus,
             DateTime startTime,
             DateTime? endTime,
             IEnumerable<Message> messages)
         {
             AffectedComponentPath = affectedComponentPath;
-            AffectedComponentStatus = affectedComponentStatus;
             StartTime = startTime;
             EndTime = endTime;
             Messages = messages;
