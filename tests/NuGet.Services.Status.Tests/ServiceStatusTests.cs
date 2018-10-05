@@ -26,8 +26,8 @@ namespace NuGet.Services.Status.Tests
         {
             return new ServiceStatus(
                 GetDate(), 
-                CreateRootComponent(), 
-                Enumerable.Repeat<Func<Message>>(() => CreateMessage(), 6).Select(f => f()).ToList());
+                CreateRootComponent(),
+                new[] { CreateEvent(), CreateEvent(), CreateEvent() });
         }
 
         private static IComponent CreateRootComponent()
@@ -82,6 +82,11 @@ namespace NuGet.Services.Status.Tests
                 new LeafComponent(
                     GetString(), 
                     GetString()));
+        }
+
+        private static Event CreateEvent()
+        {
+            return new Event(GetString(), GetComponentStatus(), GetDate(), GetDate(), new[] { CreateMessage(), CreateMessage() });
         }
 
         private static Message CreateMessage()

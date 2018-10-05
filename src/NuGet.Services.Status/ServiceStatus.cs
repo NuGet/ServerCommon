@@ -24,35 +24,35 @@ namespace NuGet.Services.Status
         public IReadOnlyComponent ServiceRootComponent { get; }
 
         /// <summary>
-        /// A list of recent <see cref="Message"/>s regarding the service.
+        /// A list of recent <see cref="Event"/>s regarding the service.
         /// </summary>
-        public IEnumerable<Message> Messages { get; }
+        public IEnumerable<Event> Events { get; }
 
-        public ServiceStatus(IReadOnlyComponent serviceRootComponent, IEnumerable<Message> events)
+        public ServiceStatus(IReadOnlyComponent serviceRootComponent, IEnumerable<Event> events)
             : this(DateTime.Now, serviceRootComponent, events)
         {
         }
 
-        public ServiceStatus(IComponent serviceRootComponent, IEnumerable<Message> events)
+        public ServiceStatus(IComponent serviceRootComponent, IEnumerable<Event> events)
             : this(DateTime.Now, serviceRootComponent, events)
         {
         }
 
-        public ServiceStatus(DateTime lastUpdated, IReadOnlyComponent serviceRootComponent, IEnumerable<Message> messages)
+        public ServiceStatus(DateTime lastUpdated, IReadOnlyComponent serviceRootComponent, IEnumerable<Event> events)
         {
             LastUpdated = lastUpdated;
             ServiceRootComponent = serviceRootComponent;
-            Messages = messages;
+            Events = events;
         }
 
-        public ServiceStatus(DateTime lastUpdated, IComponent serviceRootComponent, IEnumerable<Message> messages)
-            : this(lastUpdated, new ReadOnlyComponent(serviceRootComponent), messages)
+        public ServiceStatus(DateTime lastUpdated, IComponent serviceRootComponent, IEnumerable<Event> events)
+            : this(lastUpdated, new ReadOnlyComponent(serviceRootComponent), events)
         {
         }
 
         [JsonConstructor]
-        public ServiceStatus(DateTime lastUpdated, ReadOnlyComponent serviceRootComponent, IEnumerable<Message> messages)
-            : this(lastUpdated, (IReadOnlyComponent)serviceRootComponent, messages)
+        public ServiceStatus(DateTime lastUpdated, ReadOnlyComponent serviceRootComponent, IEnumerable<Event> events)
+            : this(lastUpdated, (IReadOnlyComponent)serviceRootComponent, events)
         {
         }
     }
