@@ -46,7 +46,7 @@
     <Compile Include="ComponentTests.cs" />
     <Compile Include="ComponentWithSubComponentsTests.cs" />
     <Compile Include="GetAllComponentsTests.cs" />
-    <Compile Include="GetLowestVisibleAffectedComponentPathTests.cs" />
+    <Compile Include="GetDeepestVisibleAffectedComponentPathTests.cs" />
     <Compile Include="LeafComponentTests.cs" />
     <Compile Include="PrimarySecondaryComponentTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

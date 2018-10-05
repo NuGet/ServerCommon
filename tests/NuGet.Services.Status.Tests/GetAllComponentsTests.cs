@@ -12,13 +12,13 @@ namespace NuGet.Services.Status.Tests
         [Fact]
         public void ReturnsEmptyForNullComponent()
         {
-            Assert.Empty(ComponentUtility.GetAllComponents((IComponent)null));
+            Assert.Empty(ComponentUtility.GetAllVisibleComponents(null));
         }
 
         [Fact]
         public void ReturnsEmptyForNullReadOnlyComponent()
         {
-            Assert.Empty(ComponentUtility.GetAllComponents((IReadOnlyComponent)null));
+            Assert.Empty(ComponentUtility.GetAllComponents(null));
         }
 
         [Theory]
@@ -28,7 +28,7 @@ namespace NuGet.Services.Status.Tests
         {
             var component = CreateDummyComponent(displaySubComponents);
 
-            var result = ComponentUtility.GetAllComponents(component);
+            var result = ComponentUtility.GetAllVisibleComponents(component);
 
             AssertContains(result, new[] { component });
         }
@@ -54,7 +54,7 @@ namespace NuGet.Services.Status.Tests
             var subComponent2 = CreateDummyComponent(displaySubSubComponents);
             var component = CreateDummyComponent(new[] { subComponent1, subComponent2 }, displaySubComponents);
 
-            var result = ComponentUtility.GetAllComponents(component);
+            var result = ComponentUtility.GetAllVisibleComponents(component);
 
             AssertContains(result, 
                 new[] { component }
@@ -96,7 +96,7 @@ namespace NuGet.Services.Status.Tests
 
             var component = CreateDummyComponent(new[] { subComponent1, subComponent2 }, displaySubComponents);
 
-            var result = ComponentUtility.GetAllComponents(component);
+            var result = ComponentUtility.GetAllVisibleComponents(component);
 
             AssertContains(result, 
                 new[] { component }

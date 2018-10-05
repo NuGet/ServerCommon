@@ -6,7 +6,7 @@ using Xunit;
 
 namespace NuGet.Services.Status.Tests
 {
-    public class GetLowestVisibleAffectedComponentPathTests
+    public class GetDeepestVisibleAffectedComponentPathTests
     {
         [Theory]
         [InlineData(false)]
@@ -14,7 +14,7 @@ namespace NuGet.Services.Status.Tests
         public void ReturnsSubComponentIfPathHasNoParts(bool displaySubComponents)
         {
             var component = new TestComponent("", displaySubComponents);
-            AssertLeastCommonVisibleAncestor(component, component, component);
+            AssertDeepestVisibleAncestor(component, component, component);
         }
 
         [Theory]
@@ -23,7 +23,7 @@ namespace NuGet.Services.Status.Tests
         public void ReturnsRootComponent(bool displaySubComponents)
         {
             var component = new TestComponent("path", displaySubComponents);
-            AssertLeastCommonVisibleAncestor(component, component, component);
+            AssertDeepestVisibleAncestor(component, component, component);
         }
 
         [Theory]
@@ -35,7 +35,7 @@ namespace NuGet.Services.Status.Tests
         {
             var root = new TestComponent("root", displaySubComponentsRoot);
             var subComponent = new TestComponent("notInTree", displaySubComponentsSubComponent);
-            AssertLeastCommonVisibleAncestor(root, subComponent, null);
+            AssertDeepestVisibleAncestor(root, subComponent, null);
         }
 
         [Theory]
@@ -45,7 +45,7 @@ namespace NuGet.Services.Status.Tests
         {
             var subComponent = new TestComponent("child", displaySubComponents);
             var root = new TestComponent("root", new[] { subComponent }, displaySubComponents: true);
-            AssertLeastCommonVisibleAncestor(
+            AssertDeepestVisibleAncestor(
                 root,
                 root.SubComponents.Single(c => c.Name == subComponent.Name),
                 root.SubComponents.Single(c => c.Name == subComponent.Name));
@@ -59,15 +59,15 @@ namespace NuGet.Services.Status.Tests
             var subComponent = new TestComponent("child", displaySubComponents);
             var intermediateComponent = new TestComponent("middle", new[] { subComponent }, displaySubComponents: false);
             var root = new TestComponent("root", new[] { intermediateComponent }, displaySubComponents: true);
-            AssertLeastCommonVisibleAncestor(
+            AssertDeepestVisibleAncestor(
                 root,
                 root.SubComponents.Single(c => c.Name == intermediateComponent.Name).SubComponents.Single(c => c.Name == subComponent.Name),
                 root.SubComponents.Single(c => c.Name == intermediateComponent.Name));
         }
 
-        private void AssertLeastCommonVisibleAncestor(IComponent root, IComponent subComponent, IComponent expected)
+        private void AssertDeepestVisibleAncestor(IComponent root, IComponent subComponent, IComponent expected)
         {
-            Assert.Equal(expected, root.GetLeastCommonVisibleAncestorOfSubComponent(subComponent));
+            Assert.Equal(expected, root.GetDeepestVisibleAncestorOfSubComponent(subComponent));
         }
     }
 }

@@ -119,7 +119,7 @@ namespace NuGet.Services.Status
         /// <summary>
         /// Recursively iterates through the subcomponents of <paramref name="component"/> and returns all components found, including <paramref name="component"/> itself.
         /// </summary>
-        public static IEnumerable<IComponent> GetAllComponents(this IComponent component)
+        public static IEnumerable<IComponent> GetAllVisibleComponents(this IComponent component)
         {
             if (component == null)
             {
@@ -133,7 +133,7 @@ namespace NuGet.Services.Status
                 yield break;
             }
 
-            foreach (var subcomponent in component.SubComponents.SelectMany(s => s.GetAllComponents()))
+            foreach (var subcomponent in component.SubComponents.SelectMany(s => s.GetAllVisibleComponents()))
             {
                 yield return subcomponent;
             }
@@ -175,7 +175,7 @@ namespace NuGet.Services.Status
         /// <summary>
         /// Returns the deepest ancestor of <paramref name="subComponent"/> that is visible (does not have a parent with <see cref="IComponent.DisplaySubComponents"/> set to <c>false</c>).
         /// </summary>
-        public static IComponent GetLeastCommonVisibleAncestorOfSubComponent(this IComponent rootComponent, IComponent subComponent)
+        public static IComponent GetDeepestVisibleAncestorOfSubComponent(this IComponent rootComponent, IComponent subComponent)
         {
             var pathParts = subComponent.GetNames();
             for (var i = 1; i <= pathParts.Length; i++)
