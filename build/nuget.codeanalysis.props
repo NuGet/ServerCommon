@@ -3,6 +3,7 @@
 
   <PropertyGroup>
     <RunCodeAnalysis>true</RunCodeAnalysis>
+    <DefineConstants>$(DefineConstants);CODE_ANALYSIS</DefineConstants>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     
     <CodeAnalysisSearchGlobalAssemblyCache>true</CodeAnalysisSearchGlobalAssemblyCache>
