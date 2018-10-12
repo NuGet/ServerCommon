@@ -79,7 +79,7 @@ namespace NuGet.Services.Validation.Tests {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {&quot;PackageId&quot;:&quot;NuGet.Versioning&quot;,&quot;PackageVersion&quot;:&quot;4.3&quot;,&quot;PackageNormalizedVersion&quot;:&quot;4.3.0&quot;,&quot;ValidationTrackingId&quot;:&quot;14b4c1b8-40e2-4d60-9db7-4b7195e807f5&quot;,&quot;ValidatingType&quot;:0}.
+        ///   Looks up a localized string similar to {&quot;PackageId&quot;:&quot;NuGet.Versioning&quot;,&quot;PackageVersion&quot;:&quot;4.3&quot;,&quot;PackageNormalizedVersion&quot;:&quot;4.3.0&quot;,&quot;ValidationTrackingId&quot;:&quot;14b4c1b8-40e2-4d60-9db7-4b7195e807f5&quot;,&quot;ValidatingType&quot;:0,&quot;PackageKey&quot;:null}.
         /// </summary>
         internal static string SerializedPackageValidationMessageDataPackage {
             get {
@@ -88,7 +88,7 @@ namespace NuGet.Services.Validation.Tests {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {&quot;PackageId&quot;:&quot;NuGet.Versioning&quot;,&quot;PackageVersion&quot;:&quot;4.3&quot;,&quot;PackageNormalizedVersion&quot;:&quot;4.3.0&quot;,&quot;ValidationTrackingId&quot;:&quot;14b4c1b8-40e2-4d60-9db7-4b7195e807f5&quot;,&quot;ValidatingType&quot;:1}.
+        ///   Looks up a localized string similar to {&quot;PackageId&quot;:&quot;NuGet.Versioning&quot;,&quot;PackageVersion&quot;:&quot;4.3&quot;,&quot;PackageNormalizedVersion&quot;:&quot;4.3.0&quot;,&quot;ValidationTrackingId&quot;:&quot;14b4c1b8-40e2-4d60-9db7-4b7195e807f5&quot;,&quot;ValidatingType&quot;:1,&quot;PackageKey&quot;:null}.
         /// </summary>
         internal static string SerializedPackageValidationMessageDataSymbols {
             get {
