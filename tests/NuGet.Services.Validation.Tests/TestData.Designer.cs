@@ -70,7 +70,7 @@ namespace NuGet.Services.Validation.Tests {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {&quot;PackageId&quot;:&quot;NuGet.Versioning&quot;,&quot;PackageVersion&quot;:&quot;4.3&quot;,&quot;PackageNormalizedVersion&quot;:&quot;4.3.0&quot;,&quot;ValidationTrackingId&quot;:&quot;14b4c1b8-40e2-4d60-9db7-4b7195e807f5&quot;}.
+        ///   Looks up a localized string similar to {&quot;PackageId&quot;:&quot;NuGet.Versioning&quot;,&quot;PackageVersion&quot;:&quot;4.3&quot;,&quot;PackageNormalizedVersion&quot;:&quot;4.3.0&quot;,&quot;ValidationTrackingId&quot;:&quot;14b4c1b8-40e2-4d60-9db7-4b7195e807f5&quot;,&quot;PackageKey&quot;:123}.
         /// </summary>
         internal static string SerializedPackageValidationMessageData2 {
             get {
@@ -79,7 +79,7 @@ namespace NuGet.Services.Validation.Tests {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {&quot;PackageId&quot;:&quot;NuGet.Versioning&quot;,&quot;PackageVersion&quot;:&quot;4.3&quot;,&quot;PackageNormalizedVersion&quot;:&quot;4.3.0&quot;,&quot;ValidationTrackingId&quot;:&quot;14b4c1b8-40e2-4d60-9db7-4b7195e807f5&quot;,&quot;ValidatingType&quot;:0,&quot;PackageKey&quot;:null}.
+        ///   Looks up a localized string similar to {&quot;PackageId&quot;:&quot;NuGet.Versioning&quot;,&quot;PackageVersion&quot;:&quot;4.3&quot;,&quot;PackageNormalizedVersion&quot;:&quot;4.3.0&quot;,&quot;ValidationTrackingId&quot;:&quot;14b4c1b8-40e2-4d60-9db7-4b7195e807f5&quot;,&quot;ValidatingType&quot;:0,&quot;PackageKey&quot;:123}.
         /// </summary>
         internal static string SerializedPackageValidationMessageDataPackage {
             get {
@@ -88,11 +88,38 @@ namespace NuGet.Services.Validation.Tests {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {&quot;PackageId&quot;:&quot;NuGet.Versioning&quot;,&quot;PackageVersion&quot;:&quot;4.3&quot;,&quot;PackageNormalizedVersion&quot;:&quot;4.3.0&quot;,&quot;ValidationTrackingId&quot;:&quot;14b4c1b8-40e2-4d60-9db7-4b7195e807f5&quot;,&quot;ValidatingType&quot;:1,&quot;PackageKey&quot;:null}.
+        ///   Looks up a localized string similar to {&quot;PackageId&quot;:&quot;NuGet.Versioning&quot;,&quot;PackageVersion&quot;:&quot;4.3&quot;,&quot;PackageNormalizedVersion&quot;:&quot;4.3.0&quot;,&quot;ValidationTrackingId&quot;:&quot;14b4c1b8-40e2-4d60-9db7-4b7195e807f5&quot;,&quot;ValidatingType&quot;:1,&quot;PackageKey&quot;:123}.
         /// </summary>
         internal static string SerializedPackageValidationMessageDataSymbols {
             get {
                 return ResourceManager.GetString("SerializedPackageValidationMessageDataSymbols", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {&quot;PackageId&quot;:&quot;NuGet.Versioning&quot;,&quot;PackageVersion&quot;:&quot;4.3&quot;,&quot;PackageNormalizedVersion&quot;:&quot;4.3.0&quot;,&quot;ValidationTrackingId&quot;:&quot;14b4c1b8-40e2-4d60-9db7-4b7195e807f5&quot;,&quot;ValidatingType&quot;:1}.
+        /// </summary>
+        internal static string SerializedPackageValidationMessageDataSymbolsWithNoPackageKey {
+            get {
+                return ResourceManager.GetString("SerializedPackageValidationMessageDataSymbolsWithNoPackageKey", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {&quot;PackageId&quot;:&quot;NuGet.Versioning&quot;,&quot;PackageVersion&quot;:&quot;4.3&quot;,&quot;ValidationTrackingId&quot;:&quot;14b4c1b8-40e2-4d60-9db7-4b7195e807f5&quot;}.
+        /// </summary>
+        internal static string SerializedPackageValidationMessageDataWithNoPackageKey1 {
+            get {
+                return ResourceManager.GetString("SerializedPackageValidationMessageDataWithNoPackageKey1", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {&quot;PackageId&quot;:&quot;NuGet.Versioning&quot;,&quot;PackageVersion&quot;:&quot;4.3&quot;,&quot;PackageNormalizedVersion&quot;:&quot;4.3.0&quot;,&quot;ValidationTrackingId&quot;:&quot;14b4c1b8-40e2-4d60-9db7-4b7195e807f5&quot;}.
+        /// </summary>
+        internal static string SerializedPackageValidationMessageDataWithNoPackageKey2 {
+            get {
+                return ResourceManager.GetString("SerializedPackageValidationMessageDataWithNoPackageKey2", resourceCulture);
             }
         }
     }
