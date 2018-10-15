@@ -94,7 +94,7 @@ namespace NuGet.Services.Validation.Tests
                 Assert.Equal(ValidationTrackingId, output.ValidationTrackingId);
                 Assert.Equal(DeliveryCount, output.DeliveryCount);
                 Assert.Equal(ValidatingType.Package, output.ValidatingType);
-                Assert.Equal(expectedKey, output.PackageKey);
+                Assert.Equal(expectedKey, output.EntityKey);
             }
 
             [Fact]
@@ -113,7 +113,7 @@ namespace NuGet.Services.Validation.Tests
                 Assert.Equal(ValidationTrackingId, output.ValidationTrackingId);
                 Assert.Equal(DeliveryCount, output.DeliveryCount);
                 Assert.Equal(ValidatingType.Package, output.ValidatingType);
-                Assert.Equal(null, output.PackageKey);
+                Assert.Equal(null, output.EntityKey);
             }
 
             [Theory]
@@ -133,7 +133,7 @@ namespace NuGet.Services.Validation.Tests
                 Assert.Equal(ValidationTrackingId, output.ValidationTrackingId);
                 Assert.Equal(DeliveryCount, output.DeliveryCount);
                 Assert.Equal(ValidatingType.SymbolPackage, output.ValidatingType);
-                Assert.Equal(expectedKey, output.PackageKey);
+                Assert.Equal(expectedKey, output.EntityKey);
             }
 
             [Fact]
