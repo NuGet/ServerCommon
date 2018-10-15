@@ -68,13 +68,13 @@ namespace NuGet.Services.Validation.Tests
             public static IEnumerable<object[]> SerializedTestMessageData2 = new[]
             {
                 new object[] { TestData.SerializedPackageValidationMessageData2, PackageKey },
-                new object[] { TestData.SerializedPackageValidationMessageDataWithNoPackageKey2, null}
+                new object[] { TestData.SerializedPackageValidationMessageDataWithNoEntityKey2, null}
             };
 
             public static IEnumerable<object[]> SerializedTestMessageDataForSymbols = new[]
             {
                 new object[] { TestData.SerializedPackageValidationMessageDataSymbols, PackageKey },
-                new object[] { TestData.SerializedPackageValidationMessageDataSymbolsWithNoPackageKey, null}
+                new object[] { TestData.SerializedPackageValidationMessageDataSymbolsWithNoEntityKey, null}
             };
 
             [Theory]
