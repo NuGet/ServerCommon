@@ -8,7 +8,7 @@
   things.
   -->
   <PropertyGroup>
-    <MicroBuild_NuPkgSigningEnabled>false<MicroBuild_NuPkgSigningEnabled/>
+    <MicroBuild_NuPkgSigningEnabled>false</MicroBuild_NuPkgSigningEnabled>
   </PropertyGroup>
   <ItemGroup>
     <SignFilesDependsOn Include="EnumerateFilesToSign" />
