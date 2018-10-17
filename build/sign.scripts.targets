@@ -1,7 +1,7 @@
 <Project>
   <!--
   "EnumerateScriptFilesToSign" is a custom target that signs deployment scripts and executables.
-  The process is non-trivial because only files in $(OutDir) can be signed..
+  The process is non-trivial because only files in $(OutDir) can be signed.
   We must copy the files into $(OutDir), sign them, and then copy them back.
   -->
   <ItemGroup>
