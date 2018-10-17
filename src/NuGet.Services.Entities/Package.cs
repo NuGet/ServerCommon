@@ -10,7 +10,7 @@ namespace NuGet.Services.Entities
 {
     [DisplayColumn("Title")]
     public class Package
-        : IEntity, IPackageEntity
+        : IPackageEntity
     {
 
 #pragma warning disable 618 // TODO: remove Package.Authors completely once production services definitely no longer need it
@@ -141,7 +141,8 @@ namespace NuGet.Services.Entities
         /// Signifies whether or not the ReadMe exists. Falses stored as NULL in database to avoid updating existing rows.
         /// </summary>
         [NotMapped]
-        public bool HasReadMe {
+        public bool HasReadMe
+        {
             get
             {
                 return HasReadMeInternal ?? false;
@@ -218,7 +219,7 @@ namespace NuGet.Services.Entities
         /// </summary>
         public User User { get; set; }
         public int? UserKey { get; set; }
-        
+
         /// <summary>
         /// List of historical metadata info of this package (before edits were applied)
         /// </summary>
