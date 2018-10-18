@@ -12,9 +12,11 @@
       <PowerShellScriptsToSign Include="Functions.ps1"/>
       <PowerShellScriptsToSign Include="PostDeploy.ps1"/>
       <PowerShellScriptsToSign Include="PreDeploy.ps1"/>
+      <PowerShellScriptsToSign Remove="@(PowerShellScriptsToNotSign)"/>
     </ItemGroup>
     <ItemGroup>
       <ExecutablesToSign Include="nssm.exe"/>
+      <ExecutablesToSign Remove="@(ExecutablesToNotSign)"/>
     </ItemGroup>
     <ItemGroup>
       <ScriptsToSign Include="@(PowerShellScriptsToSign)"/>
