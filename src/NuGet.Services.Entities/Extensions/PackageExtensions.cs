@@ -19,5 +19,16 @@ namespace NuGet.Services.Entities
                 .OrderByDescending(sp => sp.Created)
                 .FirstOrDefault();
         }
+
+        /// <summary>
+        /// Returns true if there exists a symbol package which is latest and is in
+        /// available state, false otherwise.
+        /// </summary>
+        public static bool IsLatestSymbolPackageAvailable(this Package package)
+        {
+            var latestSymbolPackage = package.LatestSymbolPackage();
+            return latestSymbolPackage != null
+                && latestSymbolPackage.StatusKey == PackageStatus.Available;
+        }
     }
 }
