@@ -37,6 +37,12 @@ namespace NuGet.Services.KeyVault
             return secret.Value;
         }
 
+        public async Task<System.Tuple<string, DateTime?>> GetSecretValueAndExpiryAsync(string secretName)
+        {
+            var secret = await _keyVaultClient.Value.GetSecretAsync(_vault, secretName);
+            return new Tuple<string, DateTime?> (secret.Value, secret.Attributes.Expires);
+        }
+
         private KeyVaultClient InitializeClient()
         {
             _clientAssertionCertificate = new ClientAssertionCertificate(_configuration.ClientId, _configuration.Certificate);
