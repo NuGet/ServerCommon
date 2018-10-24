@@ -37,7 +37,10 @@ Function Run-Tests {
         "tests\NuGet.Services.Contracts.Tests\bin\$Configuration\NuGet.Services.Contracts.Tests.dll", `
         "tests\NuGet.Services.Validation.Issues.Tests\bin\$Configuration\NuGet.Services.Validation.Issues.Tests.dll", `
         "tests\NuGet.Services.Sql.Tests\bin\$Configuration\NuGet.Services.Sql.Tests.dll", `
-        "tests\NuGet.Services.Status.Tests\bin\$Configuration\NuGet.Services.Status.Tests.dll"
+        "tests\NuGet.Services.Status.Tests\bin\$Configuration\NuGet.Services.Status.Tests.dll", `
+        "tests\NuGet.Services.Messaging.Tests\bin\$Configuration\NuGet.Services.Messaging.Tests.dll", `
+        "tests\NuGet.Services.Messaging.Email.Tests\bin\$Configuration\NuGet.Services.Messaging.Email.Tests.dll", `
+        "tests\NuGet.Services.Entities.Tests\bin\$Configuration\NuGet.Services.Entities.Tests.dll"
 
     $TestCount = 0
 
