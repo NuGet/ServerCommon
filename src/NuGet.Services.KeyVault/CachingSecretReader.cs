@@ -67,13 +67,6 @@ namespace NuGet.Services.KeyVault
                 Expiration = secret.Expiration;
                 CacheTime = DateTimeOffset.UtcNow;
             }
-            public CachedSecret(string name, string value, DateTime? expiryDate)
-            {
-                Name = name;
-                Value = value;                
-                Expiration = expiryDate;
-                CacheTime = DateTimeOffset.UtcNow;
-            } 
             /// <summary>
             /// The time at which the secret was cached.
             /// </summary>
