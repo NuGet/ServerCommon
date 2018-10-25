@@ -42,43 +42,34 @@ namespace NuGet.Services.KeyVault
             if (_cache.TryGetValue(secretName, out CachedSecret result)
                 && !IsSecretOutdated(result))
             {
-                return result;
+                return result.Secret;
             }
             // The cache does not contain a fresh copy of the secret. Fetch and cache the secret.
             var updatedValue = new CachedSecret(await _internalReader.GetSecretObjectAsync(secretName));
-            return _cache.AddOrUpdate(secretName, updatedValue, (key, old) => updatedValue);
+            return _cache.AddOrUpdate(secretName, updatedValue, (key, old) => updatedValue).Secret;
         }
 
-        private bool IsSecretOutdated(CachedSecret secret)
+        private bool IsSecretOutdated(CachedSecret cachedSecret)
         {
-            return (((DateTime.UtcNow - secret.CacheTime) >= _refreshInterval) ||
-                (secret.Expiration != null &&  (secret.Expiration - DateTime.UtcNow) <= _refreshIntervalBeforeExpiry));
+            return (((DateTime.UtcNow - cachedSecret.CacheTime) >= _refreshInterval) ||
+                (cachedSecret.Secret.Expiration != null &&  (cachedSecret.Secret.Expiration - DateTime.UtcNow) <= _refreshIntervalBeforeExpiry));
         }
 
         /// <summary>
         /// A cached secret.
         /// </summary>
-        private class CachedSecret : ISecret
+        private class CachedSecret
         {
             public CachedSecret(ISecret secret)
             {
-                Name = secret.Name;
-                Value = secret.Value;                
-                Expiration = secret.Expiration;
+                Secret = secret;
                 CacheTime = DateTimeOffset.UtcNow;
             }
             /// <summary>
             /// The time at which the secret was cached.
             /// </summary>
             public DateTimeOffset CacheTime { get; }
-
-            public string Name { get; }
-
-            public string Value { get; }
-            /// <summary>
-            /// The time at which the secret expires
-            /// </summary>
-            public DateTime? Expiration { get; }
+            public ISecret Secret { get; }
 
         }
     }
