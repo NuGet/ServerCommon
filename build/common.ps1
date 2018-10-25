@@ -183,7 +183,8 @@ Function Build-Solution {
         [string]$TargetProfile,
         [string]$Target,
         [string]$MSBuildProperties,
-        [switch]$SkipRestore
+        [switch]$SkipRestore,
+        [switch]$ForceSynchronous
     )
     
     if (-not $SkipRestore) {
@@ -209,6 +210,10 @@ Function Build-Solution {
     
     if ($MSBuildProperties) {
         $opts += $MSBuildProperties
+    }
+    
+    if (-not $ForceSynchronous) {
+        $opts += "/m"
     }
 
     $MSBuildExe = Get-MSBuildExe $MSBuildVersion
