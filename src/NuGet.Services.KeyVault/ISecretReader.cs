@@ -1,15 +1,20 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System.Threading.Tasks;
 using System;
+using System.Threading.Tasks;
 
 namespace NuGet.Services.KeyVault
 {
     public interface ISecretReader
     {
         Task<string> GetSecretAsync(string secretName);
-
-        Task<Tuple<string, DateTime?>> GetSecretValueAndExpiryAsync(string secretName);
+        Task<ISecret> GetSecretObjectAsync(string secretName);
+    }
+    public interface ISecret
+    {
+        string Name { get; }
+        string Value { get; }
+        DateTime? Expiration { get; }
     }
 }

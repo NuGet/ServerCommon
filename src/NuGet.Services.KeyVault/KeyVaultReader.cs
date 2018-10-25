@@ -37,10 +37,10 @@ namespace NuGet.Services.KeyVault
             return secret.Value;
         }
 
-        public async Task<System.Tuple<string, DateTime?>> GetSecretValueAndExpiryAsync(string secretName)
+        public async Task<ISecret> GetSecretObjectAsync(string secretName)
         {
             var secret = await _keyVaultClient.Value.GetSecretAsync(_vault, secretName);
-            return new Tuple<string, DateTime?> (secret.Value, secret.Attributes.Expires);
+            return new KeyVaultSecret(secretName, secret.Value, secret.Attributes.Expires);            
         }
 
         private KeyVaultClient InitializeClient()
@@ -62,5 +62,24 @@ namespace NuGet.Services.KeyVault
 
             return result.AccessToken;
         }
+
+        private class KeyVaultSecret : ISecret
+        {
+            public KeyVaultSecret(string name, string value, DateTime? expiryDate)
+            {
+                Name = name;
+                Value = value;
+                Expiration = expiryDate;
+            }
+
+            public string Name { get; }
+
+            public string Value { get; }
+
+            public DateTime? Expiration { get; }
+
+        }
+
     }
+
 }

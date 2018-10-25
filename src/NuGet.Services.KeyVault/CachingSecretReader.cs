@@ -14,25 +14,24 @@ namespace NuGet.Services.KeyVault
 
         private readonly ISecretReader _internalReader;
         private readonly ConcurrentDictionary<string, CachedSecret> _cache;
-        private readonly TimeSpan _refreshInterval;        
+        private readonly TimeSpan _refreshInterval;
+        //_refreshIntervalBeforeExpiry specifies the timespan before secret expiry to refresh the secret value.
         private readonly TimeSpan _refreshIntervalBeforeExpiry;
 
         public CachingSecretReader(ISecretReader secretReader, int refreshIntervalSec = DefaultRefreshIntervalSec, int refreshIntervalBeforeExpirySec = DefaultRefreshIntervalBeforeExpirySec)
         {
             _internalReader = secretReader ?? throw new ArgumentNullException(nameof(secretReader));
             _cache = new ConcurrentDictionary<string, CachedSecret>();
-
             _refreshInterval = TimeSpan.FromSeconds(refreshIntervalSec);
             _refreshIntervalBeforeExpiry = TimeSpan.FromSeconds(refreshIntervalBeforeExpirySec);
         }
 
         public async Task<string> GetSecretAsync(string secretName)
         {
-            Tuple<string, DateTime?> secret = await GetSecretValueAndExpiryAsync(secretName);
-            return secret.Item1;
+            return (await GetSecretObjectAsync(secretName)).Value;            
         }
 
-        public async Task<System.Tuple<string, DateTime?>> GetSecretValueAndExpiryAsync(string secretName)
+        public async Task<ISecret> GetSecretObjectAsync(string secretName)
         {
             if (string.IsNullOrEmpty(secretName))
             {
@@ -43,50 +42,50 @@ namespace NuGet.Services.KeyVault
             if (_cache.TryGetValue(secretName, out CachedSecret result)
                 && !IsSecretOutdated(result))
             {
-                return new Tuple<string, DateTime?> (result.Value, result.ExpiryDate);
+                return result;
             }
-
             // The cache does not contain a fresh copy of the secret. Fetch and cache the secret.
-            Tuple<string, DateTime?> secret = await _internalReader.GetSecretValueAndExpiryAsync(secretName);
-            var updatedValue = new CachedSecret(secret.Item1, secret.Item2);
-
-            CachedSecret updatedCachedSecret = _cache.AddOrUpdate(secretName, updatedValue, (key, old) => updatedValue);
-            return new Tuple<string, DateTime?>(updatedCachedSecret.Value, updatedCachedSecret.ExpiryDate);
+            var updatedValue = new CachedSecret(await _internalReader.GetSecretObjectAsync(secretName));
+            return _cache.AddOrUpdate(secretName, updatedValue, (key, old) => updatedValue);
         }
 
         private bool IsSecretOutdated(CachedSecret secret)
         {
             return (((DateTime.UtcNow - secret.CacheTime) >= _refreshInterval) ||
-                (secret.ExpiryDate != null &&  (secret.ExpiryDate - DateTime.UtcNow) <= _refreshIntervalBeforeExpiry));
+                (secret.Expiration != null &&  (secret.Expiration - DateTime.UtcNow) <= _refreshIntervalBeforeExpiry));
         }
 
         /// <summary>
         /// A cached secret.
         /// </summary>
-        private class CachedSecret
+        private class CachedSecret : ISecret
         {
-            public CachedSecret(string value, DateTime? expiryDate)
+            public CachedSecret(ISecret secret)
             {
-                Value = value;
+                Name = secret.Name;
+                Value = secret.Value;                
+                Expiration = secret.Expiration;
                 CacheTime = DateTimeOffset.UtcNow;
-                ExpiryDate = expiryDate;
             }
-
-            /// <summary>
-            /// The value of the cached secret.
-            /// </summary>
-            public string Value { get; }
-
+            public CachedSecret(string name, string value, DateTime? expiryDate)
+            {
+                Name = name;
+                Value = value;                
+                Expiration = expiryDate;
+                CacheTime = DateTimeOffset.UtcNow;
+            } 
             /// <summary>
             /// The time at which the secret was cached.
             /// </summary>
             public DateTimeOffset CacheTime { get; }
 
-            /// <summary>
-            /// Secret Expiry Date in UTC
-            /// </summary>
-            public DateTime? ExpiryDate { get; }
+            public string Name { get; }
 
+            public string Value { get; }
+            /// <summary>
+            /// The time at which the secret expires
+            /// </summary>
+            public DateTime? Expiration { get; }
 
         }
     }

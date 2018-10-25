@@ -11,11 +11,28 @@ namespace NuGet.Services.KeyVault
         public Task<string> GetSecretAsync(string secretName)
         {
             return Task.FromResult(secretName);
+        }        
+
+        public Task<ISecret> GetSecretObjectAsync(string secretName)
+        {            
+            return Task.FromResult((ISecret)new EmptySecret(secretName));
         }
 
-        public Task<Tuple<string, DateTime?>> GetSecretValueAndExpiryAsync(string secretName)
-        {            
-            return Task.FromResult(new Tuple<string, DateTime?>(secretName, null));
+        private class EmptySecret : ISecret
+        {
+            public EmptySecret(string name)
+            {
+                Name = name;
+                Value = null;                
+                Expiration = null;
+            }
+
+            public string Name { get; }
+
+            public string Value { get; }
+
+            public DateTime? Expiration { get; }
+
         }
     }
 }
