@@ -15,24 +15,7 @@ namespace NuGet.Services.KeyVault
 
         public Task<ISecret> GetSecretObjectAsync(string secretName)
         {            
-            return Task.FromResult((ISecret)new EmptySecret(secretName));
-        }
-
-        private class EmptySecret : ISecret
-        {
-            public EmptySecret(string name)
-            {
-                Name = name;
-                Value = name;                
-                Expiration = null;
-            }
-
-            public string Name { get; }
-
-            public string Value { get; }
-
-            public DateTime? Expiration { get; }
-
-        }
+            return Task.FromResult((ISecret)new KeyVaultSecret(secretName, secretName, null));
+        }        
     }
 }

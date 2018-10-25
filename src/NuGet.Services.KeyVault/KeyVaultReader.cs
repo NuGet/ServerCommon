@@ -62,24 +62,6 @@ namespace NuGet.Services.KeyVault
 
             return result.AccessToken;
         }
-
-        private class KeyVaultSecret : ISecret
-        {
-            public KeyVaultSecret(string name, string value, DateTime? expiryDate)
-            {
-                Name = name;
-                Value = value;
-                Expiration = expiryDate;
-            }
-
-            public string Name { get; }
-
-            public string Value { get; }
-
-            public DateTime? Expiration { get; }
-
-        }
-
     }
 
 }
