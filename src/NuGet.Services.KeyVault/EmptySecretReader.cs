@@ -23,7 +23,7 @@ namespace NuGet.Services.KeyVault
             public EmptySecret(string name)
             {
                 Name = name;
-                Value = null;                
+                Value = name;                
                 Expiration = null;
             }
 

@@ -11,10 +11,4 @@ namespace NuGet.Services.KeyVault
         Task<string> GetSecretAsync(string secretName);
         Task<ISecret> GetSecretObjectAsync(string secretName);
     }
-    public interface ISecret
-    {
-        string Name { get; }
-        string Value { get; }
-        DateTime? Expiration { get; }
-    }
 }
