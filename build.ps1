@@ -114,14 +114,21 @@ Invoke-BuildStep 'Creating artifacts' { `
             "src\NuGet.Services.Incidents\NuGet.Services.Incidents.csproj", `
             "src\NuGet.Services.Sql\NuGet.Services.Sql.csproj", `
             "src\NuGet.Services.Status\NuGet.Services.Status.csproj", `
-            "src\NuGet.Services.Status.Table\NuGet.Services.Status.Table.csproj",
-            "src\NuGet.Services.Messaging\NuGet.Services.Messaging.csproj",
-            "src\NuGet.Services.Messaging.Email\NuGet.Services.Messaging.Email.csproj",
-            "src\NuGet.Services.Entities\NuGet.Services.Entities.csproj"
+            "src\NuGet.Services.Status.Table\NuGet.Services.Status.Table.csproj"           
             
         $projects | ForEach-Object {
             New-Package (Join-Path $PSScriptRoot $_) -Configuration $Configuration -Symbols -IncludeReferencedProjects -MSBuildVersion "15"
         }
+
+	$CsprojProjects = `
+            "src\NuGet.Services.Messaging\NuGet.Services.Messaging.csproj",
+            "src\NuGet.Services.Messaging.Email\NuGet.Services.Messaging.Email.csproj",
+            "src\NuGet.Services.Entities\NuGet.Services.Entities.csproj"
+            
+        $CsprojProjects | ForEach-Object {
+            New-ProjectPackage (Join-Path $PSScriptRoot $_) -Configuration $Configuration -BuildNumber $BuildNumber -Version $SemanticVersion -Branch $Branch -Symbols
+        }
+
     } `
     -ev +BuildErrors
 
