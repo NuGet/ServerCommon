@@ -58,7 +58,27 @@
     <Compile Include="TopicClientWrapper.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="project.json" />
+    <PackageReference Include="MicroBuild.Core">
+      <Version>0.3.0</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions">
+      <Version>1.1.1</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Extensions.Logging">
+      <Version>1.1.2</Version>
+    </PackageReference>
+    <PackageReference Include="Newtonsoft.Json">
+      <Version>9.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="WindowsAzure.ServiceBus">
+      <Version>4.1.3</Version>
+    </PackageReference>
+    <PackageReference Include="NuGet.Build.Tasks.Pack">
+      <Version>4.8.0</Version>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NuGet.Services.Contracts\NuGet.Services.Contracts.csproj">

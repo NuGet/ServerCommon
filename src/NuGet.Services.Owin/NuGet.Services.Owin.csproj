@@ -46,7 +46,18 @@
     <Compile Include="Properties\AssemblyInfo.*.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="project.json" />
+    <PackageReference Include="MicroBuild.Core">
+      <Version>0.3.0</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Owin">
+      <Version>3.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="NuGet.Build.Tasks.Pack">
+      <Version>4.8.0</Version>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
