@@ -120,7 +120,7 @@ Invoke-BuildStep 'Creating artifacts' { `
             "src\NuGet.Services.Entities\NuGet.Services.Entities.csproj"
             
         $projects | ForEach-Object {
-            New-Package (Join-Path $PSScriptRoot $_) -Configuration $Configuration -Symbols -IncludeReferencedProjects -MSBuildVersion "15"
+            New-ProjectPackage (Join-Path $PSScriptRoot $_) -Configuration $Configuration -Symbols -BuildNumber $BuildNumber -Version $SemanticVersion -PackageId $packageId
         }
     } `
     -ev +BuildErrors
