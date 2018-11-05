@@ -70,5 +70,53 @@ namespace NuGet.Services.KeyVault.Tests
             Assert.Equal(secondSecret, secondValue1);
             Assert.Equal(secondSecret, secondValue2);
         }
+
+        [Fact]
+        public async Task WhenGetSecretIsCalledCacheIsRefreshedIfPastSecretExpiry()
+        {
+            // Arrange
+            const string secretName = "secretname";
+            const string firstSecretValue = "testValue";
+            DateTime firstSecretExpiration = DateTime.UtcNow.AddSeconds(3);
+            const string secondSecretValue = "testValue2";
+            DateTime secondSecretExpiration = DateTime.UtcNow.AddHours(1);
+            KeyVaultSecret secret1 = new KeyVaultSecret(secretName, firstSecretValue, firstSecretExpiration);
+            KeyVaultSecret secret2 = new KeyVaultSecret(secretName, secondSecretValue, secondSecretExpiration);
+            int refreshIntervalSec = 30;
+            int refreshIntervalBeforeExpirySec = 0;
+
+            var mockSecretReader = new Mock<ISecretReader>();
+            mockSecretReader
+                .SetupSequence(x => x.GetSecretObjectAsync(It.IsAny<string>()))
+                .Returns(Task.FromResult((ISecret)secret1))
+                .Returns(Task.FromResult((ISecret)secret2));
+
+            var cachingSecretReader = new CachingSecretReader(mockSecretReader.Object, refreshIntervalSec, refreshIntervalBeforeExpirySec);
+
+            // Act
+            var secretObject1 = await cachingSecretReader.GetSecretObjectAsync(secretName);
+            var secretObject2 = await cachingSecretReader.GetSecretObjectAsync(secretName);
+
+            // Assert
+            mockSecretReader.Verify(x => x.GetSecretObjectAsync(It.IsAny<string>()), Times.Once);
+            Assert.Equal(secretObject1.Value, firstSecretValue);
+            Assert.Equal(secretObject1.Expiration, firstSecretExpiration);
+            Assert.Equal(secretObject2.Value, firstSecretValue);
+            Assert.Equal(secretObject2.Expiration, firstSecretExpiration);
+
+            // Arrange 2
+            await Task.Delay(TimeSpan.FromSeconds(3));
+
+            // Act 2
+            var secretObject3 = await cachingSecretReader.GetSecretObjectAsync(secretName);
+            var secretObject4 = await cachingSecretReader.GetSecretObjectAsync(secretName);
+
+            // Assert 2
+            mockSecretReader.Verify(x => x.GetSecretObjectAsync(It.IsAny<string>()), Times.Exactly(2));
+            Assert.Equal(secretObject3.Value, secondSecretValue);
+            Assert.Equal(secretObject3.Expiration, secondSecretExpiration);
+            Assert.Equal(secretObject4.Value, secondSecretValue);
+            Assert.Equal(secretObject4.Expiration, secondSecretExpiration);
+        }
     }
 }
