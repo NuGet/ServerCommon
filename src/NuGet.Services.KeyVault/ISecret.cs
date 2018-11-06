@@ -13,6 +13,6 @@ namespace NuGet.Services.KeyVault
     {
         string Name { get; }
         string Value { get; }
-        DateTime? Expiration { get; }
+        DateTimeOffset? Expiration { get; }
     }
 }

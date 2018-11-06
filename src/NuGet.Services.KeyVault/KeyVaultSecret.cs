@@ -11,7 +11,7 @@ namespace NuGet.Services.KeyVault
 {
     public class KeyVaultSecret : ISecret
     {
-        public KeyVaultSecret(string name, string value, DateTime? expiryDate)
+        public KeyVaultSecret(string name, string value, DateTimeOffset? expiryDate)
         {
             if (name == null)
             {
@@ -31,8 +31,7 @@ namespace NuGet.Services.KeyVault
         public string Name { get; }
 
         public string Value { get; }
-
-        public DateTime? Expiration { get; }
+        public DateTimeOffset? Expiration { get; }
 
     }
 }
