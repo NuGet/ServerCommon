@@ -32,7 +32,7 @@ namespace NuGet.Services.Messaging
 
         public IBrokeredMessage SerializeEmailMessageData(EmailMessageData message)
         {
-            return _serializer.Serialize(new EmailMessageData1
+            var brokeredMessage = _serializer.Serialize(new EmailMessageData1
             {
                 Subject = message.Subject,
                 PlainTextBody = message.PlainTextBody,
@@ -44,6 +44,10 @@ namespace NuGet.Services.Messaging
                 ReplyTo = message.ReplyTo,
                 MessageTrackingId = message.MessageTrackingId
             });
+
+            // GDPR: EmailMessageData cannot live for more than two days because it can contain PII.
+            brokeredMessage.TimeToLive = TimeSpan.FromDays(2);
+            return brokeredMessage;
         }
 
         [Schema(Name = EmailMessageSchemaName, Version = 1)]
