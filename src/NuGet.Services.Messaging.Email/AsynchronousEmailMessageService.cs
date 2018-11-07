@@ -42,9 +42,8 @@ namespace NuGet.Services.Messaging.Email
         {
             var recipients = emailBuilder.GetRecipients();
 
-            if (recipients == EmailRecipients.None)
+            if (!recipients.To.Any())
             {
-                // Optimization: no need to construct message body when no recipients.
                 return null;
             }
 

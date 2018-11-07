@@ -37,7 +37,7 @@ namespace NuGet.Services.Messaging.Email.Tests
                 var emailBuilder = new Mock<IEmailBuilder>();
                 emailBuilder
                     .Setup(m => m.GetRecipients())
-                    .Returns(EmailRecipients.None)
+                    .Returns(new EmailRecipients(to: new MailAddress[0]))
                     .Verifiable();
 
                 var emailMessageEnqueuerMock = new Mock<IEmailMessageEnqueuer>();

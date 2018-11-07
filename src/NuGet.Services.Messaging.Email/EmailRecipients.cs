@@ -23,8 +23,6 @@ namespace NuGet.Services.Messaging.Email
             ReplyTo = replyTo ?? new List<MailAddress>();
         }
 
-        public static IEmailRecipients None = new EmailRecipients(to: Array.Empty<MailAddress>());
-
         public IReadOnlyList<MailAddress> To { get; }
 
         public IReadOnlyList<MailAddress> CC { get; }
