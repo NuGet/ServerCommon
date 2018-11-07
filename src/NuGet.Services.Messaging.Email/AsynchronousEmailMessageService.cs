@@ -5,16 +5,21 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace NuGet.Services.Messaging.Email
 {
     public class AsynchronousEmailMessageService : IMessageService
     {
         private readonly IEmailMessageEnqueuer _emailMessageEnqueuer;
+        private readonly ILogger<AsynchronousEmailMessageService> _logger;
 
-        public AsynchronousEmailMessageService(IEmailMessageEnqueuer emailMessageEnqueuer)
+        public AsynchronousEmailMessageService(
+            IEmailMessageEnqueuer emailMessageEnqueuer,
+            ILogger<AsynchronousEmailMessageService> logger)
         {
             _emailMessageEnqueuer = emailMessageEnqueuer ?? throw new ArgumentNullException(nameof(emailMessageEnqueuer));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
         public Task SendMessageAsync(
@@ -27,6 +32,9 @@ namespace NuGet.Services.Messaging.Email
                 throw new ArgumentNullException(nameof(emailBuilder));
             }
 
+            _logger.LogInformation("Sending message with CopySender {CopySender} and DiscloseSenderAddress {DiscloseSenderAddress}",
+                copySender, discloseSenderAddress);
+
             var message = CreateMessage(
                 emailBuilder,
                 copySender,
@@ -35,7 +43,7 @@ namespace NuGet.Services.Messaging.Email
             return EnqueueMessageAsync(message);
         }
 
-        private static EmailMessageData CreateMessage(
+        private EmailMessageData CreateMessage(
             IEmailBuilder emailBuilder,
             bool copySender = false,
             bool discloseSenderAddress = false)
@@ -44,6 +52,7 @@ namespace NuGet.Services.Messaging.Email
 
             if (!recipients.To.Any())
             {
+                _logger.LogInformation("Message has no recipients. Cannot send.");
                 return null;
             }
 
