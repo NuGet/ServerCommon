@@ -194,6 +194,7 @@ Function Build-Solution {
     # Build the solution
     $opts = , $SolutionPath
     $opts += "/p:Configuration=$Configuration;BuildNumber=$(Format-BuildNumber $BuildNumber)"
+    $opts += "/m"
     
     if ($TargetProfile) {
         $opts += "/p:TargetProfile=$TargetProfile"
@@ -201,10 +202,6 @@ Function Build-Solution {
     
     if ($Target) {
         $opts += "/t:$Target"
-    }
-    
-    if (-not $VerbosePreference) {
-        $opts += '/verbosity:minimal'
     }
     
     if ($MSBuildProperties) {
@@ -409,13 +406,6 @@ Function Configure-NuGetCredentials {
 
     $opts = 'sources', 'update', '-NonInteractive', '-Name', "${FeedName}", '-Username', "${Username}"
 
-    if (-not $VerbosePreference) {
-        $opts += '-verbosity', 'quiet'
-    }
-    else {
-        $opts += '-verbosity', 'detailed'
-    }
-
     if ($PAT) {
         $opts += '-Password', "${PAT}"
     }
@@ -495,10 +485,6 @@ Function Install-SolutionPackages {
         $opts += $SolutionPath
         $InstallLocation = Split-Path -Path $SolutionPath -Parent
     }
-
-    if (-not $VerbosePreference) {
-        $opts += '-verbosity', 'quiet'
-    }
     
     if ($ConfigFile) {
         $opts += '-configfile', $ConfigFile
@@ -548,10 +534,6 @@ Function Restore-SolutionPackages {
     
     if ($ConfigFile) {
         $opts += '-configfile', $ConfigFile
-    }
-
-    if (-not $VerbosePreference) {
-        $opts += '-verbosity', 'quiet'
     }
 
     Trace-Log "Restoring packages @""$InstallLocation"""
@@ -670,7 +652,8 @@ Function New-ProjectPackage {
         [string]$MSBuildVersion = $DefaultMSBuildVersion,
         [switch]$Symbols,
         [string]$Branch,
-        [switch]$IncludeReferencedProjects
+        [switch]$IncludeReferencedProjects,
+        [switch]$Sign
     )
     Trace-Log "Creating package from @""$TargetFilePath"""
     
@@ -681,6 +664,11 @@ Function New-ProjectPackage {
     
     $opts += "/p:Configuration=$Configuration;BuildNumber=$(Format-BuildNumber $BuildNumber)"
     $opts += "/p:PackageOutputPath=$Artifacts"
+    
+    if (-not $Sign)
+    {
+        $opts += "/p:SignType=none"
+    }
     
     if ($PackageId) {
         $opts += "/p:PackageId=$PackageId"
