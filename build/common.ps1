@@ -194,6 +194,7 @@ Function Build-Solution {
     # Build the solution
     $opts = , $SolutionPath
     $opts += "/p:Configuration=$Configuration;BuildNumber=$(Format-BuildNumber $BuildNumber)"
+    $opts += "/m"
     
     if ($TargetProfile) {
         $opts += "/p:TargetProfile=$TargetProfile"
