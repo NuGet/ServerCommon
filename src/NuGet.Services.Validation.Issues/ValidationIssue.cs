@@ -46,8 +46,8 @@ namespace NuGet.Services.Validation.Issues
             ValidationIssueCode.OnlySignatureFormatVersion1Supported,
             ValidationIssueCode.AuthorCounterSignaturesNotSupported,
             ValidationIssueCode.PackageIsNotSigned,
-            ValidationIssueCode.SymbolErrorCode_MatchingAssemblyNotFound,
             ValidationIssueCode.SymbolErrorCode_ChecksumDoesNotMatch,
+            ValidationIssueCode.SymbolErrorCode_MatchingAssemblyNotFound,
             ValidationIssueCode.SymbolErrorCode_PdbIsNotPortable
         };
 
