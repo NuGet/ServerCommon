@@ -52,7 +52,7 @@ namespace NuGet.Services.Messaging.Email
 
             if (!recipients.To.Any())
             {
-                _logger.LogInformation("Message has no recipients. Cannot send.");
+                _logger.LogInformation("Cannot create message to send as it has no recipients.");
                 return null;
             }
 
@@ -102,6 +102,7 @@ namespace NuGet.Services.Messaging.Email
         {
             if (message == null || !message.To.Any())
             {
+                _logger.LogInformation("Skipping enqueueing message because it is null or has no recipients.");
                 return Task.CompletedTask;
             }
 
