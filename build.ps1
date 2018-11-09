@@ -93,7 +93,7 @@ Invoke-BuildStep 'Restoring solution packages' { `
         
 Invoke-BuildStep 'Building solution' { `
         $SolutionPath = Join-Path $PSScriptRoot "NuGet.Server.Common.sln"
-        New-ProjectPackage $SolutionPath -Configuration $Configuration -Symbols -BuildNumber $BuildNumber -Version $SemanticVersion -PackageId $packageId -MSBuildVersion "15" -Sign
+        New-ProjectPackage $SolutionPath -Configuration $Configuration -Symbols -BuildNumber $BuildNumber -Version $SemanticVersion -PackageId $packageId -MSBuildVersion "15" -Sign -SkipRestore:$SkipRestore
     } `
     -ev +BuildErrors
 
