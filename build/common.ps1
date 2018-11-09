@@ -194,6 +194,9 @@ Function Build-Solution {
     # Build the solution
     $opts = , $SolutionPath
     $opts += "/p:Configuration=$Configuration;BuildNumber=$(Format-BuildNumber $BuildNumber)"
+
+    # Build in parallel
+    # See https://docs.microsoft.com/en-us/visualstudio/msbuild/building-multiple-projects-in-parallel-with-msbuild?view=vs-2017#-maxcpucount-switch
     $opts += "/m"
     
     if ($TargetProfile) {
