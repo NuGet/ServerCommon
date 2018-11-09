@@ -93,7 +93,35 @@ Invoke-BuildStep 'Restoring solution packages' { `
         
 Invoke-BuildStep 'Building solution' { `
         $SolutionPath = Join-Path $PSScriptRoot "NuGet.Server.Common.sln"
-        New-ProjectPackage $SolutionPath -Configuration $Configuration -Symbols -BuildNumber $BuildNumber -Version $SemanticVersion -PackageId $packageId -MSBuildVersion "15" -SkipRestore:$SkipRestore
+        Build-Solution $Configuration $BuildNumber -MSBuildVersion "15" $SolutionPath -SkipRestore:$SkipRestore
+    } `
+    -ev +BuildErrors
+    
+Invoke-BuildStep 'Creating artifacts' { `
+        $projects = `
+            "src\NuGet.Services.KeyVault\NuGet.Services.KeyVault.csproj", `
+            "src\NuGet.Services.Logging\NuGet.Services.Logging.csproj", `
+            "src\NuGet.Services.Configuration\NuGet.Services.Configuration.csproj", `
+            "src\NuGet.Services.Build\NuGet.Services.Build.csproj", `
+            "src\NuGet.Services.Storage\NuGet.Services.Storage.csproj", `
+            "src\NuGet.Services.Cursor\NuGet.Services.Cursor.csproj", `
+            "src\NuGet.Services.Owin\NuGet.Services.Owin.csproj", `
+            "src\NuGet.Services.AzureManagement\NuGet.Services.AzureManagement.csproj", `
+            "src\NuGet.Services.Contracts\NuGet.Services.Contracts.csproj", `
+            "src\NuGet.Services.ServiceBus\NuGet.Services.ServiceBus.csproj", `
+            "src\NuGet.Services.Validation\NuGet.Services.Validation.csproj", `
+            "src\NuGet.Services.Validation.Issues\NuGet.Services.Validation.Issues.csproj", `
+            "src\NuGet.Services.Incidents\NuGet.Services.Incidents.csproj", `
+            "src\NuGet.Services.Sql\NuGet.Services.Sql.csproj", `
+            "src\NuGet.Services.Status\NuGet.Services.Status.csproj", `
+            "src\NuGet.Services.Status.Table\NuGet.Services.Status.Table.csproj",
+            "src\NuGet.Services.Messaging\NuGet.Services.Messaging.csproj",
+            "src\NuGet.Services.Messaging.Email\NuGet.Services.Messaging.Email.csproj",
+            "src\NuGet.Services.Entities\NuGet.Services.Entities.csproj"
+            
+        $projects | ForEach-Object {
+            New-ProjectPackage (Join-Path $PSScriptRoot $_) -Configuration $Configuration -Symbols -BuildNumber $BuildNumber -Version $SemanticVersion -PackageId $packageId
+        }
     } `
     -ev +BuildErrors
 
