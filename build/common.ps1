@@ -194,6 +194,10 @@ Function Build-Solution {
     # Build the solution
     $opts = , $SolutionPath
     $opts += "/p:Configuration=$Configuration;BuildNumber=$(Format-BuildNumber $BuildNumber)"
+
+    # Build in parallel
+    # See https://docs.microsoft.com/en-us/visualstudio/msbuild/building-multiple-projects-in-parallel-with-msbuild?view=vs-2017#-maxcpucount-switch
+    $opts += "/m"
     
     if ($TargetProfile) {
         $opts += "/p:TargetProfile=$TargetProfile"
@@ -201,10 +205,6 @@ Function Build-Solution {
     
     if ($Target) {
         $opts += "/t:$Target"
-    }
-    
-    if (-not $VerbosePreference) {
-        $opts += '/verbosity:minimal'
     }
     
     if ($MSBuildProperties) {
@@ -266,12 +266,16 @@ Function Invoke-FxCop {
         }
         
         if ($FxCopRuleSet) {
-            $items = Get-ChildItem $(Join-Path $FxCopDirectory $FxCopRuleSet) -Recurse
+            # To support overrides, look for ruleset in build tools first and then fxcop directory.
+            $items = Get-ChildItem $(Join-Path $PSScriptRoot $FxCopRuleSet) -Recurse
+            if ($items.Count -eq 0) {
+                $items = Get-ChildItem $(Join-Path $FxCopDirectory $FxCopRuleSet) -Recurse
+            }
             
             if ($items.Count -gt 0) {
                 $env:FXCOP_RULESET = $items[0]
                 $env:FXCOP_RULESET_DIRECTORY = $($items[0]).Directory
-                Trace-Log "Discovered FXCOP_RULESET=$FxCopRuleSetFullPath"
+                Trace-Log "Discovered FXCOP_RULESET=$($items[0])"
             }
             else {
                 throw "Failed to find $FxCopRuleSet under $FxCopDirectory"
@@ -405,13 +409,6 @@ Function Configure-NuGetCredentials {
 
     $opts = 'sources', 'update', '-NonInteractive', '-Name', "${FeedName}", '-Username', "${Username}"
 
-    if (-not $VerbosePreference) {
-        $opts += '-verbosity', 'quiet'
-    }
-    else {
-        $opts += '-verbosity', 'detailed'
-    }
-
     if ($PAT) {
         $opts += '-Password', "${PAT}"
     }
@@ -491,10 +488,6 @@ Function Install-SolutionPackages {
         $opts += $SolutionPath
         $InstallLocation = Split-Path -Path $SolutionPath -Parent
     }
-
-    if (-not $VerbosePreference) {
-        $opts += '-verbosity', 'quiet'
-    }
     
     if ($ConfigFile) {
         $opts += '-configfile', $ConfigFile
@@ -544,10 +537,6 @@ Function Restore-SolutionPackages {
     
     if ($ConfigFile) {
         $opts += '-configfile', $ConfigFile
-    }
-
-    if (-not $VerbosePreference) {
-        $opts += '-verbosity', 'quiet'
     }
 
     Trace-Log "Restoring packages @""$InstallLocation"""
@@ -666,7 +655,8 @@ Function New-ProjectPackage {
         [string]$MSBuildVersion = $DefaultMSBuildVersion,
         [switch]$Symbols,
         [string]$Branch,
-        [switch]$IncludeReferencedProjects
+        [switch]$IncludeReferencedProjects,
+        [switch]$Sign
     )
     Trace-Log "Creating package from @""$TargetFilePath"""
     
@@ -677,6 +667,11 @@ Function New-ProjectPackage {
     
     $opts += "/p:Configuration=$Configuration;BuildNumber=$(Format-BuildNumber $BuildNumber)"
     $opts += "/p:PackageOutputPath=$Artifacts"
+    
+    if (-not $Sign)
+    {
+        $opts += "/p:SignType=none"
+    }
     
     if ($PackageId) {
         $opts += "/p:PackageId=$PackageId"

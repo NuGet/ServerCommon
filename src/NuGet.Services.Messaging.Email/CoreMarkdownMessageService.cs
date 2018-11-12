@@ -39,17 +39,23 @@ namespace NuGet.Services.Messaging.Email
 
             using (var email = CreateMailMessage(emailBuilder))
             {
-                await SendMessageInternalAsync(email, copySender, discloseSenderAddress);
+                if (email == null || !email.To.Any())
+                {
+                    // A null email or one without recipients cannot be sent.
+                    return;
+                }
+
+                await SendMessageInternalAsync(email);
+
+                if (copySender && !discloseSenderAddress)
+                {
+                    await SendMessageToSenderAsync(email);
+                }
             }
         }
 
-        protected virtual async Task SendMessageInternalAsync(MailMessage mailMessage, bool copySender = false, bool discloseSenderAddress = false)
+        protected virtual async Task SendMessageInternalAsync(MailMessage mailMessage)
         {
-            if (!mailMessage.To.Any())
-            {
-                return;
-            }
-
             var attempt = 0;
             var success = false;
             while (!success)
@@ -71,11 +77,6 @@ namespace NuGet.Services.Messaging.Email
                         throw;
                     }
                 }
-            }
-
-            if (copySender && !discloseSenderAddress)
-            {
-                await SendMessageToSenderAsync(mailMessage);
             }
         }
 
