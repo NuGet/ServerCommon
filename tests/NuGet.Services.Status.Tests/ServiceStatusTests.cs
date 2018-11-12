@@ -25,6 +25,7 @@ namespace NuGet.Services.Status.Tests
         private static ServiceStatus CreateStatus()
         {
             return new ServiceStatus(
+                GetDate(),
                 GetDate(), 
                 CreateRootComponent(),
                 new[] { CreateEvent(), CreateEvent(), CreateEvent() });
