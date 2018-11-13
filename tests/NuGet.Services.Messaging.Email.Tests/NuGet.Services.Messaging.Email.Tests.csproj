@@ -37,17 +37,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AsynchronousEmailMessageServiceFacts.cs" />
-    <Compile Include="Messages\ContactSupportMessageFacts.cs" />
-    <Compile Include="Messages\MarkdownMessageBuilderFacts.cs" />
-    <Compile Include="Messages\PackageAddedMessageFacts.cs" />
-    <Compile Include="Messages\PackageAddedWithWarningsMessageFacts.cs" />
-    <Compile Include="Messages\PackageValidationFailedMessageFacts.cs" />
-    <Compile Include="Messages\PackageValidationTakingTooLongMessageFacts.cs" />
-    <Compile Include="Messages\SymbolPackageAddedMessageFacts.cs" />
-    <Compile Include="Messages\SymbolPackageValidationFailedMessageFacts.cs" />
-    <Compile Include="Messages\SymbolPackageValidationTakingTooLongMessageFacts.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TestMessageServiceConfiguration.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\src\NuGet.Services.Contracts\NuGet.Services.Contracts.csproj">
