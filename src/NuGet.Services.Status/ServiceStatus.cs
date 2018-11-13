@@ -52,6 +52,7 @@ namespace NuGet.Services.Status
 
         public ServiceStatus(DateTime lastBuilt, DateTime lastUpdated, IReadOnlyComponent serviceRootComponent, IEnumerable<Event> events)
         {
+            LastBuilt = lastBuilt;
             LastUpdated = lastUpdated;
             ServiceRootComponent = serviceRootComponent;
             Events = events;
