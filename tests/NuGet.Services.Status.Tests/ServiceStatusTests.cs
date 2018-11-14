@@ -24,32 +24,85 @@ namespace NuGet.Services.Status.Tests
 
         private static ServiceStatus CreateStatus()
         {
-            return new ServiceStatus(GetDate(), CreateRootComponent(), new[] { CreateEvent(), CreateEvent(), CreateEvent() });
+            return new ServiceStatus(
+                GetDate(), 
+                CreateRootComponent(),
+                new[] { CreateEvent(), CreateEvent(), CreateEvent() });
         }
 
         private static IComponent CreateRootComponent()
         {
-            return CreateComponent(new TreeComponent(GetString(), GetString(), new[] { CreateTreeComponent(), CreatePrimarySecondaryComponent(), CreateSubComponent(), CreateTreeComponent(), CreatePrimarySecondaryComponent(), CreateSubComponent() }));
+            return CreateComponent(
+                new TreeComponent(
+                    GetString(), 
+                    GetString(), 
+                    new[] 
+                    {
+                        CreateTreeComponent(),
+                        CreateActivePassiveComponent(),
+                        CreateActiveActiveComponent(),
+                        CreateSubComponent(),
+                        CreateTreeComponent(),
+                        CreateActivePassiveComponent(),
+                        CreateActiveActiveComponent(),
+                        CreateSubComponent(),
+                        CreateTreeComponent(),
+                        CreateActivePassiveComponent(),
+                        CreateActiveActiveComponent(),
+                        CreateSubComponent()
+                    }));
         }
 
         private static IComponent CreateTreeComponent()
         {
-            return CreateComponent(new TreeComponent(GetString(), GetString(), new[] { CreateSubComponent(), CreateSubComponent() }));
+            return CreateComponent(
+                new TreeComponent(
+                    GetString(), 
+                    GetString(), 
+                    new[] 
+                    {
+                        CreateSubComponent(),
+                        CreateSubComponent()
+                    }));
         }
 
-        private static IComponent CreatePrimarySecondaryComponent()
+        private static IComponent CreateActivePassiveComponent()
         {
-            return CreateComponent(new ActivePassiveComponent(GetString(), GetString(), new[] { CreateSubComponent(), CreateSubComponent() }));
+            return CreateComponent(
+                new ActivePassiveComponent(
+                    GetString(),
+                    GetString(),
+                    new[]
+                    {
+                        CreateSubComponent(),
+                        CreateSubComponent()
+                    }));
+        }
+
+        private static IComponent CreateActiveActiveComponent()
+        {
+            return CreateComponent(
+                new ActiveActiveComponent(
+                    GetString(),
+                    GetString(),
+                    new[]
+                    {
+                        CreateSubComponent(),
+                        CreateSubComponent()
+                    }));
         }
 
         private static IComponent CreateSubComponent()
         {
-            return CreateComponent(new LeafComponent(GetString(), GetString()));
+            return CreateComponent(
+                new LeafComponent(
+                    GetString(), 
+                    GetString()));
         }
 
         private static Event CreateEvent()
         {
-            return new Event(GetString(), GetComponentStatus(), GetDate(), GetDate(), new[] { CreateMessage(), CreateMessage() });
+            return new Event(GetString(), GetDate(), GetDate(), new[] { CreateMessage(), CreateMessage() });
         }
 
         private static Message CreateMessage()
@@ -88,7 +141,7 @@ namespace NuGet.Services.Status.Tests
             }
             else
             {
-                _currentString = _currentString.Substring(0, _currentString.Length - 1) + (last + 1);
+                _currentString = _currentString.Substring(0, _currentString.Length - 1) + (char)(last + 1);
             }
 
             return _currentString;

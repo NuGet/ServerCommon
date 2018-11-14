@@ -9,7 +9,7 @@ namespace NuGet.Services.Status
     /// An <see cref="IComponent"/> with an active component that ignores the status of its passive subcomponents if its active subcomponent is up.
     /// </summary>
     /// <remarks>
-    /// The active subcomponent is the first subcomponent in its <see cref="IReadOnlyComponent.SubComponents"/>.
+    /// The active subcomponent is the first subcomponent in its <see cref="Component.SubComponents"/>. All other subcomponents are passive.
     /// </remarks>
     /// <example>
     /// A website is deployed to two regions, region A and region B.
@@ -30,7 +30,7 @@ namespace NuGet.Services.Status
             string name,
             string description,
             IEnumerable<IComponent> subComponents)
-            : base(name, description, subComponents)
+            : base(name, description, subComponents, displaySubComponents: false)
         {
         }
 
