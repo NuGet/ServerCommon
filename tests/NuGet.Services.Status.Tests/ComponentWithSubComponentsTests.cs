@@ -208,8 +208,8 @@ namespace NuGet.Services.Status.Tests
         /// </summary>
         /// <remarks>
         /// The intention of <see cref="Component.DisplaySubComponents"/> is to hide components that are not impactful from being displayed to customers.
-        /// If a component determines status in such a way that it is not degraded when any of its subcomponents are degraded, it implies that its subcomponents are not impactful,
-        /// so it should set <see cref="Component.DisplaySubComponents"/> to false.
+        /// If a component determines status in such a way that it is not degraded when any of its subcomponents are degraded, 
+        /// it implies that its subcomponents are not impactful, so it should set <see cref="Component.DisplaySubComponents"/> to false.
         /// </remarks>
         private void AssertDisplayComponentsSetProperly(IComponent ancestorComponent)
         {
