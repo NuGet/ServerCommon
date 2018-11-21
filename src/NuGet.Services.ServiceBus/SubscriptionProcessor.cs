@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.ServiceBus.Messaging;
 
 namespace NuGet.Services.ServiceBus
 {
@@ -131,6 +132,11 @@ namespace NuGet.Services.ServiceBus
                         e,
                         "Requeueing message as it was unsuccessfully processed due to exception after {DurationSeconds} seconds",
                         stopwatch.Elapsed.TotalSeconds);
+
+                    if (e is MessageLockLostException)
+                    {
+                        _telemetryService.TrackMessageLockLost<TMessage>(callGuid);
+                    }
 
                     _telemetryService.TrackMessageHandlerDuration<TMessage>(stopwatch.Elapsed, callGuid, handled: false);
 

@@ -39,5 +39,12 @@ namespace NuGet.Services.ServiceBus
         /// <param name="callGuid">The GUID that identifies this attempt to handle the message.</param>
         /// <param name="handled">Whether the message was handled successfully.</param>
         void TrackMessageHandlerDuration<TMessage>(TimeSpan duration, Guid callGuid, bool handled);
+
+        /// <summary>
+        /// Track when a message handler exceeded its expected duration and lost its lock on a message.
+        /// </summary>
+        /// <typeparam name="TMessage">The type of message that was handled.</typeparam>
+        /// <param name="callGuid">The GUID that identifies this attempt to handle the message.</param>
+        void TrackMessageLockLost<TMessage>(Guid callGuid);
     }
 }

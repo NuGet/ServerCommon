@@ -4,6 +4,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.ServiceBus.Messaging;
 using Moq;
 using Xunit;
 
@@ -153,6 +154,43 @@ namespace NuGet.Services.ServiceBus.Tests
                 _serializer.Verify(s => s.Deserialize(It.IsAny<IBrokeredMessage>()), Times.Once);
                 _handler.Verify(h => h.HandleAsync(It.IsAny<TestMessage>()), Times.Once);
                 _brokeredMessage.Verify(m => m.CompleteAsync(), Times.Never);
+                _telemetryService.Verify(t => t.TrackMessageHandlerDuration<TestMessage>(It.IsAny<TimeSpan>(), It.IsAny<Guid>(), false), Times.Once);
+            }
+
+            [Fact]
+            public async Task TracksMessageLockLostExceptions()
+            {
+                // Arrange
+                // Retrieve the OnMessageAsync callback that is registered to Service Bus's subscription client.
+                Func<IBrokeredMessage, Task> onMessageAsync = null;
+                int? messagesInProgressDuringHandler = null;
+
+                _client
+                    .Setup(c => c.OnMessageAsync(
+                                    It.IsAny<Func<IBrokeredMessage, Task>>(),
+                                    It.IsAny<IOnMessageOptions>()))
+                    .Callback<Func<IBrokeredMessage, Task>, IOnMessageOptions>((callback, options) => onMessageAsync = callback);
+
+                _handler
+                    .Setup(h => h.HandleAsync(It.IsAny<TestMessage>()))
+                    .Callback(() => messagesInProgressDuringHandler = _target.NumberOfMessagesInProgress)
+                    .Throws(new MessageLockLostException("You snooze you lose"));
+
+                // Act
+                // Start processing messages and trigger the OnMessageAsync callback.
+                _target.Start();
+
+                var ex = await Record.ExceptionAsync(() => onMessageAsync(_brokeredMessage.Object));
+
+                // Assert
+                Assert.Null(ex);
+                Assert.Equal(1, messagesInProgressDuringHandler);
+                Assert.Equal(0, _target.NumberOfMessagesInProgress);
+
+                _serializer.Verify(s => s.Deserialize(It.IsAny<IBrokeredMessage>()), Times.Once);
+                _handler.Verify(h => h.HandleAsync(It.IsAny<TestMessage>()), Times.Once);
+                _brokeredMessage.Verify(m => m.CompleteAsync(), Times.Never);
+                _telemetryService.Verify(t => t.TrackMessageLockLost<TestMessage>(It.IsAny<Guid>()), Times.Once);
                 _telemetryService.Verify(t => t.TrackMessageHandlerDuration<TestMessage>(It.IsAny<TimeSpan>(), It.IsAny<Guid>(), false), Times.Once);
             }
 
