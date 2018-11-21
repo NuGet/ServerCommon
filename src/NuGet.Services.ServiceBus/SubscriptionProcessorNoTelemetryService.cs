@@ -19,5 +19,9 @@ namespace NuGet.Services.ServiceBus
         {
 
         }
+
+        public void TrackMessageHandlerDuration<TMessage>(TimeSpan duration, Guid callGuid, bool success)
+        {
+        }
     }
 }

@@ -47,6 +47,7 @@ namespace NuGet.Services.ServiceBus.Tests
                 _serializer.Verify(s => s.Deserialize(It.IsAny<IBrokeredMessage>()), Times.Once);
                 _handler.Verify(h => h.HandleAsync(It.IsAny<TestMessage>()), Times.Never);
                 _brokeredMessage.Verify(m => m.CompleteAsync(), Times.Never);
+                _telemetryService.Verify(t => t.TrackMessageHandlerDuration<TestMessage>(It.IsAny<TimeSpan>(), It.IsAny<Guid>(), false), Times.Once);
             }
 
             [Fact]
@@ -81,6 +82,7 @@ namespace NuGet.Services.ServiceBus.Tests
                 _serializer.Verify(s => s.Deserialize(It.IsAny<IBrokeredMessage>()), Times.Once);
                 _handler.Verify(h => h.HandleAsync(It.IsAny<TestMessage>()), Times.Once);
                 _brokeredMessage.Verify(m => m.CompleteAsync(), Times.Once);
+                _telemetryService.Verify(t => t.TrackMessageHandlerDuration<TestMessage>(It.IsAny<TimeSpan>(), It.IsAny<Guid>(), true), Times.Once);
             }
 
             [Fact]
@@ -115,6 +117,7 @@ namespace NuGet.Services.ServiceBus.Tests
                 _serializer.Verify(s => s.Deserialize(It.IsAny<IBrokeredMessage>()), Times.Once);
                 _handler.Verify(h => h.HandleAsync(It.IsAny<TestMessage>()), Times.Once);
                 _brokeredMessage.Verify(m => m.CompleteAsync(), Times.Never);
+                _telemetryService.Verify(t => t.TrackMessageHandlerDuration<TestMessage>(It.IsAny<TimeSpan>(), It.IsAny<Guid>(), false), Times.Once);
             }
 
             [Fact]
@@ -150,6 +153,7 @@ namespace NuGet.Services.ServiceBus.Tests
                 _serializer.Verify(s => s.Deserialize(It.IsAny<IBrokeredMessage>()), Times.Once);
                 _handler.Verify(h => h.HandleAsync(It.IsAny<TestMessage>()), Times.Once);
                 _brokeredMessage.Verify(m => m.CompleteAsync(), Times.Never);
+                _telemetryService.Verify(t => t.TrackMessageHandlerDuration<TestMessage>(It.IsAny<TimeSpan>(), It.IsAny<Guid>(), false), Times.Once);
             }
 
             [Fact]
