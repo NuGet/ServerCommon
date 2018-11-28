@@ -309,10 +309,10 @@ namespace NuGet.Services.Messaging.Email.Tests
                         && d.PlainTextBody == expectedPlainTextBody
                         && d.Subject == subject + " [Sender Copy]"
                         && d.Sender == messageServiceConfiguration.GalleryOwner.Address
-                        && d.To.Contains(fromAddress)
+                        && d.To.Single() == fromAddress
                         && !d.CC.Any()
                         && !d.Bcc.Any()
-                        && !d.ReplyTo.Any()
+                        && d.ReplyTo.Single() == fromAddress
                         && d.MessageTrackingId != Guid.Empty
                         && d.DeliveryCount == 0)),
                     Times.Once);

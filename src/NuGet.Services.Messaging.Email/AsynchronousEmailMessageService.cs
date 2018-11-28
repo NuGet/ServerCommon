@@ -170,7 +170,7 @@ namespace NuGet.Services.Messaging.Email
                 to: originalRecipients.ReplyTo.Select(e => e.Address).ToList(),
                 cc: null,
                 bcc: null,
-                replyTo: null,
+                replyTo: originalRecipients.ReplyTo.Select(e => e.Address).ToList(),
                 messageTrackingId: Guid.NewGuid());
 
             return _emailMessageEnqueuer.SendEmailMessageAsync(messageToSender);
