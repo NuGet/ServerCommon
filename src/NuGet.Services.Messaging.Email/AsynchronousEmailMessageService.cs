@@ -48,6 +48,8 @@ namespace NuGet.Services.Messaging.Email
 
             // If we're asked to copy the sender but cannot disclose the sender address,
             // we should send a separate email to the sender.
+            // The case where copySender=true and discloseSenderAddress=true is handled by the respective message,
+            // which may add the sender to the CC recipients.
             if (copySender && !discloseSenderAddress)
             {
                 await EnqueueMessageToSenderAsync(emailBuilder);
