@@ -101,7 +101,6 @@ namespace NuGet.Services.Licenses.Tests
         }
     }
 
-
     public class LicenseExpressionSegmentatorFactsBase
     {
         protected LicenseExpressionSegmentator _target;

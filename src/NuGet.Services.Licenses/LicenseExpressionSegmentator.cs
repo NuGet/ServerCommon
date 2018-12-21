@@ -35,6 +35,43 @@ namespace NuGet.Services.Licenses
         /// <param name="licenseExpression">Original license expression.</param>
         /// <param name="segments">List of segments produced by <see cref="GetLicenseExpressionSegments"/></param>
         /// <returns>List of segments including the characters that are lost during expression parsing</returns>
+        /// <remarks>
+        /// The algorithm:
+        /// Given the original license expression and the list of "meaningful" segments in this expression in
+        /// the order they appear in the original expression, let startIndex = 0 be the character index in
+        /// the license expression.
+        /// 
+        /// licenseExpression: "((MIT+))"
+        ///           startIndex^
+        /// segments: "MIT", "+"
+        /// 
+        /// Processing each segment from the segment list in order, we search where this segment first appears
+        /// in the original license expression starting from startIndex. If not found then error.
+        /// 
+        /// If found, we have two cases:
+        /// 1. found index is greater than startIndex
+        /// licenseExpression: "((MIT+))"
+        ///           startIndex^ ^found segment ("MIT") startIndex
+        /// we need to emit "Other" segment containing sequence of characters between startIndex and found index
+        /// - those characters were consumed by parses and don't appear explicitly in license expression. Then we
+        /// can emit the "meaningful" segment ("MIT") itself and advance startIndex to the first character after it.
+        /// 
+        /// 2. found index is equal to startIndex
+        /// licenseExpression: "((MIT+))"
+        ///                startIndex^ and found segment ("+") startIndex
+        /// in this case we can just emit the "meaningful" segment and advance startIndex to the first character
+        /// after it.
+        /// 
+        /// If after processing all "Meaningful" segments we have startIndex pointing somewhere withing the limits
+        /// of the original license expression string
+        /// licenseExpression: "((MIT+))"
+        ///                 startIndex^
+        /// we emit the remaining part as other ("))" in this example)
+        /// 
+        /// So we end up with the following segments:
+        /// 
+        /// Other("(("), License("MIT"), Operator("+"), Other("))")
+        /// </remarks>
         public List<CompositeLicenseExpressionSegment> SplitFullExpression(string licenseExpression, IReadOnlyCollection<CompositeLicenseExpressionSegment> segments)
         {
             if (licenseExpression == null)
