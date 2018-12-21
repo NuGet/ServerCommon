@@ -18,11 +18,14 @@ namespace NuGet.Services.Licenses.Tests
 
         public static IEnumerable<object[]> LicenseExpressionsAndSegments => new object[][]
         {
+            new object[] { "MIT", new[] { License("MIT") } },
+            new object[] { "((MIT))", new[] { License("MIT") } },
+            new object[] { "MIT+", new[] { License("MIT"), Plus() } },
             new object[] { "(MIT OR ISC)", new[] { License("MIT"), Or(), License("ISC") } },
             new object[] { "(((MIT  OR ISC)))", new[] { License("MIT"), Or(), License("ISC") } },
             new object[] { "(((MIT)) OR  ((ISC)))", new[] { License("MIT"), Or(), License("ISC") } },
             new object[] { "(MIT OR ISC  WITH Classpath-exception-2.0)", new[] { License("MIT"), Or(), License("ISC"), With(), Exception("Classpath-exception-2.0") } },
-            new object[] { "(MIT+ OR  ((ISC)))", new[] { License("MIT"), Operator("+"), Or(), License("ISC") } },
+            new object[] { "(MIT+ OR  ((ISC)))", new[] { License("MIT"), Plus(), Or(), License("ISC") } },
         };
 
         [Theory]
@@ -31,7 +34,7 @@ namespace NuGet.Services.Licenses.Tests
         {
             var expressionTreeRoot = NuGetLicenseExpression.Parse(licenseExpression);
 
-            var segments = _target.GetLicenseExpressionSegments((LicenseOperator)expressionTreeRoot);
+            var segments = _target.GetLicenseExpressionSegments(expressionTreeRoot);
 
             Assert.NotNull(segments);
             Assert.Equal(expectedSequence, segments, new CompositeLicenseExpressionSegmentEqualityComparer());
@@ -56,6 +59,16 @@ namespace NuGet.Services.Licenses.Tests
 
         public static IEnumerable<object[]> LicenseExpressionsAndSegments => new object[][]
         {
+            new object[] {
+                "MIT",
+                new[] { License("MIT") },
+                new[] { License("MIT") }
+            },
+            new object[] {
+                "(MIT+)",
+                new[] { License("MIT"), Plus() },
+                new[] { Other("("), License("MIT"), Plus(), Other(")") }
+            },
             new object[] {
                 "(MIT OR ISC)",
                 new[] { License("MIT"), Or(), License("ISC") },
@@ -110,6 +123,7 @@ namespace NuGet.Services.Licenses.Tests
         protected static CompositeLicenseExpressionSegment Or() => Operator("OR");
         protected static CompositeLicenseExpressionSegment And() => Operator("AND");
         protected static CompositeLicenseExpressionSegment With() => Operator("WITH");
+        protected static CompositeLicenseExpressionSegment Plus() => Operator("+");
 
         protected static CompositeLicenseExpressionSegment Other(string value)
             => new CompositeLicenseExpressionSegment(value, CompositeLicenseExpressionSegmentType.Other);
