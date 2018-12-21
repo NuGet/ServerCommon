@@ -234,6 +234,11 @@ namespace NuGet.Services.Entities
         public PackageStatus PackageStatusKey { get; set; }
 
         /// <summary>
+        /// The package deprecation status key, referring to the <see cref="PackageDeprecationStatus"/> enum.
+        /// </summary>
+        public PackageDeprecationStatus PackageDeprecationStatusKey { get; set; }
+
+        /// <summary>
         /// Gets or sets the foreign key of the certificate used to sign the package.
         /// </summary>
         public int? CertificateKey { get; set; }
