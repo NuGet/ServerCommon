@@ -54,7 +54,7 @@
     <Compile Include="ILicenseExpressionParser.cs" />
     <Compile Include="ILicenseExpressionSegmentator.cs" />
     <Compile Include="ILicenseExpressionSplitter.cs" />
-    <Compile Include="LicenseExpression.cs" />
+    <Compile Include="LicenseExpressionParser.cs" />
     <Compile Include="LicenseExpressionSegmentator.cs" />
     <Compile Include="LicenseExpressionSplitter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

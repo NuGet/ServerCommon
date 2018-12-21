@@ -5,7 +5,7 @@ using NuGet.Packaging.Licenses;
 
 namespace NuGet.Services.Licenses
 {
-    public class LicenseExpression : ILicenseExpressionParser
+    public class LicenseExpressionParser : ILicenseExpressionParser
     {
         public NuGetLicenseExpression Parse(string licenseExpression)
             => NuGetLicenseExpression.Parse(licenseExpression);

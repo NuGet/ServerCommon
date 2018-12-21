@@ -31,5 +31,14 @@ namespace NuGet.Services.Licenses
             var meaningfulSegments = _segmentator.GetLicenseExpressionSegments(expressionRoot);
             return _segmentator.SplitFullExpression(licenseExpression, meaningfulSegments);
         }
+
+        public static List<CompositeLicenseExpressionSegment> Split(string licenseExpression)
+        {
+            var parser = new LicenseExpressionParser();
+            var segmentator = new LicenseExpressionSegmentator();
+
+            var splitter = new LicenseExpressionSplitter(parser, segmentator);
+            return splitter.SplitExpression(licenseExpression);
+        }
     }
 }
