@@ -10,6 +10,16 @@ namespace NuGet.Services.Licenses
     public class LicenseExpressionSegmentator : ILicenseExpressionSegmentator
     {
         /// <summary>
+        /// Specifies the max license expression tree depth, so we don't run out of stack while trying to traverse it.
+        /// </summary>
+        /// <remarks>
+        /// Gallery limits the length of a license expression to 500 characters, which with the shortest sequence of glue (" OR ", spaces are required)
+        /// and [currently non-existent] single character license ID gives us about 100 levels in a tree. We'll double it for the purpose of limiting
+        /// the traverse depth to be on a safer side.
+        /// </remarks>
+        private const int MaxExpressionTreeDepth = 200;
+
+        /// <summary>
         /// Does an in-order traversal of a license expression tree restoring the sequence of tokens
         /// used in the expression (omitting all parentheses and whitespace)
         /// </summary>
@@ -115,46 +125,56 @@ namespace NuGet.Services.Licenses
 
         private static void TraverseExpressionTreeInOrder(NuGetLicenseExpression root, List<CompositeLicenseExpressionSegment> segmentList)
         {
-            switch (root.Type)
+            TraverseExpressionTreeInOrder(root, segmentList, 0);
+
+            void TraverseExpressionTreeInOrder(NuGetLicenseExpression currentRoot, List<CompositeLicenseExpressionSegment> segments, int depth)
             {
-                case LicenseExpressionType.License:
-                    {
-                        var licenseNode = (NuGetLicense)root;
-                        segmentList.Add(new CompositeLicenseExpressionSegment(licenseNode.Identifier, CompositeLicenseExpressionSegmentType.LicenseIdentifier));
-                        if (licenseNode.Plus)
-                        {
-                            segmentList.Add(new CompositeLicenseExpressionSegment("+", CompositeLicenseExpressionSegmentType.Operator));
-                        }
-                    }
-                    break;
+                if (depth >= MaxExpressionTreeDepth)
+                {
+                    throw new InvalidOperationException($"NuGet license expression tree exceeds the max depth limit of {MaxExpressionTreeDepth}");
+                }
 
-                case LicenseExpressionType.Operator:
-                    {
-                        var operatorNode = (LicenseOperator)root;
-                        if (operatorNode.OperatorType == LicenseOperatorType.LogicalOperator)
+                switch (currentRoot.Type)
+                {
+                    case LicenseExpressionType.License:
                         {
-                            var logicalOperator = (LogicalOperator)operatorNode;
-                            TraverseExpressionTreeInOrder(logicalOperator.Left, segmentList);
-                            segmentList.Add(new CompositeLicenseExpressionSegment(GetLogicalOperatorString(logicalOperator), CompositeLicenseExpressionSegmentType.Operator));
-                            TraverseExpressionTreeInOrder(logicalOperator.Right, segmentList);
+                            var licenseNode = (NuGetLicense)currentRoot;
+                            segments.Add(new CompositeLicenseExpressionSegment(licenseNode.Identifier, CompositeLicenseExpressionSegmentType.LicenseIdentifier));
+                            if (licenseNode.Plus)
+                            {
+                                segments.Add(new CompositeLicenseExpressionSegment("+", CompositeLicenseExpressionSegmentType.Operator));
+                            }
+                        }
+                        break;
 
-                        }
-                        else if (operatorNode.OperatorType == LicenseOperatorType.WithOperator)
+                    case LicenseExpressionType.Operator:
                         {
-                            var withOperator = (WithOperator)operatorNode;
-                            TraverseExpressionTreeInOrder(withOperator.License, segmentList);
-                            segmentList.Add(new CompositeLicenseExpressionSegment("WITH", CompositeLicenseExpressionSegmentType.Operator));
-                            segmentList.Add(new CompositeLicenseExpressionSegment(withOperator.Exception.Identifier, CompositeLicenseExpressionSegmentType.ExceptionIdentifier));
-                        }
-                        else
-                        {
-                            throw new InvalidOperationException($"Unknown operator type: {operatorNode.OperatorType}");
-                        }
-                    }
-                    break;
+                            var operatorNode = (LicenseOperator)currentRoot;
+                            if (operatorNode.OperatorType == LicenseOperatorType.LogicalOperator)
+                            {
+                                var logicalOperator = (LogicalOperator)operatorNode;
+                                TraverseExpressionTreeInOrder(logicalOperator.Left, segments, depth + 1);
+                                segments.Add(new CompositeLicenseExpressionSegment(GetLogicalOperatorString(logicalOperator), CompositeLicenseExpressionSegmentType.Operator));
+                                TraverseExpressionTreeInOrder(logicalOperator.Right, segments, depth + 1);
 
-                default:
-                    throw new InvalidOperationException($"Unknown node type: {root.Type}");
+                            }
+                            else if (operatorNode.OperatorType == LicenseOperatorType.WithOperator)
+                            {
+                                var withOperator = (WithOperator)operatorNode;
+                                TraverseExpressionTreeInOrder(withOperator.License, segments, depth + 1);
+                                segments.Add(new CompositeLicenseExpressionSegment("WITH", CompositeLicenseExpressionSegmentType.Operator));
+                                segments.Add(new CompositeLicenseExpressionSegment(withOperator.Exception.Identifier, CompositeLicenseExpressionSegmentType.ExceptionIdentifier));
+                            }
+                            else
+                            {
+                                throw new InvalidOperationException($"Unknown operator type: {operatorNode.OperatorType}");
+                            }
+                        }
+                        break;
+
+                    default:
+                        throw new InvalidOperationException($"Unknown node type: {currentRoot.Type}");
+                }
             }
         }
 
