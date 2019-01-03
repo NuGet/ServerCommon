@@ -44,6 +44,16 @@ namespace NuGet.Services.Licenses
         /// 
         /// It cannot restore extra whitespace and parentheses that might have been present in the original expression.
         /// </remarks>
+        /// <example>
+        /// Given the following expression:
+        /// (MIT OR  ISC OR GPL WITH   Classpath-exception)
+        /// will produce the following segments
+        /// LicenseIdentifier('MIT'), Operator('OR'), LicenseIdentifier('ISC'), Operator('OR'), LicenseIdentifier('GPL'), Operator('WITH'), ExceptionIdentifier('Classpath-exception')
+        /// Note, that parentheses and whitespace information is lost here.
+        /// 
+        /// LicenseIdentifier('MIT') is a shorthand for an instance of <see cref="CompositeLicenseExpressionSegment"/> class with <see cref="CompositeLicenseExpressionSegment.Type"/>
+        /// set to <see cref="CompositeLicenseExpressionSegmentType.LicenseIdentifier"/> and <see cref="CompositeLicenseExpressionSegment.Value"/> set to "MIT".
+        /// </example>
         List<CompositeLicenseExpressionSegment> GetLicenseExpressionSegments(NuGetLicenseExpression licenseExpressionRoot);
 
         /// <summary>
@@ -55,6 +65,21 @@ namespace NuGet.Services.Licenses
         /// <param name="licenseExpression">License expression string to get additional information from.</param>
         /// <param name="segments">List of the segments returned by <see cref="GetLicenseExpressionSegments(LicenseOperator)"/></param>
         /// <returns>The complete list of "segments" making up the license expression including any extra data it might have.</returns>
+        /// <example>
+        /// Given the following input:
+        ///     licenseExpression:
+        ///     (MIT OR  ISC OR GPL WITH   Classpath-exception)
+        ///
+        ///     segments:
+        ///     LicenseIdentifier('MIT'), Operator('OR'), LicenseIdentifier('ISC'), Operator('OR'), LicenseIdentifier('GPL'), Operator('WITH'), ExceptionIdentifier('Classpath-exception')
+        ///     
+        /// will produce the following output:
+        /// Other('('), LicenseIdentifier('MIT'), Other(' '), Operator('OR'), Other('  '), LicenseIdentifier('ISC'), Other(' '),
+        /// Operator('OR'), Other(' '), LicenseIdentifier('GPL'), Other(' '), Operator('WITH'), Other('   '),
+        /// ExceptionIdentifier('Classpath-exception'), Other(')')
+        /// 
+        /// Note, that parentheses and whitespace are kept in this case.
+        /// </example>
         List<CompositeLicenseExpressionSegment> SplitFullExpression(string licenseExpression, IReadOnlyCollection<CompositeLicenseExpressionSegment> segments);
     }
 }
