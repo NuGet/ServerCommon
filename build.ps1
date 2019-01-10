@@ -77,8 +77,7 @@ Invoke-BuildStep 'Set version metadata in AssemblyInfo.cs' { `
             "$PSScriptRoot\src\NuGet.Services.Status\Properties\AssemblyInfo.g.cs", `
             "$PSScriptRoot\src\NuGet.Services.Status.Table\Properties\AssemblyInfo.g.cs", `
             "$PSScriptRoot\src\NuGet.Services.Messaging\Properties\AssemblyInfo.g.cs", `
-            "$PSScriptRoot\src\NuGet.Services.Messaging.Email\Properties\AssemblyInfo.g.cs", `
-            "$PSScriptRoot\src\NuGet.Services.Entities\Properties\AssemblyInfo.g.cs"
+            "$PSScriptRoot\src\NuGet.Services.Messaging.Email\Properties\AssemblyInfo.g.cs"
             
         $versionMetadata | ForEach-Object {
             Set-VersionInfo -Path $_ -Version $SimpleVersion -Branch $Branch -Commit $CommitSHA
@@ -116,8 +115,7 @@ Invoke-BuildStep 'Creating artifacts' { `
             "src\NuGet.Services.Status\NuGet.Services.Status.csproj", `
             "src\NuGet.Services.Status.Table\NuGet.Services.Status.Table.csproj",
             "src\NuGet.Services.Messaging\NuGet.Services.Messaging.csproj",
-            "src\NuGet.Services.Messaging.Email\NuGet.Services.Messaging.Email.csproj",
-            "src\NuGet.Services.Entities\NuGet.Services.Entities.csproj"
+            "src\NuGet.Services.Messaging.Email\NuGet.Services.Messaging.Email.csproj"
             
         $projects | ForEach-Object {
             New-ProjectPackage (Join-Path $PSScriptRoot $_) -Configuration $Configuration -Symbols -BuildNumber $BuildNumber -Version $SemanticVersion -PackageId $packageId
