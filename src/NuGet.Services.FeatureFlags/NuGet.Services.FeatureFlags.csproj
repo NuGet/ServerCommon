@@ -60,7 +60,7 @@
     <Compile Include="IFlightUser.cs" />
     <Compile Include="Models\FeatureFlags.cs" />
     <Compile Include="Models\FeatureStatus.cs" />
-    <Compile Include="Models\FlightState.cs" />
+    <Compile Include="Models\Flight.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
