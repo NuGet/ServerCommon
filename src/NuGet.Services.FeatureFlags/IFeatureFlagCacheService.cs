@@ -36,7 +36,7 @@ namespace NuGet.Services.FeatureFlags
         /// <summary>
         /// Fetch the time at which the flags were last refreshed.
         /// </summary>
-        /// <returns>The latest cached flags, or null if the flags have never been loaded successfully.</returns>
-        DateTimeOffset? GetRefreshStartTimeOrNull();
+        /// <returns>The last time flags were refreshed, or null if the flags have never been loaded successfully.</returns>
+        DateTimeOffset? GetRefreshTimeOrNull();
     }
 }

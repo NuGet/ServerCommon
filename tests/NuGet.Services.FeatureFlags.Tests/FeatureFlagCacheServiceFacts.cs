@@ -20,7 +20,7 @@ namespace NuGet.Services.FeatureFlags.Tests
             public void ReturnsNullOnUnitialized()
             {
                 var flags = _target.GetLatestFlagsOrNull();
-                var lastRefresh = _target.GetRefreshStartTimeOrNull();
+                var lastRefresh = _target.GetRefreshTimeOrNull();
 
                 Assert.Null(flags);
                 Assert.Null(lastRefresh);
@@ -40,7 +40,7 @@ namespace NuGet.Services.FeatureFlags.Tests
 
                 // Act
                 var flags = _target.GetLatestFlagsOrNull();
-                var lastRefresh = _target.GetRefreshStartTimeOrNull();
+                var lastRefresh = _target.GetRefreshTimeOrNull();
 
                 // Assert
                 Assert.Same(_latestFlags, flags);

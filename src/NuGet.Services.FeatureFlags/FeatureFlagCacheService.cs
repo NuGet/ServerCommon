@@ -44,7 +44,7 @@ namespace NuGet.Services.FeatureFlags
             return _latestFlags?.FeatureFlags;
         }
 
-        public DateTimeOffset? GetRefreshStartTimeOrNull()
+        public DateTimeOffset? GetRefreshTimeOrNull()
         {
             return _latestFlags?.RefreshStartTime;
         }
