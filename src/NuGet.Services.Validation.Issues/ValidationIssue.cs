@@ -50,7 +50,7 @@ namespace NuGet.Services.Validation.Issues
             ValidationIssueCode.SymbolErrorCode_ChecksumDoesNotMatch,
             ValidationIssueCode.SymbolErrorCode_MatchingAssemblyNotFound,
             ValidationIssueCode.SymbolErrorCode_PdbIsNotPortable,
-            ValidationIssueCode.SymbolErrorCode_SnupkgDoesNotContainSymbols
+            ValidationIssueCode.SymbolErrorCode_SnupkgDoesNotContainSymbols,
         };
 
         /// <summary>
