@@ -365,7 +365,7 @@ Function Update-Submodule {
     }
 
     Trace-Log "Updating submodule $Name ($Path)."
-    $args = 'submodule', 'update', '--init', '--remote', '--recursive', '--', "$Path"
+    $args = 'submodule', 'update', '--init', '--remote', '--', "$Path"
     
     if (-not $VerbosePreference) {
         $args += '--quiet'
