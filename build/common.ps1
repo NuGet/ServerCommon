@@ -333,7 +333,7 @@ Function Invoke-Git {
 
 Function Reset-Submodules {
     Trace-Log 'Resetting submodules'
-    $args = 'submodule', 'foreach', '--recursive', 'git', 'reset', '--hard'
+    $args = 'submodule', 'foreach', 'git', 'reset', '--hard'
 
     Invoke-Git -Arguments $args
 }
