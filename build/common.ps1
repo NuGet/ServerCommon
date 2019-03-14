@@ -333,7 +333,7 @@ Function Invoke-Git {
 
 Function Reset-Submodules {
     Trace-Log 'Resetting submodules'
-    $args = 'submodule', 'foreach', 'git', 'reset', '--hard'
+    $args = 'submodule', 'deinit', '--all', '-f'
 
     Invoke-Git -Arguments $args
 }
@@ -365,7 +365,7 @@ Function Update-Submodule {
     }
 
     Trace-Log "Updating submodule $Name ($Path)."
-    $args = 'submodule', 'update', '--init', '--remote', '--', "$Path"
+    $args = 'submodule', 'update', '--init', '--remote', '--recursive', '--', "$Path"
     
     if (-not $VerbosePreference) {
         $args += '--quiet'
