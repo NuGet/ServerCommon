@@ -332,8 +332,7 @@ Function Update-Submodule {
         [string] $Name,
         [string] $Path,
         [string] $Branch,
-        [string] $RemoteUrl,
-        [switch] $Recursive
+        [string] $RemoteUrl
     )
 
     Trace-Log "Configuring submodule $Name ($Path) to use branch $Branch."
@@ -354,10 +353,7 @@ Function Update-Submodule {
     }
 
     Trace-Log "Updating submodule $Name ($Path)."
-    $args = 'submodule', 'update', '--init', '--remote', '--', "$Path"
-    if ($Recursive) {
-        $args += '--recursive'
-    }
+    $args = 'submodule', 'update', '--init', '--remote', '--', "$Path", '--recursive'
     
     if (-not $VerbosePreference) {
         $args += '--quiet'
