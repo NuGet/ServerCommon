@@ -16,6 +16,10 @@ namespace NuGet.Services.FeatureFlags
         /// <summary>
         /// Get whether a flight is enabled for a user. This method does not throw.
         /// </summary>
+        /// <remarks>
+        /// Enabling a flight for all users will include anonymous users. If the flight should never be
+        /// enabled for logged out users, perform an "is logged in" check before calling this API.
+        /// </remarks>
         /// <param name="flight">The unique identifier for this flight. This is case insensitive.</param>
         /// <param name="user">The user whose status should be determined, or null if the user is anonymous.</param>
         /// <param name="defaultValue">The value to return if the status of the flight is unknown.</param>
