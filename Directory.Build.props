@@ -1,0 +1,29 @@
+<Project>
+  <PropertyGroup>
+    <Authors>.NET Foundation</Authors>
+    <PackageLicenseUrl>https://github.com/NuGet/ServerCommon/blob/master/License.md</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/NuGet/ServerCommon</PackageProjectUrl>
+    <Copyright>© .NET Foundation. All rights reserved.</Copyright>
+    <IncludeSymbols Condition="'$(IncludeSymbols)' == ''">true</IncludeSymbols>
+    <NoPackageAnalysis Condition="'$(NoPackageAnalysis)' == ''">true</NoPackageAnalysis>
+
+    <!--
+      Our builds generate a file containing the desired assembly attributes.
+      To prevent duplicate attribute compilation errors, disable the SDK's attributes.
+      See: https://github.com/dotnet/sdk/blob/2df7f13c8c25e36e3620b62a420bc6b733e5bbb4/src/Tasks/Microsoft.NET.Build.Tasks/targets/Microsoft.NET.GenerateAssemblyInfo.targets#L65-L99
+      TODO: Remove this
+    -->
+    <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
+    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
+    <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <SignType Condition="'$(SignType)' == ''">none</SignType>
+  </PropertyGroup>
+  <Import Project="build\sign.targets" />
+  <Import Project="build\sign.microbuild.targets" />
+</Project>
