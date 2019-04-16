@@ -1,4 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
     <TargetFramework>net462</TargetFramework>
   </PropertyGroup>
@@ -8,4 +9,5 @@
       <Version>1.1.2</Version>
     </PackageReference>
   </ItemGroup>
+
 </Project>
