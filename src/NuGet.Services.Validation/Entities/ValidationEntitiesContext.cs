@@ -116,10 +116,6 @@ namespace NuGet.Services.Validation
         public IDbSet<PackageRevalidation> PackageRevalidations { get; set; }
         public IDbSet<SymbolsServerRequest> SymbolsServerRequests { get; set; }
 
-        // public ValidationEntitiesContext() : this("Validation.SqlServer")
-        // {
-        // }
-
         public ValidationEntitiesContext(string nameOrConnectionString) : base(nameOrConnectionString)
         {
         }
