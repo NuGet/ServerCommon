@@ -21,7 +21,8 @@ namespace NuGet.Services.Validation
         public static Func<ValidationEntitiesContext> ValidationEntitiesContextFactory;
         public ValidationEntitiesContext Create()
         {
-            return ValidationEntitiesContextFactory == null ? new ValidationEntitiesContext("Validation.SqlServer") : ValidationEntitiesContextFactory();
+            var factory = ValidationEntitiesContextFactory;
+            return factory == null ? new ValidationEntitiesContext("Validation.SqlServer") : factory();
         }
     }
 
