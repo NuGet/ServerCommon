@@ -1,5 +1,5 @@
 ### Constants ###
-$DefaultMSBuildVersion = '15'
+$DefaultMSBuildVersion = '16'
 $DefaultConfiguration = 'debug'
 $NuGetClientRoot = Split-Path -Path $PSScriptRoot -Parent
 $CLIRoot = Join-Path $NuGetClientRoot 'cli'
