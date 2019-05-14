@@ -82,6 +82,7 @@ Function Get-MSBuildExe {
         [int]$MSBuildVersion
     )
     
+    $KnownDockerPath = 'C:\Program Files (x86)\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\MSBuild.exe';
     $MSBuildPath = $null
 
     if ($MSBuildVersion -lt 15) {
@@ -115,6 +116,8 @@ Function Get-MSBuildExe {
         
         if ($installations.Count -ge 1) {
             $MSBuildPath = $installations[0]
+        } elseif (Test-Path $KnownDockerPath -and (Get-Item $KnownDockerPath).VersionInfo.ProductMajorPart -eq $MSBuildVersion) {
+            $MSBuildPath = $KnownDockerPath
         } else {
             Error-Log "Failed to find MSBuild $MSBuildVersion!"
         }
