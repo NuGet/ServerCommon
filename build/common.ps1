@@ -77,17 +77,51 @@ Function Clear-Artifacts {
     }
 }
 
+Function Get-MSBuildExeInternal([int]$MSBuildVersion)
+{
+    if ($MSBuildVersion -lt 15) {
+        $MSBuildExe = Join-Path $MSBuildRoot ([string]$MSBuildVersion + ".0")
+        $MSBuildPath = Join-Path $MSBuildExe $MSBuildExeRelPath
+        return $MSBuildPath;
+    } elseif ($MSBuildVersion -eq 16) {
+        $pathsToCheck = @(
+            "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2019\Community\MSBuild\Current\Bin\MSBuild.exe",
+            "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2019\Professional\MSBuild\Current\Bin\MSBuild.exe",
+            "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2019\Enterprise\MSBuild\Current\Bin\MSBuild.exe",
+            "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\MSBuild.exe",
+            "${env:ProgramFiles(x86)}\Microsoft Visual Studio\2019\Preview\MSBuild\Current\Bin\MSBuild.exe");
+
+        foreach ($msbuildPathCandidate in $pathsToCheck)
+        {
+            if (Test-Path -Path $msbuildPathCandidate -PathType Leaf)
+            {
+                $version = (Get-Item $msbuildPathCandidate).VersionInfo;
+                if ($version.ProductMajorPart -eq $MSBuildVersion)
+                {
+                    return $msbuildPathCandidate;
+                }
+            }
+        }
+    }
+
+    # checking if by chance proper msbuild is in PATH
+    $command = Get-Command msbuild -ErrorAction Ignore
+    if ($command -ne $null -and $command.Version.Major -eq $MSBuildVersion)
+    {
+        return $command.Path
+    }
+
+    return $null;
+}
+
 Function Get-MSBuildExe {
     param(
         [int]$MSBuildVersion
     )
     
-    $MSBuildPath = $null
+    $MSBuildPath = Get-MSBuildExeInternal -MSBuildVersion $MSBuildVersion
 
-    if ($MSBuildVersion -lt 15) {
-        $MSBuildExe = Join-Path $MSBuildRoot ([string]$MSBuildVersion + ".0")
-        $MSBuildPath = Join-Path $MSBuildExe $MSBuildExeRelPath
-    } else {
+    if ($MSBuildPath -eq $null) {
         # Check if VS package to use to find $NuGetBuildPackageId is installed. If not, install it.
         $buildPackageFound = [System.AppDomain]::CurrentDomain.GetAssemblies() | `
             Where-Object { $_.FullName -like "$($NuGetBuildPackageId), *" }
