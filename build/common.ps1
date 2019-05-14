@@ -116,7 +116,7 @@ Function Get-MSBuildExe {
         
         if ($installations.Count -ge 1) {
             $MSBuildPath = $installations[0]
-        } elseif (Test-Path $KnownDockerPath -and (Get-Item $KnownDockerPath).VersionInfo.ProductMajorPart -eq $MSBuildVersion) {
+        } elseif ((Test-Path $KnownDockerPath) -and ((Get-Item $KnownDockerPath).VersionInfo.ProductMajorPart -eq $MSBuildVersion)) {
             $MSBuildPath = $KnownDockerPath
         } else {
             Error-Log "Failed to find MSBuild $MSBuildVersion!"
