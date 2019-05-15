@@ -1,5 +1,5 @@
 ### Constants ###
-$DefaultMSBuildVersion = '15'
+$DefaultMSBuildVersion = '16'
 $DefaultConfiguration = 'debug'
 $NuGetClientRoot = Split-Path -Path $PSScriptRoot -Parent
 $CLIRoot = Join-Path $NuGetClientRoot 'cli'
@@ -107,8 +107,8 @@ Function Get-MSBuildExe {
         }
         
         $installations = @([NuGet.Services.Build.VisualStudioSetupConfigurationHelper]::GetInstancePaths() | ForEach-Object {
-            Join-Path "$_\MSBuild" ([string]$MSBuildVersion + ".0")
-            Join-Path $_ "MSBuild\Current"
+            [System.IO.Path]::Combine($_, "MSBuild", [string]$MSBuildVersion + ".0")
+            [System.IO.Path]::Combine($_, "MSBuild", "Current")
         } | ForEach-Object {
             Join-Path $_ $MSBuildExeRelPath
         } | Where-Object { Test-Path $_ } | Where-Object { (Get-Item $_).VersionInfo.ProductMajorPart -eq $MSBuildVersion })
