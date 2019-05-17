@@ -89,11 +89,9 @@ Function Get-MSBuildExe {
         $MSBuildPath = Join-Path $MSBuildExe $MSBuildExeRelPath
     } else {
         # Check if VS package to use to find $NuGetBuildPackageId is installed. If not, install it.
-        if (-not ([AppDomain]::CurrentDomain.GetAssemblies() | `
-            ForEach-Object { $_.GetTypes() } | `
-            Where-Object { `
-                $_.FullName -like "NuGet.Services.Build.VisualStudioSetupConfigurationHelper" `
-            }))
+        $buildPackageFound = [System.AppDomain]::CurrentDomain.GetAssemblies() | `
+            Where-Object { $_.FullName -like "$($NuGetBuildPackageId), *" }
+        if (-not $buildPackageFound)
         {
             Trace-Log "Installing and configuring $NuGetBuildPackageId"
             $opts = "install", $NuGetBuildPackageId, `
@@ -175,6 +173,18 @@ Function Invoke-BuildStep {
     }
 }
 
+Function Sign-Packages {
+    [CmdletBinding()]
+    param(
+        [string]$Configuration = $DefaultConfiguration,
+        [int]$BuildNumber = (Get-BuildNumber),
+        [string]$MSBuildVersion = $DefaultMSBuildVersion
+    )
+
+    $ProjectPath = Join-Path $PSScriptRoot "sign.proj"
+    Build-Solution $Configuration $BuildNumber -MSBuildVersion "$MSBuildVersion" $ProjectPath
+}
+
 Function Build-Solution {
     [CmdletBinding()]
     param(
@@ -196,6 +206,10 @@ Function Build-Solution {
     # Build the solution
     $opts = , $SolutionPath
     $opts += "/p:Configuration=$Configuration;BuildNumber=$(Format-BuildNumber $BuildNumber)"
+
+    # Build in parallel
+    # See https://docs.microsoft.com/en-us/visualstudio/msbuild/building-multiple-projects-in-parallel-with-msbuild?view=vs-2017#-maxcpucount-switch
+    $opts += "/m"
     
     if ($TargetProfile) {
         $opts += "/p:TargetProfile=$TargetProfile"
@@ -203,10 +217,6 @@ Function Build-Solution {
     
     if ($Target) {
         $opts += "/t:$Target"
-    }
-    
-    if (-not $VerbosePreference) {
-        $opts += '/verbosity:minimal'
     }
     
     if ($MSBuildProperties) {
@@ -222,6 +232,90 @@ Function Build-Solution {
     }
 }
 
+Function Invoke-FxCop {
+    [CmdletBinding()]
+    param(
+        [string]$Configuration = $DefaultConfiguration,
+        [int]$BuildNumber = (Get-BuildNumber),
+        [string]$MSBuildVersion = $DefaultMSBuildVersion,
+        [string]$SolutionPath,
+        [switch]$SkipRestore,
+        [string]$FxCopDirectory,
+        [string]$FxCopProject,
+        [string]$FxCopRuleSet,
+        [string]$FxCopNoWarn,
+        [string]$FxCopOutputDirectory
+    )
+    
+    # Ensure cleanup from previous runs
+    Get-ChildItem -Recurse "*.CodeAnalysisLog.xml" | Remove-Item
+    
+    $env:FXCOP_DIRECTORY = ''
+    $env:FXCOP_PROJECT = ''
+    $env:FXCOP_RULESET = ''
+    $env:FXCOP_RULESET_DIRECTORY = ''
+    $env:FXCOP_OUTPUT_DIRECTORY = ''
+    # Do not clear $env:FXCOP_NOWARN, in case set via VSTS variable (was additive)
+    
+    # Configure FxCop defaults
+    $codeAnalysisProps = Resolve-Path $(Join-Path 'build' 'nuget.codeanalysis.props')
+    
+    # Configure FxCop overrides
+    if ($FxCopDirectory) {
+        $env:FXCOP_DIRECTORY = $FxCopDirectory
+        Trace-Log "Using FXCOP_DIRECTORY=$env:FXCOP_DIRECTORY"
+                
+        if ($FxCopProject) {
+            $items = Get-ChildItem $(Join-Path $FxCopDirectory $FxCopProject) -Recurse
+            
+            if ($items.Count -gt 0) {
+                $env:FXCOP_PROJECT = $items[0]                
+                Trace-Log "Discovered FXCOP_PROJECT=$env:FXCOP_PROJECT"
+            }
+            else {
+                throw "Failed to find $FxCopProject under $FxCopDirectory"
+            }
+        }
+        
+        if ($FxCopRuleSet) {
+            # To support overrides, look for ruleset in build tools first and then fxcop directory.
+            $items = Get-ChildItem $(Join-Path $PSScriptRoot $FxCopRuleSet) -Recurse
+            if ($items.Count -eq 0) {
+                $items = Get-ChildItem $(Join-Path $FxCopDirectory $FxCopRuleSet) -Recurse
+            }
+            
+            if ($items.Count -gt 0) {
+                $env:FXCOP_RULESET = $items[0]
+                $env:FXCOP_RULESET_DIRECTORY = $($items[0]).Directory
+                Trace-Log "Discovered FXCOP_RULESET=$($items[0])"
+            }
+            else {
+                throw "Failed to find $FxCopRuleSet under $FxCopDirectory"
+            }
+        }
+    }
+    
+    if ($FxCopNoWarn) {
+        $env:FXCOP_NOWARN = $FxCopNoWarn
+        Trace-Log "Using FXCOP_NOWARN=$FxCopNoWarn"
+    }
+    
+    # Write FxCop logs to specific output directory
+    if ($FxCopOutputDirectory) {
+        if (-not (Test-Path $FxCopOutputDirectory)) {
+            New-Item $FxCopOutputDirectory -Type Directory
+        }
+        $env:FXCOP_OUTPUT_DIRECTORY = Resolve-Path $FxCopOutputDirectory
+        
+        Trace-Log "Using FXCOP_OUTPUT_DIRECTORY=$FxCopOutputDirectory"
+    }
+    
+    # Invoke using the msbuild RunCodeAnalysis target
+    $msBuildProps = "/p:CustomBeforeMicrosoftCSharpTargets=$codeAnalysisProps;SignType=none;CodeAnalysisVerbose=true"
+    
+    Build-Solution $Configuration $BuildNumber -MSBuildVersion "$MSBuildVersion" $SolutionPath -Target "Rebuild;RunCodeAnalysis" -MSBuildProperties $msBuildProps -SkipRestore:$SkipRestore
+}
+
 Function Invoke-Git {
     [CmdletBinding()]
     Param(
@@ -235,7 +329,7 @@ Function Invoke-Git {
 
 Function Reset-Submodules {
     Trace-Log 'Resetting submodules'
-    $args = 'submodule', 'foreach', 'git', 'reset', '--hard'
+    $args = 'submodule', 'deinit', '--all', '-f'
 
     Invoke-Git -Arguments $args
 }
@@ -268,9 +362,6 @@ Function Update-Submodule {
 
     Trace-Log "Updating submodule $Name ($Path)."
     $args = 'submodule', 'update', '--init', '--remote', '--', "$Path"
-    if (-not $VerbosePreference) {
-        $args += '--quiet'
-    }
 
     Invoke-Git -Arguments $args
 }
@@ -300,7 +391,7 @@ Function Install-NuGet {
     }
     
     Trace-Log 'Downloading latest prerelease of nuget.exe'
-    wget -UseBasicParsing https://dist.nuget.org/win-x86-commandline/v4.1.0/nuget.exe -OutFile $NuGetExe
+    wget -UseBasicParsing https://dist.nuget.org/win-x86-commandline/v4.9.3/nuget.exe -OutFile $NuGetExe
 }
 
 Function Configure-NuGetCredentials {
@@ -322,13 +413,6 @@ Function Configure-NuGetCredentials {
     }
 
     $opts = 'sources', 'update', '-NonInteractive', '-Name', "${FeedName}", '-Username', "${Username}"
-
-    if (-not $VerbosePreference) {
-        $opts += '-verbosity', 'quiet'
-    }
-    else {
-        $opts += '-verbosity', 'detailed'
-    }
 
     if ($PAT) {
         $opts += '-Password', "${PAT}"
@@ -358,9 +442,9 @@ Function Install-DotnetCLI {
 
     $installDotnet = Join-Path $CLIRoot "dotnet-install.ps1"
 
-    wget -UseBasicParsing 'https://raw.githubusercontent.com/dotnet/cli/rel/1.0.0-preview2/scripts/obtain/dotnet-install.ps1' -OutFile $installDotnet
+    wget -UseBasicParsing 'https://raw.githubusercontent.com/dotnet/cli/release/2.2.1xx/scripts/obtain/dotnet-install.ps1' -OutFile $installDotnet
 
-    & $installDotnet -Channel preview -i $CLIRoot -Version 1.0.0-preview2-003121
+    & $installDotnet -Channel preview -i $CLIRoot -Version 2.2.100-preview3-009430
 
     if (-not (Test-Path $DotNetExe)) {
         Error-Log "Unable to find dotnet.exe. The CLI install may have failed." -Fatal
@@ -408,10 +492,6 @@ Function Install-SolutionPackages {
     else {
         $opts += $SolutionPath
         $InstallLocation = Split-Path -Path $SolutionPath -Parent
-    }
-
-    if (-not $VerbosePreference) {
-        $opts += '-verbosity', 'quiet'
     }
     
     if ($ConfigFile) {
@@ -462,10 +542,6 @@ Function Restore-SolutionPackages {
     
     if ($ConfigFile) {
         $opts += '-configfile', $ConfigFile
-    }
-
-    if (-not $VerbosePreference) {
-        $opts += '-verbosity', 'quiet'
     }
 
     Trace-Log "Restoring packages @""$InstallLocation"""
@@ -564,6 +640,117 @@ Function New-Package {
     
     Trace-Log "$NuGetExe $opts"
     & $NuGetExe $opts
+    if (-not $?) {
+        Error-Log "Pack failed for @""$TargetFilePath"". Code: ${LASTEXITCODE}"
+    }
+}
+
+Function New-WebAppPackage {
+    [CmdletBinding()]
+    param(
+        [Alias('target')]
+        [string]$TargetFilePath,
+        [string]$TargetProfile,
+        [string]$Configuration,
+        [string]$BuildNumber,
+        [string]$MSBuildVersion = $DefaultMSBuildVersion
+    )
+    Trace-Log "Creating web app package from @""$TargetFilePath"""
+    
+    $MSBuildExe = Get-MSBuildExe $MSBuildVersion
+    
+    $opts = , $TargetFilePath
+    $opts += "/t:build"
+    
+    $opts += "/p:Configuration=$Configuration"
+    $opts += "/p:BuildNumber=$(Format-BuildNumber $BuildNumber)"
+    $opts += "/p:DeployOnBuild=true"
+    $opts += "/p:WebPublishMethod=Package"
+    $opts += "/p:PackageAsSingleFile=true"
+    $opts += "/p:PackageLocation=$Artifacts"
+    
+    if (-not (Test-Path $Artifacts)) {
+        New-Item $Artifacts -Type Directory
+    }
+    
+    Trace-Log "$MsBuildExe $opts"
+    & $MsBuildExe $opts
+    if (-not $?) {
+        Error-Log "Creating web app package failed for @""$TargetFilePath"". Code: ${LASTEXITCODE}"
+    }
+}
+
+Function New-ProjectPackage {
+    [CmdletBinding()]
+    param(
+        [Alias('target')]
+        [string]$TargetFilePath,
+        [string]$TargetProfile,
+        [string]$Configuration,
+        [string]$ReleaseLabel,
+        [string]$BuildNumber,
+        [switch]$NoPackageAnalysis,
+        [string]$PackageId,
+        [string]$Version,
+        [string]$MSBuildVersion = $DefaultMSBuildVersion,
+        [switch]$Symbols,
+        [string]$Branch,
+        [switch]$IncludeReferencedProjects,
+        [switch]$Sign
+    )
+    Trace-Log "Creating package from @""$TargetFilePath"""
+    
+    $MSBuildExe = Get-MSBuildExe $MSBuildVersion
+    
+    $opts = , $TargetFilePath
+    $opts += "/t:pack"
+    
+    $opts += "/p:Configuration=$Configuration;BuildNumber=$(Format-BuildNumber $BuildNumber)"
+    $opts += "/p:PackageOutputPath=$Artifacts"
+    
+    if (-not $Sign)
+    {
+        $opts += "/p:SignType=none"
+    }
+    
+    if ($PackageId) {
+        $opts += "/p:PackageId=$PackageId"
+    }
+    
+    if ($Version){
+        $PackageVersion = $Version
+    }
+    elseif ($ReleaseLabel) {
+        $PackageVersion = Get-PackageVersion $ReleaseLabel $BuildNumber
+    }
+    
+    if ($PackageVersion) {
+        $opts += "/p:PackageVersion=$PackageVersion"
+    }
+    
+    if ($TargetProfile) {
+        $opts += "/p:TargetProfile=$TargetProfile"
+    }
+    
+    if ($NoPackageAnalysis) {
+        $opts += '/p:NoPackageAnalysis=True'
+    }
+    
+    if ($Symbols) {
+        $opts += "/p:IncludeSymbols=True"
+    }
+    
+    if (-not (Test-Path $Artifacts)) {
+        New-Item $Artifacts -Type Directory
+    }
+    
+    $OutputDir = Join-Path $Artifacts $TargetProfile
+    if (-not (Test-Path $OutputDir)) {
+        New-Item $OutputDir -Type Directory
+    }
+    
+    Trace-Log "$MsBuildExe $opts"
+    & $MsBuildExe $opts
     if (-not $?) {
         Error-Log "Pack failed for @""$TargetFilePath"". Code: ${LASTEXITCODE}"
     }

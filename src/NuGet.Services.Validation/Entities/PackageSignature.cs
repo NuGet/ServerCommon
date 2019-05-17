@@ -22,22 +22,30 @@ namespace NuGet.Services.Validation
         public int PackageKey { get; set; }
 
         /// <summary>
-        /// The time at which this signature was created. A signature is valid as long as it was signed
-        /// before its certificates were revoked and/or expired. This timestamp SHOULD come from a trusted
-        /// timestamp authority.
+        /// The key to the end <see cref="Validation.EndCertificate"/> used to create this package signature.
         /// </summary>
-        public DateTime SignedAt { get; set; }
+        public long EndCertificateKey { get; set; }
 
         /// <summary>
-        /// The time at which this record was inserted into the database. This is used to detect signatures
-        /// that have been stuck in a "InGracePeriod" state for too long.
+        /// The time at which this record was created, used to detect signatures that are
+        /// stuck <see cref="PackageSignatureStatus.InGracePeriod"/>.
         /// </summary>
-        public DateTime CreatedAt { get; set; }
+        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
         /// <summary>
         /// The status for this signature.
         /// </summary>
         public PackageSignatureStatus Status { get; set; }
+
+        /// <summary>
+        /// The type of this signature.
+        /// </summary>
+        public PackageSignatureType Type { get; set; }
+
+        /// <summary>
+        /// Used for optimistic concurrency when updating package signatures.
+        /// </summary>
+        public byte[] RowVersion { get; set; }
 
         /// <summary>
         /// The <see cref="PackageSigningState"/> that owns this <see cref="PackageSignature"/>. If this signature
@@ -48,8 +56,13 @@ namespace NuGet.Services.Validation
         public virtual PackageSigningState PackageSigningState { get; set; }
 
         /// <summary>
-        /// The <see cref="Certificate"/>s used to generate this signature.
+        /// The <see cref="TrustedTimestamp"/>s that dates when this signature was created.
         /// </summary>
-        public virtual ICollection<Certificate> Certificates { get; set; }
+        public virtual ICollection<TrustedTimestamp> TrustedTimestamps { get; set; }
+
+        /// <summary>
+        /// The end <see cref="Validation.EndCertificate"/> used to create this package signature.
+        /// </summary>
+        public virtual EndCertificate EndCertificate { get; set; }
     }
 }

@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!--
+  "MicroBuild_NuPkgSigningEnabled" configures whether or not .nupkg files built will be signed.
+  We always sign .nupkg files as batch using "sign.proj" instead of part of the project build process.
+  -->
+  <PropertyGroup>
+    <MicroBuild_NuPkgSigningEnabled>false</MicroBuild_NuPkgSigningEnabled>
+  </PropertyGroup>
+
+  <!--
+  When we are not building a web app package, sign any time after build.
+  -->
+  <PropertyGroup Condition="'$(WebPublishMethod)' != 'Package'">
+    <EnumerateFilesToSignAfterTargets>AfterBuild</EnumerateFilesToSignAfterTargets>
+  </PropertyGroup>
+
+  <!--
+  When we are building a web app package, sign after collecting all of the DLLs into one folder but before the package
+  is created.
+  -->
+  <PropertyGroup Condition="'$(WebPublishMethod)' == 'Package'">
+    <EnumerateFilesToSignAfterTargets>PipelineCopyAllFilesToOneFolderForMsdeploy</EnumerateFilesToSignAfterTargets>
+    <PackageUsingManifestDependsOn>SignFiles</PackageUsingManifestDependsOn>
+  </PropertyGroup>
+
+  <!--
+  "EnumerateFilesToSign" is a custom target that runs after build and signs the output assembly of the project. This
+  target only runs if the "SignAssembly" is true (which enables delayed signing) and if "SignType" is not "none". This
+  latter condition is to allow builds to disable signing explicitly, which is an optimization for Cloud Service builds.
+  Cloud Service builds do a solution build then a "Publish" on the .ccproj. Only that "Publish" step needs to sign
+  things.
+  -->
+  <ItemGroup>
+    <SignFilesDependsOn Include="EnumerateFilesToSign" />
+  </ItemGroup>
+  <Target
+    Name="EnumerateFilesToSign"
+    AfterTargets="$(EnumerateFilesToSignAfterTargets)"
+    Condition="'$(SignAssembly)' == 'true' AND '$(SignType)' != 'none'">
+
+    <ItemGroup>
+      <OutputToSign Include="$(MSBuildProjectDirectory)\%(IntermediateAssembly.Identity)" />
+      <OutputToSign Include="$(TargetPath)" />
+    </ItemGroup>
+    <ItemGroup>
+      <FilesToSign
+        Include="%(OutputToSign.Identity)"
+        Condition="Exists('%(OutputToSign.Identity)')">
+        <Authenticode>Microsoft</Authenticode>
+        <StrongName>MsSharedLib72</StrongName>
+      </FilesToSign>
+    </ItemGroup>
+
+    <!--
+    When we are building a web app package, sign the third party assemblies and output assembly from the single folder
+    used for packaging.
+    -->
+    <ItemGroup Condition="'$(WebPublishMethod)' == 'Package'">
+      <FilesToSign
+        Include="$(WPPAllFilesInSingleFolder)\bin\%(ThirdPartyBinaries.Identity)"
+        Condition="Exists('$(WPPAllFilesInSingleFolder)\bin\%(ThirdPartyBinaries.Identity)')">
+        <Authenticode>3PartySHA2</Authenticode>
+      </FilesToSign>
+      <FilesToSign
+        Include="$(WPPAllFilesInSingleFolder)\bin\$(TargetFileName)"
+        Condition="Exists('$(WPPAllFilesInSingleFolder)\bin\$(TargetFileName)')">
+        <Authenticode>Microsoft</Authenticode>
+        <StrongName>MsSharedLib72</StrongName>
+      </FilesToSign>
+    </ItemGroup>
+
+    <Message Text="Count of files to sign: @(FilesToSign->Count())" Importance="High" />
+    <Message Text="Files to sign:%0A@(FilesToSign, '%0A')" Importance="High" />
+  </Target>
+</Project>

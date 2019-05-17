@@ -3,6 +3,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using System.Xml;
 using Newtonsoft.Json.Linq;
 
@@ -75,6 +77,7 @@ namespace NuGet.Services.AzureManagement
             }
         }
 
+        [SuppressMessage("Microsoft.Security.Xml", "CA3053:UseXmlSecureResolver", Justification = @"FxCop incorrectly reports that XmlResolver should be null on XmlReaderSettings and XmlDocument.")]
         /// <summary>
         /// Parses the result of https://management.azure.com/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.ClassicCompute/domainNames/{2}/slots/{3}?api-version=2016-11-01
         /// </summary>
@@ -90,12 +93,26 @@ namespace NuGet.Services.AzureManagement
                 // This contains the cscfg format configuration in XML format
                 var configuration = properties["configuration"].ToString();
 
-                var xmlConfig = new XmlDocument();
-                xmlConfig.LoadXml(configuration);
-                var instancesElement = xmlConfig.GetElementsByTagName("Instances")[0];
-                var instanceCount = int.Parse(instancesElement.Attributes["count"].InnerText);
+                using (var stringReader = new StringReader(configuration))
+                {
+                    var settings = new XmlReaderSettings()
+                    {
+                        DtdProcessing = DtdProcessing.Prohibit,
+                        XmlResolver = null
+                    };
 
-                return new CloudServiceProperties(uri, instanceCount);
+                    using (var xmlReader = XmlReader.Create(stringReader, settings))
+                    {
+                        var xmlConfig = new XmlDocument();
+                        xmlConfig.XmlResolver = null;
+
+                        xmlConfig.Load(xmlReader);
+                        var instancesElement = xmlConfig.GetElementsByTagName("Instances")[0];
+                        var instanceCount = int.Parse(instancesElement.Attributes["count"].InnerText);
+
+                        return new CloudServiceProperties(uri, instanceCount);
+                    }
+                }
             }
             catch (Exception e)
             {

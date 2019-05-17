@@ -19,7 +19,7 @@ namespace NuGet.Services.Cursor.Tests
         {
             var storageMock = CreateStorageMock();
             storageMock
-                .Protected().Setup<Task>("OnSave", ItExpr.IsAny<Uri>(), ItExpr.IsAny<StorageContent>(), ItExpr.IsAny<CancellationToken>())
+                .Protected().Setup<Task>("OnSave", ItExpr.IsAny<Uri>(), ItExpr.IsAny<StorageContent>(), true, ItExpr.IsAny<CancellationToken>())
                 .Returns(Task.FromResult(0))
                 .Verifiable();
 
@@ -33,7 +33,7 @@ namespace NuGet.Services.Cursor.Tests
         {
             var storageMock = CreateStorageMock();
             storageMock
-                .Protected().Setup<Task>("OnLoad", ItExpr.IsAny<Uri>(), ItExpr.IsAny<CancellationToken>())
+                .Protected().Setup<Task<StorageContent>>("OnLoad", ItExpr.IsAny<Uri>(), ItExpr.IsAny<CancellationToken>())
                 .Returns(Task.FromResult<StorageContent>(null))
                 .Verifiable();
 
@@ -47,7 +47,7 @@ namespace NuGet.Services.Cursor.Tests
         {
             var storageMock = CreateStorageMock();
             storageMock
-                .Protected().Setup<Task>("OnLoad", ItExpr.IsAny<Uri>(), ItExpr.IsAny<CancellationToken>())
+                .Protected().Setup<Task<StorageContent>>("OnLoad", ItExpr.IsAny<Uri>(), ItExpr.IsAny<CancellationToken>())
                 .Returns(Task.FromResult<StorageContent>(null));
 
             DateTimeOffset defaultValue = new DateTimeOffset(2017, 5, 5, 17, 8, 42, TimeSpan.Zero);
@@ -64,8 +64,8 @@ namespace NuGet.Services.Cursor.Tests
 
             var storageMock = CreateStorageMock();
             storageMock
-                .Protected().Setup<Task>("OnSave", ItExpr.IsAny<Uri>(), ItExpr.IsAny<StorageContent>(), ItExpr.IsAny<CancellationToken>())
-                .Callback<Uri, StorageContent, CancellationToken>((uri, content, token) => { savedContent = content; })
+                .Protected().Setup<Task>("OnSave", ItExpr.IsAny<Uri>(), ItExpr.IsAny<StorageContent>(), true, ItExpr.IsAny<CancellationToken>())
+                .Callback<Uri, StorageContent, bool, CancellationToken>((uri, content, overwrite, token) => { savedContent = content; })
                 .Returns(Task.FromResult(0));
 
             storageMock

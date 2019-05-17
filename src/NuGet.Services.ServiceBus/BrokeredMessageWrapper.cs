@@ -22,7 +22,28 @@ namespace NuGet.Services.ServiceBus
 
         public BrokeredMessage BrokeredMessage { get; }
 
+        public DateTimeOffset ExpiresAtUtc => new DateTimeOffset(BrokeredMessage.ExpiresAtUtc);
+
+        public TimeSpan TimeToLive
+        {
+            get => BrokeredMessage.TimeToLive;
+            set => BrokeredMessage.TimeToLive = value;
+        }
+
+        public int DeliveryCount => BrokeredMessage.DeliveryCount;
         public IDictionary<string, object> Properties => BrokeredMessage.Properties;
+        public DateTimeOffset EnqueuedTimeUtc => new DateTimeOffset(BrokeredMessage.EnqueuedTimeUtc);
+        public string MessageId
+        {
+            get => BrokeredMessage.MessageId;
+            set => BrokeredMessage.MessageId = value;
+        }
+
+        public DateTimeOffset ScheduledEnqueueTimeUtc
+        {
+            get => new DateTimeOffset(BrokeredMessage.ScheduledEnqueueTimeUtc);
+            set => BrokeredMessage.ScheduledEnqueueTimeUtc = new DateTime(value.UtcTicks, DateTimeKind.Utc);
+        }
 
         public string GetBody()
         {

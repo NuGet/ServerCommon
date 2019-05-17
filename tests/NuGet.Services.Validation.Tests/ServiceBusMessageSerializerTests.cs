@@ -11,13 +11,16 @@ namespace NuGet.Services.Validation.Tests
 {
     public class ServiceBusMessageSerializerTests
     {
+        private const string SchemaName = "SchemaName";
         private const string SchemaVersionKey = "SchemaVersion";
-        private const string TypeKey = "Type";
         private const string PackageId = "NuGet.Versioning";
-        private const string PackageVersion = "4.3.0";
+        private const string PackageVersion = "4.3";
+        private const string PackageNormalizedVersion = "4.3.0";
         private static readonly Guid ValidationTrackingId = new Guid("14b4c1b8-40e2-4d60-9db7-4b7195e807f5");
         private const string PackageValidationMessageDataType = "PackageValidationMessageData";
         private const int SchemaVersion1 = 1;
+        private const int DeliveryCount = 2;
+        private const int PackageKey = 123;
 
         public class TheSerializePackageValidationMessageDataMethod : Base
         {
@@ -25,7 +28,7 @@ namespace NuGet.Services.Validation.Tests
             public void ProducesExpectedMessage()
             {
                 // Arrange
-                var input = new PackageValidationMessageData(PackageId, PackageVersion, ValidationTrackingId);
+                var input = new PackageValidationMessageData(PackageId, PackageVersion, ValidationTrackingId, ValidatingType.Package, PackageKey);
 
                 // Act
                 var output = _target.SerializePackageValidationMessageData(input);
@@ -33,10 +36,28 @@ namespace NuGet.Services.Validation.Tests
                 // Assert
                 Assert.Contains(SchemaVersionKey, output.Properties.Keys);
                 Assert.Equal(SchemaVersion1, output.Properties[SchemaVersionKey]);
-                Assert.Contains(TypeKey, output.Properties.Keys);
-                Assert.Equal(PackageValidationMessageDataType, output.Properties[TypeKey]);
+                Assert.Contains(SchemaName, output.Properties.Keys);
+                Assert.Equal(PackageValidationMessageDataType, output.Properties[SchemaName]);
                 var body = output.GetBody();
-                Assert.Equal(TestData.SerializedPackageValidationMessageData1, body);
+                Assert.Equal(TestData.SerializedPackageValidationMessageDataPackage, body);
+            }
+
+            [Fact]
+            public void ProducesExpectedMessageForSymbols()
+            {
+                // Arrange
+                var input = new PackageValidationMessageData(PackageId, PackageVersion, ValidationTrackingId, ValidatingType.SymbolPackage, PackageKey);
+
+                // Act
+                var output = _target.SerializePackageValidationMessageData(input);
+
+                // Assert
+                Assert.Contains(SchemaVersionKey, output.Properties.Keys);
+                Assert.Equal(SchemaVersion1, output.Properties[SchemaVersionKey]);
+                Assert.Contains(SchemaName, output.Properties.Keys);
+                Assert.Equal(PackageValidationMessageDataType, output.Properties[SchemaName]);
+                var body = output.GetBody();
+                Assert.Equal(TestData.SerializedPackageValidationMessageDataSymbols, body);
             }
         }
 
@@ -44,11 +65,24 @@ namespace NuGet.Services.Validation.Tests
         {
             private const string TypeValue = "PackageValidationMessageData";
 
-            [Fact]
-            public void ProducesExpectedMessage()
+            public static IEnumerable<object[]> SerializedTestMessageData2 = new[]
+            {
+                new object[] { TestData.SerializedPackageValidationMessageData2, PackageKey },
+                new object[] { TestData.SerializedPackageValidationMessageDataWithNoEntityKey2, null}
+            };
+
+            public static IEnumerable<object[]> SerializedTestMessageDataForSymbols = new[]
+            {
+                new object[] { TestData.SerializedPackageValidationMessageDataSymbols, PackageKey },
+                new object[] { TestData.SerializedPackageValidationMessageDataSymbolsWithNoEntityKey, null}
+            };
+
+            [Theory]
+            [MemberData(nameof(SerializedTestMessageData2))]
+            public void ProducesExpectedMessage(string serializedMessage, int? expectedKey)
             {
                 // Arrange
-                var brokeredMessage = GetBrokeredMessage();
+                var brokeredMessage = GetBrokeredMessage(serializedMessage);
 
                 // Act
                 var output = _target.DeserializePackageValidationMessageData(brokeredMessage.Object);
@@ -56,7 +90,50 @@ namespace NuGet.Services.Validation.Tests
                 // Assert
                 Assert.Equal(PackageId, output.PackageId);
                 Assert.Equal(PackageVersion, output.PackageVersion);
+                Assert.Equal(PackageNormalizedVersion, output.PackageNormalizedVersion);
                 Assert.Equal(ValidationTrackingId, output.ValidationTrackingId);
+                Assert.Equal(DeliveryCount, output.DeliveryCount);
+                Assert.Equal(ValidatingType.Package, output.ValidatingType);
+                Assert.Equal(expectedKey, output.EntityKey);
+            }
+
+            [Fact]
+            public void ProducesExpectedMessageForPreviousVersion()
+            {
+                // Arrange
+                var brokeredMessage = GetBrokeredMessagePrevious();
+
+                // Act
+                var output = _target.DeserializePackageValidationMessageData(brokeredMessage.Object);
+
+                // Assert
+                Assert.Equal(PackageId, output.PackageId);
+                Assert.Equal(PackageVersion, output.PackageVersion);
+                Assert.Equal(PackageNormalizedVersion, output.PackageNormalizedVersion);
+                Assert.Equal(ValidationTrackingId, output.ValidationTrackingId);
+                Assert.Equal(DeliveryCount, output.DeliveryCount);
+                Assert.Equal(ValidatingType.Package, output.ValidatingType);
+                Assert.Null(output.EntityKey);
+            }
+
+            [Theory]
+            [MemberData(nameof(SerializedTestMessageDataForSymbols))]
+            public void ProducesExpectedMessageForSymbols(string serializedMessage, int? expectedKey)
+            {
+                // Arrange
+                var brokeredMessage = GetBrokeredSymbolMessage(serializedMessage);
+
+                // Act
+                var output = _target.DeserializePackageValidationMessageData(brokeredMessage.Object);
+
+                // Assert
+                Assert.Equal(PackageId, output.PackageId);
+                Assert.Equal(PackageVersion, output.PackageVersion);
+                Assert.Equal(PackageNormalizedVersion, output.PackageNormalizedVersion);
+                Assert.Equal(ValidationTrackingId, output.ValidationTrackingId);
+                Assert.Equal(DeliveryCount, output.DeliveryCount);
+                Assert.Equal(ValidatingType.SymbolPackage, output.ValidatingType);
+                Assert.Equal(expectedKey, output.EntityKey);
             }
 
             [Fact]
@@ -64,12 +141,12 @@ namespace NuGet.Services.Validation.Tests
             {
                 // Arrange
                 var brokeredMessage = GetBrokeredMessage();
-                brokeredMessage.Object.Properties[TypeKey] = "bad";
+                brokeredMessage.Object.Properties[SchemaName] = "bad";
 
                 // Act & Assert
                 var exception = Assert.Throws<FormatException>(() =>
                     _target.DeserializePackageValidationMessageData(brokeredMessage.Object));
-                Assert.Contains($"The provided message should have {TypeKey} property '{PackageValidationMessageDataType}'.", exception.Message);
+                Assert.Contains($"The provided message should have {SchemaName} property '{PackageValidationMessageDataType}'.", exception.Message);
             }
 
             [Fact]
@@ -90,12 +167,12 @@ namespace NuGet.Services.Validation.Tests
             {
                 // Arrange
                 var brokeredMessage = GetBrokeredMessage();
-                brokeredMessage.Object.Properties.Remove(TypeKey);
+                brokeredMessage.Object.Properties.Remove(SchemaName);
 
                 // Act & Assert
                 var exception = Assert.Throws<FormatException>(() =>
                     _target.DeserializePackageValidationMessageData(brokeredMessage.Object));
-                Assert.Contains($"The provided message does not have a {TypeKey} property.", exception.Message);
+                Assert.Contains($"The provided message does not have a {SchemaName} property.", exception.Message);
             }
 
             [Fact]
@@ -116,12 +193,12 @@ namespace NuGet.Services.Validation.Tests
             {
                 // Arrange
                 var brokeredMessage = GetBrokeredMessage();
-                brokeredMessage.Object.Properties[TypeKey] = -1;
+                brokeredMessage.Object.Properties[SchemaName] = -1;
 
                 // Act & Assert
                 var exception = Assert.Throws<FormatException>(() =>
                     _target.DeserializePackageValidationMessageData(brokeredMessage.Object));
-                Assert.Contains($"The provided message contains a {TypeKey} property that is not a string.", exception.Message);
+                Assert.Contains($"The provided message contains a {SchemaName} property that is not a string.", exception.Message);
             }
 
             [Fact]
@@ -137,17 +214,58 @@ namespace NuGet.Services.Validation.Tests
                 Assert.Contains($"The provided message contains a {SchemaVersionKey} property that is not an integer.", exception.Message);
             }
 
-            private static Mock<IBrokeredMessage> GetBrokeredMessage()
+            private static Mock<IBrokeredMessage> GetBrokeredMessage(string expectedMessage = null)
+            {
+                var brokeredMessage = new Mock<IBrokeredMessage>();
+                brokeredMessage
+                    .Setup(x => x.GetBody())
+                    .Returns(expectedMessage ?? TestData.SerializedPackageValidationMessageData2);
+                brokeredMessage
+                    .Setup(x => x.DeliveryCount)
+                    .Returns(DeliveryCount);
+                brokeredMessage
+                    .Setup(x => x.Properties)
+                    .Returns(new Dictionary<string, object>
+                    {
+                        { SchemaName, PackageValidationMessageDataType },
+                        { SchemaVersionKey, SchemaVersion1 }
+                    });
+                return brokeredMessage;
+            }
+
+            private static Mock<IBrokeredMessage> GetBrokeredMessagePrevious()
             {
                 var brokeredMessage = new Mock<IBrokeredMessage>();
                 brokeredMessage
                     .Setup(x => x.GetBody())
                     .Returns(TestData.SerializedPackageValidationMessageData1);
                 brokeredMessage
+                    .Setup(x => x.DeliveryCount)
+                    .Returns(DeliveryCount);
+                brokeredMessage
                     .Setup(x => x.Properties)
                     .Returns(new Dictionary<string, object>
                     {
-                        { TypeKey, PackageValidationMessageDataType },
+                        { SchemaName, PackageValidationMessageDataType },
+                        { SchemaVersionKey, SchemaVersion1 }
+                    });
+                return brokeredMessage;
+            }
+
+            private static Mock<IBrokeredMessage> GetBrokeredSymbolMessage(string serializedMessage = null)
+            {
+                var brokeredMessage = new Mock<IBrokeredMessage>();
+                brokeredMessage
+                    .Setup(x => x.GetBody())
+                    .Returns(serializedMessage ?? TestData.SerializedPackageValidationMessageDataSymbols);
+                brokeredMessage
+                    .Setup(x => x.DeliveryCount)
+                    .Returns(DeliveryCount);
+                brokeredMessage
+                    .Setup(x => x.Properties)
+                    .Returns(new Dictionary<string, object>
+                    {
+                        { SchemaName, PackageValidationMessageDataType },
                         { SchemaVersionKey, SchemaVersion1 }
                     });
                 return brokeredMessage;
