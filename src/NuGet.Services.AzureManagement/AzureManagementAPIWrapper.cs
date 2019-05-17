@@ -40,6 +40,12 @@ namespace NuGet.Services.AzureManagement
                 throw new ArgumentException(nameof(configuration.ClientSecret));
             }
 
+            if (string.IsNullOrEmpty(configuration.AadTenant))
+            {
+                throw new ArgumentException(nameof(configuration.AadTenant));
+            }
+
+
             _clientCredential = new ClientCredential(configuration.ClientId, configuration.ClientSecret);
             _authority = string.Format(CultureInfo.InvariantCulture, AuthorityTemplate, configuration.AadTenant);
         }
