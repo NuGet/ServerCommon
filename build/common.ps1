@@ -173,6 +173,18 @@ Function Invoke-BuildStep {
     }
 }
 
+Function Sign-Packages {
+    [CmdletBinding()]
+    param(
+        [string]$Configuration = $DefaultConfiguration,
+        [int]$BuildNumber = (Get-BuildNumber),
+        [string]$MSBuildVersion = $DefaultMSBuildVersion
+    )
+
+    $ProjectPath = Join-Path $PSScriptRoot "sign.proj"
+    Build-Solution $Configuration $BuildNumber -MSBuildVersion "$MSBuildVersion" $ProjectPath
+}
+
 Function Build-Solution {
     [CmdletBinding()]
     param(
@@ -299,11 +311,7 @@ Function Invoke-FxCop {
     }
     
     # Invoke using the msbuild RunCodeAnalysis target
-    $msBuildProps = "/p:CustomBeforeMicrosoftCSharpTargets=$codeAnalysisProps;SignType=none"
-    
-    if ($VerbosePreference) {
-        $msBuildProps += ";CodeAnalysisVerbose=true"
-    }
+    $msBuildProps = "/p:CustomBeforeMicrosoftCSharpTargets=$codeAnalysisProps;SignType=none;CodeAnalysisVerbose=true"
     
     Build-Solution $Configuration $BuildNumber -MSBuildVersion "$MSBuildVersion" $SolutionPath -Target "Rebuild;RunCodeAnalysis" -MSBuildProperties $msBuildProps -SkipRestore:$SkipRestore
 }
@@ -321,7 +329,7 @@ Function Invoke-Git {
 
 Function Reset-Submodules {
     Trace-Log 'Resetting submodules'
-    $args = 'submodule', 'foreach', 'git', 'reset', '--hard'
+    $args = 'submodule', 'deinit', '--all', '-f'
 
     Invoke-Git -Arguments $args
 }
@@ -354,9 +362,6 @@ Function Update-Submodule {
 
     Trace-Log "Updating submodule $Name ($Path)."
     $args = 'submodule', 'update', '--init', '--remote', '--', "$Path"
-    if (-not $VerbosePreference) {
-        $args += '--quiet'
-    }
 
     Invoke-Git -Arguments $args
 }
@@ -386,7 +391,7 @@ Function Install-NuGet {
     }
     
     Trace-Log 'Downloading latest prerelease of nuget.exe'
-    wget -UseBasicParsing https://dist.nuget.org/win-x86-commandline/v4.4.1/nuget.exe -OutFile $NuGetExe
+    wget -UseBasicParsing https://dist.nuget.org/win-x86-commandline/v4.9.3/nuget.exe -OutFile $NuGetExe
 }
 
 Function Configure-NuGetCredentials {
