@@ -38,4 +38,8 @@
     <ProjectReference Include="..\NuGet.Services.Contracts\NuGet.Services.Contracts.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="System.Web" />
+  </ItemGroup>
+
 </Project>

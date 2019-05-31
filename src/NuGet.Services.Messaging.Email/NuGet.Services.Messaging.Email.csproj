@@ -17,4 +17,8 @@
     <ProjectReference Include="..\NuGet.Services.Messaging\NuGet.Services.Messaging.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Reference Include="System.Web" />
+  </ItemGroup>
+
 </Project>
