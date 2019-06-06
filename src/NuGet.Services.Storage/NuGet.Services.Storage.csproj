@@ -4,9 +4,7 @@
     <TargetFramework>net462</TargetFramework>
     <Title>NuGet.Services.Storage</Title>
     <Description>Shared server-side storage component for NuGet services</Description>
-    <Company>.NET Foundation</Company>
     <Product>NuGet.Services.Storage</Product>
-    <Copyright>Copyright © .NET Foundation 2017</Copyright>
   </PropertyGroup>
 
   <ItemGroup>

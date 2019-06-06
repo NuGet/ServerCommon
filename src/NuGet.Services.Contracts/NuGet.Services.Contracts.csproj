@@ -5,8 +5,6 @@
     <Title>NuGet.Services.Contracts</Title>
     <Product>NuGet.Services.Contracts</Product>
     <Description>Interfaces used for NuGet services</Description>
-    <Copyright>Copyright © .NET Foundation 2017</Copyright>
-    <Company>.NET Foundation</Company>
   </PropertyGroup>
 
 </Project>

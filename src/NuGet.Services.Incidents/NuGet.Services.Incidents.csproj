@@ -5,8 +5,6 @@
     <Title>NuGet.Services.Incidents</Title>
     <Product>NuGet.Services.Incidents</Product>
     <Description>A framework to access the NuGet incident API.</Description>
-    <Copyright>Copyright © .NET Foundation 2018</Copyright>
-    <Company>.NET Foundation</Company>
   </PropertyGroup>
 
   <ItemGroup>

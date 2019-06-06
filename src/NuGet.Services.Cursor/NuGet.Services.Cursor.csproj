@@ -4,9 +4,7 @@
     <TargetFramework>net462</TargetFramework>
     <Title>NuGet.Services.Cursor</Title>
     <Description>Shared cursor classes</Description>
-    <Company>.NET Foundation</Company>
     <Product>NuGet.Services.Cursor</Product>
-    <Copyright>Copyright © .NET Foundation 2017</Copyright>
   </PropertyGroup>
 
   <ItemGroup>

@@ -4,9 +4,7 @@
     <TargetFramework>net462</TargetFramework>
     <Title>NuGet.Services.Licenses</Title>
     <Description>Common license expression code</Description>
-    <Company>.NET Foundation</Company>
     <Product>NuGet.Services.Licenses</Product>
-    <Copyright>Copyright © .NET Foundation 2018</Copyright>
   </PropertyGroup>
 
   <ItemGroup>

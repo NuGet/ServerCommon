@@ -4,9 +4,7 @@
     <TargetFramework>net462</TargetFramework>
     <Title>NuGet.Services.Owin</Title>
     <Description>Shared Owin code for the NuGet projects</Description>
-    <Company>.NET Foundation</Company>
     <Product>NuGet.Services.Owin</Product>
-    <Copyright>Copyright © .NET Foundation 2017</Copyright>
   </PropertyGroup>
 
   <ItemGroup>

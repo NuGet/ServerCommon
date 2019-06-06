@@ -5,8 +5,6 @@
     <Description>Azure Management tools for NuGet services</Description>
     <Title>NuGet.Services.AzureManagement</Title>
     <Product>NuGet.Services.AzureManagement</Product>
-    <Copyright>Copyright © .NET Foundation 2015</Copyright>
-    <Company>.NET Foundation</Company>
   </PropertyGroup>
 
   <ItemGroup>

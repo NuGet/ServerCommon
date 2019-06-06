@@ -3,7 +3,8 @@
     <Authors>.NET Foundation</Authors>
     <PackageLicenseUrl>https://github.com/NuGet/ServerCommon/blob/master/License.md</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/NuGet/ServerCommon</PackageProjectUrl>
-    <Copyright>© .NET Foundation. All rights reserved.</Copyright>
+    <Copyright>Copyright © .NET Foundation 2019</Copyright>
+    <Company>.NET Foundation</Company>
     <IncludeSymbols Condition="'$(IncludeSymbols)' == ''">true</IncludeSymbols>
     <NoPackageAnalysis Condition="'$(NoPackageAnalysis)' == ''">true</NoPackageAnalysis>
 

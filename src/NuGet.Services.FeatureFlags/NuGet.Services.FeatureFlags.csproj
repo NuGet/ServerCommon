@@ -5,8 +5,6 @@
     <Title>NuGet.Services.FeatureFlags</Title>
     <Product>NuGet.Services.FeatureFlags</Product>
     <Description>Dynamic feature toggles</Description>
-    <Copyright>Copyright © .NET Foundation 2019</Copyright>
-    <Company>.NET Foundation</Company>
   </PropertyGroup>
 
   <ItemGroup>
