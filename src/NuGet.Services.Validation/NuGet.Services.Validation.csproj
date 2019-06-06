@@ -2,6 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>net462</TargetFramework>
+    <Title>NuGet.Services.Validation</Title>
+    <Product>NuGet.Services.Validation</Product>
+    <Description>Logic shared between the front-end and back-end concerning asynchronous validation</Description>
+    <Copyright>Copyright © .NET Foundation 2017</Copyright>
+    <Company>.NET Foundation</Company>
   </PropertyGroup>
 
   <ItemGroup>

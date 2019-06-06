@@ -2,6 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>net462</TargetFramework>
+    <Title>NuGet.Services.Messaging.Email</Title>
+    <Product>NuGet.Services.Messaging.Email</Product>
+    <Description>Components shared between the front-end and back-end concerning email messaging</Description>
+    <Copyright>Copyright © .NET Foundation 2018</Copyright>
+    <Company>.NET Foundation</Company>
   </PropertyGroup>
 
   <ItemGroup>

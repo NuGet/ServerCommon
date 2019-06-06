@@ -2,6 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>net462</TargetFramework>
+    <Title>NuGet.Services.Configuration</Title>
+    <Description>Shared configuration management NuGet services.</Description>
+    <Product>NuGet.Services.Configuration</Product>
+    <Company>.NET Foundation</Company>
+    <Copyright>Copyright © .NET Foundation 2016</Copyright>
   </PropertyGroup>
 
   <ItemGroup>

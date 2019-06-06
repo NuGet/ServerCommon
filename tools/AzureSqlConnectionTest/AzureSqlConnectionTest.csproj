@@ -2,6 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>net462</TargetFramework>
+    <Title>AzureSqlConnectionTest</Title>
+    <Description>Tool for testing AAD authenticated SQL connections using NuGet.Services.Sql</Description>
+    <Product>AzureSqlConnectionTest</Product>
+    <Copyright>Copyright © .NET Foundation 2017</Copyright>
+    <Version>1.0.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

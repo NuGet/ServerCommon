@@ -2,6 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>net462</TargetFramework>
+    <Title>NuGet.Services.Validation.Issues</Title>
+    <Product>NuGet.Services.Validation.Issues</Product>
+    <Description>User-visible issues emitted by NuGet services</Description>
+    <Copyright>Copyright © .NET Foundation 2017</Copyright>
+    <Company>.NET Foundation</Company>
   </PropertyGroup>
 
   <ItemGroup>

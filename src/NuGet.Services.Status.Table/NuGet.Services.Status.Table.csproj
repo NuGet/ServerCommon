@@ -2,6 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>net462</TargetFramework>
+    <Title>NuGet.Services.Status.Table</Title>
+    <Product>NuGet.Services.Status.Table</Product>
+    <Description>Contract to store NuGet service status in tables.</Description>
+    <Copyright>Copyright © .NET Foundation 2018</Copyright>
+    <Company>.NET Foundation</Company>
   </PropertyGroup>
 
   <ItemGroup>

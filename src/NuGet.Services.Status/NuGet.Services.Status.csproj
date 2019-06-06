@@ -2,6 +2,11 @@
 
   <PropertyGroup>
     <TargetFramework>net462</TargetFramework>
+    <Title>NuGet.Services.Status</Title>
+    <Product>NuGet.Services.Status</Product>
+    <Description>A framework to produce and consume status reported about NuGet services.</Description>
+    <Copyright>Copyright © .NET Foundation 2018</Copyright>
+    <Company>.NET Foundation</Company>
   </PropertyGroup>
 
   <ItemGroup>

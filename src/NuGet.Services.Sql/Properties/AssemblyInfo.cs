@@ -5,13 +5,8 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
-[assembly: AssemblyTitle("NuGet.Services.Sql")]
-[assembly: AssemblyProduct("NuGet.Services.Sql")]
 [assembly: ComVisible(false)]
 [assembly: Guid("f5121b0a-669f-48bd-86dc-27c546d1a825")]
-[assembly: AssemblyDescription("Azure SQL access for NuGet services")]
-[assembly: AssemblyCopyright("Copyright © .NET Foundation 2018")]
-[assembly: AssemblyCompany(".NET Foundation")]
 
 // Assembly version info is set at build time
 
