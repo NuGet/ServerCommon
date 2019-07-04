@@ -42,6 +42,8 @@ namespace NuGet.Services.Configuration
             InjectSecrets();
         }
 
+        public IEnumerable<Microsoft.Extensions.Configuration.IConfigurationProvider> Providers => _configuration.Providers;
+
         public string this[string key]
         {
             get
