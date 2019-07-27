@@ -1,67 +1,29 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{A8CBD319-72B4-4C07-832B-5355ACCEE83A}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NuGet.Services.FeatureFlags</RootNamespace>
-    <AssemblyName>NuGet.Services.FeatureFlags</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <Deterministic>true</Deterministic>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup>
-    <PackageId Condition="'$(PackageId)' == ''">$(MSBuildProjectName)</PackageId>
+    <TargetFramework>net462</TargetFramework>
+
+    <Title>NuGet.Services.FeatureFlags</Title>
+    <Product>NuGet.Services.FeatureFlags</Product>
+    <Description>Dynamic feature toggles</Description>
     <Authors>.NET Foundation</Authors>
     <PackageLicenseUrl>https://github.com/NuGet/ServerCommon/blob/master/License.md</PackageLicenseUrl>
     <PackageProjectUrl>https://github.com/NuGet/ServerCommon</PackageProjectUrl>
-    <Copyright>© .NET Foundation. All rights reserved.</Copyright>
+    <Copyright>Copyright © .NET Foundation 2019</Copyright>
+    <Company>.NET Foundation</Company>
+
     <IncludeSymbols Condition="'$(IncludeSymbols)' == ''">true</IncludeSymbols>
     <NoPackageAnalysis Condition="'$(NoPackageAnalysis)' == ''">true</NoPackageAnalysis>
+
+    <!--
+      Our builds generate a file containing the desired assembly version attributes.
+      To prevent duplicate attribute compilation errors, disable the SDK's attributes.
+      See: https://github.com/dotnet/sdk/blob/2df7f13c8c25e36e3620b62a420bc6b733e5bbb4/src/Tasks/Microsoft.NET.Build.Tasks/targets/Microsoft.NET.GenerateAssemblyInfo.targets#L65-L99
+    -->
+    <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
   </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="FeatureFlagClient.cs" />
-    <Compile Include="FeatureFlagOptions.cs" />
-    <Compile Include="FeatureFlagCacheService.cs" />
-    <Compile Include="IFeatureFlagClient.cs" />
-    <Compile Include="IFeatureFlagCacheService.cs" />
-    <Compile Include="IFeatureFlagStorageService.cs" />
-    <Compile Include="IFeatureFlagTelemetryService.cs" />
-    <Compile Include="IFlightUser.cs" />
-    <Compile Include="Models\FeatureFlags.cs" />
-    <Compile Include="Models\FeatureStatus.cs" />
-    <Compile Include="Models\Flight.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
+
   <ItemGroup>
     <PackageReference Include="MicroBuild.Core">
       <Version>0.3.0</Version>
@@ -71,16 +33,11 @@
     <PackageReference Include="Microsoft.Extensions.Logging">
       <Version>1.1.2</Version>
     </PackageReference>
-    <PackageReference Include="NuGet.Build.Tasks.Pack">
-      <Version>4.8.0</Version>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-      <PrivateAssets>all</PrivateAssets>
-    </PackageReference>
     <PackageReference Include="System.Net.Http">
       <Version>4.3.4</Version>
     </PackageReference>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+
   <PropertyGroup>
     <SignType Condition="'$(SignType)' == ''">none</SignType>
   </PropertyGroup>
