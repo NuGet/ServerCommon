@@ -1,12 +1,11 @@
 <Project>
   <PropertyGroup>
     <Authors>.NET Foundation</Authors>
-    <PackageLicenseUrl>https://github.com/NuGet/ServerCommon/blob/master/License.md</PackageLicenseUrl>
+    <PackageLicenseExpression>Apache-2.0</PackageLicenseExpression>
     <PackageProjectUrl>https://github.com/NuGet/ServerCommon</PackageProjectUrl>
     <Copyright>© .NET Foundation. All rights reserved.</Copyright>
     <Company>.NET Foundation</Company>
     <IncludeSymbols Condition="'$(IncludeSymbols)' == ''">true</IncludeSymbols>
-    <NoPackageAnalysis Condition="'$(NoPackageAnalysis)' == ''">true</NoPackageAnalysis>
 
     <!--
       Our builds generate a file containing the desired assembly version attributes.
