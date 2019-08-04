@@ -2,9 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net462</TargetFramework>
-    <Title>NuGet.Services.Cursor</Title>
     <Description>Shared cursor classes</Description>
-    <Product>NuGet.Services.Cursor</Product>
   </PropertyGroup>
 
   <ItemGroup>

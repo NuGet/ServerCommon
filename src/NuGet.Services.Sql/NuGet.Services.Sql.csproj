@@ -2,8 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net462</TargetFramework>
-    <Title>NuGet.Services.Sql</Title>
-    <Product>NuGet.Services.Sql</Product>
     <Description>Azure SQL access for NuGet services</Description>
   </PropertyGroup>
 

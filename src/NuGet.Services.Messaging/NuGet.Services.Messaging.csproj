@@ -2,8 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net462</TargetFramework>
-    <Title>NuGet.Services.Messaging</Title>
-    <Product>NuGet.Services.Messaging</Product>
     <Description>Logic shared between the front-end and back-end concerning asynchronous messaging</Description>
   </PropertyGroup>
 

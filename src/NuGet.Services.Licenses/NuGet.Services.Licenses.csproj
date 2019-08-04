@@ -2,9 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net462</TargetFramework>
-    <Title>NuGet.Services.Licenses</Title>
     <Description>Common license expression code</Description>
-    <Product>NuGet.Services.Licenses</Product>
   </PropertyGroup>
 
   <ItemGroup>

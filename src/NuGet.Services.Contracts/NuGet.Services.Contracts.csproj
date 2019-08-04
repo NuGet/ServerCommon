@@ -2,8 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net462</TargetFramework>
-    <Title>NuGet.Services.Contracts</Title>
-    <Product>NuGet.Services.Contracts</Product>
     <Description>Interfaces used for NuGet services</Description>
   </PropertyGroup>
 

@@ -2,9 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net462</TargetFramework>
-    <Title>NuGet.Services.Owin</Title>
     <Description>Shared Owin code for the NuGet projects</Description>
-    <Product>NuGet.Services.Owin</Product>
   </PropertyGroup>
 
   <ItemGroup>

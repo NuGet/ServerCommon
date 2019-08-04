@@ -2,8 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net462</TargetFramework>
-    <Title>NuGet.Services.Incidents</Title>
-    <Product>NuGet.Services.Incidents</Product>
     <Description>A framework to access the NuGet incident API.</Description>
   </PropertyGroup>
 

@@ -2,8 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net462</TargetFramework>
-    <Title>NuGet.Services.ServiceBus</Title>
-    <Product>NuGet.Services.ServiceBus</Product>
     <Description>Integration with Azure Service Bus</Description>
   </PropertyGroup>
 

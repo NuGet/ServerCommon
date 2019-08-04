@@ -2,8 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net462</TargetFramework>
-    <Title>NuGet.Services.Validation</Title>
-    <Product>NuGet.Services.Validation</Product>
     <Description>Logic shared between the front-end and back-end concerning asynchronous validation</Description>
 
     <EnableDefaultEmbeddedResourceItems>false</EnableDefaultEmbeddedResourceItems>
