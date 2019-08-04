@@ -12,6 +12,7 @@
       To prevent duplicate attribute compilation errors, disable the SDK's attributes.
       See: https://github.com/dotnet/sdk/blob/2df7f13c8c25e36e3620b62a420bc6b733e5bbb4/src/Tasks/Microsoft.NET.Build.Tasks/targets/Microsoft.NET.GenerateAssemblyInfo.targets#L65-L99
     -->
+    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <GenerateAssemblyInformationalVersionAttribute>false</GenerateAssemblyInformationalVersionAttribute>
     <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
   </PropertyGroup>
