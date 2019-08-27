@@ -33,7 +33,7 @@ namespace NuGet.Services.Logging
                 TelemetryConfiguration.Active.TelemetryInitializers.Add(new TelemetryContextInitializer());
 
                 // Configure heartbeat interval if specified.
-                // When not defined, the DiagnosticsTelemetryModule will use a default value of 15 minutes.
+                // When not defined or null, the DiagnosticsTelemetryModule will use its internal defaults (heartbeat enabled, interval of 15 minutes).
                 if (heartbeatInterval.HasValue)
                 {
                     var heartbeatManager = GetHeartbeatPropertyManager();
@@ -70,7 +70,7 @@ namespace NuGet.Services.Logging
                 catch (Exception hearbeatManagerAccessException)
                 {
                     // An non-critical, unexpected exception occurred trying to access the heartbeat manager.
-                    Trace.TraceError(hearbeatManagerAccessException.ToInvariantString());
+                    Trace.TraceError($"There was an error accessing heartbeat manager. Details: {hearbeatManagerAccessException.ToInvariantString()}");
                 }
 
                 if (HeartbeatManager == null)
