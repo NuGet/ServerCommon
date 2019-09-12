@@ -3,11 +3,14 @@
 
 using System;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 
 namespace NuGet.Services.Logging
 {
     public interface ITelemetryClient
     {
+        void TrackTrace(string message, LogLevel logLevel, EventId eventId);
+
         void TrackMetric(
             string metricName,
             double value,
