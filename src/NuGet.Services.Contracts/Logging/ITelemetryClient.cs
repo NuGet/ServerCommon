@@ -7,6 +7,10 @@ using Microsoft.Extensions.Logging;
 
 namespace NuGet.Services.Logging
 {
+    /// <summary>
+    /// Interface for the Application Insights TelemetryClient class.
+    /// Notice that NuGetGallery.Services has another interface and implementation for the same functionality.
+    /// </summary>
     public interface ITelemetryClient
     {
         void TrackTrace(string message, LogLevel logLevel, EventId eventId);
@@ -20,5 +24,15 @@ namespace NuGet.Services.Logging
             Exception exception,
             IDictionary<string, string> properties = null,
             IDictionary<string, double> metrics = null);
+
+        void TrackDependency(string dependencyTypeName,
+                             string target,
+                             string dependencyName,
+                             string data,
+                             DateTimeOffset startTime,
+                             TimeSpan duration,
+                             string resultCode,
+                             bool success,
+                             IDictionary<string, string> properties);
     }
 }
