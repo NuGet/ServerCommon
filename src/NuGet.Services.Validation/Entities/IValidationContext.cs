@@ -21,6 +21,8 @@ namespace NuGet.Services.Validation
         IDbSet<ParentCertificate> ParentCertificates { get; }
         IDbSet<PackageCompatibilityIssue> PackageCompatibilityIssues { get; }
         IDbSet<ScanOperationState> ScanOperationStates { get; }
+        IDbSet<PackageRevalidation> PackageRevalidations { get; set; }
+        IDbSet<SymbolsServerRequest> SymbolsServerRequests { get; set; }
 
         Task<int> SaveChangesAsync();
     }

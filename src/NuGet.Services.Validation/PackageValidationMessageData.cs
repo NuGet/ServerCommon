@@ -7,34 +7,75 @@ namespace NuGet.Services.Validation
 {
     public class PackageValidationMessageData
     {
-        public PackageValidationMessageData(
-            string packageId,
-            string packageVersion,
-            Guid validationTrackingId)
-          : this(packageId, packageVersion, validationTrackingId, deliveryCount: 0)
-        {
-        }
-
-        internal PackageValidationMessageData(
+        public static PackageValidationMessageData NewProcessValidationSet(
             string packageId,
             string packageVersion,
             Guid validationTrackingId,
+            ValidatingType validatingType,
+            int? entityKey)
+        {
+            return new PackageValidationMessageData(
+                PackageValidationMessageType.ProcessValidationSet,
+                processValidationSet: new ProcessValidationSetData(
+                    packageId,
+                    packageVersion,
+                    validationTrackingId,
+                    validatingType,
+                    entityKey),
+                checkValidator: null,
+                deliveryCount: 0);
+        }
+
+        public static PackageValidationMessageData NewCheckValidator(Guid validationId)
+        {
+            return new PackageValidationMessageData(
+                PackageValidationMessageType.CheckValidator,
+                processValidationSet: null,
+                checkValidator: new CheckValidatorData(validationId),
+                deliveryCount: 0);
+        }
+
+        internal PackageValidationMessageData(
+            PackageValidationMessageType type,
+            ProcessValidationSetData processValidationSet,
+            CheckValidatorData checkValidator,
             int deliveryCount)
         {
-            if (validationTrackingId == Guid.Empty)
+            switch (type)
             {
-                throw new ArgumentOutOfRangeException(nameof(validationTrackingId));
+                case PackageValidationMessageType.ProcessValidationSet:
+                    if (processValidationSet == null)
+                    {
+                        throw new ArgumentNullException(nameof(processValidationSet));
+                    }
+                    break;
+                case PackageValidationMessageType.CheckValidator:
+                    if (checkValidator == null)
+                    {
+                        throw new ArgumentNullException(nameof(checkValidator));
+                    }
+                    break;
+                default:
+                    throw new NotSupportedException($"The package validation message type '{type}' is not supported.");
             }
 
-            PackageId = packageId ?? throw new ArgumentNullException(nameof(packageId));
-            PackageVersion = packageVersion ?? throw new ArgumentNullException(nameof(packageVersion));
-            ValidationTrackingId = validationTrackingId;
+            var notNullCount = 0;
+            notNullCount += processValidationSet != null ? 1 : 0;
+            notNullCount += checkValidator != null ? 1 : 0;
+            if (notNullCount > 1)
+            {
+                throw new ArgumentException("There should be exactly one non-null data instance provided.");
+            }
+
+            Type = type;
+            ProcessValidationSet = processValidationSet;
+            CheckValidator = checkValidator;
             DeliveryCount = deliveryCount;
         }
 
-        public string PackageId { get; }
-        public string PackageVersion { get; }
-        public Guid ValidationTrackingId { get; }
+        public PackageValidationMessageType Type { get; }
+        public ProcessValidationSetData ProcessValidationSet { get; }
+        public CheckValidatorData CheckValidator { get; }
         public int DeliveryCount { get; }
     }
 }

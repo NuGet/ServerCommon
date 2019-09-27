@@ -10,6 +10,11 @@ namespace NuGet.Services.KeyVault
         public Task<string> GetSecretAsync(string secretName)
         {
             return Task.FromResult(secretName);
-        }
+        }        
+
+        public Task<ISecret> GetSecretObjectAsync(string secretName)
+        {            
+            return Task.FromResult((ISecret)new KeyVaultSecret(secretName, secretName, null));
+        }        
     }
 }
