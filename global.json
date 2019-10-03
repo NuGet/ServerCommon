@@ -1,3 +1,4 @@
 {
+  "sdk": { "version": "2.2.0" },
   "projects": [ "src" ]
 }
