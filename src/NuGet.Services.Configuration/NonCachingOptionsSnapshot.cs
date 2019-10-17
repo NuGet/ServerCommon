@@ -36,7 +36,7 @@ namespace NuGet.Services.Configuration
 
         public TOptions Get(string name)
         {
-            return _value;
+            throw new NotImplementedException();
         }
     }
 }
