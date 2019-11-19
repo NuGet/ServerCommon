@@ -16,37 +16,54 @@ namespace NuGet.Services.Logging
 
         public static bool Initialized { get; private set; }
 
-        public static void Initialize(string instrumentationKey)
+        public static TelemetryConfiguration Initialize(string instrumentationKey)
         {
-            InitializeTelemetryConfiguration(instrumentationKey, heartbeatInterval: null);
+            return InitializeTelemetryConfiguration(instrumentationKey, heartbeatInterval: null);
         }
 
-        public static void Initialize(string instrumentationKey, TimeSpan heartbeatInterval)
+        public static TelemetryConfiguration Initialize(string instrumentationKey, TimeSpan heartbeatInterval)
         {
-            InitializeTelemetryConfiguration(instrumentationKey, heartbeatInterval);
+            return InitializeTelemetryConfiguration(instrumentationKey, heartbeatInterval);
         }
 
-        private static void InitializeTelemetryConfiguration(string instrumentationKey, TimeSpan? heartbeatInterval)
+        private static TelemetryConfiguration InitializeTelemetryConfiguration(string instrumentationKey, TimeSpan? heartbeatInterval)
         {
+            TelemetryConfiguration telemetryConfiguration = null;
+
             if (!string.IsNullOrWhiteSpace(instrumentationKey))
             {
-                TelemetryConfiguration.Active.InstrumentationKey = instrumentationKey;
-                TelemetryConfiguration.Active.TelemetryInitializers.Add(new TelemetryContextInitializer());
+                // Note: TelemetryConfiguration.Active is being deprecated
+                // https://github.com/microsoft/ApplicationInsights-dotnet/issues/1152
+
+                telemetryConfiguration = new TelemetryConfiguration(instrumentationKey);
+                telemetryConfiguration.TelemetryInitializers.Add(new TelemetryContextInitializer());
 
                 // Construct a TelemetryClient to emit traces so we can track and debug AI initialization.
-                var telemetryClient = new TelemetryClient();
+                var telemetryClient = new TelemetryClient(telemetryConfiguration);
+
+                telemetryClient.TrackTrace(
+                            $"TelemetryConfiguration initialized using instrumentation key: {instrumentationKey}.",
+                            SeverityLevel.Information);
 
                 // Configure heartbeat interval if specified.
                 // When not defined or null, the DiagnosticsTelemetryModule will use its internal defaults (heartbeat enabled, interval of 15 minutes).
                 if (heartbeatInterval.HasValue)
                 {
+                    var diagnosticsTelemetryModule = new DiagnosticsTelemetryModule();
+                    diagnosticsTelemetryModule.HeartbeatInterval = heartbeatInterval.Value;
+                    diagnosticsTelemetryModule.Initialize(telemetryConfiguration);
+
+                    telemetryClient.TrackTrace(
+                            $"DiagnosticsTelemetryModule initialized using configured heartbeat interval: {heartbeatInterval.Value}.",
+                            SeverityLevel.Information);
+
                     var heartbeatManager = GetHeartbeatPropertyManager(telemetryClient);
                     if (heartbeatManager != null)
                     {
                         heartbeatManager.HeartbeatInterval = heartbeatInterval.Value;
 
                         telemetryClient.TrackTrace(
-                            $"Telemetry initialized using configured heartbeat interval: {heartbeatInterval.Value}.",
+                            $"IHeartbeatPropertyManager initialized using configured heartbeat interval: {heartbeatInterval.Value}.",
                             SeverityLevel.Information);
                     }
                 }
@@ -63,6 +80,8 @@ namespace NuGet.Services.Logging
             {
                 Initialized = false;
             }
+
+            return telemetryConfiguration;
         }
 
         private static IHeartbeatPropertyManager GetHeartbeatPropertyManager(TelemetryClient telemetryClient)
