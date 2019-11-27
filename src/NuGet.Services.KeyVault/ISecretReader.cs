@@ -8,5 +8,6 @@ namespace NuGet.Services.KeyVault
     public interface ISecretReader
     {
         Task<string> GetSecretAsync(string secretName);
+        Task<ISecret> GetSecretObjectAsync(string secretName);
     }
 }

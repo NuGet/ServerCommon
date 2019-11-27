@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>NuGet.Services.Validation</RootNamespace>
     <AssemblyName>NuGet.Services.Validation</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -29,6 +29,15 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
+  <PropertyGroup>
+    <PackageId Condition="'$(PackageId)' == ''">$(MSBuildProjectName)</PackageId>
+    <Authors>.NET Foundation</Authors>
+    <PackageLicenseUrl>https://github.com/NuGet/ServerCommon/blob/master/License.md</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/NuGet/ServerCommon</PackageProjectUrl>
+    <Copyright>© .NET Foundation. All rights reserved.</Copyright>
+    <IncludeSymbols Condition="'$(IncludeSymbols)' == ''">true</IncludeSymbols>
+    <NoPackageAnalysis Condition="'$(NoPackageAnalysis)' == ''">true</NoPackageAnalysis>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -36,10 +45,10 @@
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CheckValidatorData.cs" />
     <Compile Include="Entities\BaseValidationIssue.cs" />
     <Compile Include="Entities\CertificateChainLink.cs" />
     <Compile Include="Entities\EndCertificate.cs" />
@@ -47,6 +56,7 @@
     <Compile Include="Entities\EndCertificateUse.cs" />
     <Compile Include="Entities\EndCertificateValidation.cs" />
     <Compile Include="Entities\IValidationContext.cs" />
+    <Compile Include="Entities\PackageRevalidation.cs" />
     <Compile Include="Entities\PackageSignatureType.cs" />
     <Compile Include="Entities\PackageSigningState.cs" />
     <Compile Include="Entities\PackageSignature.cs" />
@@ -63,6 +73,7 @@
     <Compile Include="Entities\PackageValidationIssue.cs" />
     <Compile Include="Entities\ValidatorIssue.cs" />
     <Compile Include="Entities\ValidatorStatus.cs" />
+    <Compile Include="Entities\SymbolsServerRequest.cs" />
     <Compile Include="IPackageValidationEnqueuer.cs" />
     <Compile Include="IServiceBusMessageSerializer.cs" />
     <Compile Include="Entities\EntitiesConfiguration.cs" />
@@ -114,19 +125,80 @@
     <Compile Include="Migrations\201804092202151_AddScanOperationStateTable.Designer.cs">
       <DependentUpon>201804092202151_AddScanOperationStateTable.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201805222305347_ScanBlobSize.cs" />
+    <Compile Include="Migrations\201805222305347_ScanBlobSize.Designer.cs">
+      <DependentUpon>201805222305347_ScanBlobSize.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201806050030579_AddPackageRevalidations.cs" />
+    <Compile Include="Migrations\201806050030579_AddPackageRevalidations.Designer.cs">
+      <DependentUpon>201806050030579_AddPackageRevalidations.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201807051803515_AddValidatingType.cs" />
+    <Compile Include="Migrations\201807051803515_AddValidatingType.Designer.cs">
+      <DependentUpon>201807051803515_AddValidatingType.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201807242030031_AddPackageSignaturesTypeStatusIndex.cs" />
+    <Compile Include="Migrations\201807242030031_AddPackageSignaturesTypeStatusIndex.Designer.cs">
+      <DependentUpon>201807242030031_AddPackageSignaturesTypeStatusIndex.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201807280128135_AddSymbolsRequests.cs" />
+    <Compile Include="Migrations\201807280128135_AddSymbolsRequests.Designer.cs">
+      <DependentUpon>201807280128135_AddSymbolsRequests.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201808040003590_DropCreateDbOptionOnSymbolServerRequest.cs" />
+    <Compile Include="Migrations\201808040003590_DropCreateDbOptionOnSymbolServerRequest.Designer.cs">
+      <DependentUpon>201808040003590_DropCreateDbOptionOnSymbolServerRequest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201808302142379_AddPackageRevalidationEnqueuedCompletedIndex.cs" />
+    <Compile Include="Migrations\201808302142379_AddPackageRevalidationEnqueuedCompletedIndex.Designer.cs">
+      <DependentUpon>201808302142379_AddPackageRevalidationEnqueuedCompletedIndex.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201810060058081_AddKeyOnSymbolsServerRequests.cs" />
+    <Compile Include="Migrations\201810060058081_AddKeyOnSymbolsServerRequests.Designer.cs">
+      <DependentUpon>201810060058081_AddKeyOnSymbolsServerRequests.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201810102335589_RemoveConstraintOnSymbolsServerRequests.cs" />
+    <Compile Include="Migrations\201810102335589_RemoveConstraintOnSymbolsServerRequests.Designer.cs">
+      <DependentUpon>201810102335589_RemoveConstraintOnSymbolsServerRequests.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201905272210233_AddValidationSetStatus.cs" />
+    <Compile Include="Migrations\201905272210233_AddValidationSetStatus.Designer.cs">
+      <DependentUpon>201905272210233_AddValidationSetStatus.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\ValidationMigrationsConfiguration.cs" />
     <Compile Include="PackageValidationEnqueuer.cs" />
     <Compile Include="PackageValidationMessageData.cs" />
+    <Compile Include="PackageValidationMessageType.cs" />
+    <Compile Include="ProcessValidationSetData.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\AssemblyInfo.*.cs" />
     <Compile Include="ServiceBusMessageSerializer.cs" />
+    <Compile Include="SymbolsPackageIngestRequestStatus.cs" />
+    <Compile Include="ValidatingType.cs" />
     <Compile Include="ValidationResult.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config">
       <SubType>Designer</SubType>
     </None>
-    <None Include="project.json" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MicroBuild.Core">
+      <Version>0.3.0</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="EntityFramework">
+      <Version>6.1.3</Version>
+    </PackageReference>
+    <PackageReference Include="NuGet.Versioning">
+      <Version>4.3.0</Version>
+    </PackageReference>
+    <PackageReference Include="NuGet.Build.Tasks.Pack">
+      <Version>4.8.0</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\NuGet.Services.Contracts\NuGet.Services.Contracts.csproj">
@@ -175,7 +247,41 @@
     <EmbeddedResource Include="Migrations\201804092202151_AddScanOperationStateTable.resx">
       <DependentUpon>201804092202151_AddScanOperationStateTable.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201805222305347_ScanBlobSize.resx">
+      <DependentUpon>201805222305347_ScanBlobSize.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201806050030579_AddPackageRevalidations.resx">
+      <DependentUpon>201806050030579_AddPackageRevalidations.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807051803515_AddValidatingType.resx">
+      <DependentUpon>201807051803515_AddValidatingType.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807242030031_AddPackageSignaturesTypeStatusIndex.resx">
+      <DependentUpon>201807242030031_AddPackageSignaturesTypeStatusIndex.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201807280128135_AddSymbolsRequests.resx">
+      <DependentUpon>201807280128135_AddSymbolsRequests.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201808040003590_DropCreateDbOptionOnSymbolServerRequest.resx">
+      <DependentUpon>201808040003590_DropCreateDbOptionOnSymbolServerRequest.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201808302142379_AddPackageRevalidationEnqueuedCompletedIndex.resx">
+      <DependentUpon>201808302142379_AddPackageRevalidationEnqueuedCompletedIndex.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201810060058081_AddKeyOnSymbolsServerRequests.resx">
+      <DependentUpon>201810060058081_AddKeyOnSymbolsServerRequests.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201810102335589_RemoveConstraintOnSymbolsServerRequests.resx">
+      <DependentUpon>201810102335589_RemoveConstraintOnSymbolsServerRequests.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201905272210233_AddValidationSetStatus.resx">
+      <DependentUpon>201905272210233_AddValidationSetStatus.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <SignType Condition="'$(SignType)' == ''">none</SignType>
+  </PropertyGroup>
   <Import Project="..\..\build\sign.targets" />
+  <Import Project="..\..\build\sign.microbuild.targets" />
 </Project>

@@ -71,5 +71,15 @@ namespace NuGet.Services.Validation
         /// The package validations in the validation set.
         /// </summary>
         public virtual ICollection<PackageValidation> PackageValidations { get; set; }
+
+        /// <summary>
+        /// The entity type to be validated.
+        /// </summary>
+        public ValidatingType ValidatingType { get; set; }
+
+        /// <summary>
+        /// The status of this validation set.
+        /// </summary>
+        public ValidationSetStatus ValidationSetStatus { get; set; }
     }
 }

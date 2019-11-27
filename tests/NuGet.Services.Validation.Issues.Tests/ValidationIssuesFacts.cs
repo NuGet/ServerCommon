@@ -92,7 +92,7 @@ namespace NuGet.Services.Validation.Issues.Tests
         {
             [Theory]
             [MemberData(nameof(DeserializationOfIssuesWithNoPropertiesData))]
-            public void DeserializationOfIssuesWithNoProperties(ValidationIssueCode code, string data)
+            public void DeserializationOfIssuesWithNoProperties(ValidationIssueCode code)
             {
                 // Arrange
                 var validationIssue = CreatePackageValidationIssue(code, Strings.EmptyJson);
@@ -112,10 +112,7 @@ namespace NuGet.Services.Validation.Issues.Tests
                 {
                     foreach (var code in IssuesWithNoProperties.Keys)
                     {
-                        foreach (var data in InvalidData)
-                        {
-                            yield return new object[] { code, data };
-                        }
+                        yield return new object[] { code };
                     }
                 }
             }
@@ -243,6 +240,11 @@ namespace NuGet.Services.Validation.Issues.Tests
             { ValidationIssueCode.OnlySignatureFormatVersion1Supported, () => ValidationIssue.OnlySignatureFormatVersion1Supported },
             { ValidationIssueCode.AuthorCounterSignaturesNotSupported, () => ValidationIssue.AuthorCounterSignaturesNotSupported },
             { ValidationIssueCode.PackageIsNotSigned, () => ValidationIssue.PackageIsNotSigned },
+            { ValidationIssueCode.SymbolErrorCode_ChecksumDoesNotMatch, () => ValidationIssue.SymbolErrorCode_ChecksumDoesNotMatch },
+            { ValidationIssueCode.SymbolErrorCode_MatchingAssemblyNotFound, () => ValidationIssue.SymbolErrorCode_MatchingAssemblyNotFound },
+            { ValidationIssueCode.SymbolErrorCode_PdbIsNotPortable, () => ValidationIssue.SymbolErrorCode_PdbIsNotPortable },
+            { ValidationIssueCode.SymbolErrorCode_SnupkgDoesNotContainSymbols, () => ValidationIssue.SymbolErrorCode_SnupkgDoesNotContainSymbols },
+            { ValidationIssueCode.SymbolErrorCode_SnupkgContainsEntriesNotSafeForExtraction, () => ValidationIssue.SymbolErrorCode_SnupkgContainsEntriesNotSafeForExtraction },
         };
     }
 }

@@ -1,12 +1,31 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using System;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Data.Common;
 using System.Data.Entity;
+using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Infrastructure.Annotations;
 
 namespace NuGet.Services.Validation
 {
+    /// <summary>
+    /// This ValidationDbContextFactory is provided for running migrations in a flexible way as follows:
+    /// 1. Run migration using DbConnection; (For DatabaseMigrationTools with AAD token)
+    /// 2. Run migration using connection string;
+    /// 3. Run migration using default connection string ("Validation.SqlServer") in a web.config; (For command-line migration with integrated AAD/username+password)
+    /// </summary>
+    public class ValidationDbContextFactory : IDbContextFactory<ValidationEntitiesContext>
+    {
+        public static Func<ValidationEntitiesContext> ValidationEntitiesContextFactory;
+        public ValidationEntitiesContext Create()
+        {
+            var factory = ValidationEntitiesContextFactory;
+            return factory == null ? new ValidationEntitiesContext("Validation.SqlServer") : factory();
+        }
+    }
+
     /// <summary>
     /// The Entity Framework database context for validation entities.
     /// </summary>
@@ -19,6 +38,9 @@ namespace NuGet.Services.Validation
         /// we take a larger value so that no schema change will be necessary (hopefully).
         /// </summary>
         private const int MaximumThumbprintLength = 256;
+
+        private const int MaximumPackageIdLength = 128;
+        private const int MaximumPackageVersionLength = 64;
 
         /// <summary>
         /// Since we encode thumbprints using hexadecimal, NVARCHAR is not necessary. Additionally, we use varchar
@@ -43,6 +65,7 @@ namespace NuGet.Services.Validation
         private const string PackageSignaturesPackageKeyTypeIndex = "IX_PackageSignatures_PackageKey_Type";
         private const string PackageSignaturesEndCertificateKeyIndex = "IX_PackageSignatures_EndCertificateKey";
         private const string PackageSignaturesStatusIndex = "IX_PackageSignatures_Status";
+        private const string PackageSignaturesTypeStatusIndex = "IX_PackageSignatures_Type_Status";
 
         private const string TrustedTimestampsTable = "TrustedTimestamps";
         private const string TrustedTimestampsPackageSignatureKeyIndex = "IX_TrustedTimestamps_PackageSignatureKey";
@@ -66,6 +89,12 @@ namespace NuGet.Services.Validation
         private const string ScanOperationStatesPackageValidationKeyAttemptIndex = "IX_ScanOperationStates_PackageValidationKey_AttemptIndex";
         private const string ScanOperationStatesScanStateCreatedIndex = "IX_ScanOperationStates_ScanState_Created";
 
+        private const string PackageRevalidationPackageIdPackageVersionIndex = "IX_PackageRevalidations_PackageId_PackageNormalizedVersion";
+        private const string PackageRevalidationEnqueuedCompletedIndex = "IX_PackageRevalidations_Enqueued_Completed";
+        private const string PackageRevalidationValidationTrackingIdIndex = "IX_PackageRevalidations_ValidationTrackingId";
+
+        private const string SymbolsServerRequestSymbolsKeyIndex = "IX_SymbolServerRequests_SymbolsKey";
+
         static ValidationEntitiesContext()
         {
             // Don't run migrations, ever!
@@ -85,12 +114,14 @@ namespace NuGet.Services.Validation
         public IDbSet<CertificateChainLink> CertificateChainLinks { get; set; }
         public IDbSet<PackageCompatibilityIssue> PackageCompatibilityIssues { get; set; }
         public IDbSet<ScanOperationState> ScanOperationStates { get; set; }
+        public IDbSet<PackageRevalidation> PackageRevalidations { get; set; }
+        public IDbSet<SymbolsServerRequest> SymbolsServerRequests { get; set; }
 
-        public ValidationEntitiesContext() : this("Validation.SqlServer")
+        public ValidationEntitiesContext(string nameOrConnectionString) : base(nameOrConnectionString)
         {
         }
 
-        public ValidationEntitiesContext(string nameOrConnectionString) : base(nameOrConnectionString)
+        public ValidationEntitiesContext(DbConnection connection) : base(connection, contextOwnsConnection: true)
         {
         }
 
@@ -124,7 +155,7 @@ namespace NuGet.Services.Validation
 
             modelBuilder.Entity<PackageValidationSet>()
                 .Property(pvs => pvs.PackageId)
-                .HasMaxLength(128)
+                .HasMaxLength(MaximumPackageIdLength)
                 .IsRequired()
                 .HasColumnAnnotation(
                     IndexAnnotation.AnnotationName,
@@ -135,7 +166,7 @@ namespace NuGet.Services.Validation
 
             modelBuilder.Entity<PackageValidationSet>()
                 .Property(pvs => pvs.PackageNormalizedVersion)
-                .HasMaxLength(64)
+                .HasMaxLength(MaximumPackageVersionLength)
                 .IsRequired()
                 .HasColumnAnnotation(
                     IndexAnnotation.AnnotationName,
@@ -251,6 +282,8 @@ namespace NuGet.Services.Validation
 
             RegisterPackageSigningEntities(modelBuilder);
             RegisterScanningEntities(modelBuilder);
+            RegisterRevalidationEntities(modelBuilder);
+            RegisterSymbolEntities(modelBuilder);
 
             base.OnModelCreating(modelBuilder);
         }
@@ -267,7 +300,7 @@ namespace NuGet.Services.Validation
 
             modelBuilder.Entity<PackageSigningState>()
                 .Property(p => p.PackageId)
-                .HasMaxLength(128)
+                .HasMaxLength(MaximumPackageIdLength)
                 .IsRequired()
                 .HasColumnAnnotation(
                     IndexAnnotation.AnnotationName,
@@ -278,7 +311,7 @@ namespace NuGet.Services.Validation
 
             modelBuilder.Entity<PackageSigningState>()
                 .Property(p => p.PackageNormalizedVersion)
-                .HasMaxLength(64)
+                .HasMaxLength(MaximumPackageVersionLength)
                 .IsRequired()
                 .HasColumnAnnotation(
                     IndexAnnotation.AnnotationName,
@@ -324,7 +357,8 @@ namespace NuGet.Services.Validation
                         new IndexAttribute(PackageSignaturesPackageKeyTypeIndex, 1)
                         {
                             IsUnique = true,
-                        }
+                        },
+                        new IndexAttribute(PackageSignaturesTypeStatusIndex, 0)
                     }));
 
             modelBuilder.Entity<PackageSignature>()
@@ -343,7 +377,8 @@ namespace NuGet.Services.Validation
                     IndexAnnotation.AnnotationName,
                     new IndexAnnotation(new[]
                     {
-                        new IndexAttribute(PackageSignaturesStatusIndex)
+                        new IndexAttribute(PackageSignaturesStatusIndex),
+                        new IndexAttribute(PackageSignaturesTypeStatusIndex, 1)
                     }));
 
             modelBuilder.Entity<PackageSignature>()
@@ -592,6 +627,92 @@ namespace NuGet.Services.Validation
             modelBuilder.Entity<ScanOperationState>()
                 .Property(pvs => pvs.RowVersion)
                 .IsRowVersion();
+        }
+
+        private void RegisterRevalidationEntities(DbModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<PackageRevalidation>()
+                .HasKey(r => r.Key);
+
+            modelBuilder.Entity<PackageRevalidation>()
+                .Property(r => r.PackageId)
+                .HasMaxLength(MaximumPackageIdLength)
+                .IsRequired()
+                .HasColumnAnnotation(
+                    IndexAnnotation.AnnotationName,
+                    new IndexAnnotation(new[]
+                    {
+                        new IndexAttribute(PackageRevalidationPackageIdPackageVersionIndex, 1)
+                    }));
+
+            modelBuilder.Entity<PackageRevalidation>()
+                .Property(r => r.PackageNormalizedVersion)
+                .HasMaxLength(MaximumPackageVersionLength)
+                .IsRequired()
+                .HasColumnAnnotation(
+                    IndexAnnotation.AnnotationName,
+                    new IndexAnnotation(new[]
+                    {
+                        new IndexAttribute(PackageRevalidationPackageIdPackageVersionIndex, 2)
+                    }));
+
+            modelBuilder.Entity<PackageRevalidation>()
+                .Property(r => r.Enqueued)
+                .HasColumnType("datetime2")
+                .HasColumnAnnotation(
+                    IndexAnnotation.AnnotationName,
+                    new IndexAnnotation(new[]
+                    {
+                        new IndexAttribute(PackageRevalidationEnqueuedCompletedIndex, 1)
+                    }));
+
+            modelBuilder.Entity<PackageRevalidation>()
+                .Property(r => r.ValidationTrackingId)
+                .HasColumnAnnotation(
+                    IndexAnnotation.AnnotationName,
+                    new IndexAnnotation(new[]
+                    {
+                        new IndexAttribute(PackageRevalidationValidationTrackingIdIndex)
+                        {
+                            IsUnique = true,
+                        }
+                    }));
+
+            modelBuilder.Entity<PackageRevalidation>()
+                .Property(r => r.Completed)
+                .IsRequired()
+                .HasColumnAnnotation(
+                    IndexAnnotation.AnnotationName,
+                    new IndexAnnotation(new[]
+                    {
+                        new IndexAttribute(PackageRevalidationEnqueuedCompletedIndex, 2)
+                    }));
+
+            modelBuilder.Entity<PackageRevalidation>()
+                .Property(r => r.RowVersion)
+                .IsRowVersion();
+        }
+
+        private void RegisterSymbolEntities(DbModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<SymbolsServerRequest>()
+               .HasKey(r => r.Key);
+
+            modelBuilder.Entity<SymbolsServerRequest>()
+                .Property(r => r.SymbolsKey)
+                .HasColumnAnnotation(
+                    IndexAnnotation.AnnotationName,
+                    new IndexAnnotation(new[]
+                    {
+                        new IndexAttribute(SymbolsServerRequestSymbolsKeyIndex)
+                        {
+                            IsUnique = false,
+                        }
+                    }));
+
+            modelBuilder.Entity<SymbolsServerRequest>()
+               .Property(s => s.RowVersion)
+               .IsRowVersion();
         }
     }
 }
