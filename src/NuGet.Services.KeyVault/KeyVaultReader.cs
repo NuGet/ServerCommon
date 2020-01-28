@@ -4,6 +4,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Azure.KeyVault;
+using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace NuGet.Services.KeyVault
@@ -47,7 +48,10 @@ namespace NuGet.Services.KeyVault
         {
             _clientAssertionCertificate = new ClientAssertionCertificate(_configuration.ClientId, _configuration.Certificate);
 
-            return new KeyVaultClient(GetTokenAsync);
+            //return new KeyVaultClient(GetTokenAsync);
+
+            var azureServiceTokenProvider = new AzureServiceTokenProvider();
+            return new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
         }
 
         private async Task<string> GetTokenAsync(string authority, string resource, string scope)
