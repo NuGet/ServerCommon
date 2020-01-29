@@ -41,13 +41,12 @@ namespace NuGet.Services.KeyVault
         public async Task<ISecret> GetSecretObjectAsync(string secretName)
         {
             var secret = await _keyVaultClient.Value.GetSecretAsync(_vault, secretName);
-            return new KeyVaultSecret(secretName, secret.Value, secret.Attributes.Expires);                
+            return new KeyVaultSecret(secretName, secret.Value, secret.Attributes.Expires);
         }
 
         private KeyVaultClient InitializeClient()
         {
-            _clientAssertionCertificate = new ClientAssertionCertificate(_configuration.ClientId, _configuration.Certificate);
-
+            //_clientAssertionCertificate = new ClientAssertionCertificate(_configuration.ClientId, _configuration.Certificate);
             //return new KeyVaultClient(GetTokenAsync);
 
             var azureServiceTokenProvider = new AzureServiceTokenProvider();
