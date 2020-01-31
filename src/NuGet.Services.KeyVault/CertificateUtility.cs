@@ -6,8 +6,33 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace NuGet.Services.KeyVault
 {
+    public class CertificateConfiguration
+    {
+        public StoreName StoreName;
+        public StoreLocation StoreLocation;
+        public string Thumbprint;
+        public bool ValidationRequired;
+
+        public CertificateConfiguration(string storeName, string storeLocation, string thumbprint, bool validationRequired)
+        {
+            StoreName = !string.IsNullOrEmpty(storeName)
+                ? (StoreName)Enum.Parse(typeof(StoreName), storeName)
+                : StoreName.My;
+            StoreLocation = !string.IsNullOrEmpty(storeLocation)
+                ? (StoreLocation)Enum.Parse(typeof(StoreLocation), storeLocation)
+                : StoreLocation.LocalMachine;
+            Thumbprint = thumbprint;
+            ValidationRequired = validationRequired;
+        }
+    }
+
     public static class CertificateUtility
     {
+        public static X509Certificate2 FindCertificateByThumbprint(CertificateConfiguration config)
+        {
+            return FindCertificateByThumbprint(config.StoreName, config.StoreLocation, config.Thumbprint, config.ValidationRequired);
+        }
+
         public static X509Certificate2 FindCertificateByThumbprint(StoreName storeName, StoreLocation storeLocation, string thumbprint, bool validationRequired)
         {
             var store = new X509Store(storeName, storeLocation);

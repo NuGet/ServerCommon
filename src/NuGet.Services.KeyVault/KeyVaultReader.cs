@@ -11,7 +11,7 @@ namespace NuGet.Services.KeyVault
 {
     /// <summary>
     /// Reads secretes from KeyVault.
-    /// Authentication with KeyVault is done using a certificate in location:LocalMachine store name:My 
+    /// Authentication with KeyVault is done using either a managed identity or a certificate in location:LocalMachine store name:My 
     /// </summary>
     public class KeyVaultReader : ISecretReader
     {
@@ -46,11 +46,16 @@ namespace NuGet.Services.KeyVault
 
         private KeyVaultClient InitializeClient()
         {
-            //_clientAssertionCertificate = new ClientAssertionCertificate(_configuration.ClientId, _configuration.Certificate);
-            //return new KeyVaultClient(GetTokenAsync);
-
-            var azureServiceTokenProvider = new AzureServiceTokenProvider();
-            return new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
+            if (_configuration.UseManagedIdentity)
+            {
+                var azureServiceTokenProvider = new AzureServiceTokenProvider();
+                return new KeyVaultClient(new KeyVaultClient.AuthenticationCallback(azureServiceTokenProvider.KeyVaultTokenCallback));
+            }
+            else
+            {
+                _clientAssertionCertificate = new ClientAssertionCertificate(_configuration.ClientId, _configuration.Certificate);
+                return new KeyVaultClient(GetTokenAsync);
+            }
         }
 
         private async Task<string> GetTokenAsync(string authority, string resource, string scope)

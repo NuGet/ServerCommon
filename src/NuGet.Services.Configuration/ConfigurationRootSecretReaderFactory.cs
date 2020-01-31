@@ -11,6 +11,7 @@ namespace NuGet.Services.Configuration
     public class ConfigurationRootSecretReaderFactory : ISecretReaderFactory
     {
         private string _vaultName;
+        private bool _useManagedIdentity;
         private string _clientId;
         private string _certificateThumbprint;
         private string _storeName;
@@ -21,6 +22,12 @@ namespace NuGet.Services.Configuration
         public ConfigurationRootSecretReaderFactory(IConfigurationRoot config)
         {
             _vaultName = config[Constants.KeyVaultVaultNameKey];
+            string useManagedIdentity = config[Constants.KeyVaultUseManagedIdentity];
+            if (!string.IsNullOrEmpty(useManagedIdentity))
+            {
+                _useManagedIdentity = bool.Parse(useManagedIdentity);
+            }
+
             _clientId = config[Constants.KeyVaultClientIdKey];
             _certificateThumbprint = config[Constants.KeyVaultCertificateThumbprintKey];
             _storeName = config[Constants.KeyVaultStoreNameKey];
@@ -46,20 +53,16 @@ namespace NuGet.Services.Configuration
                 return new EmptySecretReader();
             }
 
-            var certificate = CertificateUtility.FindCertificateByThumbprint(
-                !string.IsNullOrEmpty(_storeName)
-                    ? (StoreName)Enum.Parse(typeof(StoreName), _storeName)
-                    : StoreName.My,
-                !string.IsNullOrEmpty(_storeLocation)
-                    ? (StoreLocation)Enum.Parse(typeof(StoreLocation), _storeLocation)
-                    : StoreLocation.LocalMachine,
+            var certificateConfig = new CertificateConfiguration(_storeName,
+                _storeLocation,
                 _certificateThumbprint,
                 _validateCertificate);
 
             var keyVaultConfiguration = new KeyVaultConfiguration(
                 _vaultName,
+                _useManagedIdentity,
                 _clientId,
-                certificate,
+                certificateConfig,
                 _sendX5c);
 
             return new KeyVaultReader(keyVaultConfiguration);
