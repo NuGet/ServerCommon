@@ -51,6 +51,7 @@ namespace NuGet.Services.KeyVault
                 throw new ArgumentNullException(nameof(vaultName));
             }
 
+            VaultName = vaultName;
             UseManagedIdentity = false;
             SetupConfiguration(clientId, certificate, sendX5c);
         }
