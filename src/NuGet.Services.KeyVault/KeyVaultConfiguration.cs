@@ -29,7 +29,7 @@ namespace NuGet.Services.KeyVault
         }
 
         /// <summary>
-        /// The constructor for keyvault configuraiton when using the certificate
+        /// The constructor for keyvault configuration when using the certificate
         /// </summary>
         /// <param name="vaultName">The name of the keyvault</param>
         /// <param name="clientId">Keyvault client id</param>

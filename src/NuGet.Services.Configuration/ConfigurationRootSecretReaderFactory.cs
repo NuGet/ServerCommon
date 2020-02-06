@@ -31,6 +31,11 @@ namespace NuGet.Services.Configuration
 
             _clientId = config[Constants.KeyVaultClientIdKey];
             _certificateThumbprint = config[Constants.KeyVaultCertificateThumbprintKey];
+            if (_useManagedIdentity && IsCertificateConfigurationProvided())
+            {
+                throw new ArgumentException($"The KeyVault configuration specifies usage of both, the managed identity and certificate for accessing KeyVault resource. Please specify only one configuration to be used.");
+            }
+
             _storeName = config[Constants.KeyVaultStoreNameKey];
             _storeLocation = config[Constants.KeyVaultStoreLocationKey];
             
@@ -85,6 +90,12 @@ namespace NuGet.Services.Configuration
         public ISecretInjector CreateSecretInjector(ISecretReader secretReader)
         {
             return new SecretInjector(secretReader);
+        }
+
+        private bool IsCertificateConfigurationProvided()
+        {
+            return string.IsNullOrEmpty(_clientId)
+                || string.IsNullOrEmpty(_certificateThumbprint);
         }
     }
 }
