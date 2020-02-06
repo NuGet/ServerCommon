@@ -15,13 +15,9 @@ namespace NuGet.Services.KeyVault
         public bool SendX5c { get; private set; }
 
         /// <summary>
-        /// The constructor for keyvault configuration when using managed identities or certificate
+        /// The constructor for keyvault configuration when using managed identities
         /// </summary>
-        public KeyVaultConfiguration(string vaultName,
-            bool useManagedIdentity,
-            string clientId,
-            CertificateConfiguration certConfig,
-            bool sendX5c = false)
+        public KeyVaultConfiguration(string vaultName)
         {
             if (string.IsNullOrWhiteSpace(vaultName))
             {
@@ -29,12 +25,7 @@ namespace NuGet.Services.KeyVault
             }
 
             VaultName = vaultName;
-            UseManagedIdentity = useManagedIdentity;
-            if (!UseManagedIdentity)
-            {
-                var certificate = CertificateUtility.FindCertificateByThumbprint(certConfig);
-                SetupConfiguration(clientId, certificate, sendX5c);
-            }
+            UseManagedIdentity = true;
         }
 
         /// <summary>
@@ -51,18 +42,12 @@ namespace NuGet.Services.KeyVault
                 throw new ArgumentNullException(nameof(vaultName));
             }
 
-            VaultName = vaultName;
-            UseManagedIdentity = false;
-            SetupConfiguration(clientId, certificate, sendX5c);
-        }
-
-        private void SetupConfiguration(string clientId, X509Certificate2 certificate, bool sendX5c)
-        {
             if (string.IsNullOrWhiteSpace(clientId))
             {
                 throw new ArgumentNullException(nameof(clientId));
             }
 
+            VaultName = vaultName;
             ClientId = clientId;
             Certificate = certificate ?? throw new ArgumentNullException(nameof(certificate));
             SendX5c = sendX5c;
