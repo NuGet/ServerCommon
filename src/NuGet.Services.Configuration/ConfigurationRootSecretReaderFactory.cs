@@ -21,6 +21,11 @@ namespace NuGet.Services.Configuration
 
         public ConfigurationRootSecretReaderFactory(IConfigurationRoot config)
         {
+            if (config == null)
+            {
+                throw new ArgumentNullException($"{nameof(config)}");
+            }
+
             _vaultName = config[Constants.KeyVaultVaultNameKey];
 
             string useManagedIdentity = config[Constants.KeyVaultUseManagedIdentity];
@@ -69,13 +74,13 @@ namespace NuGet.Services.Configuration
             {
                 var certificate = CertificateUtility.FindCertificateByThumbprint(
                     !string.IsNullOrEmpty(_storeName)
-                    ? (StoreName)Enum.Parse(typeof(StoreName), _storeName)
-                    : StoreName.My,
-                !string.IsNullOrEmpty(_storeLocation)
-                    ? (StoreLocation)Enum.Parse(typeof(StoreLocation), _storeLocation)
-                    : StoreLocation.LocalMachine,
-                _certificateThumbprint,
-                _validateCertificate);
+                        ? (StoreName)Enum.Parse(typeof(StoreName), _storeName)
+                        : StoreName.My,
+                    !string.IsNullOrEmpty(_storeLocation)
+                        ? (StoreLocation)Enum.Parse(typeof(StoreLocation), _storeLocation)
+                        : StoreLocation.LocalMachine,
+                    _certificateThumbprint,
+                    _validateCertificate);
 
                 keyVaultConfiguration = new KeyVaultConfiguration(
                     _vaultName,                
