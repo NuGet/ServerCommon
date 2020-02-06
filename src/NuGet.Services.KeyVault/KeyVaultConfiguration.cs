@@ -10,9 +10,9 @@ namespace NuGet.Services.KeyVault
     {
         public string VaultName { get; }
         public bool UseManagedIdentity { get; }
-        public string ClientId { get; private set; }
-        public X509Certificate2 Certificate { get; private set; }
-        public bool SendX5c { get; private set; }
+        public string ClientId { get; }
+        public X509Certificate2 Certificate { get; }
+        public bool SendX5c { get; }
 
         /// <summary>
         /// The constructor for keyvault configuration when using managed identities
@@ -47,6 +47,7 @@ namespace NuGet.Services.KeyVault
                 throw new ArgumentNullException(nameof(clientId));
             }
 
+            UseManagedIdentity = false;
             VaultName = vaultName;
             ClientId = clientId;
             Certificate = certificate ?? throw new ArgumentNullException(nameof(certificate));
