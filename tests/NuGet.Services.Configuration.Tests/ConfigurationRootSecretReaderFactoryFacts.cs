@@ -1,11 +1,9 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved. 
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information. 
 
-using Microsoft.Extensions.Configuration;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.Remoting.Messaging;
+using Microsoft.Extensions.Configuration;
 using Xunit;
 
 namespace NuGet.Services.Configuration.Tests
@@ -27,6 +25,7 @@ namespace NuGet.Services.Configuration.Tests
                         { Constants.KeyVaultVaultNameKey, "KeyVaultName" },
                         { Constants.KeyVaultUseManagedIdentity, "true" },
                         { Constants.KeyVaultClientIdKey, "KeyVaultClientId" },
+                        { Constants.KeyVaultCertificateThumbprintKey, "KeyVaultThumbprint" },
                         { Constants.KeyVaultStoreNameKey, "StoreName"},
                         { Constants.KeyVaultStoreLocationKey, "StoreLocation" },
                         { Constants.KeyVaultValidateCertificateKey, "true" },
@@ -50,10 +49,37 @@ namespace NuGet.Services.Configuration.Tests
                 yield return new object[] {
                     new Dictionary<string, string> {
                         { Constants.KeyVaultClientIdKey, "KeyVaultClientId" },
+                        { Constants.KeyVaultCertificateThumbprintKey, "KeyVaultThumbprint" },
                         { Constants.KeyVaultStoreNameKey, "StoreName"},
                         { Constants.KeyVaultStoreLocationKey, "StoreLocation" },
                         { Constants.KeyVaultValidateCertificateKey, "true" },
                         { Constants.KeyVaultSendX5c, "false" }
+                    }
+                };
+
+                yield return new object[] {
+                    new Dictionary<string, string> {
+                        { Constants.KeyVaultVaultNameKey, "KeyVaultName" },
+                        { Constants.KeyVaultUseManagedIdentity, "false" },
+                        { Constants.KeyVaultClientIdKey, "KeyVaultClientId" },
+                        { Constants.KeyVaultCertificateThumbprintKey, "KeyVaultThumbprint" },
+                        { Constants.KeyVaultStoreNameKey, "StoreName"},
+                        { Constants.KeyVaultStoreLocationKey, "StoreLocation" },
+                        { Constants.KeyVaultValidateCertificateKey, "true" },
+                        { Constants.KeyVaultSendX5c, "false" }
+                    }
+                };
+
+                yield return new object[] {
+                    new Dictionary<string, string> {
+                        { Constants.KeyVaultVaultNameKey, "KeyVaultName" },
+                        { Constants.KeyVaultUseManagedIdentity, "false" },
+                        { Constants.KeyVaultClientIdKey, "" },
+                        { Constants.KeyVaultCertificateThumbprintKey, "" },
+                        { Constants.KeyVaultStoreNameKey, ""},
+                        { Constants.KeyVaultStoreLocationKey, "" },
+                        { Constants.KeyVaultValidateCertificateKey, "" },
+                        { Constants.KeyVaultSendX5c, "" }
                     }
                 };
             }
