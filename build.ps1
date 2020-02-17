@@ -85,6 +85,12 @@ Invoke-BuildStep 'Set version metadata in AssemblyInfo.cs' { `
             "$PSScriptRoot\src\NuGet.Services.Licenses\Properties\AssemblyInfo.g.cs"
             
         $versionMetadata | ForEach-Object {
+            # Ensure the directory exists before generating the version info file.
+            $directory = Split-Path $_
+            if (-not (Test-Path $directory)) {
+                New-Item -ItemType Directory -Force -Path $directory | Out-Null
+            }
+
             Set-VersionInfo -Path $_ -Version $SimpleVersion -Branch $Branch -Commit $CommitSHA
         }
     } `
