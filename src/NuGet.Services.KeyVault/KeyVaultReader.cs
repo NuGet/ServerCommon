@@ -5,6 +5,7 @@ using System;
 using System.Threading.Tasks;
 using Microsoft.Azure.KeyVault;
 using Microsoft.Azure.Services.AppAuthentication;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace NuGet.Services.KeyVault
@@ -32,13 +33,23 @@ namespace NuGet.Services.KeyVault
             _keyVaultClient = new Lazy<KeyVaultClient>(InitializeClient);
         }
 
-        public async Task<string> GetSecretAsync(string secretName)
+        public Task<string> GetSecretAsync(string secretName)
+        {
+            return GetSecretAsync(secretName, logger: null);
+        }
+
+        public async Task<string> GetSecretAsync(string secretName, ILogger logger)
         {
             var secret = await _keyVaultClient.Value.GetSecretAsync(_vault, secretName);
             return secret.Value;
         }
 
-        public async Task<ISecret> GetSecretObjectAsync(string secretName)
+        public Task<ISecret> GetSecretObjectAsync(string secretName)
+        {
+            return GetSecretObjectAsync(secretName, logger: null);
+        }
+
+        public async Task<ISecret> GetSecretObjectAsync(string secretName, ILogger logger)
         {
             var secret = await _keyVaultClient.Value.GetSecretAsync(_vault, secretName);
             return new KeyVaultSecret(secretName, secret.Value, secret.Attributes.Expires);

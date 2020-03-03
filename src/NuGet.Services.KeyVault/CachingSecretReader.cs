@@ -1,16 +1,17 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved. 
-// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information. 
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
+using Microsoft.Extensions.Logging;
 
 namespace NuGet.Services.KeyVault
 {
     public class CachingSecretReader : ISecretReader
     {
         public const int DefaultRefreshIntervalSec = 60 * 60 * 24; // 1 day
-        public const int DefaultRefreshIntervalBeforeExpirySec = 60 * 30 ; // 30 minutes 
+        public const int DefaultRefreshIntervalBeforeExpirySec = 60 * 30 ; // 30 minutes
 
         private readonly ISecretReader _internalReader;
         private readonly ConcurrentDictionary<string, CachedSecret> _cache;
@@ -18,7 +19,9 @@ namespace NuGet.Services.KeyVault
         //_refreshIntervalBeforeExpiry specifies the timespan before secret expiry to refresh the secret value.
         private readonly TimeSpan _refreshIntervalBeforeExpiry;
 
-        public CachingSecretReader(ISecretReader secretReader, int refreshIntervalSec = DefaultRefreshIntervalSec, int refreshIntervalBeforeExpirySec = DefaultRefreshIntervalBeforeExpirySec)
+        public CachingSecretReader(ISecretReader secretReader,
+            int refreshIntervalSec = DefaultRefreshIntervalSec,
+            int refreshIntervalBeforeExpirySec = DefaultRefreshIntervalBeforeExpirySec)
         {
             _internalReader = secretReader ?? throw new ArgumentNullException(nameof(secretReader));
             _cache = new ConcurrentDictionary<string, CachedSecret>();
@@ -26,12 +29,22 @@ namespace NuGet.Services.KeyVault
             _refreshIntervalBeforeExpiry = TimeSpan.FromSeconds(refreshIntervalBeforeExpirySec);
         }
 
-        public async Task<string> GetSecretAsync(string secretName)
+        public Task<string> GetSecretAsync(string secretName)
         {
-            return (await GetSecretObjectAsync(secretName)).Value;            
+            return GetSecretAsync(secretName, logger: null);
         }
 
-        public async Task<ISecret> GetSecretObjectAsync(string secretName)
+        public async Task<string> GetSecretAsync(string secretName, ILogger logger)
+        {
+            return (await GetSecretObjectAsync(secretName, logger)).Value;
+        }
+
+        public Task<ISecret> GetSecretObjectAsync(string secretName)
+        {
+            return GetSecretObjectAsync(secretName, logger: null);
+        }
+
+        public async Task<ISecret> GetSecretObjectAsync(string secretName, ILogger logger)
         {
             if (string.IsNullOrEmpty(secretName))
             {
@@ -44,8 +57,16 @@ namespace NuGet.Services.KeyVault
             {
                 return result.Secret;
             }
+
+            var start = DateTimeOffset.Now;
             // The cache does not contain a fresh copy of the secret. Fetch and cache the secret.
             var updatedValue = new CachedSecret(await _internalReader.GetSecretObjectAsync(secretName));
+
+            logger?.LogInformation("Refresh secret {SecretName}{ExpirationTime} (Latency = {ElapsedMilliseconds}ms)",
+                updatedValue.Secret.Name,
+                updatedValue.Secret.Expiration == null ? "" : " which expires at " + ((DateTimeOffset) updatedValue.Secret.Expiration).DateTime,
+                (DateTimeOffset.Now - start).TotalMilliseconds.ToString("F2"));
+
             return _cache.AddOrUpdate(secretName, updatedValue, (key, old) => updatedValue).Secret;
         }
 

@@ -76,7 +76,7 @@ namespace NuGet.Services.Sql
 
             if (!string.IsNullOrWhiteSpace(ConnectionString.AadAuthority))
             {
-                var clientCertificateData = await SecretInjector.InjectAsync(ConnectionString.AadCertificate);
+                var clientCertificateData = await SecretInjector.InjectAsync(ConnectionString.AadCertificate, Logger);
                 if (!string.IsNullOrEmpty(clientCertificateData))
                 {
                     connection.AccessToken = await AcquireAccessTokenAsync(clientCertificateData);
