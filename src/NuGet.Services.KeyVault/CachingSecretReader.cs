@@ -58,14 +58,14 @@ namespace NuGet.Services.KeyVault
                 return result.Secret;
             }
 
-            var start = DateTimeOffset.Now;
+            var start = DateTimeOffset.UtcNow;
             // The cache does not contain a fresh copy of the secret. Fetch and cache the secret.
             var updatedValue = new CachedSecret(await _internalReader.GetSecretObjectAsync(secretName));
 
             logger?.LogInformation("Refresh secret {SecretName}{ExpirationTime} (Latency = {ElapsedMilliseconds}ms)",
                 updatedValue.Secret.Name,
                 updatedValue.Secret.Expiration == null ? "" : " which expires at " + ((DateTimeOffset) updatedValue.Secret.Expiration).DateTime,
-                (DateTimeOffset.Now - start).TotalMilliseconds.ToString("F2"));
+                (DateTimeOffset.UtcNow - start).TotalMilliseconds.ToString("F2"));
 
             return _cache.AddOrUpdate(secretName, updatedValue, (key, old) => updatedValue).Secret;
         }
