@@ -64,7 +64,7 @@ namespace NuGet.Services.KeyVault
 
             logger?.LogInformation("Refresh secret {SecretName}{ExpirationTime} (Latency = {ElapsedMilliseconds}ms)",
                 updatedValue.Secret.Name,
-                updatedValue.Secret.Expiration == null ? "" : " which expires at " + ((DateTimeOffset) updatedValue.Secret.Expiration).DateTime,
+                updatedValue.Secret.Expiration == null ? "" : " which expires at " + ((DateTimeOffset) updatedValue.Secret.Expiration).UtcDateTime,
                 (DateTimeOffset.UtcNow - start).TotalMilliseconds.ToString("F2"));
 
             return _cache.AddOrUpdate(secretName, updatedValue, (key, old) => updatedValue).Secret;
