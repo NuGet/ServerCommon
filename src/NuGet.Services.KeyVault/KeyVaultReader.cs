@@ -33,9 +33,9 @@ namespace NuGet.Services.KeyVault
             _keyVaultClient = new Lazy<KeyVaultClient>(InitializeClient);
         }
 
-        public Task<string> GetSecretAsync(string secretName)
+        public async Task<string> GetSecretAsync(string secretName)
         {
-            return GetSecretAsync(secretName, logger: null);
+            return await GetSecretAsync(secretName, logger: null);
         }
 
         public async Task<string> GetSecretAsync(string secretName, ILogger logger)
@@ -44,9 +44,9 @@ namespace NuGet.Services.KeyVault
             return secret.Value;
         }
 
-        public Task<ISecret> GetSecretObjectAsync(string secretName)
+        public async Task<ISecret> GetSecretObjectAsync(string secretName)
         {
-            return GetSecretObjectAsync(secretName, logger: null);
+            return await GetSecretObjectAsync(secretName, logger: null);
         }
 
         public async Task<ISecret> GetSecretObjectAsync(string secretName, ILogger logger)

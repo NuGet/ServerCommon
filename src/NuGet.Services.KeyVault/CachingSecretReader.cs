@@ -29,9 +29,9 @@ namespace NuGet.Services.KeyVault
             _refreshIntervalBeforeExpiry = TimeSpan.FromSeconds(refreshIntervalBeforeExpirySec);
         }
 
-        public Task<string> GetSecretAsync(string secretName)
+        public async Task<string> GetSecretAsync(string secretName)
         {
-            return GetSecretAsync(secretName, logger: null);
+            return await GetSecretAsync(secretName, logger: null);
         }
 
         public async Task<string> GetSecretAsync(string secretName, ILogger logger)
@@ -39,9 +39,9 @@ namespace NuGet.Services.KeyVault
             return (await GetSecretObjectAsync(secretName, logger)).Value;
         }
 
-        public Task<ISecret> GetSecretObjectAsync(string secretName)
+        public async Task<ISecret> GetSecretObjectAsync(string secretName)
         {
-            return GetSecretObjectAsync(secretName, logger: null);
+            return await GetSecretObjectAsync(secretName, logger: null);
         }
 
         public async Task<ISecret> GetSecretObjectAsync(string secretName, ILogger logger)
@@ -62,9 +62,9 @@ namespace NuGet.Services.KeyVault
             // The cache does not contain a fresh copy of the secret. Fetch and cache the secret.
             var updatedValue = new CachedSecret(await _internalReader.GetSecretObjectAsync(secretName));
 
-            logger?.LogInformation("Refresh secret {SecretName}{ExpirationTime} (Latency = {ElapsedMilliseconds}ms)",
+            logger?.LogInformation("Refreshed secret {SecretName}, Expiring at: {ExpirationTime}. Took {ElapsedMilliseconds}ms.",
                 updatedValue.Secret.Name,
-                updatedValue.Secret.Expiration == null ? "" : " which expires at " + ((DateTimeOffset) updatedValue.Secret.Expiration).UtcDateTime,
+                updatedValue.Secret.Expiration == null ? "null" : ((DateTimeOffset) updatedValue.Secret.Expiration).UtcDateTime.ToString(),
                 (DateTimeOffset.UtcNow - start).TotalMilliseconds.ToString("F2"));
 
             return _cache.AddOrUpdate(secretName, updatedValue, (key, old) => updatedValue).Secret;
