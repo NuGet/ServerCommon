@@ -45,7 +45,7 @@ namespace NuGet.Services.Sql.Tests
             var mockSecretReader = new Mock<ISecretReader>();
 
             mockSecretReader.Setup(x => x.GetSecretAsync(It.IsAny<string>(), It.IsAny<ILogger>()))
-                .Returns<string, ILogger>((key, loger) =>
+                .Returns<string, ILogger>((key, logger) =>
                 {
                     return Task.FromResult(key.Replace("$$", string.Empty));
                 })
