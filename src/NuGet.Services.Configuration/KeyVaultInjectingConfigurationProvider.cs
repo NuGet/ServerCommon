@@ -45,7 +45,11 @@ namespace NuGet.Services.Configuration
         {
             if (_originalProvider.TryGet(key, out value))
             {
-                value = _secretInjector.InjectAsync(value).ConfigureAwait(false).GetAwaiter().GetResult();
+                if (!NotInjectedConfigurations.Keys.Contains(key))
+                {
+                    value = _secretInjector.InjectAsync(value).ConfigureAwait(false).GetAwaiter().GetResult();
+                }
+
                 return true;
             }
 
