@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved. 
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information. 
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,9 @@ namespace NuGet.Services.Configuration
     {
         private readonly ISecretInjector _secretInjector;
         private readonly IDictionary<string, string> _unprocessedArguments;
+        private static readonly HashSet<string> _notInjectedKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase) {
+            "connectionString",
+            };
 
         public SecretDictionary(ISecretInjector secretInjector, IDictionary<string, string> unprocessedArguments)
         {
@@ -19,14 +23,23 @@ namespace NuGet.Services.Configuration
             _unprocessedArguments = unprocessedArguments;
         }
 
-        private string Inject(string key)
+        private string Inject(string value)
         {
-            return _secretInjector.InjectAsync(key).Result;
+            return _secretInjector.InjectAsync(value).Result;
+        }
+
+        private string Inject(string key, string value)
+        {
+            if (!_notInjectedKeys.Contains(key))
+            {
+                return Inject(value);
+            }
+            return value;
         }
 
         public string this[string key]
         {
-            get { return Inject(_unprocessedArguments[key]); }
+            get { return Inject(key, _unprocessedArguments[key]); }
             set { _unprocessedArguments[key] = value; }
         }
 
@@ -34,20 +47,20 @@ namespace NuGet.Services.Configuration
         {
             string unprocessedValue;
             var isFound = _unprocessedArguments.TryGetValue(key, out unprocessedValue);
-            value = isFound ? Inject(unprocessedValue) : null;
+            value = isFound ? Inject(key, unprocessedValue) : null;
             return isFound;
         }
 
-        public ICollection<string> Values => _unprocessedArguments.Values.Select(Inject).ToList();
+        public ICollection<string> Values => _unprocessedArguments.Select(p => Inject(p.Key, p.Value)).ToList();
 
         public class SecretEnumerator : IEnumerator<KeyValuePair<string, string>>
         {
-            private readonly ISecretInjector _secretInjector;
+            private readonly Func<string, string, string> _secretInjector;
             private readonly IList<KeyValuePair<string, string>> _unprocessedPairs;
 
             private int _position = -1;
 
-            public SecretEnumerator(ISecretInjector secretInjector, IDictionary<string, string> unprocessedArguments)
+            public SecretEnumerator(Func<string, string, string> secretInjector, IDictionary<string, string> unprocessedArguments)
             {
                 _secretInjector = secretInjector;
                 _unprocessedPairs = unprocessedArguments.ToList();
@@ -69,20 +82,20 @@ namespace NuGet.Services.Configuration
             }
 
             private KeyValuePair<string, string> Inject(KeyValuePair<string, string> pair) => 
-                new KeyValuePair<string, string>(pair.Key, _secretInjector.InjectAsync(pair.Value).Result);
+                new KeyValuePair<string, string>(pair.Key, _secretInjector(pair.Key, pair.Value));
 
             public KeyValuePair<string, string> Current => Inject(_unprocessedPairs[_position]);
 
             object IEnumerator.Current => Current;
         }
 
-        public IEnumerator<KeyValuePair<string, string>> GetEnumerator() => new SecretEnumerator(_secretInjector, _unprocessedArguments);
+        public IEnumerator<KeyValuePair<string, string>> GetEnumerator() => new SecretEnumerator(Inject, _unprocessedArguments);
 
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
         public bool Contains(KeyValuePair<string, string> item)
         {
-            return ContainsKey(item.Key) && Inject(_unprocessedArguments[item.Key]) == item.Value;
+            return ContainsKey(item.Key) && Inject(item.Key, _unprocessedArguments[item.Key]) == item.Value;
         }
 
         public bool Remove(KeyValuePair<string, string> item)
