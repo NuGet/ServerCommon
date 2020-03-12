@@ -335,6 +335,49 @@ namespace NuGet.Services.Configuration.Tests
             Assert.DoesNotContain(Secret1.InjectedValue, secretDict.Values);
         }
 
+        [Theory]
+        [InlineData("connectionString", "Value=$$Secret$$")]
+        public void NotInjectsKeys(string key, string value)
+        {
+            // Arrange
+            var mockSecretInjector = new Mock<ISecretInjector>();
+            mockSecretInjector.Setup(x => x.InjectAsync(It.IsAny<string>()));
+
+            var unprocessedDictionary = new Dictionary<string, string>()
+            {
+                {key, value}
+            };
+
+            var secretDict = CreateSecretDictionary(mockSecretInjector.Object, unprocessedDictionary);
+
+            // Act and Assert 1
+            var dictValue = secretDict[key];
+
+            // Act and Assert 2
+            Assert.True(secretDict.TryGetValue(key, out var tryget));
+            Assert.Equal(value, tryget);
+
+            // Act and Assert 3
+            var dictValues = secretDict.Values;
+            Assert.Single(dictValues);
+            Assert.Equal(value, dictValues.First());
+
+            // Act and Assert 4
+            Assert.True(secretDict.Contains(new KeyValuePair<string, string>(key, value)));
+
+            // Act and Assert 5
+            foreach (var pair in secretDict)
+            {
+                Assert.Equal(key, pair.Key);
+                Assert.Equal(value, pair.Value);
+            }
+
+            // Act and Assert 6
+            Assert.True(secretDict.Remove(key));
+
+            mockSecretInjector.Verify(x => x.InjectAsync(It.IsAny<string>()), Times.Never);
+        }
+
         /// <summary>
         /// Utility class that allows construction of tests more easily.
         /// </summary>
