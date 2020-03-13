@@ -5,6 +5,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NuGet.Services.KeyVault;
 
 namespace NuGet.Services.Configuration
@@ -13,7 +14,7 @@ namespace NuGet.Services.Configuration
     {
         private readonly ISecretInjector _secretInjector;
         private readonly IDictionary<string, string> _unprocessedArguments;
-        private readonly HashSet<string> _notInjectedKeys = new HashSet<string>();
+        private readonly HashSet<string> _notInjectedKeys;
 
         public SecretDictionary(ISecretInjector secretInjector, IDictionary<string, string> unprocessedArguments,
             HashSet<string> notInjectedKeys) : this(secretInjector, unprocessedArguments)
@@ -25,6 +26,7 @@ namespace NuGet.Services.Configuration
         {
             _secretInjector = secretInjector;
             _unprocessedArguments = unprocessedArguments;
+            _notInjectedKeys = new HashSet<string>();
         }
 
         public string this[string key]
@@ -43,7 +45,7 @@ namespace NuGet.Services.Configuration
 
         public ICollection<string> Values => _unprocessedArguments.Select(p => InjectOrSkip(p.Key, p.Value)).ToList();
 
-        public class SecretEnumerator : IEnumerator<KeyValuePair<string, string>>
+        private class SecretEnumerator : IEnumerator<KeyValuePair<string, string>>
         {
             private readonly Func<string, string, string> _injectOrSkipFunc;
             private readonly IList<KeyValuePair<string, string>> _unprocessedPairs;
@@ -120,14 +122,14 @@ namespace NuGet.Services.Configuration
         {
             if (!_notInjectedKeys.Contains(key))
             {
-                return Inject(value);
+                return Inject(value).Result;
             }
             return value;
         }
 
-        private string Inject(string value)
+        private Task<string> Inject(string value)
         {
-            return _secretInjector.InjectAsync(value).Result;
+            return _secretInjector.InjectAsync(value);
         }
     }
 }
