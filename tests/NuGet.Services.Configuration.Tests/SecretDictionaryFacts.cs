@@ -340,7 +340,7 @@ namespace NuGet.Services.Configuration.Tests
         public void NotInjectedKeys()
         {
             // Arrange
-            var key = "somekey";
+            var key = "someKey";
             var value = "someValue";
 
             var unprocessedDictionary = new Dictionary<string, string>()
