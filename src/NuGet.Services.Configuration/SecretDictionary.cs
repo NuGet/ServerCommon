@@ -13,7 +13,7 @@ namespace NuGet.Services.Configuration
     {
         private readonly ISecretInjector _secretInjector;
         private readonly IDictionary<string, string> _unprocessedArguments;
-        private readonly HashSet<string> _notInjectedKeys;
+        private readonly HashSet<string> _notInjectedKeys = new HashSet<string>();
 
         public SecretDictionary(ISecretInjector secretInjector, IDictionary<string, string> unprocessedArguments,
             HashSet<string> notInjectedKeys) : this(secretInjector, unprocessedArguments)
