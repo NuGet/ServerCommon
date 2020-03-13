@@ -8,6 +8,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using NuGet.Services.KeyVault;
 using Xunit;
+using System.Collections;
 
 namespace NuGet.Services.Configuration.Tests
 {
@@ -335,23 +336,29 @@ namespace NuGet.Services.Configuration.Tests
             Assert.DoesNotContain(Secret1.InjectedValue, secretDict.Values);
         }
 
-        [Theory]
-        [InlineData("connectionString", "Value=$$Secret$$")]
-        public void NotInjectsKeys(string key, string value)
+        [Fact]
+        public void NotInjectedKeys()
         {
             // Arrange
-            var mockSecretInjector = new Mock<ISecretInjector>();
-            mockSecretInjector.Setup(x => x.InjectAsync(It.IsAny<string>()));
+            var key = "somekey";
+            var value = "someValue";
 
             var unprocessedDictionary = new Dictionary<string, string>()
             {
                 {key, value}
             };
+            var notInjectedKeys = new HashSet<string> { key };
 
-            var secretDict = CreateSecretDictionary(mockSecretInjector.Object, unprocessedDictionary);
+            var mockSecretInjector = new Mock<ISecretInjector>();
+            mockSecretInjector.Setup(x => x.InjectAsync(It.IsAny<string>()));
+
+            var secretDict = CreatSecretDictionaryWithNotInjectedKeys(mockSecretInjector.Object,
+                unprocessedDictionary,
+                notInjectedKeys);
 
             // Act and Assert 1
             var dictValue = secretDict[key];
+            Assert.Equal(value, dictValue);
 
             // Act and Assert 2
             Assert.True(secretDict.TryGetValue(key, out var tryget));
@@ -411,6 +418,13 @@ namespace NuGet.Services.Configuration.Tests
         private static IDictionary<string, string> CreateSecretDictionary(ISecretInjector secretInjector, IDictionary<string, string> unprocessedArgs)
         {
             return new SecretDictionary(secretInjector, unprocessedArgs);
+        }
+
+        private static IDictionary<string, string> CreatSecretDictionaryWithNotInjectedKeys(ISecretInjector secretInjector,
+            IDictionary<string, string> unprocessedArgs,
+            HashSet<string> notInjectedKeys)
+        {
+            return new SecretDictionary(secretInjector, unprocessedArgs, notInjectedKeys);
         }
 
         private static Mock<ISecretInjector> CreateMappedSecretInjectorMock(IDictionary<string, string> keyToValue)
