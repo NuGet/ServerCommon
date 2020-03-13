@@ -345,7 +345,7 @@ namespace NuGet.Services.Configuration.Tests
 
             var unprocessedDictionary = new Dictionary<string, string>()
             {
-                {key, value}
+                { key, value }
             };
             var notInjectedKeys = new HashSet<string> { key };
 
