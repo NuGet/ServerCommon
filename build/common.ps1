@@ -532,6 +532,13 @@ Function Install-DotnetCLI {
         Error-Log "Unable to find dotnet.exe. The CLI install may have failed." -Fatal
     }
 
+    # Delete a project template that is unused and is causing a Component Governance issue.
+    # See https://github.com/dotnet/aspnetcore/issues/20001
+    $templatesToRemove = Get-ChildItem (Join-Path $CLIRoot "sdk\**\Templates\microsoft.dotnet.web.projecttemplate*")
+    Trace-Log "Removing items: "
+    $templatesToRemove
+    $templatesToRemove | Remove-Item -Force -Recurse
+
     # Display build info
     & $DotNetExe --info
 }
@@ -663,7 +670,8 @@ Function New-Package {
         [string]$MSBuildVersion = $DefaultMSBuildVersion,
         [switch]$Symbols,
         [string]$Branch,
-        [switch]$IncludeReferencedProjects
+        [switch]$IncludeReferencedProjects,
+        [string[]]$NoWarn = @("NU5100", "NU5110", "NU5111", "NU5128")
     )
     Trace-Log "Creating package from @""$TargetFilePath"""
     $opts = , 'pack'
@@ -688,6 +696,9 @@ Function New-Package {
     }
     if ($PackageId) {
         $Properties += ";PackageId=$PackageId"
+    }
+    if ($NoWarn) {
+        $Properties += ";NoWarn=" + ($NoWarn -join ",")
     }
     $opts += '-Properties', $Properties
     
@@ -856,7 +867,8 @@ Function Set-VersionInfo {
         [string]$Path,
         [string]$Version,
         [string]$Branch,
-        [string]$Commit
+        [string]$Commit,
+        [string]$AssemblyVersion = $null
     )
     
     if (-not $Version) {
@@ -883,10 +895,13 @@ Function Set-VersionInfo {
         $Branch = git rev-parse --abbrev-ref HEAD
     }
     
-    $BuildDateUtc = [DateTimeOffset]::UtcNow	
+    $BuildDateUtc = [DateTimeOffset]::UtcNow
+    if (!$AssemblyVersion) {
+        $AssemblyVersion = $Version
+    }
     $SemanticVersion = $Version + "-" + $Branch
         
-    Trace-Log ("[assembly: AssemblyVersion(""" + $Version + """)]")
+    Trace-Log ("[assembly: AssemblyVersion(""" + $AssemblyVersion + """)]")
     Trace-Log ("[assembly: AssemblyInformationalVersion(""" + $SemanticVersion + """)]")
     Trace-Log ("[assembly: AssemblyMetadata(""Branch"", """ + $Branch + """)]")
     Trace-Log ("[assembly: AssemblyMetadata(""CommitId"", """ + $Commit + """)]")
@@ -901,7 +916,7 @@ Function Set-VersionInfo {
     Add-Content $Path ("using System.Runtime.CompilerServices;")
     Add-Content $Path ("using System.Runtime.InteropServices;")
     
-    Add-Content $Path ("`r`n[assembly: AssemblyVersion(""" + $Version + """)]")
+    Add-Content $Path ("`r`n[assembly: AssemblyVersion(""" + $AssemblyVersion + """)]")
     Add-Content $Path ("[assembly: AssemblyInformationalVersion(""" + $SemanticVersion + """)]")
     Add-Content $Path "#if !PORTABLE"
     Add-Content $Path ("[assembly: AssemblyMetadata(""Branch"", """ + $Branch + """)]")
