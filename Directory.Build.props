@@ -5,7 +5,11 @@
     <PackageProjectUrl>https://github.com/NuGet/ServerCommon</PackageProjectUrl>
     <Copyright>© .NET Foundation. All rights reserved.</Copyright>
     <Company>.NET Foundation</Company>
+
+    <PublishRepositoryUrl>true</PublishRepositoryUrl>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <IncludeSymbols Condition="'$(IncludeSymbols)' == ''">true</IncludeSymbols>
+    <SymbolPackageFormat Condition="'$(SymbolPackageFormat)' == ''">snupkg</SymbolPackageFormat>
 
     <!--
       Our builds generate a file containing the desired assembly version attributes.
@@ -21,6 +25,9 @@
     <PackageReference Include="MicroBuild.Core">
       <Version>0.3.0</Version>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0">
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
   </ItemGroup>
