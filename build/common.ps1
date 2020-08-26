@@ -186,7 +186,8 @@ Function Sign-Binaries {
         [string]$Configuration = $DefaultConfiguration,
         [int]$BuildNumber = (Get-BuildNumber),
         [string]$MSBuildVersion = $DefaultMSBuildVersion,
-        [string[]]$ProjectsToSign = $null
+        [string[]]$ProjectsToSign = $null,
+        [string[]]$ExcludeProjectsToSign = @()
     )
 
     if ($ProjectsToSign -eq $null) {
@@ -196,9 +197,15 @@ Function Sign-Binaries {
     }
 
     $projectsToSignProperty = $ProjectsToSign -join ';'
+    $excludeProjectsToSignProperty = $ExcludeProjectsToSign -join ';'
 
     $ProjectPath = Join-Path $PSScriptRoot "sign-binaries.proj"
-    Build-Solution $Configuration $BuildNumber -MSBuildVersion "$MSBuildVersion" $ProjectPath -MSBuildProperties "/p:ProjectsToSign=`"$projectsToSignProperty`""
+    Build-Solution `
+        $Configuration `
+        $BuildNumber `
+        -MSBuildVersion "$MSBuildVersion" `
+        $ProjectPath `
+        -MSBuildProperties "/p:ProjectsToSign=`"$projectsToSignProperty`" /p:ExcludeProjectsToSign=`"$excludeProjectsToSignProperty`""
 }
 
 Function Sign-Packages {

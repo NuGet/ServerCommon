@@ -10,8 +10,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <_ProjectsToSign Condition="'$(ProjectsToSign)' == ''" Include="$(RepositoryRootDirectory)src\**\*.csproj" />
-    <_ProjectsToSign Condition="'$(ProjectsToSign)' != ''" Include="$(ProjectsToSign)" />
+    <_ProjectsToSign Condition="'$(ProjectsToSign)' == ''" Include="$(RepositoryRootDirectory)src\**\*.csproj" Exclude="$(ExcludeProjectsToSign)" />
+    <_ProjectsToSign Condition="'$(ProjectsToSign)' != ''" Include="$(ProjectsToSign)" Exclude="$(ExcludeProjectsToSign)" />
   </ItemGroup>
 
   <Target Name="BatchSign">
