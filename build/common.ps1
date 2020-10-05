@@ -543,6 +543,22 @@ Function Install-DotnetCLI {
     & $DotNetExe --info
 }
 
+Function Get-ExistingDotnet {
+    $p = Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\ASP.NET Core\Shared Framework"
+    if ($p.InstallDir) {
+        $path = Join-Path $p.InstallDir "dotnet.exe"
+        if (Test-Path $path) {
+            return $path
+        }
+    }
+    if ($env:ProgramFiles) {
+        $path = Join-Path $env:ProgramFiles "dotnet\dotnet.exe"
+        if (Test-Path $path) {
+            return $path
+        }
+    }
+}
+
 Function Get-BuildNumber() {
     $SemanticVersionDate = '2016-06-22'
     [int](((Get-Date) - (Get-Date $SemanticVersionDate)).TotalMinutes / 5)
