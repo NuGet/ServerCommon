@@ -103,12 +103,12 @@ Invoke-BuildStep 'Restoring solution packages' { `
         
 Invoke-BuildStep 'Building solution' { `
         $SolutionPath = Join-Path $PSScriptRoot "NuGet.Server.Common.sln"
-        Build-Solution $Configuration $BuildNumber -MSBuildVersion "15" $SolutionPath -SkipRestore:$SkipRestore
+        Build-Solution $Configuration $BuildNumber $SolutionPath -SkipRestore:$SkipRestore
     } `
     -ev +BuildErrors
 
 Invoke-BuildStep 'Signing the binaries' {
-        Sign-Binaries -Configuration $Configuration -BuildNumber $BuildNumber -MSBuildVersion "15" `
+        Sign-Binaries -Configuration $Configuration -BuildNumber $BuildNumber `
     } `
     -ev +BuildErrors
     
@@ -142,7 +142,7 @@ Invoke-BuildStep 'Creating artifacts' { `
     -ev +BuildErrors
 
 Invoke-BuildStep 'Signing the packages' {
-        Sign-Packages -Configuration $Configuration -BuildNumber $BuildNumber -MSBuildVersion "15" `
+        Sign-Packages -Configuration $Configuration -BuildNumber $BuildNumber `
     } `
     -ev +BuildErrors
 
