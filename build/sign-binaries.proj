@@ -18,7 +18,15 @@
     <Message Text="Projects considered:%0A@(_ProjectsToSign, '%0a')" Importance="High" />
     <MSBuild
       Projects="@(_ProjectsToSign)"
-      Properties="SkipEnumerateFilesToSign=false"
+      Properties="SkipEnumerateFilesToSign=false;TargetFramework=net472"
+      Targets="EnumerateFilesToSign">
+      <Output
+          TaskParameter="TargetOutputs"
+          ItemName="UnfilteredFilesToSign" />
+    </MSBuild>
+    <MSBuild
+      Projects="@(_ProjectsToSign)"
+      Properties="SkipEnumerateFilesToSign=false;TargetFramework=netstandard2.0"
       Targets="EnumerateFilesToSign">
       <Output
           TaskParameter="TargetOutputs"
