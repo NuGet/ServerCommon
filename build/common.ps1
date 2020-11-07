@@ -761,6 +761,7 @@ Function New-WebAppPackage {
     $opts += "/p:PackageAsSingleFile=true"
     $opts += "/p:PackageLocation=$Artifacts"
     $opts += "/p:BatchSign=false"
+    $opts += "/bl"
     
     if (-not (Test-Path $Artifacts)) {
         New-Item $Artifacts -Type Directory
