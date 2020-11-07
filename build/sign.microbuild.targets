@@ -33,9 +33,13 @@
   When we are building a web app package, sign after collecting all of the DLLs into one folder but before the package
   is created.
   -->
-  <PropertyGroup Condition="'$(WebPublishMethod)' == 'Package'">
+  <PropertyGroup Condition="'$(WebPublishMethod)' == 'Package' and '$(NETCoreSdkVersion)' == ''">
     <EnumerateFilesToSignAfterTargets>PipelineCopyAllFilesToOneFolderForMsdeploy</EnumerateFilesToSignAfterTargets>
     <PackageUsingManifestDependsOn>CopySignedFiles</PackageUsingManifestDependsOn>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(WebPublishMethod)' == 'Package' and '$(NETCoreSdkVersion)' != ''">
+    <EnumerateFilesToSignAfterTargets>Publish</EnumerateFilesToSignAfterTargets>
+    <MSDeployPackagePublishDependsOn>CopySignedFiles</MSDeployPackagePublishDependsOn>
   </PropertyGroup>
 
   <!--
@@ -113,7 +117,7 @@
     When we are building a web app package, sign the third party assemblies and output assembly from the single folder
     used for packaging.
     -->
-    <ItemGroup Condition="'$(WebPublishMethod)' == 'Package'">
+    <ItemGroup Condition="'$(WebPublishMethod)' == 'Package' and '$(NETCoreSdkVersion)' == ''">
       <UnfilteredFilesToSign
         Include="$(WPPAllFilesInSingleFolder)\bin\%(ThirdPartyBinaries.Identity)"
         Condition="Exists('$(WPPAllFilesInSingleFolder)\bin\%(ThirdPartyBinaries.Identity)')">
@@ -122,6 +126,20 @@
       <UnfilteredFilesToSign
         Include="$(WPPAllFilesInSingleFolder)\bin\$(TargetFileName)"
         Condition="Exists('$(WPPAllFilesInSingleFolder)\bin\$(TargetFileName)')">
+        <Authenticode>Microsoft400</Authenticode>
+        <StrongName>MsSharedLib72</StrongName>
+      </UnfilteredFilesToSign>
+    </ItemGroup>
+  </Target>
+  <ItemGroup Condition="'$(WebPublishMethod)' == 'Package' and '$(NETCoreSdkVersion)' != ''">
+      <UnfilteredFilesToSign
+        Include="$(PublishDir)\%(ThirdPartyBinaries.Identity)"
+        Condition="Exists('$(PublishDir)\%(ThirdPartyBinaries.Identity)')">
+        <Authenticode>3PartySHA2</Authenticode>
+      </UnfilteredFilesToSign>
+      <UnfilteredFilesToSign
+        Include="$(PublishDir)\$(TargetFileName)"
+        Condition="Exists('$(PublishDir)\$(TargetFileName)')">
         <Authenticode>Microsoft400</Authenticode>
         <StrongName>MsSharedLib72</StrongName>
       </UnfilteredFilesToSign>
