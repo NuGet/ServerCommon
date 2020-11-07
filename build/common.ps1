@@ -761,7 +761,8 @@ Function New-WebAppPackage {
     $opts += "/p:PackageAsSingleFile=true"
     $opts += "/p:PackageLocation=$Artifacts"
     $opts += "/p:BatchSign=false"
-    $opts += "/bl"
+    $projectName = [IO.Path]::GetFileNameWithoutExtension($TargetFilePath)
+    $opts += "/bl:$(Join-Path $Artifacts "$projectName.WebAppPackage.binlog")"
     
     if (-not (Test-Path $Artifacts)) {
         New-Item $Artifacts -Type Directory
