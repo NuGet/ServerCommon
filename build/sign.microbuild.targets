@@ -130,8 +130,7 @@
         <StrongName>MsSharedLib72</StrongName>
       </UnfilteredFilesToSign>
     </ItemGroup>
-  </Target>
-  <ItemGroup Condition="'$(WebPublishMethod)' == 'Package' and '$(NETCoreSdkVersion)' != ''">
+    <ItemGroup Condition="'$(WebPublishMethod)' == 'Package' and '$(NETCoreSdkVersion)' != ''">
       <UnfilteredFilesToSign
         Include="$(PublishDir)\%(ThirdPartyBinaries.Identity)"
         Condition="Exists('$(PublishDir)\%(ThirdPartyBinaries.Identity)')">
