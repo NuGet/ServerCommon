@@ -38,7 +38,7 @@
     <PackageUsingManifestDependsOn>CopySignedFiles</PackageUsingManifestDependsOn>
   </PropertyGroup>
   <PropertyGroup Condition="'$(WebPublishMethod)' == 'Package' and '$(NETCoreSdkVersion)' != ''">
-    <EnumerateFilesToSignDependsOnTargets>Publish</EnumerateFilesToSignDependsOnTargets>
+    <EnumerateFilesToSignAfterTargets>Publish</EnumerateFilesToSignAfterTargets>
     <MSDeployPackagePublishDependsOn>CopySignedFiles</MSDeployPackagePublishDependsOn>
   </PropertyGroup>
 
@@ -54,7 +54,6 @@
   </ItemGroup>
   <Target
     Name="EnumerateFilesToSign"
-    DependsOnTargets="$(EnumerateFilesToSignDependsOnTargets)"
     AfterTargets="$(EnumerateFilesToSignAfterTargets)"
     Condition="'$(SignAssembly)' == 'true' AND '$(SignType)' != 'none' AND '$(SkipEnumerateFilesToSign)' != 'true'"
     Returns="@(UnfilteredFilesToSign)">
