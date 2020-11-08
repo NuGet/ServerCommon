@@ -747,7 +747,7 @@ Function New-WebAppPackage {
         [string]$BuildNumber,
         [string]$MSBuildVersion = $DefaultMSBuildVersion,
         [bool]$PackageAsSingleFile=$true,
-        [bool]$SignType
+        [string]$SignType
     )
     Trace-Log "Creating web app package from @""$TargetFilePath"""
     
