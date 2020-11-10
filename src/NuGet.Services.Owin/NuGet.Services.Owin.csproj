@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
-    <Description>Shared Owin code for the NuGet projects</Description>
+    <Description>Shared OWIN code for the NuGet projects</Description>
   </PropertyGroup>
 
   <ItemGroup>

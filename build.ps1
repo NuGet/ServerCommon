@@ -87,10 +87,7 @@ Invoke-BuildStep 'Set version metadata in AssemblyInfo.cs' { `
         $versionMetadata | ForEach-Object {
             # Ensure the directory exists before generating the version info file.
             $directory = Split-Path $_
-            if (-not (Test-Path $directory)) {
-                New-Item -ItemType Directory -Force -Path $directory | Out-Null
-            }
-
+            New-Item -ItemType Directory -Force -Path $directory | Out-Null
             Set-VersionInfo -Path $_ -Version $SimpleVersion -Branch $Branch -Commit $CommitSHA -AssemblyVersion "3.0.0.0"
         }
     } `
