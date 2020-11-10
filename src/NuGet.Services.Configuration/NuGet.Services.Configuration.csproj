@@ -27,8 +27,4 @@
     <ProjectReference Include="..\NuGet.Services.KeyVault\NuGet.Services.KeyVault.csproj" />
   </ItemGroup>
 
-  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-  </ItemGroup>
-
 </Project>
