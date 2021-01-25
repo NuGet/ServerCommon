@@ -10,6 +10,6 @@ namespace NuGet.Services.Validation
     public enum ValidatingType
     {
         Package = 0,
-        SymbolPackage = 1
+        SymbolPackage = 1,
     }
 }
