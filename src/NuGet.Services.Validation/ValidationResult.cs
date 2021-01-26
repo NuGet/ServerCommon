@@ -6,27 +6,27 @@ using System.Collections.Generic;
 
 namespace NuGet.Services.Validation
 {
-    public class ValidationResult : IValidationResult
+    public class ValidationResult : INuGetValidationResponse
     {
         /// <summary>
         /// Represents a validation result that has not been started.
         /// </summary>
-        public static IValidationResult NotStarted { get; } = new ValidationResult(ValidationStatus.NotStarted);
+        public static INuGetValidationResponse NotStarted { get; } = new ValidationResult(ValidationStatus.NotStarted);
 
         /// <summary>
         /// Represents a validation result that has started but not succeeded or failed yet.
         /// </summary>
-        public static IValidationResult Incomplete { get; } = new ValidationResult(ValidationStatus.Incomplete);
+        public static INuGetValidationResponse Incomplete { get; } = new ValidationResult(ValidationStatus.Incomplete);
 
         /// <summary>
         /// A successful validation result with no issues.
         /// </summary>
-        public static IValidationResult Succeeded { get; } = new ValidationResult(ValidationStatus.Succeeded);
+        public static INuGetValidationResponse Succeeded { get; } = new ValidationResult(ValidationStatus.Succeeded);
 
         /// <summary>
         /// A failed validation result with no issues.
         /// </summary>
-        public static IValidationResult Failed { get; } = new ValidationResult(ValidationStatus.Failed);
+        public static INuGetValidationResponse Failed { get; } = new ValidationResult(ValidationStatus.Failed);
 
         /// <summary>
         /// Create a new validation result with the given status.

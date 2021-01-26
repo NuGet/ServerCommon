@@ -7,14 +7,14 @@ using System.Collections.Generic;
 namespace NuGet.Services.Validation
 {
     /// <summary>
-    /// The status of an <see cref="IValidator"/>'s validation of a package. This should be used
-    /// by each <see cref="IValidator"/> to persist its state.
+    /// The status of an <see cref="INuGetValidator"/>'s validation of a package. This should be used
+    /// by each <see cref="INuGetValidator"/> to persist its state.
     /// </summary>
     public class ValidatorStatus
     {
         /// <summary>
         /// The unique identifier for this validation. The Validation Orchestrator generates a unique
-        /// validation ID for each <see cref="IValidator"/> it runs on a single package.
+        /// validation ID for each <see cref="INuGetValidator"/> it runs on a single package.
         /// </summary>
         public Guid ValidationId { get; set; }
 
@@ -24,7 +24,7 @@ namespace NuGet.Services.Validation
         public int PackageKey { get; set; }
 
         /// <summary>
-        /// The name of the <see cref="IValidator"/>.
+        /// The name of the <see cref="INuGetValidator"/>.
         /// </summary>
         public string ValidatorName { get; set; }
 
