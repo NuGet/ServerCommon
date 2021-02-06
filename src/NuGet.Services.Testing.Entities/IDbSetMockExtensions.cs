@@ -4,6 +4,7 @@
 using System.Collections.Generic;
 using System.Data.Entity.Infrastructure;
 using System.Linq;
+using System.Linq.Expressions;
 using Moq;
 using NuGet.Services.Testing.Entities;
 
@@ -11,6 +12,19 @@ namespace System.Data.Entity
 {
     public static class IDbSetMockExtensions
     {
+        public static void SetupDbSet<TContext, TDbSet, TEntity>(
+            this Mock<TContext> entityContext,
+            Expression<Func<TContext, TDbSet>> dbSetAccessor,
+            Mock<TDbSet> dbSet,
+            IEnumerable<TEntity> dataEnumerable)
+          where TContext : class
+          where TDbSet : class, IDbSet<TEntity>
+          where TEntity : class
+        {
+            dbSet = dbSet.SetupDbSet(dataEnumerable);
+            entityContext.Setup(dbSetAccessor).Returns(dbSet.Object);
+        }
+
         public static Mock<TDbSet> SetupDbSet<TDbSet, TEntity>(
             this Mock<TDbSet> dbSet,
             IEnumerable<TEntity> dataEnumerable)

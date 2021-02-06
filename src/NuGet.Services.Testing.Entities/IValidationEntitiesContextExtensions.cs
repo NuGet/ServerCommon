@@ -48,18 +48,5 @@ namespace NuGet.Services.Validation
             validationContext.SetupDbSet(c => c.ParentCertificates, parentCertificatesMock, parentCertificates);
             validationContext.SetupDbSet(c => c.CertificateChainLinks, certificateChainLinksMock, certificateChainLinks);
         }
-
-        private static void SetupDbSet<TContext, TDbSet, TEntity>(
-            this Mock<TContext> validationContext,
-            Expression<Func<TContext, TDbSet>> dbSetAccessor,
-            Mock<TDbSet> dbSet,
-            IEnumerable<TEntity> dataEnumerable)
-          where TContext : class
-          where TDbSet : class, IDbSet<TEntity>
-          where TEntity : class
-        {
-            dbSet = dbSet.SetupDbSet(dataEnumerable);
-            validationContext.Setup(dbSetAccessor).Returns(dbSet.Object);
-        }
     }
 }
