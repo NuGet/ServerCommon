@@ -18,7 +18,7 @@ namespace NuGet.Services.ServiceBus
             _client = TopicClient.CreateFromConnectionString(connectionString, path);
         }
 
-        public TopicClientWrapper(String clientId, string clientSecret, string tenantId, string serviceBusUrl, string path)
+        public TopicClientWrapper(string clientId, string clientSecret, string tenantId, string serviceBusUrl, string path)
         {
             AzureActiveDirectoryTokenProvider.AuthenticationCallback authCallback = async (audience, authority, state) =>
             {
