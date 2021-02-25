@@ -39,41 +39,13 @@ namespace NuGet.Services.ServiceBus
 
         public Task SendAsync(IBrokeredMessage message)
         {
-            // For now, assume the only implementation is the wrapper type. We could clone over all properties
-            // that the interface supports, but this is not necessary right now.
-            var wrapper = message as BrokeredMessageWrapper;
-            BrokeredMessage innerMessage;
-            if (message != null)
-            {
-                innerMessage = wrapper.BrokeredMessage;
-            }
-            else
-            {
-                throw new ArgumentException(
-                    $"The message must be of type {typeof(BrokeredMessageWrapper).FullName}.",
-                    nameof(message));
-            }
-
+            BrokeredMessage innerMessage = GetBrokeredMessage(message);
             return _client.SendAsync(innerMessage);
         }
 
         public void Send(IBrokeredMessage message)
         {
-            // For now, assume the only implementation is the wrapper type. We could clone over all properties
-            // that the interface supports, but this is not necessary right now.
-            var wrapper = message as BrokeredMessageWrapper;
-            BrokeredMessage innerMessage;
-            if (message != null)
-            {
-                innerMessage = wrapper.BrokeredMessage;
-            }
-            else
-            {
-                throw new ArgumentException(
-                    $"The message must be of type {typeof(BrokeredMessageWrapper).FullName}.",
-                    nameof(message));
-            }
-
+            BrokeredMessage innerMessage = GetBrokeredMessage(message);
             _client.Send(innerMessage);
         }
 
@@ -85,6 +57,25 @@ namespace NuGet.Services.ServiceBus
         public Task Close()
         {
             return _client.CloseAsync();
+        }
+
+        private BrokeredMessage GetBrokeredMessage(IBrokeredMessage message)
+        {
+            // For now, assume the only implementation is the wrapper type. We could clone over all properties
+            // that the interface supports, but this is not necessary right now.
+            var wrapper = message as BrokeredMessageWrapper;
+            BrokeredMessage innerMessage;
+            if (message != null)
+            {
+                innerMessage = wrapper.BrokeredMessage;
+            }
+            else
+            {
+                throw new ArgumentException(
+                    $"The message must be of type {typeof(BrokeredMessageWrapper).FullName}.",
+                    nameof(message));
+            }
+            return innerMessage;
         }
     }
 }
