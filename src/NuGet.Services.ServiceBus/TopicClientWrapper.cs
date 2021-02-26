@@ -39,24 +39,24 @@ namespace NuGet.Services.ServiceBus
 
         public Task SendAsync(IBrokeredMessage message)
         {
-            BrokeredMessage innerMessage = GetBrokeredMessage(message);
+            var innerMessage = GetBrokeredMessage(message);
             return _client.SendAsync(innerMessage);
         }
 
         public void Send(IBrokeredMessage message)
         {
-            BrokeredMessage innerMessage = GetBrokeredMessage(message);
+            var innerMessage = GetBrokeredMessage(message);
             _client.Send(innerMessage);
         }
 
-        public void CloseSync()
+        public void Close()
         {
             _client.Close();
         }
 
-        public Task Close()
+        public async Task CloseAsync()
         {
-            return _client.CloseAsync();
+            await _client.CloseAsync();
         }
 
         private BrokeredMessage GetBrokeredMessage(IBrokeredMessage message)
@@ -75,6 +75,7 @@ namespace NuGet.Services.ServiceBus
                     $"The message must be of type {typeof(BrokeredMessageWrapper).FullName}.",
                     nameof(message));
             }
+
             return innerMessage;
         }
     }
