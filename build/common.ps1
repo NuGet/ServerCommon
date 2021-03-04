@@ -222,7 +222,8 @@ Function Build-Solution {
         [string]$TargetProfile,
         [string]$Target,
         [string]$MSBuildProperties,
-        [switch]$SkipRestore
+        [switch]$SkipRestore,
+        [switch]$BinLog
     )
     
     if (-not $SkipRestore) {
@@ -248,6 +249,10 @@ Function Build-Solution {
     
     if ($MSBuildProperties) {
         $opts += $MSBuildProperties
+    }
+
+    if ($BinLog) {
+        $opts += "/bl"
     }
 
     $MSBuildExe = Get-MSBuildExe $MSBuildVersion
@@ -747,7 +752,8 @@ Function New-WebAppPackage {
         [string]$BuildNumber,
         [string]$MSBuildVersion = $DefaultMSBuildVersion,
         [bool]$PackageAsSingleFile=$true,
-        [string]$SignType
+        [string]$SignType,
+        [switch]$BinLog
     )
     Trace-Log "Creating web app package from @""$TargetFilePath"""
     
@@ -769,6 +775,10 @@ Function New-WebAppPackage {
         New-Item $Artifacts -Type Directory
     }
     
+    if ($BinLog) {
+        $opts += "/bl"
+    }
+
     Trace-Log "$MsBuildExe $opts"
     & $MsBuildExe $opts
     if (-not $?) {
@@ -792,7 +802,8 @@ Function New-ProjectPackage {
         [switch]$Symbols,
         [string]$Branch,
         [switch]$IncludeReferencedProjects,
-        [switch]$Sign
+        [switch]$Sign,
+        [switch]$BinLog
     )
     Trace-Log "Creating package from @""$TargetFilePath"""
     
@@ -837,6 +848,10 @@ Function New-ProjectPackage {
         $opts += "/p:IncludeSymbols=True"
     }
     
+    if ($BinLog) {
+        $opts += "/bl"
+    }
+
     if (-not (Test-Path $Artifacts)) {
         New-Item $Artifacts -Type Directory
     }
