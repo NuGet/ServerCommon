@@ -185,7 +185,8 @@ Function Sign-Binaries {
         [string]$Configuration = $DefaultConfiguration,
         [int]$BuildNumber = (Get-BuildNumber),
         [string]$MSBuildVersion = $DefaultMSBuildVersion,
-        [string[]]$ProjectsToSign = $null
+        [string[]]$ProjectsToSign = $null,
+        [switch]$BinLog
     )
 
     if ($ProjectsToSign -eq $null) {
@@ -197,7 +198,7 @@ Function Sign-Binaries {
     $projectsToSignProperty = $ProjectsToSign -join ';'
 
     $ProjectPath = Join-Path $PSScriptRoot "sign-binaries.proj"
-    Build-Solution $Configuration $BuildNumber -MSBuildVersion "$MSBuildVersion" $ProjectPath -MSBuildProperties "/p:ProjectsToSign=`"$projectsToSignProperty`""
+    Build-Solution $Configuration $BuildNumber -MSBuildVersion "$MSBuildVersion" $ProjectPath -MSBuildProperties "/p:ProjectsToSign=`"$projectsToSignProperty`"" -BinLog:$BinLog
 }
 
 Function Sign-Packages {
@@ -205,11 +206,12 @@ Function Sign-Packages {
     param(
         [string]$Configuration = $DefaultConfiguration,
         [int]$BuildNumber = (Get-BuildNumber),
-        [string]$MSBuildVersion = $DefaultMSBuildVersion
+        [string]$MSBuildVersion = $DefaultMSBuildVersion,
+        [switch]$BinLog
     )
 
     $ProjectPath = Join-Path $PSScriptRoot "sign-packages.proj"
-    Build-Solution $Configuration $BuildNumber -MSBuildVersion "$MSBuildVersion" $ProjectPath
+    Build-Solution $Configuration $BuildNumber -MSBuildVersion "$MSBuildVersion" $ProjectPath -BinLog:$BinLog
 }
 
 Function Build-Solution {
@@ -276,7 +278,8 @@ Function Invoke-FxCop {
         [string]$FxCopProject,
         [string]$FxCopRuleSet,
         [string]$FxCopNoWarn,
-        [string]$FxCopOutputDirectory
+        [string]$FxCopOutputDirectory,
+        [switch]$BinLog
     )
     
     # Ensure cleanup from previous runs
@@ -345,7 +348,7 @@ Function Invoke-FxCop {
     # Invoke using the msbuild RunCodeAnalysis target
     $msBuildProps = "/p:CustomBeforeMicrosoftCSharpTargets=$codeAnalysisProps;SignType=none;CodeAnalysisVerbose=true"
     
-    Build-Solution $Configuration $BuildNumber -MSBuildVersion "$MSBuildVersion" $SolutionPath -Target "Rebuild;RunCodeAnalysis" -MSBuildProperties $msBuildProps -SkipRestore:$SkipRestore
+    Build-Solution $Configuration $BuildNumber -MSBuildVersion "$MSBuildVersion" $SolutionPath -Target "Rebuild;RunCodeAnalysis" -MSBuildProperties $msBuildProps -SkipRestore:$SkipRestore -BinLog:$BinLog
 }
 
 Function Invoke-Git {
