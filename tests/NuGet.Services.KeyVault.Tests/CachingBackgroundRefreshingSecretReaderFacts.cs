@@ -170,7 +170,7 @@ namespace NuGet.Services.KeyVault.Tests
         }
 
         private Mock<ISecretReader> _secretReaderMock;
-        private Mock<ILogger<CachingBackgroundRefreshingSecretReader>> _loggerMock;
+        private Mock<ILogger> _loggerMock;
         private Mock<ICachingBackgroundRefreshingSecretReaderTelemetryService> _telemetryServiceMock;
         private CancellationTokenSource _backgroundThreadCancellationTokenSource;
         private Task _backgroundRefreshTask;
@@ -178,7 +178,7 @@ namespace NuGet.Services.KeyVault.Tests
         public CachingBackgroundRefreshingSecretReaderFacts()
         {
             _secretReaderMock = new Mock<ISecretReader>();
-            _loggerMock = new Mock<ILogger<CachingBackgroundRefreshingSecretReader>>();
+            _loggerMock = new Mock<ILogger>();
             _telemetryServiceMock = new Mock<ICachingBackgroundRefreshingSecretReaderTelemetryService>();
             _backgroundThreadCancellationTokenSource = new CancellationTokenSource();
         }

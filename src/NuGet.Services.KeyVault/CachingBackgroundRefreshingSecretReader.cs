@@ -22,7 +22,7 @@ namespace NuGet.Services.KeyVault
         private const int DefaultBackgroundSleepIntervalSec = 60;
 
         private readonly ISecretReader _underlyingSecretReader;
-        private readonly ILogger<CachingBackgroundRefreshingSecretReader> _logger;
+        private readonly ILogger _logger;
         private readonly ConcurrentDictionary<string, CachedSecret> _cachedSecrets;
         private readonly ICachingBackgroundRefreshingSecretReaderTelemetryService _telemetryService;
         private readonly TimeSpan _refreshInterval;
@@ -63,7 +63,7 @@ namespace NuGet.Services.KeyVault
         /// </example>
         public CachingBackgroundRefreshingSecretReader(
             ISecretReader underlyingSecretReader,
-            ILogger<CachingBackgroundRefreshingSecretReader> logger,
+            ILogger logger,
             ICachingBackgroundRefreshingSecretReaderTelemetryService telemetryService,
             Action<Func<CancellationToken, Task>> backgroundTaskStarter,
             ICollection<string> secretNames,
