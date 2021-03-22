@@ -27,7 +27,7 @@ namespace NuGet.Services.KeyVault.Tests
             var readSecrets = new HashSet<string>();
 
             _secretReaderMock
-                .Setup(sr => sr.GetSecretObjectAsync(It.IsAny<string>(), _loggerMock.Object))
+                .Setup(sr => sr.GetSecretObjectAsync(It.IsAny<string>(), It.IsAny<ILogger>()))
                 .Callback<string, ILogger>((secretName, _) => readSecrets.Add(secretName))
                 .ReturnsAsync(new KeyVaultSecret("secretName", "secretValue", null));
 
@@ -94,111 +94,32 @@ namespace NuGet.Services.KeyVault.Tests
                 .Verify(sr => sr.GetSecretObjectAsync(secretName, It.IsAny<ILogger>()), Times.AtMost(4));
         }
 
-        [Fact]
-        public void ConstructorThrowsWhenSecretReaderIsNull()
-        {
-            var ex = Assert.Throws<ArgumentNullException>(() => new CachingBackgroundRefreshingSecretReader(
-                null,
-                _loggerMock.Object,
-                _telemetryServiceMock.Object,
-                (_) => { },
-                new string[0],
-                TimeSpan.MaxValue,
-                TimeSpan.Zero));
-
-            Assert.Equal("underlyingSecretReader", ex.ParamName);
-        }
-
-        [Fact]
-        public void ConstructorThrowsWhenLoggerIsNull()
-        {
-            var ex = Assert.Throws<ArgumentNullException>(() => new CachingBackgroundRefreshingSecretReader(
-                _secretReaderMock.Object,
-                null,
-                _telemetryServiceMock.Object,
-                (_) => { },
-                new string[0],
-                TimeSpan.MaxValue,
-                TimeSpan.Zero));
-
-            Assert.Equal("logger", ex.ParamName);
-        }
-
-        [Fact]
-        public void ConstructorThrowsWhenTelemetryServiceIsNull()
-        {
-            var ex = Assert.Throws<ArgumentNullException>(() => new CachingBackgroundRefreshingSecretReader(
-                _secretReaderMock.Object,
-                _loggerMock.Object,
-                null,
-                (_) => { },
-                new string[0],
-                TimeSpan.MaxValue,
-                TimeSpan.Zero));
-
-            Assert.Equal("telemetryService", ex.ParamName);
-        }
-
-        [Fact]
-        public void ConstructorThrowsWhenBackgroundTaskStarterIsNull()
-        {
-            var ex = Assert.Throws<ArgumentNullException>(() => new CachingBackgroundRefreshingSecretReader(
-                _secretReaderMock.Object,
-                _loggerMock.Object,
-                _telemetryServiceMock.Object,
-                null,
-                new string[0],
-                TimeSpan.MaxValue,
-                TimeSpan.Zero));
-
-            Assert.Equal("backgroundTaskStarter", ex.ParamName);
-        }
-
-        [Fact]
-        public void ConstructorThrowsWhenSecretNamesIsNull()
-        {
-            var ex = Assert.Throws<ArgumentNullException>(() => new CachingBackgroundRefreshingSecretReader(
-                _secretReaderMock.Object,
-                _loggerMock.Object,
-                _telemetryServiceMock.Object,
-                (_) => { },
-                null,
-                TimeSpan.MaxValue,
-                TimeSpan.Zero));
-
-            Assert.Equal("secretNames", ex.ParamName);
-        }
-
-        private Mock<ISecretReader> _secretReaderMock;
-        private Mock<ILogger> _loggerMock;
-        private Mock<ICachingBackgroundRefreshingSecretReaderTelemetryService> _telemetryServiceMock;
-        private CancellationTokenSource _backgroundThreadCancellationTokenSource;
-        private Task _backgroundRefreshTask;
+        protected Mock<ISecretReader> _secretReaderMock;
+        protected CancellationTokenSource _backgroundThreadCancellationTokenSource;
+        protected Task _backgroundRefreshTask;
 
         public CachingBackgroundRefreshingSecretReaderFacts()
         {
             _secretReaderMock = new Mock<ISecretReader>();
-            _loggerMock = new Mock<ILogger>();
-            _telemetryServiceMock = new Mock<ICachingBackgroundRefreshingSecretReaderTelemetryService>();
             _backgroundThreadCancellationTokenSource = new CancellationTokenSource();
         }
 
-        private CachingBackgroundRefreshingSecretReader CreateTarget(
+        protected virtual CachingBackgroundRefreshingSecretReader CreateTarget(
             ICollection<string> secretNames,
             TimeSpan? refreshInterval = null,
             TimeSpan? backgroundThreadSleepInterval = null)
         {
             return new CachingBackgroundRefreshingSecretReader(
                 _secretReaderMock.Object,
-                _loggerMock.Object,
-                _telemetryServiceMock.Object,
                 StartBackgroundTask,
                 secretNames,
+                telemetryService: null,
+                logger: null,
                 refreshInterval ?? TimeSpan.MaxValue,
                 backgroundThreadSleepInterval ?? TimeSpan.Zero);
         }
 
-        private void StartBackgroundTask(Func<CancellationToken, Task> backgroundTask)
+        protected void StartBackgroundTask(Func<CancellationToken, Task> backgroundTask)
         {
             _backgroundRefreshTask = Task.Run(async () => await backgroundTask(_backgroundThreadCancellationTokenSource.Token));
         }
@@ -211,6 +132,78 @@ namespace NuGet.Services.KeyVault.Tests
                 _backgroundRefreshTask.Wait();
             }
             _backgroundThreadCancellationTokenSource.Dispose();
+        }
+    }
+
+    public class CachingBackgroundRefreshingSecretReaderWithOptionalObjectsFacts : CachingBackgroundRefreshingSecretReaderFacts
+    {
+        [Fact]
+        public void ConstructorThrowsWhenSecretReaderIsNull()
+        {
+            var ex = Assert.Throws<ArgumentNullException>(() => new CachingBackgroundRefreshingSecretReader(
+                null,
+                (_) => { },
+                new string[0],
+                _telemetryServiceMock.Object,
+                _loggerMock.Object,
+                TimeSpan.MaxValue,
+                TimeSpan.Zero));
+
+            Assert.Equal("underlyingSecretReader", ex.ParamName);
+        }
+
+        [Fact]
+        public void ConstructorThrowsWhenBackgroundTaskStarterIsNull()
+        {
+            var ex = Assert.Throws<ArgumentNullException>(() => new CachingBackgroundRefreshingSecretReader(
+                _secretReaderMock.Object,
+                null,
+                new string[0],
+                _telemetryServiceMock.Object,
+                _loggerMock.Object,
+                TimeSpan.MaxValue,
+                TimeSpan.Zero));
+
+            Assert.Equal("backgroundTaskStarter", ex.ParamName);
+        }
+
+        [Fact]
+        public void ConstructorThrowsWhenSecretNamesIsNull()
+        {
+            var ex = Assert.Throws<ArgumentNullException>(() => new CachingBackgroundRefreshingSecretReader(
+                _secretReaderMock.Object,
+                (_) => { },
+                null,
+                _telemetryServiceMock.Object,
+                _loggerMock.Object,
+                TimeSpan.MaxValue,
+                TimeSpan.Zero));
+
+            Assert.Equal("secretNames", ex.ParamName);
+        }
+
+        protected Mock<ILogger> _loggerMock;
+        protected Mock<ICachingBackgroundRefreshingSecretReaderTelemetryService> _telemetryServiceMock;
+
+        public CachingBackgroundRefreshingSecretReaderWithOptionalObjectsFacts()
+        {
+            _loggerMock = new Mock<ILogger>();
+            _telemetryServiceMock = new Mock<ICachingBackgroundRefreshingSecretReaderTelemetryService>();
+        }
+
+        protected override CachingBackgroundRefreshingSecretReader CreateTarget(
+            ICollection<string> secretNames,
+            TimeSpan? refreshInterval = null,
+            TimeSpan? backgroundThreadSleepInterval = null)
+        {
+            return new CachingBackgroundRefreshingSecretReader(
+                _secretReaderMock.Object,
+                StartBackgroundTask,
+                secretNames,
+                _telemetryServiceMock.Object,
+                _loggerMock.Object,
+                refreshInterval ?? TimeSpan.MaxValue,
+                backgroundThreadSleepInterval ?? TimeSpan.Zero);
         }
     }
 }

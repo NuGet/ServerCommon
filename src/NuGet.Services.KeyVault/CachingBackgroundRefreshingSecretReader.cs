@@ -63,15 +63,14 @@ namespace NuGet.Services.KeyVault
         /// </example>
         public CachingBackgroundRefreshingSecretReader(
             ISecretReader underlyingSecretReader,
-            ILogger logger,
-            ICachingBackgroundRefreshingSecretReaderTelemetryService telemetryService,
             Action<Func<CancellationToken, Task>> backgroundTaskStarter,
             ICollection<string> secretNames,
+            ICachingBackgroundRefreshingSecretReaderTelemetryService telemetryService = null,
+            ILogger logger = null,
             TimeSpan? refreshInterval = null,
             TimeSpan? backgroundThreadSleepInterval = null)
         {
             _underlyingSecretReader = underlyingSecretReader ?? throw new ArgumentNullException(nameof(underlyingSecretReader));
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             if (backgroundTaskStarter == null)
             {
                 throw new ArgumentNullException(nameof(backgroundTaskStarter));
@@ -81,10 +80,11 @@ namespace NuGet.Services.KeyVault
                 throw new ArgumentNullException(nameof(secretNames));
             }
             _cachedSecrets = new ConcurrentDictionary<string, CachedSecret>(secretNames.Select(s => new KeyValuePair<string, CachedSecret>(s, null)));
-            _logger.LogInformation("Starting background secret refresh for {SecretsNumber} secrets", _cachedSecrets.Count());
-            _telemetryService = telemetryService ?? throw new ArgumentNullException(nameof(telemetryService));
+            _logger = logger;
+            _telemetryService = telemetryService;
             _refreshInterval = refreshInterval ?? TimeSpan.FromSeconds(DefaultRefreshIntervalSec);
             _backgroundThreadSleepInterval = backgroundThreadSleepInterval ?? TimeSpan.FromSeconds(DefaultBackgroundSleepIntervalSec);
+            _logger?.LogInformation("Starting background secret refresh for {SecretsNumber} secrets", _cachedSecrets.Count());
             backgroundTaskStarter(BackgroundRefreshTaskWrapper);
         }
 
@@ -132,8 +132,8 @@ namespace NuGet.Services.KeyVault
                 {
                     // The secret key exist in the dictionary, but the stored value is null.
                     // Most likely we just queued that secret for retrieval, but we haven't got the value yet.
-                    _telemetryService.TrackUnknownSecretRequested(secretName);
-                    _logger.LogError("Encountered null cache value while retrieving secret {SecretName}", secretName);
+                    _telemetryService?.TrackUnknownSecretRequested(secretName);
+                    _logger?.LogError("Encountered null cache value while retrieving secret {SecretName}", secretName);
                     throw new InvalidOperationException($"Unexpected unknown secret {secretName}");
                 }
                 return cachedSecret.Secret;
@@ -143,8 +143,8 @@ namespace NuGet.Services.KeyVault
             // (normally, all the secrets should have been passed to the constructor. This *is* an exceptional
             // situation), but for the service stability we will queue retrieval of the secret, too. So if a
             // retry happens after a while, we'd be ready for it with a value.
-            _telemetryService.TrackUnknownSecretRequested(secretName);
-            _logger.LogError("Encountered new secret name {SecretName}", secretName);
+            _telemetryService?.TrackUnknownSecretRequested(secretName);
+            _logger?.LogError("Encountered new secret name {SecretName}", secretName);
             AddSecretName(secretName);
             throw new InvalidOperationException($"Unexpected unknown secret {secretName}");
         }
@@ -173,8 +173,8 @@ namespace NuGet.Services.KeyVault
                 }
                 catch (Exception e)
                 {
-                    _telemetryService.TrackBackgroundRefreshTaskLeakedException();
-                    _logger.LogError(e, "Background secret refresh task leaked exception");
+                    _telemetryService?.TrackBackgroundRefreshTaskLeakedException();
+                    _logger?.LogError(e, "Background secret refresh task leaked exception");
                 }
                 // Don't want to consume CPU if exception is thrown in a tight loop.
                 // Ideally, we never reach this code unless we are shutting down
@@ -187,10 +187,10 @@ namespace NuGet.Services.KeyVault
 
         private async Task DoBackgroundRefreshAsync(CancellationToken cancellationToken)
         {
-            _logger.LogInformation("Starting background secret refresh thread");
+            _logger?.LogInformation("Starting background secret refresh thread");
             while (!cancellationToken.IsCancellationRequested)
             {
-                _telemetryService.TrackSecretRefreshIteration();
+                _telemetryService?.TrackSecretRefreshIteration();
                 bool allRefreshesSucceeded = true;
                 foreach (var keyValuePair in _cachedSecrets)
                 {
@@ -203,7 +203,7 @@ namespace NuGet.Services.KeyVault
                     {
                         try
                         {
-                            _logger.LogInformation("Refreshing the value for the secret {SecretName}", keyValuePair.Key);
+                            _logger?.LogInformation("Refreshing the value for the secret {SecretName}", keyValuePair.Key);
                             var value = await _underlyingSecretReader.GetSecretObjectAsync(keyValuePair.Key, _logger);
                             var cachedSecret = new CachedSecret(value);
                             _cachedSecrets.AddOrUpdate(keyValuePair.Key, cachedSecret, (_, __) => cachedSecret);
@@ -211,8 +211,8 @@ namespace NuGet.Services.KeyVault
                         catch (Exception ex)
                         {
                             // we'll report the exception and ignore it, so we don't leak it outside the function
-                            _telemetryService.TrackSecretRefreshFailure(keyValuePair.Key);
-                            _logger.LogError(ex, "Exception while refreshing the secret {SecretName}", keyValuePair.Key);
+                            _telemetryService?.TrackSecretRefreshFailure(keyValuePair.Key);
+                            _logger?.LogError(ex, "Exception while refreshing the secret {SecretName}", keyValuePair.Key);
                             allRefreshesSucceeded = false;
                         }
                     }
@@ -251,7 +251,7 @@ namespace NuGet.Services.KeyVault
                     }
                 }
             }
-            _logger.LogInformation("Background secret refresh thread got a signal to terminate.");
+            _logger?.LogInformation("Background secret refresh thread got a signal to terminate.");
         }
 
         private bool IsSecretOutdated(CachedSecret cachedSecret)
