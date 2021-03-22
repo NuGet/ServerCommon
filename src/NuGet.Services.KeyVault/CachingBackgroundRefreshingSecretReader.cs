@@ -251,7 +251,7 @@ namespace NuGet.Services.KeyVault
                     }
                 }
             }
-            _logger?.LogInformation("Background secret refresh thread got a signal to terminate.");
+            _logger?.LogInformation("Background secret refresh task got a signal to terminate.");
         }
 
         private bool IsSecretOutdated(CachedSecret cachedSecret)

@@ -68,6 +68,9 @@ namespace NuGet.Services.KeyVault.Tests
 
             Record.Exception(() => target.GetSecret(secretName));
             Assert.True(mre.Wait(1000));
+            // There is a race here between the current thread calling `GetSecret` and the background thread
+            // refreshing the cache. We'll sleep extra second to let background thread win that race.
+            Thread.Sleep(1000);
             var newValue = target.GetSecret(secretName);
             Assert.Equal(secretValue, newValue);
         }
