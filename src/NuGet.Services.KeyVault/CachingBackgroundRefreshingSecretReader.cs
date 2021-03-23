@@ -207,6 +207,7 @@ namespace NuGet.Services.KeyVault
                             var value = await _underlyingSecretReader.GetSecretObjectAsync(keyValuePair.Key, _logger);
                             var cachedSecret = new CachedSecret(value);
                             _cachedSecrets.AddOrUpdate(keyValuePair.Key, cachedSecret, (_, __) => cachedSecret);
+                            _telemetryService?.TrackSecretRefreshed(keyValuePair.Key);
                         }
                         catch (Exception ex)
                         {

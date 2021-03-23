@@ -14,6 +14,7 @@ namespace NuGet.Services.KeyVault
         void TrackExpiredSecretRequested(string secretName);
         void TrackUnknownSecretRequested(string secretName);
         void TrackSecretRefreshFailure(string secretName);
+        void TrackSecretRefreshed(string secretName);
         void TrackSecretRefreshIteration();
         void TrackBackgroundRefreshTaskLeakedException();
     }
