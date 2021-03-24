@@ -5,6 +5,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
@@ -203,10 +205,12 @@ namespace NuGet.Services.KeyVault
                     {
                         try
                         {
-                            _logger?.LogInformation("Refreshing the value for the secret {SecretName}", keyValuePair.Key);
                             var value = await _underlyingSecretReader.GetSecretObjectAsync(keyValuePair.Key, _logger);
                             var cachedSecret = new CachedSecret(value);
                             _cachedSecrets.AddOrUpdate(keyValuePair.Key, cachedSecret, (_, __) => cachedSecret);
+                            _logger?.LogInformation("Refreshed the value for the secret {SecretName} {ValueHash}",
+                                keyValuePair.Key,
+                                GetSecretHash(value));
                             _telemetryService?.TrackSecretRefreshed(keyValuePair.Key);
                         }
                         catch (Exception ex)
@@ -257,6 +261,15 @@ namespace NuGet.Services.KeyVault
 
         private bool IsSecretOutdated(CachedSecret cachedSecret)
             => (DateTimeOffset.UtcNow - cachedSecret.CacheTime) >= _refreshInterval;
+
+        private string GetSecretHash(ISecret secret)
+        {
+            using (var hasher = SHA256.Create())
+            {
+                var hash = hasher.ComputeHash(Encoding.UTF8.GetBytes(secret.Value));
+                return BitConverter.ToString(hash).Replace("-", "");
+            }
+        }
 
         private class CachedSecret
         {
