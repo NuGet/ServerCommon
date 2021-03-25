@@ -20,6 +20,9 @@ trap {
     exit 1
 }
 
+# Enable TLS 1.2 since GitHub requires it.
+[Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
+
 . "$PSScriptRoot\build\common.ps1"
 
 Function Clean-Tests {
@@ -60,22 +63,33 @@ Invoke-BuildStep 'Clearing artifacts' { Clear-Artifacts } `
 
 Invoke-BuildStep 'Set version metadata in AssemblyInfo.cs' { `
         $versionMetadata = `
-            "$PSScriptRoot\src\NuGet.Services.KeyVault\Properties\AssemblyInfo.g.cs", `
-            "$PSScriptRoot\src\NuGet.Services.Logging\Properties\AssemblyInfo.g.cs", `
-            "$PSScriptRoot\src\NuGet.Services.Configuration\Properties\AssemblyInfo.g.cs", `
-            "$PSScriptRoot\src\NuGet.Services.Build\Properties\AssemblyInfo.g.cs",`
-            "$PSScriptRoot\src\NuGet.Services.Storage\Properties\AssemblyInfo.g.cs",`
-            "$PSScriptRoot\src\NuGet.Services.Cursor\Properties\AssemblyInfo.g.cs",`
-            "$PSScriptRoot\src\NuGet.Services.Owin\Properties\AssemblyInfo.g.cs", `
             "$PSScriptRoot\src\NuGet.Services.AzureManagement\Properties\AssemblyInfo.g.cs", `
+            "$PSScriptRoot\src\NuGet.Services.Build\Properties\AssemblyInfo.g.cs",`
+            "$PSScriptRoot\src\NuGet.Services.Configuration\Properties\AssemblyInfo.g.cs", `
             "$PSScriptRoot\src\NuGet.Services.Contracts\Properties\AssemblyInfo.g.cs", `
+            "$PSScriptRoot\src\NuGet.Services.Cursor\Properties\AssemblyInfo.g.cs",`
+            "$PSScriptRoot\src\NuGet.Services.FeatureFlags\Properties\AssemblyInfo.g.cs", `
+            "$PSScriptRoot\src\NuGet.Services.Incidents\Properties\AssemblyInfo.g.cs", `
+            "$PSScriptRoot\src\NuGet.Services.KeyVault\Properties\AssemblyInfo.g.cs", `
+            "$PSScriptRoot\src\NuGet.Services.Licenses\Properties\AssemblyInfo.g.cs", `
+            "$PSScriptRoot\src\NuGet.Services.Logging\Properties\AssemblyInfo.g.cs", `
+            "$PSScriptRoot\src\NuGet.Services.Messaging.Email\Properties\AssemblyInfo.g.cs", `
+            "$PSScriptRoot\src\NuGet.Services.Messaging\Properties\AssemblyInfo.g.cs", `
+            "$PSScriptRoot\src\NuGet.Services.Owin\Properties\AssemblyInfo.g.cs", `
             "$PSScriptRoot\src\NuGet.Services.ServiceBus\Properties\AssemblyInfo.g.cs", `
-            "$PSScriptRoot\src\NuGet.Services.Validation\Properties\AssemblyInfo.g.cs", `
+            "$PSScriptRoot\src\NuGet.Services.Sql\Properties\AssemblyInfo.g.cs", `
+            "$PSScriptRoot\src\NuGet.Services.Status.Table\Properties\AssemblyInfo.g.cs", `
+            "$PSScriptRoot\src\NuGet.Services.Status\Properties\AssemblyInfo.g.cs", `
+            "$PSScriptRoot\src\NuGet.Services.Storage\Properties\AssemblyInfo.g.cs",`
+            "$PSScriptRoot\src\NuGet.Services.Testing.Entities\Properties\AssemblyInfo.g.cs",`
             "$PSScriptRoot\src\NuGet.Services.Validation.Issues\Properties\AssemblyInfo.g.cs", `
-            "$PSScriptRoot\src\NuGet.Services.Sql\Properties\AssemblyInfo.g.cs"
+            "$PSScriptRoot\src\NuGet.Services.Validation\Properties\AssemblyInfo.g.cs"
             
         $versionMetadata | ForEach-Object {
-            Set-VersionInfo -Path $_ -Version $SimpleVersion -Branch $Branch -Commit $CommitSHA
+            # Ensure the directory exists before generating the version info file.
+            $directory = Split-Path $_
+            New-Item -ItemType Directory -Force -Path $directory | Out-Null
+            Set-VersionInfo -Path $_ -Version $SimpleVersion -Branch $Branch -Commit $CommitSHA -AssemblyVersion "3.0.0.0"
         }
     } `
     -ev +BuildErrors
@@ -87,7 +101,12 @@ Invoke-BuildStep 'Restoring solution packages' { `
         
 Invoke-BuildStep 'Building solution' { `
         $SolutionPath = Join-Path $PSScriptRoot "NuGet.Server.Common.sln"
-        Build-Solution $Configuration $BuildNumber -MSBuildVersion "15" $SolutionPath -SkipRestore:$SkipRestore
+        Build-Solution -Configuration $Configuration -BuildNumber $BuildNumber -SolutionPath $SolutionPath -SkipRestore:$SkipRestore
+    } `
+    -ev +BuildErrors
+
+Invoke-BuildStep 'Signing the binaries' {
+        Sign-Binaries -Configuration $Configuration -BuildNumber $BuildNumber `
     } `
     -ev +BuildErrors
     
@@ -105,25 +124,27 @@ Invoke-BuildStep 'Creating artifacts' { `
             "src\NuGet.Services.ServiceBus\NuGet.Services.ServiceBus.csproj", `
             "src\NuGet.Services.Validation\NuGet.Services.Validation.csproj", `
             "src\NuGet.Services.Validation.Issues\NuGet.Services.Validation.Issues.csproj", `
-            "src\NuGet.Services.Sql\NuGet.Services.Sql.csproj"
-            
+            "src\NuGet.Services.Incidents\NuGet.Services.Incidents.csproj", `
+            "src\NuGet.Services.Sql\NuGet.Services.Sql.csproj", `
+            "src\NuGet.Services.Status\NuGet.Services.Status.csproj", `
+            "src\NuGet.Services.Status.Table\NuGet.Services.Status.Table.csproj",
+            "src\NuGet.Services.Messaging\NuGet.Services.Messaging.csproj",
+            "src\NuGet.Services.Messaging.Email\NuGet.Services.Messaging.Email.csproj",
+            "src\NuGet.Services.FeatureFlags\NuGet.Services.FeatureFlags.csproj",
+            "src\NuGet.Services.Licenses\NuGet.Services.Licenses.csproj",
+            "src\NuGet.Services.Testing.Entities\NuGet.Services.Testing.Entities.csproj"
+
         $projects | ForEach-Object {
-            New-Package (Join-Path $PSScriptRoot $_) -Configuration $Configuration -Symbols -IncludeReferencedProjects -MSBuildVersion "15"
+            New-ProjectPackage (Join-Path $PSScriptRoot $_) -Configuration $Configuration -BuildNumber $BuildNumber -Version $SemanticVersion -PackageId $packageId
         }
     } `
     -ev +BuildErrors
 
-Invoke-BuildStep 'Patching versions of artifacts' {`
-        $NupkgWrenchExe = (Join-Path $PSScriptRoot "packages\NupkgWrench\tools\NupkgWrench.exe")
-        
-        Trace-Log "Patching versions of NuGet packages to $SemanticVersion"
-        
-        & $NupkgWrenchExe release "$Artifacts" --new-version $SemanticVersion
-        
-        Trace-Log "Done"
-    }`
+Invoke-BuildStep 'Signing the packages' {
+        Sign-Packages -Configuration $Configuration -BuildNumber $BuildNumber `
+    } `
     -ev +BuildErrors
-    
+
 Trace-Log ('-' * 60)
 
 ## Calculating Build time

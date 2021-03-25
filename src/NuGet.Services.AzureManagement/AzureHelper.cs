@@ -3,6 +3,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Xml;
 using Newtonsoft.Json.Linq;
@@ -76,6 +77,7 @@ namespace NuGet.Services.AzureManagement
             }
         }
 
+        [SuppressMessage("Microsoft.Security.Xml", "CA3053:UseXmlSecureResolver", Justification = @"FxCop incorrectly reports that XmlResolver should be null on XmlReaderSettings and XmlDocument.")]
         /// <summary>
         /// Parses the result of https://management.azure.com/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.ClassicCompute/domainNames/{2}/slots/{3}?api-version=2016-11-01
         /// </summary>
@@ -93,7 +95,13 @@ namespace NuGet.Services.AzureManagement
 
                 using (var stringReader = new StringReader(configuration))
                 {
-                    using (var xmlReader = XmlReader.Create(stringReader))
+                    var settings = new XmlReaderSettings()
+                    {
+                        DtdProcessing = DtdProcessing.Prohibit,
+                        XmlResolver = null
+                    };
+
+                    using (var xmlReader = XmlReader.Create(stringReader, settings))
                     {
                         var xmlConfig = new XmlDocument();
                         xmlConfig.XmlResolver = null;

@@ -3,6 +3,8 @@
 
 using System;
 using System.Threading.Tasks;
+using Microsoft.Identity.Client;
+using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
 
 namespace NuGet.Services.ServiceBus
@@ -16,7 +18,48 @@ namespace NuGet.Services.ServiceBus
             _client = TopicClient.CreateFromConnectionString(connectionString, path);
         }
 
+        public TopicClientWrapper(string clientId, string clientSecret, string tenantId, string serviceBusUrl, string path)
+        {
+            AzureActiveDirectoryTokenProvider.AuthenticationCallback authCallback = async (audience, authority, state) =>
+            {
+                var app = ConfidentialClientApplicationBuilder.Create(clientId)
+                    .WithAuthority(authority)
+                    .WithClientSecret(clientSecret)
+                    .Build();
+
+                var result = await app
+                    .AcquireTokenForClient(new string[] { "https://servicebus.azure.net/.default" })
+                    .ExecuteAsync();
+
+                return result.AccessToken;
+            };
+
+            _client = TopicClient.CreateWithAzureActiveDirectory(new Uri(serviceBusUrl), path, authCallback, $"https://login.windows.net/{tenantId}");
+        }
+
         public Task SendAsync(IBrokeredMessage message)
+        {
+            var innerMessage = GetBrokeredMessage(message);
+            return _client.SendAsync(innerMessage);
+        }
+
+        public void Send(IBrokeredMessage message)
+        {
+            var innerMessage = GetBrokeredMessage(message);
+            _client.Send(innerMessage);
+        }
+
+        public void Close()
+        {
+            _client.Close();
+        }
+
+        public async Task CloseAsync()
+        {
+            await _client.CloseAsync();
+        }
+
+        private BrokeredMessage GetBrokeredMessage(IBrokeredMessage message)
         {
             // For now, assume the only implementation is the wrapper type. We could clone over all properties
             // that the interface supports, but this is not necessary right now.
@@ -33,12 +76,7 @@ namespace NuGet.Services.ServiceBus
                     nameof(message));
             }
 
-            return _client.SendAsync(innerMessage);
-        }
-
-        public Task Close()
-        {
-            return _client.CloseAsync();
+            return innerMessage;
         }
     }
 }

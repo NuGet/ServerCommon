@@ -62,6 +62,33 @@ namespace NuGet.Services.Validation
         /// </summary>
         PackageIsSignedWithUnauthorizedCertificate = 9,
 
+        #region SymbolErrorCodes - reserved 200 - 299 segment
+        /// <summary>
+        /// Symbol checksum does not match with the binary assembly.
+        /// </summary>
+        SymbolErrorCode_ChecksumDoesNotMatch = 250,
+
+        /// <summary>
+        /// The pdb does not have a binary assembly file associated.
+        /// </summary>
+        SymbolErrorCode_MatchingAssemblyNotFound = 251,
+
+        /// <summary>
+        /// The pdb is not portable.
+        /// </summary>
+        SymbolErrorCode_PdbIsNotPortable = 252,
+
+        /// <summary>
+        /// The snupkg does not contain pdbs.
+        /// </summary>
+        SymbolErrorCode_SnupkgDoesNotContainSymbols = 253,
+
+        /// <summary>
+        /// The snupkg contains entries not safe for extraction.
+        /// </summary>
+        SymbolErrorCode_SnupkgContainsEntriesNotSafeForExtraction = 254,
+        #endregion
+
         /// <summary>
         /// Obsolete testing issue - do NOT use this!
         /// </summary>

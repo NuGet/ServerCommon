@@ -26,9 +26,18 @@ Function Get-BuildTools {
             [string]$Path
         )
         
-        $DirectoryPath = (Join-Path $NuGetClientRoot $FilePath)
+        $DirectoryPath = (Join-Path $NuGetClientRoot $Path)
         if (-not (Test-Path $DirectoryPath)) {
             New-Item -Path $DirectoryPath -ItemType "directory"
+        }
+
+        $MarkerFile = Join-Path $DirectoryPath ".marker"
+        if (Test-Path $MarkerFile) {
+            $content = Get-Content $MarkerFile
+            if ($content -eq $Branch) {
+                Write-Host "Build tools directory '$Path' is already at '$Branch'."
+                return;
+            }
         }
         
         $FolderUri = "$RootGitHubApiUri/$Path$Ref"
@@ -44,6 +53,8 @@ Function Get-BuildTools {
                 Get-Folder -Path $FilePath
             }
         }
+
+        $Branch | Out-File $MarkerFile
     }
 
     $FoldersToDownload = "build", "tools"

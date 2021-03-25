@@ -23,7 +23,7 @@ namespace NuGet.Services.Logging
 
             if (withConsoleLogger)
             {
-                loggerConfiguration = loggerConfiguration.WriteTo.ColoredConsole();
+                loggerConfiguration = loggerConfiguration.WriteTo.Console();
             }
 
             return loggerConfiguration;
@@ -31,7 +31,8 @@ namespace NuGet.Services.Logging
 
         public static ILoggerFactory CreateLoggerFactory(
             LoggerConfiguration loggerConfiguration = null,
-            LogEventLevel applicationInsightsMinimumLogEventLevel = LogEventLevel.Information)
+            LogEventLevel applicationInsightsMinimumLogEventLevel = LogEventLevel.Information,
+            TelemetryConfiguration telemetryConfiguration = null)
         {
             // setup Serilog
             if (loggerConfiguration == null)
@@ -39,11 +40,13 @@ namespace NuGet.Services.Logging
                 loggerConfiguration = CreateDefaultLoggerConfiguration();
             }
 
-            if (!string.IsNullOrEmpty(TelemetryConfiguration.Active.InstrumentationKey))
+            if (telemetryConfiguration != null
+                && !string.IsNullOrEmpty(telemetryConfiguration.InstrumentationKey))
             {
-                loggerConfiguration = loggerConfiguration.WriteTo.ApplicationInsightsTraces(
-                    TelemetryConfiguration.Active.InstrumentationKey,
-                    restrictedToMinimumLevel: applicationInsightsMinimumLogEventLevel);
+                loggerConfiguration = loggerConfiguration.WriteTo.ApplicationInsights(
+                    telemetryConfiguration,
+                    TelemetryConverter.Traces,
+                    applicationInsightsMinimumLogEventLevel);
             }
 
             Log.Logger = loggerConfiguration.CreateLogger();

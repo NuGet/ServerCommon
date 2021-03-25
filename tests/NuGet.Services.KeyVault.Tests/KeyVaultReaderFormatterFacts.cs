@@ -6,12 +6,13 @@ using System.Threading.Tasks;
 using FluentAssertions;
 using Moq;
 using Xunit;
+using Microsoft.Extensions.Logging;
 
 namespace NuGet.Services.KeyVault.Tests
 {
     public class KeyVaultReaderFormatterFacts
     {
-        private ISecretInjector _secretInjector;
+        private readonly ISecretInjector _secretInjector;
 
         public static IEnumerable<object[]> _testFormatParameters = new List<object[]>
         {
@@ -55,20 +56,21 @@ namespace NuGet.Services.KeyVault.Tests
         public KeyVaultReaderFormatterFacts()
         {
             var mockKeyVault = new Mock<ISecretReader>();
-            mockKeyVault.Setup(x => x.GetSecretAsync(It.IsAny<string>())).Returns((string s) => Task.FromResult(s.ToUpper()));
+            mockKeyVault.Setup(x => x.GetSecretAsync(It.IsAny<string>(), It.IsAny<ILogger>()))
+                .Returns((string s, ILogger logger) => Task.FromResult(s.ToUpper()));
 
             _secretInjector = new SecretInjector(mockKeyVault.Object);
         }
 
         [Theory]
-        [MemberData("_testFormatParameters")]
+        [MemberData(nameof(_testFormatParameters))]
         public async Task TestFormat(string input, string expectedOutput)
         {
             // Act
             string formattedString = await _secretInjector.InjectAsync(input);
 
             // Assert
-            formattedString.ShouldBeEquivalentTo(expectedOutput);
+            formattedString.Should().BeEquivalentTo(expectedOutput);
         }
     }
 }

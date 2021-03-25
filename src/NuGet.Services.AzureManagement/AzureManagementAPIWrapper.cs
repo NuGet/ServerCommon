@@ -2,6 +2,7 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
+using System.Globalization;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
@@ -12,11 +13,12 @@ namespace NuGet.Services.AzureManagement
 {
     public class AzureManagementAPIWrapper : IAzureManagementAPIWrapper
     {
-        private const string Authority = "https://login.microsoftonline.com/microsoft.onmicrosoft.com";
+        private const string AuthorityTemplate = "https://login.microsoftonline.com/{0}";
         private const string Resource = "https://management.core.windows.net/";
         private const int RenewTokenPriorToExpirationMinutes = 5;
 
         private readonly ClientCredential _clientCredential;
+        private readonly string _authority;
 
         private string _accessToken;
         private DateTimeOffset _tokenExpirationTime;
@@ -38,10 +40,24 @@ namespace NuGet.Services.AzureManagement
                 throw new ArgumentException(nameof(configuration.ClientSecret));
             }
 
+            if (string.IsNullOrEmpty(configuration.AadTenant))
+            {
+                throw new ArgumentException(nameof(configuration.AadTenant));
+            }
+
+
             _clientCredential = new ClientCredential(configuration.ClientId, configuration.ClientSecret);
+            _authority = string.Format(CultureInfo.InvariantCulture, AuthorityTemplate, configuration.AadTenant);
         }
 
-        public async Task<string> GetCloudServicePropertiesAsync(string subscription, string resourceGroup, string name, string slot, CancellationToken token)
+        public async Task RebootCloudServiceRoleInstanceAsync(
+            string subscription,
+            string resourceGroup,
+            string name,
+            string slot,
+            string role,
+            string roleInstance,
+            CancellationToken token)
         {
             if (string.IsNullOrEmpty(subscription))
             {
@@ -63,14 +79,71 @@ namespace NuGet.Services.AzureManagement
                 throw new ArgumentException(nameof(slot));
             }
 
-            const string RequestUrlFormat = @"https://management.azure.com/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.ClassicCompute/domainNames/{2}/slots/{3}?api-version=2016-11-01";
+            if (string.IsNullOrEmpty(role))
+            {
+                throw new ArgumentException(nameof(role));
+            }
 
-            string requestUrl = string.Format(RequestUrlFormat, subscription, resourceGroup, name, slot);
+            if (string.IsNullOrEmpty(roleInstance))
+            {
+                throw new ArgumentException(nameof(roleInstance));
+            }
 
-            return await MakeAzureRequest(requestUrl, token);
+            var requestUrl = "https://management.azure.com" +
+                $"/subscriptions/{subscription}" +
+                $"/resourceGroups/{resourceGroup}" +
+                $"/providers/Microsoft.ClassicCompute/domainNames/{name}" +
+                $"/slots/{slot}" +
+                $"/roles/{role}" +
+                $"/roleInstances/{roleInstance}" +
+                "/restart" +
+                "?api-version=2015-06-01";
+
+            await MakeAzureRequest(HttpMethod.Post, requestUrl, token);
         }
 
-        public async Task<string> GetTrafficManagerPropertiesAsync(string subscription, string resourceGroup, string profileName, CancellationToken token)
+        public async Task<string> GetCloudServicePropertiesAsync(
+            string subscription,
+            string resourceGroup,
+            string name,
+            string slot,
+            CancellationToken token)
+        {
+            if (string.IsNullOrEmpty(subscription))
+            {
+                throw new ArgumentException(nameof(subscription));
+            }
+
+            if (string.IsNullOrEmpty(resourceGroup))
+            {
+                throw new ArgumentException(nameof(resourceGroup));
+            }
+
+            if (string.IsNullOrEmpty(name))
+            {
+                throw new ArgumentException(nameof(name));
+            }
+
+            if (string.IsNullOrEmpty(slot))
+            {
+                throw new ArgumentException(nameof(slot));
+            }
+
+            var requestUrl = "https://management.azure.com" +
+                $"/subscriptions/{subscription}" +
+                $"/resourceGroups/{resourceGroup}" +
+                $"/providers/Microsoft.ClassicCompute/domainNames/{name}" +
+                $"/slots/{slot}" +
+                "?api-version=2016-11-01";
+
+            return await MakeAzureRequest(HttpMethod.Get, requestUrl, token);
+        }
+
+        public async Task<string> GetTrafficManagerPropertiesAsync(
+            string subscription,
+            string resourceGroup,
+            string profileName,
+            CancellationToken token)
         {
             if (string.IsNullOrEmpty(subscription))
             {
@@ -87,20 +160,22 @@ namespace NuGet.Services.AzureManagement
                 throw new ArgumentException(nameof(profileName));
             }
 
-            const string RequestUrlFormat = @"https://management.azure.com/subscriptions/{0}/resourceGroups/{1}/providers/Microsoft.Network/trafficmanagerprofiles/{2}?api-version=2017-05-01";
+            var requestUrl = "https://management.azure.com" +
+                $"/subscriptions/{subscription}" +
+                $"/resourceGroups/{resourceGroup}" +
+                $"/providers/Microsoft.Network/trafficmanagerprofiles/{profileName}" +
+                "?api-version=2017-05-01";
 
-            string requestUrl = string.Format(RequestUrlFormat, subscription, resourceGroup, profileName);
-
-            return await MakeAzureRequest(requestUrl, token);
+            return await MakeAzureRequest(HttpMethod.Get, requestUrl, token);
         }
 
-        private async Task<string> MakeAzureRequest(string requestUrl, CancellationToken token)
+        private async Task<string> MakeAzureRequest(HttpMethod method, string requestUrl, CancellationToken token)
         {
             await RenewAccessToken();
 
             using (var client = new HttpClient())
+            using (var request = new HttpRequestMessage(method, requestUrl))
             {
-                var request = new HttpRequestMessage(HttpMethod.Get, requestUrl);
                 request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", _accessToken);
                 HttpResponseMessage response = await client.SendAsync(request, token);
 
@@ -121,7 +196,7 @@ namespace NuGet.Services.AzureManagement
                     {
                     }
 
-                    throw new AzureManagementException($"Failed to make request to Azure." +
+                    throw new AzureManagementException("Failed to make request to Azure." +
                         $" Url: {requestUrl}, Return code: {response.StatusCode} {response.ReasonPhrase}, Error: {errorDetails}");
                 }
             }
@@ -142,13 +217,13 @@ namespace NuGet.Services.AzureManagement
         {
             try
             {
-                var context = new AuthenticationContext(Authority, validateAuthority: false);
+                var context = new AuthenticationContext(_authority, validateAuthority: false);
                 AuthenticationResult authenticationResult = await context.AcquireTokenAsync(Resource, _clientCredential);
                 return authenticationResult;
             }
             catch (AdalException adalException)
             {
-                throw new AzureManagementException($"Failed to create token. Client id: {_clientCredential.ClientId}", adalException);
+                throw new AzureManagementException($"Failed to create token. Client id: {_clientCredential.ClientId}, Authority: {_authority}", adalException);
             }
         }
     }

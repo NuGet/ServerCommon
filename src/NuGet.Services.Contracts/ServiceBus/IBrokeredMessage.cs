@@ -11,12 +11,15 @@ namespace NuGet.Services.ServiceBus
     {
         int DeliveryCount { get; }
         DateTimeOffset ExpiresAtUtc { get; }
+        TimeSpan TimeToLive { get; set; }
         IDictionary<string, object> Properties { get; }
         DateTimeOffset EnqueuedTimeUtc { get; }
         DateTimeOffset ScheduledEnqueueTimeUtc { get; set; }
+        string MessageId { get; set; }
         Task CompleteAsync();
         Task AbandonAsync();
         string GetBody();
+        Stream GetBody<Stream>();
         IBrokeredMessage Clone();
     }
 }

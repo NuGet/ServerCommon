@@ -1,196 +1,28 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{C1E36A2C-1C1B-4521-B256-AD42505D9EFB}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>NuGet.Services.Validation</RootNamespace>
-    <AssemblyName>NuGet.Services.Validation</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
+    <TargetFramework>net472</TargetFramework>
+    <Description>Logic shared between the front-end and back-end concerning asynchronous validation</Description>
+
+    <!--
+    SDK-based projects use different default conventions for producing resource names which are not compatible with
+    EntityFramework. The workaround is to change this convention:
+    https://github.com/dotnet/ef6/issues/1258#issuecomment-531355034
+    -->
+    <EmbeddedResourceUseDependentUponConvention>true</EmbeddedResourceUseDependentUponConvention>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Net.Http" />
-    <Reference Include="System.Xml" />
+    <PackageReference Include="EntityFramework">
+      <Version>6.4.0-preview3-19553-01</Version>
+    </PackageReference>
+    <PackageReference Include="NuGet.Versioning">
+      <Version>5.8.0</Version>
+    </PackageReference>
   </ItemGroup>
+
   <ItemGroup>
-    <Compile Include="Entities\BaseValidationIssue.cs" />
-    <Compile Include="Entities\CertificateChainLink.cs" />
-    <Compile Include="Entities\EndCertificate.cs" />
-    <Compile Include="Entities\EndCertificateStatus.cs" />
-    <Compile Include="Entities\EndCertificateUse.cs" />
-    <Compile Include="Entities\EndCertificateValidation.cs" />
-    <Compile Include="Entities\IValidationContext.cs" />
-    <Compile Include="Entities\PackageRevalidation.cs" />
-    <Compile Include="Entities\PackageSignatureType.cs" />
-    <Compile Include="Entities\PackageSigningState.cs" />
-    <Compile Include="Entities\PackageSignature.cs" />
-    <Compile Include="Entities\PackageSignatureStatus.cs" />
-    <Compile Include="Entities\PackageSigningStatus.cs" />
-    <Compile Include="Entities\PackageValidation.cs" />
-    <Compile Include="Entities\PackageCompatibilityIssue.cs" />
-    <Compile Include="Entities\PackageValidationSet.cs" />
-    <Compile Include="Entities\ParentCertificate.cs" />
-    <Compile Include="Entities\ScanOperationState.cs" />
-    <Compile Include="Entities\TrustedTimestamp.cs" />
-    <Compile Include="Entities\TrustedTimestampStatus.cs" />
-    <Compile Include="Entities\ValidationEntitiesContext.cs" />
-    <Compile Include="Entities\PackageValidationIssue.cs" />
-    <Compile Include="Entities\ValidatorIssue.cs" />
-    <Compile Include="Entities\ValidatorStatus.cs" />
-    <Compile Include="IPackageValidationEnqueuer.cs" />
-    <Compile Include="IServiceBusMessageSerializer.cs" />
-    <Compile Include="Entities\EntitiesConfiguration.cs" />
-    <Compile Include="Migrations\201709202218143_AddValidationSchema.cs" />
-    <Compile Include="Migrations\201709202218143_AddValidationSchema.Designer.cs">
-      <DependentUpon>201709202218143_AddValidationSchema.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201711291837076_AddPackageSigningSchema.cs" />
-    <Compile Include="Migrations\201711291837076_AddPackageSigningSchema.Designer.cs">
-      <DependentUpon>201711291837076_AddPackageSigningSchema.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201712060116551_AddPackageValidationIssues.cs" />
-    <Compile Include="Migrations\201712060116551_AddPackageValidationIssues.Designer.cs">
-      <DependentUpon>201712060116551_AddPackageValidationIssues.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201801092335421_AddValidatorIssues.cs" />
-    <Compile Include="Migrations\201801092335421_AddValidatorIssues.Designer.cs">
-      <DependentUpon>201801092335421_AddValidatorIssues.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201801222056549_AddEndCertificateUse.cs" />
-    <Compile Include="Migrations\201801222056549_AddEndCertificateUse.Designer.cs">
-      <DependentUpon>201801222056549_AddEndCertificateUse.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201801232345348_MakeSignatureAndTimestampUniquePerPackage.cs" />
-    <Compile Include="Migrations\201801232345348_MakeSignatureAndTimestampUniquePerPackage.Designer.cs">
-      <DependentUpon>201801232345348_MakeSignatureAndTimestampUniquePerPackage.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201802052051419_AddTrustedTimestampStatus.cs" />
-    <Compile Include="Migrations\201802052051419_AddTrustedTimestampStatus.Designer.cs">
-      <DependentUpon>201802052051419_AddTrustedTimestampStatus.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201802212317262_AddPackageCompatibilityIssuesTable.cs" />
-    <Compile Include="Migrations\201802212317262_AddPackageCompatibilityIssuesTable.Designer.cs">
-      <DependentUpon>201802212317262_AddPackageCompatibilityIssuesTable.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201803120118455_AddPackageETag.cs" />
-    <Compile Include="Migrations\201803120118455_AddPackageETag.Designer.cs">
-      <DependentUpon>201803120118455_AddPackageETag.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201803212305281_AddValidatorStatusNupkgUrl.cs" />
-    <Compile Include="Migrations\201803212305281_AddValidatorStatusNupkgUrl.Designer.cs">
-      <DependentUpon>201803212305281_AddValidatorStatusNupkgUrl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201803272331375_AddPackageSignatureType.cs" />
-    <Compile Include="Migrations\201803272331375_AddPackageSignatureType.Designer.cs">
-      <DependentUpon>201803272331375_AddPackageSignatureType.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201804092202151_AddScanOperationStateTable.cs" />
-    <Compile Include="Migrations\201804092202151_AddScanOperationStateTable.Designer.cs">
-      <DependentUpon>201804092202151_AddScanOperationStateTable.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201805222305347_ScanBlobSize.cs" />
-    <Compile Include="Migrations\201805222305347_ScanBlobSize.Designer.cs">
-      <DependentUpon>201805222305347_ScanBlobSize.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\201806050030579_AddPackageRevalidations.cs" />
-    <Compile Include="Migrations\201806050030579_AddPackageRevalidations.Designer.cs">
-      <DependentUpon>201806050030579_AddPackageRevalidations.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Migrations\ValidationMigrationsConfiguration.cs" />
-    <Compile Include="PackageValidationEnqueuer.cs" />
-    <Compile Include="PackageValidationMessageData.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\AssemblyInfo.*.cs" />
-    <Compile Include="ServiceBusMessageSerializer.cs" />
-    <Compile Include="ValidationResult.cs" />
+    <ProjectReference Include="..\NuGet.Services.Contracts\NuGet.Services.Contracts.csproj" />
+    <ProjectReference Include="..\NuGet.Services.ServiceBus\NuGet.Services.ServiceBus.csproj" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="app.config">
-      <SubType>Designer</SubType>
-    </None>
-    <None Include="project.json" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\NuGet.Services.Contracts\NuGet.Services.Contracts.csproj">
-      <Project>{6674b4b4-2d0e-4840-8cf0-2356acde8863}</Project>
-      <Name>NuGet.Services.Contracts</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\NuGet.Services.ServiceBus\NuGet.Services.ServiceBus.csproj">
-      <Project>{9337000b-ea3b-40be-9a33-38bc28dfd0cb}</Project>
-      <Name>NuGet.Services.ServiceBus</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Migrations\201709202218143_AddValidationSchema.resx">
-      <DependentUpon>201709202218143_AddValidationSchema.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201711291837076_AddPackageSigningSchema.resx">
-      <DependentUpon>201711291837076_AddPackageSigningSchema.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201712060116551_AddPackageValidationIssues.resx">
-      <DependentUpon>201712060116551_AddPackageValidationIssues.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201801092335421_AddValidatorIssues.resx">
-      <DependentUpon>201801092335421_AddValidatorIssues.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201801222056549_AddEndCertificateUse.resx">
-      <DependentUpon>201801222056549_AddEndCertificateUse.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201801232345348_MakeSignatureAndTimestampUniquePerPackage.resx">
-      <DependentUpon>201801232345348_MakeSignatureAndTimestampUniquePerPackage.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201802052051419_AddTrustedTimestampStatus.resx">
-      <DependentUpon>201802052051419_AddTrustedTimestampStatus.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201802212317262_AddPackageCompatibilityIssuesTable.resx">
-      <DependentUpon>201802212317262_AddPackageCompatibilityIssuesTable.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201803120118455_AddPackageETag.resx">
-      <DependentUpon>201803120118455_AddPackageETag.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201803212305281_AddValidatorStatusNupkgUrl.resx">
-      <DependentUpon>201803212305281_AddValidatorStatusNupkgUrl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201803272331375_AddPackageSignatureType.resx">
-      <DependentUpon>201803272331375_AddPackageSignatureType.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201804092202151_AddScanOperationStateTable.resx">
-      <DependentUpon>201804092202151_AddScanOperationStateTable.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201805222305347_ScanBlobSize.resx">
-      <DependentUpon>201805222305347_ScanBlobSize.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Migrations\201806050030579_AddPackageRevalidations.resx">
-      <DependentUpon>201806050030579_AddPackageRevalidations.cs</DependentUpon>
-    </EmbeddedResource>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="..\..\build\sign.targets" />
 </Project>
