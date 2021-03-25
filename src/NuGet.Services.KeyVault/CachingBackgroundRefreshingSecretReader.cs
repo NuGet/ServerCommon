@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging;
 namespace NuGet.Services.KeyVault
 {
     /// <summary>
-    /// An <see cref="ISyncSecretReader"/> implementation that uses background thrad to refresh
+    /// An <see cref="ISyncSecretReader"/> implementation that uses background task to refresh
     /// secrets and produces cached values each times a value is requested.
     /// </summary>
     public class CachingBackgroundRefreshingSecretReader
@@ -28,7 +28,7 @@ namespace NuGet.Services.KeyVault
         private readonly ConcurrentDictionary<string, CachedSecret> _cachedSecrets;
         private readonly ICachingBackgroundRefreshingSecretReaderTelemetryService _telemetryService;
         private readonly TimeSpan _refreshInterval;
-        private readonly TimeSpan _backgroundThreadSleepInterval;
+        private readonly TimeSpan _backgroundTaskSleepInterval;
 
         /// <summary>
         /// An event that gets signaled upon the first successful secret refresh. Allows to wait
@@ -37,7 +37,7 @@ namespace NuGet.Services.KeyVault
         private readonly ManualResetEventSlim _firstRefreshComplete = new ManualResetEventSlim(false);
 
         /// <summary>
-        /// The cancellation token source used to signal background thread that we encountered
+        /// The cancellation token source used to signal background task that we encountered
         /// an unexpected secret and would want to retrieve its value ASAP. This is an emergency
         /// mechanism and all occurrences of it should be logged and analyzed. Normally, the
         /// complete list of secrets to be used is supposed to be passed to the constructor.
@@ -47,18 +47,18 @@ namespace NuGet.Services.KeyVault
         /// <summary>
         /// The object constructor.
         /// </summary>
-        /// <param name="underlyingSecretReader">The actual secret reader that would provide secret values to a background thread.</param>
-        /// <param name="backgroundTaskStarter">The hook into caller's infrastructure to run background threads. A function that accepts a
-        /// function that runs a background secret refresh task and makes sure background thread infrastructure executes it. See example below.</param>
+        /// <param name="underlyingSecretReader">The actual secret reader that would provide secret values to a background task.</param>
+        /// <param name="backgroundTaskStarter">The hook into caller's infrastructure to run background tasks. A function that accepts a
+        /// function that runs a background secret refresh task and makes sure background task infrastructure executes it. See example below.</param>
         /// <param name="secretNames">The list of secret names to maintain.</param>
-        /// <param name="refreshInterval">The time for which secret values are going to be cached.</param>
-        /// <param name="backgroundThreadSleepInterval">The sleep time of the background thread. Defines the
+        /// <param name="refreshInterval">The time for which secret values are going to be EditableFeatureFlagFileStorageServicecached.</param>
+        /// <param name="backgroundTaskSleepInterval">The sleep time of the background task. Defines the
         /// frequency of expiration checks for the cache items.</param>
         /// <param name="logger">Logger.</param>
         /// <example>
         /// // In ASP.NET environment the value of <paramref name="backgroundTaskStarter"/> could be using
-        /// // HostingEnvironment.QueueBackgroundWorkItem to start the background thread:
-        /// var secretReader = new CachingBackgroundThreadRefreshingSecretReader(
+        /// // HostingEnvironment.QueueBackgroundWorkItem to start the background task:
+        /// var secretReader = new CachingBackgroundRefreshingSecretReader(
         ///     actualSecretReader,
         ///     HostingEnvironment.QueueBackgroundWorkItem,
         ///     logger);
@@ -70,7 +70,7 @@ namespace NuGet.Services.KeyVault
             ICachingBackgroundRefreshingSecretReaderTelemetryService telemetryService = null,
             ILogger logger = null,
             TimeSpan? refreshInterval = null,
-            TimeSpan? backgroundThreadSleepInterval = null)
+            TimeSpan? backgroundTaskSleepInterval = null)
         {
             _underlyingSecretReader = underlyingSecretReader ?? throw new ArgumentNullException(nameof(underlyingSecretReader));
             if (backgroundTaskStarter == null)
@@ -85,7 +85,7 @@ namespace NuGet.Services.KeyVault
             _logger = logger;
             _telemetryService = telemetryService;
             _refreshInterval = refreshInterval ?? TimeSpan.FromSeconds(DefaultRefreshIntervalSec);
-            _backgroundThreadSleepInterval = backgroundThreadSleepInterval ?? TimeSpan.FromSeconds(DefaultBackgroundSleepIntervalSec);
+            _backgroundTaskSleepInterval = backgroundTaskSleepInterval ?? TimeSpan.FromSeconds(DefaultBackgroundSleepIntervalSec);
             _logger?.LogInformation("Starting background secret refresh for {SecretsNumber} secrets", _cachedSecrets.Count());
             backgroundTaskStarter(BackgroundRefreshTaskWrapper);
         }
@@ -156,12 +156,12 @@ namespace NuGet.Services.KeyVault
 
         private void AddSecretName(string secretName)
         {
-            // the goal is to add a key to the dictionary, background update thread would take care
+            // the goal is to add a key to the dictionary, background update task would take care
             // of populating the value. But, if it just had it populated, we are not going to reset it
             // back to null and keep whatever was there.
             _cachedSecrets.AddOrUpdate(secretName, (CachedSecret)null, (k, v) => v);
 
-            // signal background thread to start update immediately.
+            // signal background task to start update immediately.
             _forceRefresh.Cancel();
         }
 
@@ -189,7 +189,7 @@ namespace NuGet.Services.KeyVault
 
         private async Task DoBackgroundRefreshAsync(CancellationToken cancellationToken)
         {
-            _logger?.LogInformation("Starting background secret refresh thread");
+            _logger?.LogInformation("Starting background secret refresh task");
             while (!cancellationToken.IsCancellationRequested)
             {
                 _telemetryService?.TrackSecretRefreshIteration();
@@ -228,7 +228,7 @@ namespace NuGet.Services.KeyVault
                 {
                     using (var combinedSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _forceRefresh.Token))
                     {
-                        await Task.Delay(_backgroundThreadSleepInterval, combinedSource.Token);
+                        await Task.Delay(_backgroundTaskSleepInterval, combinedSource.Token);
                     }
                 }
                 catch (TaskCanceledException)
