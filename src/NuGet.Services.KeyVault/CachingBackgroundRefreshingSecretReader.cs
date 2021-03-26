@@ -159,7 +159,7 @@ namespace NuGet.Services.KeyVault
             // the goal is to add a key to the dictionary, background update task would take care
             // of populating the value. But, if it just had it populated, we are not going to reset it
             // back to null and keep whatever was there.
-            _cachedSecrets.AddOrUpdate(secretName, (CachedSecret)null, (k, v) => v);
+            _cachedSecrets.AddOrUpdate(secretName, (CachedSecret)null, (_, v) => v);
 
             // signal background task to start update immediately.
             _forceRefresh.Cancel();
