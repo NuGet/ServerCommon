@@ -126,7 +126,7 @@ namespace NuGet.Services.KeyVault
             {
                 throw new ArgumentException($"{nameof(secretName)} must not be empty", nameof(secretName));
             }
-            // Given that the user of the object called WaitForTheFirstRefhresh() on their own
+            // Given that the user of the object called WaitForTheFirstRefresh() on their own
             // this call should never block
             WaitForTheFirstRefresh();
             if (_cachedSecrets.TryGetValue(secretName, out var cachedSecret))
