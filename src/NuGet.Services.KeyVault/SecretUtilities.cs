@@ -11,8 +11,23 @@ namespace NuGet.Services.KeyVault
 {
     public static class SecretUtilities
     {
+        /// <summary>
+        /// Searches the string for references to secrets.
+        /// </summary>
+        /// <param name="input">The string to search in.</param>
+        /// <param name="frame">Symbols that indicate the beginning and the end of a secret reference. See <see cref="SecretInjector.DefaultFrame"/>.</param>
+        /// <returns>The list of secret names found in <paramref name="input"/>.</returns>
         public static ICollection<string> GetSecretNames(string input, string frame)
         {
+            if (input == null)
+            {
+                throw new ArgumentNullException(nameof(input));
+            }
+            if (frame == null)
+            {
+                throw new ArgumentNullException(nameof(frame));
+            }
+
             var secretNames = new HashSet<string>();
 
             int startIndex = 0;
