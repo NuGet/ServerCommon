@@ -51,7 +51,8 @@ namespace NuGet.Services.KeyVault
         /// <param name="backgroundTaskStarter">The hook into caller's infrastructure to run background tasks. A function that accepts a
         /// function that runs a background secret refresh task and makes sure background task infrastructure executes it. See example below.</param>
         /// <param name="secretNames">The list of secret names to maintain.</param>
-        /// <param name="refreshInterval">The time for which secret values are going to be EditableFeatureFlagFileStorageServicecached.</param>
+        /// <param name="refreshInterval">The time for which secret values are going to be cached. When this time is expired, the cache item is going
+        /// to get refreshed on next iteration of background refresh task.</param>
         /// <param name="backgroundTaskSleepInterval">The sleep time of the background task. Defines the
         /// frequency of expiration checks for the cache items.</param>
         /// <param name="logger">Logger.</param>
