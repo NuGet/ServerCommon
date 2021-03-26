@@ -12,6 +12,6 @@ namespace NuGet.Services.KeyVault
             => secretName;
 
         public ISecret GetSecretObject(string secretName)
-            => new KeyVaultSecret(secretName, secretName, null);
+            => new KeyVaultSecret(secretName, secretName, expiryDate: null);
     }
 }
