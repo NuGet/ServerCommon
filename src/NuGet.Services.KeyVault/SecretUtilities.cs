@@ -16,7 +16,7 @@ namespace NuGet.Services.KeyVault
         /// </summary>
         /// <param name="input">The string to search in.</param>
         /// <param name="frame">Symbols that indicate the beginning and the end of a secret reference. See <see cref="SecretInjector.DefaultFrame"/>.</param>
-        /// <returns>The list of secret names found in <paramref name="input"/>.</returns>
+        /// <returns>The list of secret names found in <paramref name="input"/> in no particular order.</returns>
         public static ICollection<string> GetSecretNames(string input, string frame)
         {
             if (input == null)
@@ -26,6 +26,10 @@ namespace NuGet.Services.KeyVault
             if (frame == null)
             {
                 throw new ArgumentNullException(nameof(frame));
+            }
+            if (string.IsNullOrWhiteSpace(frame))
+            {
+                throw new ArgumentException($"{nameof(frame)} must not be empty", nameof(frame));
             }
 
             var secretNames = new HashSet<string>();
