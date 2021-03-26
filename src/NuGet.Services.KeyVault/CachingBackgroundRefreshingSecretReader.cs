@@ -193,7 +193,6 @@ namespace NuGet.Services.KeyVault
             _logger?.LogInformation("Starting background secret refresh task");
             while (!cancellationToken.IsCancellationRequested)
             {
-                _telemetryService?.TrackSecretRefreshIteration();
                 bool allRefreshesSucceeded = true;
                 foreach (var keyValuePair in _cachedSecrets)
                 {
@@ -225,6 +224,7 @@ namespace NuGet.Services.KeyVault
                 {
                     _firstRefreshComplete.Set();
                 }
+                _telemetryService?.TrackSecretRefreshIteration(allRefreshesSucceeded);
                 try
                 {
                     using (var combinedSource = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken, _forceRefresh.Token))
