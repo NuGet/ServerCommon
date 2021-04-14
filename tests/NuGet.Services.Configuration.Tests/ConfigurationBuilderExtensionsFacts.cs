@@ -33,10 +33,10 @@ namespace NuGet.Services.Configuration.Tests
             }
         }
 
-        public class AddInjectedDictionary
+        public class AddInjectedInMemoryCollection
         {
             [Fact]
-            public void InjectsSecretsIntoDictionaryValues()
+            public void InjectsSecretsIntoInMemoryCollection()
             {
                 var dict = new Dictionary<string, string>();
                 dict.Add("Key1", "Some $$hidden$$ secret");

@@ -41,7 +41,7 @@ namespace NuGet.Services.Configuration
         {
             configurationBuilder = configurationBuilder ?? throw new ArgumentNullException(nameof(configurationBuilder));
 
-            configurationBuilder.Add(new KeyVaultDictionaryInjectingConfigurationSource(dictionary, secretInjector));
+            configurationBuilder.Add(new KeyVaultInMemoryCollectionInjectingConfigurationSource(dictionary, secretInjector));
 
             return configurationBuilder;
         }

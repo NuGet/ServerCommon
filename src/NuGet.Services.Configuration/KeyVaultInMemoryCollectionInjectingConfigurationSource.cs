@@ -3,7 +3,9 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration.Memory;
 using NuGet.Services.Configuration;
 using NuGet.Services.KeyVault;
 
@@ -11,12 +13,12 @@ namespace NuGet.Services.Configuration
 {
     using Extensions = Microsoft.Extensions.Configuration;
 
-    public class KeyVaultDictionaryInjectingConfigurationSource : IConfigurationSource
+    public class KeyVaultInMemoryCollectionInjectingConfigurationSource : IConfigurationSource 
     {
         private readonly IReadOnlyDictionary<string, string> _dictionary;
         private readonly ISecretInjector _secretInjector;
 
-        public KeyVaultDictionaryInjectingConfigurationSource(IReadOnlyDictionary<string, string> dictionary, ISecretInjector secretInjector)
+        public KeyVaultInMemoryCollectionInjectingConfigurationSource(IReadOnlyDictionary<string, string> dictionary, ISecretInjector secretInjector)
         {
             _dictionary = dictionary ?? throw new ArgumentNullException(nameof(dictionary));
             _secretInjector = secretInjector ?? throw new ArgumentNullException(nameof(secretInjector));
@@ -24,7 +26,12 @@ namespace NuGet.Services.Configuration
 
         public Extensions.IConfigurationProvider Build(IConfigurationBuilder builder)
         {
-            var source = new DictionaryConfigurationSource(_dictionary);
+            var source = new MemoryConfigurationSource()
+            {
+                InitialData = _dictionary
+                    .Select(x => new KeyValuePair<string, string>(x.Key, x.Value))
+            };
+
             var provider = source.Build(builder);
             return new KeyVaultInjectingConfigurationProvider(provider, _secretInjector);
         }
