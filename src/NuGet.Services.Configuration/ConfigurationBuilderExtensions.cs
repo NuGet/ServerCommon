@@ -34,7 +34,7 @@ namespace NuGet.Services.Configuration
             return configurationBuilder;
         }
 
-        public static IConfigurationBuilder AddInjectedDictionary(
+        public static IConfigurationBuilder AddInjectedInMemoryCollection(
             this IConfigurationBuilder configurationBuilder,
             IReadOnlyDictionary<string, string> dictionary,
             ISecretInjector secretInjector)

@@ -47,7 +47,7 @@ namespace NuGet.Services.Configuration.Tests
                     .ReturnsAsync(() => "Some unhidden secret");
 
                 var configuration = new ConfigurationBuilder()
-                    .AddInjectedDictionary(dict, secretInjector.Object)
+                    .AddInjectedInMemoryCollection(dict, secretInjector.Object)
                     .Build();
 
                 var value = configuration.GetValue<string>("Key1");
