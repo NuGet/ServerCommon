@@ -3,6 +3,7 @@
 
 using System.Data.Entity;
 using System.Threading.Tasks;
+using NuGet.Services.Validation.Entities;
 
 namespace NuGet.Services.Validation
 {
@@ -23,6 +24,7 @@ namespace NuGet.Services.Validation
         IDbSet<ScanOperationState> ScanOperationStates { get; }
         IDbSet<PackageRevalidation> PackageRevalidations { get; set; }
         IDbSet<SymbolsServerRequest> SymbolsServerRequests { get; set; }
+        IDbSet<CvsScanOperationState> CvsScanOperationStates { get; set; }
 
         Task<int> SaveChangesAsync();
     }

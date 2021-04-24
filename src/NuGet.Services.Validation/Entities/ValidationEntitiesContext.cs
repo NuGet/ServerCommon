@@ -7,6 +7,7 @@ using System.Data.Common;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Infrastructure.Annotations;
+using NuGet.Services.Validation.Entities;
 
 namespace NuGet.Services.Validation
 {
@@ -53,6 +54,7 @@ namespace NuGet.Services.Validation
 
         private const string SignatureSchema = "signature";
         private const string ScanSchema = "scan";
+        private const string CvsSchema = "cvs";
 
         private const string PackageValidationSetsValidationTrackingId = "IX_PackageValidationSets_ValidationTrackingId";
         private const string PackageValidationSetsPackageKeyIndex = "IX_PackageValidationSets_PackageKey";
@@ -98,6 +100,10 @@ namespace NuGet.Services.Validation
 
         private const string SymbolsServerRequestSymbolsKeyIndex = "IX_SymbolServerRequests_SymbolsKey";
 
+        private const string CvsOperationStatesTable = "CvsOperationStates";
+        private const string CvsOperationStatesValidationSetIdIndex = "IX_CvsOperationStates_ValidationSetIdIndex";
+        private const string CvsOperationStatesScanStatusCreatedIndex = "IX_CvsOperationStates_ScanStatus_CreatedIndex";
+
         static ValidationEntitiesContext()
         {
             // Don't run migrations, ever!
@@ -120,6 +126,7 @@ namespace NuGet.Services.Validation
         public IDbSet<ScanOperationState> ScanOperationStates { get; set; }
         public IDbSet<PackageRevalidation> PackageRevalidations { get; set; }
         public IDbSet<SymbolsServerRequest> SymbolsServerRequests { get; set; }
+        public IDbSet<CvsScanOperationState> CvsScanOperationStates { get; set; }
 
         public ValidationEntitiesContext(string nameOrConnectionString) : base(nameOrConnectionString)
         {
@@ -332,7 +339,7 @@ namespace NuGet.Services.Validation
             RegisterScanningEntities(modelBuilder);
             RegisterRevalidationEntities(modelBuilder);
             RegisterSymbolEntities(modelBuilder);
-
+            RegisterCvsScanEntities(modelBuilder);
             base.OnModelCreating(modelBuilder);
         }
 
@@ -761,6 +768,70 @@ namespace NuGet.Services.Validation
             modelBuilder.Entity<SymbolsServerRequest>()
                .Property(s => s.RowVersion)
                .IsRowVersion();
+        }
+
+        private void RegisterCvsScanEntities(DbModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<CvsScanOperationState>()
+                .ToTable(CvsOperationStatesTable, CvsSchema)
+                .HasKey(p => p.Key);
+
+            modelBuilder.Entity<CvsScanOperationState>()
+                .Property(s => s.ValidationSetId)
+                .HasColumnAnnotation(
+                    IndexAnnotation.AnnotationName,
+                    new IndexAnnotation(new[]
+                    {
+                        new IndexAttribute(CvsOperationStatesValidationSetIdIndex, 0)
+                        {
+                            IsUnique = true
+                        }
+                    }));
+
+            modelBuilder.Entity<CvsScanOperationState>()
+                .Property(s => s.Status)
+                .HasColumnAnnotation(
+                    IndexAnnotation.AnnotationName,
+                    new IndexAnnotation(new[] {
+                        new IndexAttribute(CvsOperationStatesScanStatusCreatedIndex, 0)
+                    }));
+
+            modelBuilder.Entity<CvsScanOperationState>()
+                .Property(s => s.CreatedAt)
+                .IsRequired()
+                .HasColumnType("datetime2")
+                .HasColumnAnnotation(
+                    IndexAnnotation.AnnotationName,
+                    new IndexAnnotation(new[] {
+                        new IndexAttribute(CvsOperationStatesScanStatusCreatedIndex, 1)
+                    }));
+
+            modelBuilder.Entity<CvsScanOperationState>()
+                .Property(s => s.LastUpdatedAt)
+                .HasColumnType("datetime2");
+
+            modelBuilder.Entity<CvsScanOperationState>()
+                .Property(s => s.JobId);
+
+            modelBuilder.Entity<CvsScanOperationState>()
+                .Property(s => s.Violation)
+                .HasMaxLength(1024);
+
+            modelBuilder.Entity<CvsScanOperationState>()
+                .Property(s => s.BlobUrl)
+                .HasMaxLength(512);
+
+            modelBuilder.Entity<CvsScanOperationState>()
+                .Property(s => s.ContentPath)
+                .HasMaxLength(512);
+
+            modelBuilder.Entity<CvsScanOperationState>()
+                .Property(s => s.FileId)
+                .HasMaxLength(64);
+
+            modelBuilder.Entity<CvsScanOperationState>()
+                .Property(pvs => pvs.RowVersion)
+                .IsRowVersion();
         }
     }
 }
