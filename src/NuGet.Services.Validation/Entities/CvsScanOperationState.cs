@@ -63,7 +63,7 @@ namespace NuGet.Services.Validation.Entities
         public string FileId { get; set; }
 
         /// <summary>
-        /// Row Version
+        /// Used for optimistic concurrency when updating statuses.
         /// </summary>
         public byte[] RowVersion { get; set; }
     }
