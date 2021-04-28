@@ -28,7 +28,7 @@ namespace NuGet.Services.Validation.Entities
         public int Status { get; set; }
 
         /// <summary>
-        /// Job Id of the operation.
+        /// CVS's ID for the content scan job.
         /// </summary>
         public long JobId { get; set; }
 
