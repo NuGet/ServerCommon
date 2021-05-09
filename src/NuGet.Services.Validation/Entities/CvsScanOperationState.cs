@@ -14,7 +14,6 @@ namespace NuGet.Services.Validation.Entities
     /// </summary>
     public class CvsScanOperationState
     {
-
         /// <summary>
         /// The database-mastered identifier for this operation.
         /// </summary>
