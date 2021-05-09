@@ -11,7 +11,7 @@ namespace NuGet.Services.Validation
                 c => new
                     {
                         Key = c.Long(nullable: false, identity: true),
-                        ValidationSetId = c.Guid(nullable: false),
+                        ValidationStepId = c.Guid(nullable: false),
                         Status = c.Int(nullable: false),
                         CreatedAt = c.DateTime(nullable: false, precision: 7, storeType: "datetime2"),
                         LastUpdatedAt = c.DateTime(precision: 7, storeType: "datetime2"),
@@ -23,7 +23,7 @@ namespace NuGet.Services.Validation
                         RowVersion = c.Binary(nullable: false, fixedLength: true, timestamp: true, storeType: "rowversion"),
                     })
                 .PrimaryKey(t => t.Key)
-                .Index(t => new { t.ValidationSetId}, unique: true, name: "IX_CvsOperationStates_ValidationSetIdIndex")
+                .Index(t => new { t.ValidationStepId}, unique: true, name: "IX_CvsOperationStates_ValidationStepIdIndex")
                 .Index(t => new { t.Status, t.CreatedAt}, name: "IX_CvsOperationStates_ScanStatus_Created");
             
         }
@@ -31,7 +31,7 @@ namespace NuGet.Services.Validation
         public override void Down()
         {
             DropIndex("cvs.CvsOperationStates", "IX_CvsOperationStates_ScanStatus_Created");
-            DropIndex("cvs.CvsOperationStates", "IX_CvsOperationStates_ValidationSetIdIndex");
+            DropIndex("cvs.CvsOperationStates", "IX_CvsOperationStates_ValidationStepIdIndex");
             DropTable("cvs.CvsOperationStates");
         }
     }

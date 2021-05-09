@@ -101,7 +101,7 @@ namespace NuGet.Services.Validation
         private const string SymbolsServerRequestSymbolsKeyIndex = "IX_SymbolServerRequests_SymbolsKey";
 
         private const string CvsOperationStatesTable = "CvsOperationStates";
-        private const string CvsOperationStatesValidationSetIdIndex = "IX_CvsOperationStates_ValidationSetIdIndex";
+        private const string CvsOperationStatesValidationStepIdIndex = "IX_CvsOperationStates_ValidationStepIdIndex";
         private const string CvsOperationStatesScanStatusCreatedIndex = "IX_CvsOperationStates_ScanStatus_CreatedIndex";
 
         static ValidationEntitiesContext()
@@ -782,7 +782,7 @@ namespace NuGet.Services.Validation
                     IndexAnnotation.AnnotationName,
                     new IndexAnnotation(new[]
                     {
-                        new IndexAttribute(CvsOperationStatesValidationSetIdIndex, 0)
+                        new IndexAttribute(CvsOperationStatesValidationStepIdIndex, 0)
                         {
                             IsUnique = true
                         }
