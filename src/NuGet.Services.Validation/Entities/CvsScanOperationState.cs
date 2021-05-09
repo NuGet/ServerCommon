@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,14 +21,14 @@ namespace NuGet.Services.Validation.Entities
         public long Key { get; set; }
 
         /// <summary>
-        /// Validation ID for which this operation is performed.
+        /// Validation Step ID for which this operation is performed.
         /// </summary>
-        public Guid ValidationSetId { get; set; }
+        public Guid ValidationStepId { get; set; }
 
         /// <summary>
         /// Status of the operation performed.
         /// </summary>
-        public int Status { get; set; }
+        public CvsScanStatus Status { get; set; }
 
         /// <summary>
         /// CVS's ID for the content scan job.
@@ -43,9 +46,9 @@ namespace NuGet.Services.Validation.Entities
         public DateTime? LastUpdatedAt { get; set; }
 
         /// <summary>
-        /// The size of the blob sent for scan/sign operation
+        /// The violation detalis found in cvs scan.
         /// </summary>
-        public string? Violation { get; set; }
+        public string Violation { get; set; }
 
         /// <summary>
         /// The path pointing to external content
@@ -53,7 +56,7 @@ namespace NuGet.Services.Validation.Entities
         public string ContentPath { get; set; }
 
         /// <summary>
-        /// The url pointing to an operation output blob.
+        /// The blob url pointing to an operation output blob.
         /// </summary>
         public string BlobUrl { get; set; }
 

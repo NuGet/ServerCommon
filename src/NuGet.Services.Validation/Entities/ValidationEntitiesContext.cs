@@ -777,7 +777,7 @@ namespace NuGet.Services.Validation
                 .HasKey(p => p.Key);
 
             modelBuilder.Entity<CvsScanOperationState>()
-                .Property(s => s.ValidationSetId)
+                .Property(s => s.ValidationStepId)
                 .HasColumnAnnotation(
                     IndexAnnotation.AnnotationName,
                     new IndexAnnotation(new[]
