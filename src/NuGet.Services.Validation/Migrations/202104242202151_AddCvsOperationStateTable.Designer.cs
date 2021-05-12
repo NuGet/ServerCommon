@@ -7,9 +7,9 @@ namespace NuGet.Services.Validation
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.1.3-40302")]
-    public sealed partial class AddScanOperationStateTable : IMigrationMetadata
+    public sealed partial class AddCvsOperationStateTable : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(AddScanOperationStateTable));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(AddCvsOperationStateTable));
         
         string IMigrationMetadata.Id
         {
