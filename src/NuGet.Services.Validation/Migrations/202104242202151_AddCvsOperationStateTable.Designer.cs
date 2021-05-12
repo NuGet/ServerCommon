@@ -13,7 +13,7 @@ namespace NuGet.Services.Validation
         
         string IMigrationMetadata.Id
         {
-            get { return "201804092202151_AddScanOperationStateTable"; }
+            get { return "202104242202151_AddCvsOperationStateTable"; }
         }
         
         string IMigrationMetadata.Source
