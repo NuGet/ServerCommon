@@ -55,11 +55,6 @@ namespace NuGet.Services.Validation.Entities
         public string ContentPath { get; set; }
 
         /// <summary>
-        /// The blob url pointing to an operation output blob.
-        /// </summary>
-        public string BlobUrl { get; set; }
-
-        /// <summary>
         /// File ID
         /// </summary>
         public string FileId { get; set; }

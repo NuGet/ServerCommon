@@ -818,10 +818,6 @@ namespace NuGet.Services.Validation
                 .HasMaxLength(1024);
 
             modelBuilder.Entity<CvsScanOperationState>()
-                .Property(s => s.BlobUrl)
-                .HasMaxLength(512);
-
-            modelBuilder.Entity<CvsScanOperationState>()
                 .Property(s => s.ContentPath)
                 .HasMaxLength(512);
 

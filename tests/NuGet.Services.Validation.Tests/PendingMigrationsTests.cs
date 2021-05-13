@@ -49,7 +49,7 @@ namespace NuGet.Services.Validation.Tests
             }
         }
 
-        [Fact(Skip = "temp skipping test case")]
+        [Fact]
         public void NoPendingMigrations()
         {
             var currentTimestamp = DateTimeOffset.UtcNow.ToString("yyyyMMddHHmmssFFFFFFF");
