@@ -402,7 +402,10 @@ Function Update-Submodule {
 }
 Function Install-NuGet {
     [CmdletBinding()]
-    param()
+    param(
+        [string]$Username,
+        [string]$AccessToken
+    )
 
     $NuGetFolderPath = Split-Path -Path $NuGetExe -Parent
     $NuGetInstalledMarker = Join-Path $NuGetFolderPath ".marker.v1"
@@ -469,6 +472,32 @@ Function Install-NuGet {
 
     if (-not (Test-Path $NuGetExe)) {
         throw "No file exists at the expected nuget.exe path: $NuGetExe"
+    }
+
+    if ($AccessToken) {
+        $endpoints = @()
+        $endpointURIs = @()
+
+        Get-ChildItem "$PSScriptRoot\nuget.config" -Recurse |% {
+            $nugetConfig = [xml](Get-Content -Path $_)
+
+            $nugetConfig.configuration.packageSources.add |? { ($_.value -match '^https://pkgs\.dev\.azure\.com/') -or ($_.value -match '^https://[\w\-]+\.pkgs\.visualstudio\.com/') } |% {
+                if ($endpointURIs -notcontains $_.Value) {
+                    $endpointURIs += $_.Value;
+                    $endpoint = New-Object -TypeName PSObject;
+                    Add-Member -InputObject $endpoint -MemberType NoteProperty -Name endpoint -Value $_.value;
+                    Add-Member -InputObject $endpoint -MemberType NoteProperty -Name username -Value $Username;
+                    Add-Member -InputObject $endpoint -MemberType NoteProperty -Name password -Value $AccessToken;
+                    $endpoints += $endpoint;
+                }
+            }
+        }
+
+        $auth = New-Object -TypeName PSObject;
+        Add-Member -InputObject $auth -MemberType NoteProperty -Name endpointCredentials -Value $endpoints;
+
+        $authJson = ConvertTo-Json -InputObject $auth;
+        $env:VSS_NUGET_EXTERNAL_FEED_ENDPOINTS = $authJson;
     }
 
     Trace-Log "Setting NuGet .NET Framework credential path"

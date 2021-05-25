@@ -8,7 +8,9 @@ param (
     [string]$SimpleVersion = '1.0.0',
     [string]$SemanticVersion = '1.0.0-zlocal',
     [string]$Branch,
-    [string]$CommitSHA
+    [string]$CommitSHA,
+    [string]$Username,
+    [string]$AccessToken
 )
 
 # For TeamCity - If any issue occurs, this script fails the build. - By default, TeamCity returns an exit code of 0 for all powershell scripts, even if they fail
@@ -51,9 +53,9 @@ Invoke-BuildStep 'Getting private build tools' { Install-PrivateBuildTools } `
 Invoke-BuildStep 'Cleaning test results' { Clean-Tests } `
     -ev +BuildErrors
 
-Invoke-BuildStep 'Installing NuGet.exe' { Install-NuGet } `
+Invoke-BuildStep 'Installing NuGet.exe' { Install-NuGet -Username $Username -AccessToken $AccessToken } `
     -ev +BuildErrors
-    
+
 Invoke-BuildStep 'Clearing package cache' { Clear-PackageCache } `
     -skip:(-not $CleanCache) `
     -ev +BuildErrors
