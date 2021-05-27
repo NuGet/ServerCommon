@@ -100,9 +100,9 @@ namespace NuGet.Services.Validation
 
         private const string SymbolsServerRequestSymbolsKeyIndex = "IX_SymbolServerRequests_SymbolsKey";
 
-        private const string CvsOperationStatesTable = "CvsOperationStates";
-        private const string CvsOperationStatesValidationStepIdIndex = "IX_CvsOperationStates_ValidationStepIdIndex";
-        private const string CvsOperationStatesScanStatusCreatedIndex = "IX_CvsOperationStates_ScanStatus_CreatedIndex";
+        private const string ContentScanOperationStatesTable = "ContentScanOperationStates";
+        private const string ContentScanOperationStatesValidationStepIdTypeStatusIndex = "IX_ContentScanOperationStates_ValidationStepId_Type_StatusIndex";
+        private const string ContentScanOperationStatesCreatedIndex = "IX_ContentScanOperationStates_CreatedIndex";
 
         static ValidationEntitiesContext()
         {
@@ -126,7 +126,7 @@ namespace NuGet.Services.Validation
         public IDbSet<ScanOperationState> ScanOperationStates { get; set; }
         public IDbSet<PackageRevalidation> PackageRevalidations { get; set; }
         public IDbSet<SymbolsServerRequest> SymbolsServerRequests { get; set; }
-        public IDbSet<CvsScanOperationState> CvsScanOperationStates { get; set; }
+        public IDbSet<ContentScanOperationState> ContentScanOperationState { get; set; }
 
         public ValidationEntitiesContext(string nameOrConnectionString) : base(nameOrConnectionString)
         {
@@ -772,60 +772,65 @@ namespace NuGet.Services.Validation
 
         private void RegisterCvsScanEntities(DbModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<CvsScanOperationState>()
-                .ToTable(CvsOperationStatesTable, CvsSchema)
+            modelBuilder.Entity<ContentScanOperationState>()
+                .ToTable(ContentScanOperationStatesTable, CvsSchema)
                 .HasKey(p => p.Key);
 
-            modelBuilder.Entity<CvsScanOperationState>()
+            modelBuilder.Entity<ContentScanOperationState>()
                 .Property(s => s.ValidationStepId)
                 .HasColumnAnnotation(
                     IndexAnnotation.AnnotationName,
                     new IndexAnnotation(new[]
                     {
-                        new IndexAttribute(CvsOperationStatesValidationStepIdIndex, 0)
-                        {
-                            IsUnique = true
-                        }
+                        new IndexAttribute(ContentScanOperationStatesValidationStepIdTypeStatusIndex, 0)
                     }));
 
-            modelBuilder.Entity<CvsScanOperationState>()
+            modelBuilder.Entity<ContentScanOperationState>()
+                .Property(s => s.Type)
+                .HasColumnAnnotation(
+                    IndexAnnotation.AnnotationName,
+                    new IndexAnnotation(new[] {
+                        new IndexAttribute(ContentScanOperationStatesValidationStepIdTypeStatusIndex, 1)
+                    }));
+
+            modelBuilder.Entity<ContentScanOperationState>()
                 .Property(s => s.Status)
                 .HasColumnAnnotation(
                     IndexAnnotation.AnnotationName,
                     new IndexAnnotation(new[] {
-                        new IndexAttribute(CvsOperationStatesScanStatusCreatedIndex, 0)
+                        new IndexAttribute(ContentScanOperationStatesValidationStepIdTypeStatusIndex, 2)
                     }));
 
-            modelBuilder.Entity<CvsScanOperationState>()
+            modelBuilder.Entity<ContentScanOperationState>()
                 .Property(s => s.CreatedAt)
                 .IsRequired()
                 .HasColumnType("datetime2")
                 .HasColumnAnnotation(
                     IndexAnnotation.AnnotationName,
                     new IndexAnnotation(new[] {
-                        new IndexAttribute(CvsOperationStatesScanStatusCreatedIndex, 1)
+                        new IndexAttribute(ContentScanOperationStatesCreatedIndex, 0)
                     }));
 
-            modelBuilder.Entity<CvsScanOperationState>()
-                .Property(s => s.LastUpdatedAt)
+            modelBuilder.Entity<ContentScanOperationState>()
+                .Property(s => s.FinishedAt)
                 .HasColumnType("datetime2");
 
-            modelBuilder.Entity<CvsScanOperationState>()
+            modelBuilder.Entity<ContentScanOperationState>()
+                .Property(s => s.PolledAt)
+                .HasColumnType("datetime2");
+
+            modelBuilder.Entity<ContentScanOperationState>()
                 .Property(s => s.JobId);
 
-            modelBuilder.Entity<CvsScanOperationState>()
-                .Property(s => s.Violation)
-                .HasMaxLength(1024);
-
-            modelBuilder.Entity<CvsScanOperationState>()
+            modelBuilder.Entity<ContentScanOperationState>()
                 .Property(s => s.ContentPath)
                 .HasMaxLength(512);
 
-            modelBuilder.Entity<CvsScanOperationState>()
+            modelBuilder.Entity<ContentScanOperationState>()
                 .Property(s => s.FileId)
                 .HasMaxLength(64);
 
-            modelBuilder.Entity<CvsScanOperationState>()
+            modelBuilder.Entity<ContentScanOperationState>()
                 .Property(pvs => pvs.RowVersion)
                 .IsRowVersion();
         }

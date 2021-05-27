@@ -24,7 +24,7 @@ namespace NuGet.Services.Validation
         IDbSet<ScanOperationState> ScanOperationStates { get; }
         IDbSet<PackageRevalidation> PackageRevalidations { get; set; }
         IDbSet<SymbolsServerRequest> SymbolsServerRequests { get; set; }
-        IDbSet<CvsScanOperationState> CvsScanOperationStates { get; set; }
+        IDbSet<ContentScanOperationState> ContentScanOperationState { get; set; }
 
         Task<int> SaveChangesAsync();
     }
