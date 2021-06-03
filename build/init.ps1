@@ -19,7 +19,7 @@ Function Get-BuildTools {
     }
     Set-Location $ServerCommonRoot
     $BuildBranchCommit = & cmd /c "git rev-parse origin/$BuildBranch 2>&1"
-    Write-Host "Latest commit in branch $BuildBranch: " $BuildBranchCommit
+    Write-Host "Latest commit in branch $BuildBranch is $BuildBranchCommit"
 
     Function Get-Folder {
         [CmdletBinding()]
