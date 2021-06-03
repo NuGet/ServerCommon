@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$Branch = 'main'
+    [string]$BuildBranch = 'main'
 )
 
 # This file is downloaded to "build/init.ps1" so use the parent folder as the root
@@ -9,16 +9,17 @@ $ServerCommonRoot = Join-Path $NuGetClientRoot "\ServerCommon";
 
 Function Get-BuildTools {
     param(
-        [string]$Branch
+        [string]$BuildBranch
     )
 
     if (-not (Test-Path $ServerCommonRoot))
     {
-        & cmd /c "git clone -b $Branch https://github.com/NuGet/ServerCommon.git 2>&1"
+        Write-Host "Clonning ServerCommon repository with $BuildBranch branch"
+        & cmd /c "git clone -b $BuildBranch https://github.com/NuGet/ServerCommon.git 2>&1"
     }
     Set-Location $ServerCommonRoot
-    $BranchCommit = & cmd /c "git rev-parse 'origin/$Branch'"
-    Write-Host "BranchCommit: " $BranchCommit
+    $BuildBranchCommit = & cmd /c "git rev-parse origin/$BuildBranch 2>&1"
+    Write-Host "BuildBranchCommit: " $BuildBranchCommit
 
     Function Get-Folder {
         [CmdletBinding()]
@@ -35,8 +36,8 @@ Function Get-BuildTools {
         $MarkerFile = Join-Path $DirectoryPath ".marker"
         if (Test-Path $MarkerFile) {
             $content = Get-Content $MarkerFile
-            if ($content -eq $BranchCommit) {
-                Write-Host "Build tools directory '$Path' is already at '$Branch'."
+            if ($content -eq $BuildBranchCommit) {
+                Write-Host "Build tools directory '$Path' is already at '$BuildBranchCommit'."
                 return;
             }
         }
@@ -66,7 +67,7 @@ Function Get-BuildTools {
         }
 
         # Creates the marker file for the current directory
-        $BranchCommit | Out-File $MarkerFile
+        $BuildBranchCommit | Out-File $MarkerFile
     }
 
     $FoldersToMove = "build", "tools"
@@ -75,7 +76,7 @@ Function Get-BuildTools {
     }
 }
 
-Get-BuildTools -Branch $Branch
+Get-BuildTools -BuildBranch $BuildBranch
 Set-Location $NuGetClientRoot
 Remove-Item -Path $ServerCommonRoot -Recurse -Force
 
