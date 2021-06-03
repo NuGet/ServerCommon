@@ -19,20 +19,20 @@ Function Get-BuildTools {
     }
     Set-Location $ServerCommonRoot
     $BuildBranchCommit = & cmd /c "git rev-parse origin/$BuildBranch 2>&1"
-    Write-Host "BuildBranchCommit: " $BuildBranchCommit
+    Write-Host "Latest commit in branch $BuildBranch: " $BuildBranchCommit
 
     Function Get-Folder {
         [CmdletBinding()]
         param(
             [string]$Path
         )
-        # Create directory if not exists
+        # Create directory if not exists in root
         $DirectoryPath = (Join-Path $NuGetClientRoot $Path)
         if (-not (Test-Path $DirectoryPath)) {
             New-Item -Path $DirectoryPath -ItemType "directory"
         }
 
-        # Verifies if marker file on the directory is up to date
+        # Verifies if marker file on the directory contains latest commit
         $MarkerFile = Join-Path $DirectoryPath ".marker"
         if (Test-Path $MarkerFile) {
             $content = Get-Content $MarkerFile
@@ -42,7 +42,7 @@ Function Get-BuildTools {
             }
         }
         
-        # Recursively creates the inner folders
+        # Recursively creates the inner directories
         $FolderUri = Join-Path $ServerCommonRoot $Path
         $InnerDirectories = Get-ChildItem -Path $FolderUri -Directory
         foreach ($InnerDirectory in $InnerDirectories)
@@ -51,7 +51,7 @@ Function Get-BuildTools {
             Get-Folder -Path $InnerDirectoryPath
         }
 
-        # Gets all files from current repository directory and moves them to root directory folder
+        # Gets all files from current repository directory and moves them to root directory
         $FileDirectory = Join-Path $NuGetClientRoot $Path
         $FilesToMove = Get-ChildItem -Path $FolderUri -File
         Foreach ($File in $FilesToMove)
