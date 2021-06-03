@@ -14,7 +14,7 @@ Function Get-BuildTools {
 
     if (-not (Test-Path $ServerCommonRoot))
     {
-        git clone -b $Branch https://github.com/NuGet/ServerCommon.git
+        git clone -b $Branch https://github.com/NuGet/ServerCommon.git 2>&1
     }
     Set-Location $ServerCommonRoot
     $BranchCommit = git rev-parse "origin/$Branch"
