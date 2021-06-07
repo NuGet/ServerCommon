@@ -417,8 +417,9 @@ Function Install-NuGet {
             if (-not (Test-Path $NuGetFolderPath)) {
                 New-Item $NuGetFolderPath -Type Directory | Out-Null
             }
-
+            
             if ($InstallCredentialProvider) {
+                Write-Host 'Installing Credential Provider'
                 $CredentialProviderDir = Join-Path $NuGetFolderPath "credprovider"
                 $CredentialProviderPath = Join-Path $CredentialProviderDir "plugins\netfx\CredentialProvider.Microsoft\CredentialProvider.Microsoft.exe"
 
@@ -463,6 +464,16 @@ Function Install-NuGet {
                 Trace-Log "Increasing NuGet plug-in timeout values to $timeoutInSeconds seconds."
                 $env:NUGET_PLUGIN_HANDSHAKE_TIMEOUT_IN_SECONDS = $timeoutInSeconds
                 $env:NUGET_PLUGIN_REQUEST_TIMEOUT_IN_SECONDS = $timeoutInSeconds
+            }
+            else 
+            {
+                Write-Host 'Not Installing Credential Provider'
+                if (Test-Path $CredentialProviderDir) {
+                    Remove-Item $CredentialProviderDir -Recurse -Force
+                }
+
+                Write-Host "NUGET_PLUGIN_PATHS: $env:NUGET_PLUGIN_PATHS"
+                Write-Host "NUGET_NETFX_PLUGIN_PATHS: $env:NUGET_NETFX_PLUGIN_PATHS" 
             }
 
             Trace-Log 'Downloading nuget.exe'
