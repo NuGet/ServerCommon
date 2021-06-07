@@ -468,10 +468,7 @@ Function Install-NuGet {
             else 
             {
                 Write-Host 'Not Installing Credential Provider'
-                if (Test-Path $CredentialProviderDir) {
-                    Remove-Item $CredentialProviderDir -Recurse -Force
-                }
-
+                
                 Write-Host "NUGET_PLUGIN_PATHS: $env:NUGET_PLUGIN_PATHS"
                 Write-Host "NUGET_NETFX_PLUGIN_PATHS: $env:NUGET_NETFX_PLUGIN_PATHS" 
             }
