@@ -402,12 +402,11 @@ Function Update-Submodule {
 }
 Function Install-NuGet {
     [CmdletBinding()]
-    param()
-
+    param(
+        [switch]$InstallCredentialProvider
+    )
     $NuGetFolderPath = Split-Path -Path $NuGetExe -Parent
     $NuGetInstalledMarker = Join-Path $NuGetFolderPath ".marker.v1"
-    $CredentialProviderDir = Join-Path $NuGetFolderPath "credprovider"
-    $CredentialProviderPath = Join-Path $CredentialProviderDir "plugins\netfx\CredentialProvider.Microsoft\CredentialProvider.Microsoft.exe"
 
     if (Test-Path $NuGetInstalledMarker) {
         Trace-Log "nuget.exe is already installed"
@@ -418,26 +417,53 @@ Function Install-NuGet {
             if (-not (Test-Path $NuGetFolderPath)) {
                 New-Item $NuGetFolderPath -Type Directory | Out-Null
             }
+
+            if ($InstallCredentialProvider) {
+                $CredentialProviderDir = Join-Path $NuGetFolderPath "credprovider"
+                $CredentialProviderPath = Join-Path $CredentialProviderDir "plugins\netfx\CredentialProvider.Microsoft\CredentialProvider.Microsoft.exe"
+
+                try {
+                    $CredentialProviderBundle = (Join-Path $NuGetClientRoot '.nuget\Microsoft.NuGet.CredentialProvider.zip')
     
-            $CredentialProviderBundle = (Join-Path $NuGetClientRoot '.nuget\Microsoft.NuGet.CredentialProvider.zip')
+                    Trace-Log 'Downloading Azure Artifacts Credential Provider'
+                    Invoke-WebRequest `
+                        https://github.com/microsoft/artifacts-credprovider/releases/download/0.1.18/Microsoft.NuGet.CredentialProvider.zip `
+                        -UseBasicParsing `
+                        -OutFile $CredentialProviderBundle
     
-            Trace-Log 'Downloading Azure Artifacts Credential Provider'
-            Invoke-WebRequest `
-                https://github.com/microsoft/artifacts-credprovider/releases/download/0.1.18/Microsoft.NuGet.CredentialProvider.zip `
-                -UseBasicParsing `
-                -OutFile $CredentialProviderBundle
-    
-            if (Test-Path $CredentialProviderDir) {
-                Remove-Item $CredentialProviderDir -Recurse -Force
-            }
+                    if (Test-Path $CredentialProviderDir) {
+                        Remove-Item $CredentialProviderDir -Recurse -Force
+                    }
         
-            Trace-Log 'Extracting Azure Artifacts Credential Provider'
-            & $7zipExe x $CredentialProviderBundle "-o$CredentialProviderDir" "-y"
-            if ($LASTEXITCODE -ne 0) {
-                throw "7-zip failed to extract $CredentialProviderBundle"
-            }
+                    Trace-Log 'Extracting Azure Artifacts Credential Provider'
+                    & $7zipExe x $CredentialProviderBundle "-o$CredentialProviderDir" "-y"
+                    if ($LASTEXITCODE -ne 0) {
+                        throw "7-zip failed to extract $CredentialProviderBundle"
+                    }
     
-            Remove-Item $CredentialProviderBundle
+                    Remove-Item $CredentialProviderBundle
+                } catch {
+                    if (Test-Path $CredentialProviderDir) {
+                        Remove-Item $CredentialProviderDir -Recurse -Force
+                    }
+                    throw;
+                }
+
+                if (-not (Test-Path $CredentialProviderPath)) {
+                    throw "No file exists at the expected credential provider path: $CredentialProviderPath"
+                }
+
+                Trace-Log "Setting NuGet .NET Framework credential path"
+                $env:NUGET_NETFX_PLUGIN_PATHS = $CredentialProviderPath
+                $env:NUGET_PLUGIN_PATHS = $CredentialProviderPath
+    
+                # This is a mitigation for rampant timeouts from the credential provider.
+                # See https://github.com/NuGet/Home/issues/7842#issuecomment-531059076
+                $timeoutInSeconds = 30
+                Trace-Log "Increasing NuGet plug-in timeout values to $timeoutInSeconds seconds."
+                $env:NUGET_PLUGIN_HANDSHAKE_TIMEOUT_IN_SECONDS = $timeoutInSeconds
+                $env:NUGET_PLUGIN_REQUEST_TIMEOUT_IN_SECONDS = $timeoutInSeconds
+            }
 
             Trace-Log 'Downloading nuget.exe'
             Invoke-WebRequest `
@@ -451,9 +477,6 @@ Function Install-NuGet {
             if (Test-Path $NuGetExe) {
                 Remove-Item $NuGetExe -Recurse -Force
             }
-            if (Test-Path $CredentialProviderDir) {
-                Remove-Item $CredentialProviderDir -Recurse -Force
-            }
             if (Test-Path $NuGetInstalledMarker) {
                 Remove-Item $NuGetInstalledMarker -Recurse -Force
             }
@@ -463,24 +486,9 @@ Function Install-NuGet {
         }
     }
 
-    if (-not (Test-Path $CredentialProviderPath)) {
-        throw "No file exists at the expected credential provider path: $CredentialProviderPath"
-    }
-
     if (-not (Test-Path $NuGetExe)) {
         throw "No file exists at the expected nuget.exe path: $NuGetExe"
     }
-
-    Trace-Log "Setting NuGet .NET Framework credential path"
-    $env:NUGET_NETFX_PLUGIN_PATHS = $CredentialProviderPath
-    $env:NUGET_PLUGIN_PATHS = $CredentialProviderPath
-    
-    # This is a mitigation for rampant timeouts from the credential provider.
-    # See https://github.com/NuGet/Home/issues/7842#issuecomment-531059076
-    $timeoutInSeconds = 30
-    Trace-Log "Increasing NuGet plug-in timeout values to $timeoutInSeconds seconds."
-    $env:NUGET_PLUGIN_HANDSHAKE_TIMEOUT_IN_SECONDS = $timeoutInSeconds
-    $env:NUGET_PLUGIN_REQUEST_TIMEOUT_IN_SECONDS = $timeoutInSeconds
 }
 
 Function Configure-NuGetCredentials {
