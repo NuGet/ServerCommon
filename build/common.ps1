@@ -474,9 +474,11 @@ Function Install-NuGet {
     }
 
     if ($AccessToken) {
-        Write-Host 'Using PAT workflow'
+        Write-Host 'Using AccessToken workflow'
         $endpoints = @()
         $endpointURIs = @()
+
+        Write-Host "First NuGet.Config path: " Join-Path $PSScriptRoot '\nuget.config'
 
         Get-ChildItem "$PSScriptRoot\nuget.config" -Recurse |% {
             $nugetConfig = [xml](Get-Content -Path $_)
