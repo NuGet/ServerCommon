@@ -482,6 +482,8 @@ Function Install-NuGet {
             $nugetConfig = [xml](Get-Content -Path $_)
 
             $nugetConfig.configuration.packageSources.add |? { ($_.value -match '^https://pkgs\.dev\.azure\.com/') -or ($_.value -match '^https://[\w\-]+\.pkgs\.visualstudio\.com/') } |% {
+                Write-Host "Found feed: " $_.value
+            
                 if ($endpointURIs -notcontains $_.Value) {
                     $endpointURIs += $_.Value;
                     $endpoint = New-Object -TypeName PSObject;
