@@ -474,6 +474,7 @@ Function Install-NuGet {
     }
 
     if ($AccessToken) {
+        Write-Host 'Using PAT workflow'
         $endpoints = @()
         $endpointURIs = @()
 
@@ -496,7 +497,7 @@ Function Install-NuGet {
         Add-Member -InputObject $auth -MemberType NoteProperty -Name endpointCredentials -Value $endpoints;
 
         $authJson = ConvertTo-Json -InputObject $auth;
-        Write-Host $authJson
+        Write-Host 'Adding the following private feed endpoints' $authJson
         $env:VSS_NUGET_EXTERNAL_FEED_ENDPOINTS = $authJson;
     }
 
