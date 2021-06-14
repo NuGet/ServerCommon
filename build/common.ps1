@@ -403,7 +403,6 @@ Function Update-Submodule {
 Function Install-NuGet {
     [CmdletBinding()]
     param(
-        [string]$Username,
         [string]$AccessToken
     )
 
@@ -486,7 +485,7 @@ Function Install-NuGet {
                     $endpointURIs += $_.Value;
                     $endpoint = New-Object -TypeName PSObject;
                     Add-Member -InputObject $endpoint -MemberType NoteProperty -Name endpoint -Value $_.value;
-                    Add-Member -InputObject $endpoint -MemberType NoteProperty -Name username -Value $Username;
+                    Add-Member -InputObject $endpoint -MemberType NoteProperty -Name username -Value 'PAT';
                     Add-Member -InputObject $endpoint -MemberType NoteProperty -Name password -Value $AccessToken;
                     $endpoints += $endpoint;
                 }
@@ -497,6 +496,7 @@ Function Install-NuGet {
         Add-Member -InputObject $auth -MemberType NoteProperty -Name endpointCredentials -Value $endpoints;
 
         $authJson = ConvertTo-Json -InputObject $auth;
+        Write-Host $authJson
         $env:VSS_NUGET_EXTERNAL_FEED_ENDPOINTS = $authJson;
     }
 
