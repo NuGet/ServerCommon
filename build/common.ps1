@@ -477,7 +477,7 @@ Function Install-NuGet {
         $endpoints = @()
         $endpointURIs = @()
 
-        Get-ChildItem "..\nuget.config" -Recurse |% {
+        Get-ChildItem "$NuGetClientRoot\nuget.config" -Recurse |% {
             $nugetConfig = [xml](Get-Content -Path $_)
 
             $nugetConfig.configuration.packageSources.add |? { ($_.value -match '^https://pkgs\.dev\.azure\.com/') -or ($_.value -match '^https://[\w\-]+\.pkgs\.visualstudio\.com/') } |% {
