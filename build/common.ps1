@@ -474,7 +474,6 @@ Function Install-NuGet {
     }
 
     if ($AccessToken) {
-        Write-Host 'Using AccessToken workflow'
         $endpoints = @()
         $endpointURIs = @()
 
@@ -482,8 +481,6 @@ Function Install-NuGet {
             $nugetConfig = [xml](Get-Content -Path $_)
 
             $nugetConfig.configuration.packageSources.add |? { ($_.value -match '^https://pkgs\.dev\.azure\.com/') -or ($_.value -match '^https://[\w\-]+\.pkgs\.visualstudio\.com/') } |% {
-                Write-Host "Found feed: " $_.value
-            
                 if ($endpointURIs -notcontains $_.Value) {
                     $endpointURIs += $_.Value;
                     $endpoint = New-Object -TypeName PSObject;
@@ -499,12 +496,7 @@ Function Install-NuGet {
         Add-Member -InputObject $auth -MemberType NoteProperty -Name endpointCredentials -Value $endpoints;
 
         $authJson = ConvertTo-Json -InputObject $auth;
-        Write-Host 'Adding the following private feed endpoints' $authJson
         $env:VSS_NUGET_EXTERNAL_FEED_ENDPOINTS = $authJson;
-    }
-    else
-    {
-        Write-Host "No AccessToken is used"
     }
 
     Trace-Log "Setting NuGet .NET Framework credential path"
