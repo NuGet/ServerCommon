@@ -9,7 +9,6 @@ param (
     [string]$SemanticVersion = '1.0.0-zlocal',
     [string]$Branch,
     [string]$CommitSHA,
-    [string]$Username,
     [string]$AccessToken
 )
 
@@ -53,7 +52,7 @@ Invoke-BuildStep 'Getting private build tools' { Install-PrivateBuildTools } `
 Invoke-BuildStep 'Cleaning test results' { Clean-Tests } `
     -ev +BuildErrors
 
-Invoke-BuildStep 'Installing NuGet.exe' { Install-NuGet -Username $Username -AccessToken $AccessToken } `
+Invoke-BuildStep 'Installing NuGet.exe' { Install-NuGet -AccessToken $AccessToken } `
     -ev +BuildErrors
 
 Invoke-BuildStep 'Clearing package cache' { Clear-PackageCache } `
