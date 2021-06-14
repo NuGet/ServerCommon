@@ -500,6 +500,10 @@ Function Install-NuGet {
         Write-Host 'Adding the following private feed endpoints' $authJson
         $env:VSS_NUGET_EXTERNAL_FEED_ENDPOINTS = $authJson;
     }
+    else
+    {
+        Write-Host "No AccessToken is used"
+    }
 
     Trace-Log "Setting NuGet .NET Framework credential path"
     $env:NUGET_NETFX_PLUGIN_PATHS = $CredentialProviderPath
