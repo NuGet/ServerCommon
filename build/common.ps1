@@ -475,16 +475,20 @@ Function Install-NuGet {
 
     if ($AccessToken) {
         $endpoints = @()
+        $endpointURIs = @()
 
         Get-ChildItem "$NuGetClientRoot\nuget.config" -Recurse |% {
             $nugetConfig = [xml](Get-Content -Path $_)
 
             $nugetConfig.configuration.packageSources.add |? { ($_.value -match '^https://pkgs\.dev\.azure\.com/') -or ($_.value -match '^https://[\w\-]+\.pkgs\.visualstudio\.com/') } |% {
-                $endpoint = New-Object -TypeName PSObject;
-                Add-Member -InputObject $endpoint -MemberType NoteProperty -Name endpoint -Value $_.value;
-                Add-Member -InputObject $endpoint -MemberType NoteProperty -Name username -Value 'PAT';
-                Add-Member -InputObject $endpoint -MemberType NoteProperty -Name password -Value $AccessToken;
-                $endpoints += $endpoint;
+                if ($endpointURIs -notcontains $_.Value) {
+                    $endpointURIs += $_.Value;
+                    $endpoint = New-Object -TypeName PSObject;
+                    Add-Member -InputObject $endpoint -MemberType NoteProperty -Name endpoint -Value $_.value;
+                    Add-Member -InputObject $endpoint -MemberType NoteProperty -Name username -Value 'PAT';
+                    Add-Member -InputObject $endpoint -MemberType NoteProperty -Name password -Value $AccessToken;
+                    $endpoints += $endpoint;
+                }
             }
         }
 
