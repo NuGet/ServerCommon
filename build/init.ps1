@@ -1,6 +1,7 @@
 [CmdletBinding()]
 param(
-    [string]$BuildBranch = 'main'
+    [string]$BuildBranch = 'main',
+    [string]$BuildBranchCommit = $null
 )
 
 # This file is downloaded to "build/init.ps1" so use the parent folder as the root
@@ -14,12 +15,22 @@ Function Get-BuildTools {
 
     if (-not (Test-Path $ServerCommonRoot))
     {
-        Write-Host "Clonning ServerCommon repository with $BuildBranch branch"
-        & cmd /c "git clone -b $BuildBranch https://github.com/NuGet/ServerCommon.git 2>&1"
+        Write-Host "Clonning ServerCommon repository with $BuildBranch branch."
+        & cmd /c "git clone -b $BuildBranch https://github.com/NuGet/ServerCommon.git --depth 1 2>&1"
     }
+
     Set-Location $ServerCommonRoot
-    $BuildBranchCommit = & cmd /c "git rev-parse origin/$BuildBranch 2>&1"
-    Write-Host "Latest commit in branch $BuildBranch is $BuildBranchCommit"
+    if (!$BuildBranchCommit)
+    {
+        $BuildBranchCommit = & cmd /c "git rev-parse origin/$BuildBranch 2>&1"
+    }
+    else
+    {
+        & cmd /c "git fetch origin $BuildBranchCommit 2>&1"
+        & cmd /c "git reset --hard FETCH_HEAD 2>&1"
+    }
+
+    Write-Host "ServerCommon repository cloned with branch $BuildBranch and $BuildBranchCommit commit."
 
     Function Get-Folder {
         [CmdletBinding()]
