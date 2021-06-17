@@ -3,24 +3,22 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 
 namespace NuGet.Services.KeyVault
 {
-    public class SecretInjector : ISecretInjector
+    public class SyncSecretInjector : ISyncSecretInjector
     {
-        public const string DefaultFrame = "$$";
-
         private readonly string _frame;
-        private readonly ISecretReader _secretReader;
+        private readonly ISyncSecretReader _secretReader;
 
-        public SecretInjector(ISecretReader secretReader) : this(secretReader, DefaultFrame)
+        public SyncSecretInjector(ISyncSecretReader secretReader) : this(secretReader, SecretInjector.DefaultFrame)
         {
         }
 
-        public SecretInjector(ISecretReader secretReader, string frame)
+        public SyncSecretInjector(ISyncSecretReader secretReader, string frame)
         {
             if (secretReader == null)
             {
@@ -36,12 +34,7 @@ namespace NuGet.Services.KeyVault
             _secretReader = secretReader;
         }
 
-        public Task<string> InjectAsync(string input)
-        {
-            return InjectAsync(input, logger: null);
-        }
-
-        public async Task<string> InjectAsync(string input, ILogger logger)
+        public string Inject(string input)
         {
             if (string.IsNullOrEmpty(input))
             {
@@ -53,7 +46,7 @@ namespace NuGet.Services.KeyVault
 
             foreach (var secretName in secretNames)
             {
-                var secretValue = await _secretReader.GetSecretAsync(secretName, logger);
+                var secretValue = _secretReader.GetSecret(secretName);
                 output.Replace($"{_frame}{secretName}{_frame}", secretValue);
             }
 
