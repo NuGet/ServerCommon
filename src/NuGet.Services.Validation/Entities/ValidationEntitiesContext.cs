@@ -1,13 +1,13 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using NuGet.Services.Validation.Entities;
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Common;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Infrastructure.Annotations;
-using NuGet.Services.Validation.Entities;
 
 namespace NuGet.Services.Validation
 {
@@ -54,7 +54,6 @@ namespace NuGet.Services.Validation
 
         private const string SignatureSchema = "signature";
         private const string ScanSchema = "scan";
-        private const string CvsSchema = "cvs";
 
         private const string PackageValidationSetsValidationTrackingId = "IX_PackageValidationSets_ValidationTrackingId";
         private const string PackageValidationSetsPackageKeyIndex = "IX_PackageValidationSets_PackageKey";
@@ -62,7 +61,7 @@ namespace NuGet.Services.Validation
 
         private const string ValidatorStatusesTable = "ValidatorStatuses";
         private const string ValidatorStatusesPackageKeyIndex = "IX_ValidatorStatuses_PackageKey";
-        
+
         private const string PackageSigningStatesTable = "PackageSigningStates";
         private const string PackageSigningStatesPackageIdPackageVersionIndex = "IX_PackageSigningStates_PackageId_PackageNormalizedVersion";
 
@@ -100,9 +99,8 @@ namespace NuGet.Services.Validation
 
         private const string SymbolsServerRequestSymbolsKeyIndex = "IX_SymbolServerRequests_SymbolsKey";
 
-        private const string ContentScanOperationStatesTable = "ContentScanOperationStates";
-        private const string ContentScanOperationStatesValidationStepIdTypeStatusIndex = "IX_ContentScanOperationStates_ValidationStepId_Type_StatusIndex";
-        private const string ContentScanOperationStatesCreatedIndex = "IX_ContentScanOperationStates_CreatedIndex";
+        private const string ContentScanOperationStateValidationStepIdTypeStatusIndex = "IX_ContentScanOperationState_ValidationStepId_Type_StatusIndex";
+        private const string ContentScanOperationStateCreatedIndex = "IX_ContentScanOperationState_CreatedIndex";
 
         static ValidationEntitiesContext()
         {
@@ -773,7 +771,6 @@ namespace NuGet.Services.Validation
         private void RegisterCvsScanEntities(DbModelBuilder modelBuilder)
         {
             modelBuilder.Entity<ContentScanOperationState>()
-                .ToTable(ContentScanOperationStatesTable, CvsSchema)
                 .HasKey(p => p.Key);
 
             modelBuilder.Entity<ContentScanOperationState>()
@@ -782,7 +779,7 @@ namespace NuGet.Services.Validation
                     IndexAnnotation.AnnotationName,
                     new IndexAnnotation(new[]
                     {
-                        new IndexAttribute(ContentScanOperationStatesValidationStepIdTypeStatusIndex, 0)
+                        new IndexAttribute(ContentScanOperationStateValidationStepIdTypeStatusIndex, 0)
                     }));
 
             modelBuilder.Entity<ContentScanOperationState>()
@@ -790,7 +787,7 @@ namespace NuGet.Services.Validation
                 .HasColumnAnnotation(
                     IndexAnnotation.AnnotationName,
                     new IndexAnnotation(new[] {
-                        new IndexAttribute(ContentScanOperationStatesValidationStepIdTypeStatusIndex, 1)
+                        new IndexAttribute(ContentScanOperationStateValidationStepIdTypeStatusIndex, 1)
                     }));
 
             modelBuilder.Entity<ContentScanOperationState>()
@@ -798,7 +795,7 @@ namespace NuGet.Services.Validation
                 .HasColumnAnnotation(
                     IndexAnnotation.AnnotationName,
                     new IndexAnnotation(new[] {
-                        new IndexAttribute(ContentScanOperationStatesValidationStepIdTypeStatusIndex, 2)
+                        new IndexAttribute(ContentScanOperationStateValidationStepIdTypeStatusIndex, 2)
                     }));
 
             modelBuilder.Entity<ContentScanOperationState>()
@@ -808,7 +805,7 @@ namespace NuGet.Services.Validation
                 .HasColumnAnnotation(
                     IndexAnnotation.AnnotationName,
                     new IndexAnnotation(new[] {
-                        new IndexAttribute(ContentScanOperationStatesCreatedIndex, 0)
+                        new IndexAttribute(ContentScanOperationStateCreatedIndex, 0)
                     }));
 
             modelBuilder.Entity<ContentScanOperationState>()
@@ -824,7 +821,7 @@ namespace NuGet.Services.Validation
 
             modelBuilder.Entity<ContentScanOperationState>()
                 .Property(s => s.ContentPath)
-                .HasMaxLength(512);
+                .HasMaxLength(4096);
 
             modelBuilder.Entity<ContentScanOperationState>()
                 .Property(s => s.FileId)

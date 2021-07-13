@@ -5,8 +5,19 @@ namespace NuGet.Services.Validation.Entities
 {
     public enum ContentScanType
     {
+        /// <summary>
+        /// A synchronous content scan. Scan results will be returned in the response to the scan submission.
+        /// </summary>
         Sync = 0,
+
+        /// <summary>
+        /// An asynchronous content scan. The scan submission and scan result lookup are separate requests.
+        /// </summary>
         BlockingAsync,
-        NonBlocking
+
+        /// <summary>
+        /// An asynchronous content scan for passive CVS scan. The scan submission and scan result lookup are separate requests.
+        /// </summary>
+        NonBlockingAsync
     }
 }

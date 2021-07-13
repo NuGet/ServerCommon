@@ -7,13 +7,13 @@ namespace NuGet.Services.Validation
     using System.Resources;
     
     [GeneratedCode("EntityFramework.Migrations", "6.4.0-preview3-19553-01")]
-    public sealed partial class AddContentScanOperationState : IMigrationMetadata
+    public sealed partial class ContentScanOperation : IMigrationMetadata
     {
-        private readonly ResourceManager Resources = new ResourceManager(typeof(AddContentScanOperationState));
+        private readonly ResourceManager Resources = new ResourceManager(typeof(ContentScanOperation));
         
         string IMigrationMetadata.Id
         {
-            get { return "202105270739484_AddContentScanOperationState"; }
+            get { return "202107130725520_ContentScanOperation"; }
         }
         
         string IMigrationMetadata.Source
