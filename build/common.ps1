@@ -1,5 +1,5 @@
 ### Constants ###
-$DefaultMSBuildVersion = '15'
+$DefaultMSBuildVersion = '16'
 $DefaultConfiguration = 'debug'
 $NuGetClientRoot = Split-Path -Path $PSScriptRoot -Parent
 $CLIRoot = Join-Path $NuGetClientRoot 'cli'
@@ -11,7 +11,6 @@ $BuiltInVsWhereExe = "${Env:ProgramFiles(x86)}\Microsoft Visual Studio\Installer
 $Artifacts = Join-Path $NuGetClientRoot artifacts
 $MSBuildRoot = Join-Path ${env:ProgramFiles(x86)} 'MSBuild\'
 $MSBuildExeRelPath = 'bin\msbuild.exe'
-$VisualStudioVersion = 15.0
 
 $NuGetBuildPackageId = 'NuGet.Services.Build'
 $NuGetBuildPackageVersion = '1.0.0'
@@ -186,7 +185,8 @@ Function Sign-Binaries {
         [string]$Configuration = $DefaultConfiguration,
         [int]$BuildNumber = (Get-BuildNumber),
         [string]$MSBuildVersion = $DefaultMSBuildVersion,
-        [string[]]$ProjectsToSign = $null
+        [string[]]$ProjectsToSign = $null,
+        [switch]$BinLog
     )
 
     if ($ProjectsToSign -eq $null) {
@@ -198,7 +198,7 @@ Function Sign-Binaries {
     $projectsToSignProperty = $ProjectsToSign -join ';'
 
     $ProjectPath = Join-Path $PSScriptRoot "sign-binaries.proj"
-    Build-Solution $Configuration $BuildNumber -MSBuildVersion "$MSBuildVersion" $ProjectPath -MSBuildProperties "/p:ProjectsToSign=`"$projectsToSignProperty`""
+    Build-Solution $Configuration $BuildNumber -MSBuildVersion "$MSBuildVersion" $ProjectPath -MSBuildProperties "/p:ProjectsToSign=`"$projectsToSignProperty`"" -BinLog:$BinLog
 }
 
 Function Sign-Packages {
@@ -206,11 +206,12 @@ Function Sign-Packages {
     param(
         [string]$Configuration = $DefaultConfiguration,
         [int]$BuildNumber = (Get-BuildNumber),
-        [string]$MSBuildVersion = $DefaultMSBuildVersion
+        [string]$MSBuildVersion = $DefaultMSBuildVersion,
+        [switch]$BinLog
     )
 
     $ProjectPath = Join-Path $PSScriptRoot "sign-packages.proj"
-    Build-Solution $Configuration $BuildNumber -MSBuildVersion "$MSBuildVersion" $ProjectPath
+    Build-Solution $Configuration $BuildNumber -MSBuildVersion "$MSBuildVersion" $ProjectPath -BinLog:$BinLog
 }
 
 Function Build-Solution {
@@ -223,7 +224,8 @@ Function Build-Solution {
         [string]$TargetProfile,
         [string]$Target,
         [string]$MSBuildProperties,
-        [switch]$SkipRestore
+        [switch]$SkipRestore,
+        [switch]$BinLog
     )
     
     if (-not $SkipRestore) {
@@ -251,6 +253,10 @@ Function Build-Solution {
         $opts += $MSBuildProperties
     }
 
+    if ($BinLog) {
+        $opts += "/bl"
+    }
+
     $MSBuildExe = Get-MSBuildExe $MSBuildVersion
 
     Trace-Log "$MSBuildExe $opts"
@@ -272,7 +278,8 @@ Function Invoke-FxCop {
         [string]$FxCopProject,
         [string]$FxCopRuleSet,
         [string]$FxCopNoWarn,
-        [string]$FxCopOutputDirectory
+        [string]$FxCopOutputDirectory,
+        [switch]$BinLog
     )
     
     # Ensure cleanup from previous runs
@@ -341,7 +348,7 @@ Function Invoke-FxCop {
     # Invoke using the msbuild RunCodeAnalysis target
     $msBuildProps = "/p:CustomBeforeMicrosoftCSharpTargets=$codeAnalysisProps;SignType=none;CodeAnalysisVerbose=true"
     
-    Build-Solution $Configuration $BuildNumber -MSBuildVersion "$MSBuildVersion" $SolutionPath -Target "Rebuild;RunCodeAnalysis" -MSBuildProperties $msBuildProps -SkipRestore:$SkipRestore
+    Build-Solution $Configuration $BuildNumber -MSBuildVersion "$MSBuildVersion" $SolutionPath -Target "Rebuild;RunCodeAnalysis" -MSBuildProperties $msBuildProps -SkipRestore:$SkipRestore -BinLog:$BinLog
 }
 
 Function Invoke-Git {
@@ -434,7 +441,7 @@ Function Install-NuGet {
 
             Trace-Log 'Downloading nuget.exe'
             Invoke-WebRequest `
-                https://dist.nuget.org/win-x86-commandline/v5.3.1/nuget.exe `
+                https://dist.nuget.org/win-x86-commandline/v5.8.0/nuget.exe `
                 -UseBasicParsing `
                 -OutFile $NuGetExe
             
@@ -555,9 +562,9 @@ Function Format-BuildNumber([int]$BuildNumber) {
 Function Clear-PackageCache {
     [CmdletBinding()]
     param()
-    Trace-Log 'Clearing package cache (except the web cache)'
+    Trace-Log 'Clearing package cache'
 
-    & $NuGetExe locals packages-cache -clear -verbosity detailed
+    & $NuGetExe locals http-cache -clear -verbosity detailed
     #& nuget locals global-packages -clear -verbosity detailed
     & $NuGetExe locals temp -clear -verbosity detailed
 }
@@ -746,7 +753,10 @@ Function New-WebAppPackage {
         [string]$TargetProfile,
         [string]$Configuration,
         [string]$BuildNumber,
-        [string]$MSBuildVersion = $DefaultMSBuildVersion
+        [string]$MSBuildVersion = $DefaultMSBuildVersion,
+        [bool]$PackageAsSingleFile=$true,
+        [string]$SignType,
+        [switch]$BinLog
     )
     Trace-Log "Creating web app package from @""$TargetFilePath"""
     
@@ -759,14 +769,19 @@ Function New-WebAppPackage {
     $opts += "/p:BuildNumber=$(Format-BuildNumber $BuildNumber)"
     $opts += "/p:DeployOnBuild=true"
     $opts += "/p:WebPublishMethod=Package"
-    $opts += "/p:PackageAsSingleFile=true"
+    $opts += "/p:PackageAsSingleFile=" + $PackageAsSingleFile.ToString().ToLower()
     $opts += "/p:PackageLocation=$Artifacts"
     $opts += "/p:BatchSign=false"
+    if ($SignType) { $opts += "/p:SignType=$SignType" }
     
     if (-not (Test-Path $Artifacts)) {
         New-Item $Artifacts -Type Directory
     }
     
+    if ($BinLog) {
+        $opts += "/bl"
+    }
+
     Trace-Log "$MsBuildExe $opts"
     & $MsBuildExe $opts
     if (-not $?) {
@@ -790,7 +805,8 @@ Function New-ProjectPackage {
         [switch]$Symbols,
         [string]$Branch,
         [switch]$IncludeReferencedProjects,
-        [switch]$Sign
+        [switch]$Sign,
+        [switch]$BinLog
     )
     Trace-Log "Creating package from @""$TargetFilePath"""
     
@@ -835,6 +851,10 @@ Function New-ProjectPackage {
         $opts += "/p:IncludeSymbols=True"
     }
     
+    if ($BinLog) {
+        $opts += "/bl"
+    }
+
     if (-not (Test-Path $Artifacts)) {
         New-Item $Artifacts -Type Directory
     }
