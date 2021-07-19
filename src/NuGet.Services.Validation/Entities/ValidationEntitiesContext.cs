@@ -1,13 +1,13 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using NuGet.Services.Validation.Entities;
 using System;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Data.Common;
 using System.Data.Entity;
 using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Infrastructure.Annotations;
+using NuGet.Services.Validation.Entities;
 
 namespace NuGet.Services.Validation
 {
@@ -786,7 +786,8 @@ namespace NuGet.Services.Validation
                 .Property(s => s.Type)
                 .HasColumnAnnotation(
                     IndexAnnotation.AnnotationName,
-                    new IndexAnnotation(new[] {
+                    new IndexAnnotation(new[]
+                    {
                         new IndexAttribute(ContentScanOperationStateValidationStepIdTypeStatusIndex, 1)
                     }));
 
@@ -794,7 +795,8 @@ namespace NuGet.Services.Validation
                 .Property(s => s.Status)
                 .HasColumnAnnotation(
                     IndexAnnotation.AnnotationName,
-                    new IndexAnnotation(new[] {
+                    new IndexAnnotation(new[]
+                    {
                         new IndexAttribute(ContentScanOperationStateValidationStepIdTypeStatusIndex, 2)
                     }));
 
@@ -804,7 +806,8 @@ namespace NuGet.Services.Validation
                 .HasColumnType("datetime2")
                 .HasColumnAnnotation(
                     IndexAnnotation.AnnotationName,
-                    new IndexAnnotation(new[] {
+                    new IndexAnnotation(new[]
+                    {
                         new IndexAttribute(ContentScanOperationStateCreatedIndex, 0)
                     }));
 
