@@ -14,7 +14,7 @@ namespace NuGet.Services.ServiceBus
         private readonly ILogger<SubscriptionClientWrapper> _logger;
 
         /// <summary>
-        /// Create an instance of wrapper for `TopicClient`. Use the managed identity authentication if the `SharedAccessKey` is not
+        /// Create an instance of wrapper for <see cref="SubscriptionClient"/>. Use the managed identity authentication if the `SharedAccessKey` is not
         /// spcified in the <paramref name="connectionString"/>.
         /// </summary>
         /// <param name="connectionString">This can be a connection string with shared access key or a service bus endpoint URL string to be used with managed identities.
