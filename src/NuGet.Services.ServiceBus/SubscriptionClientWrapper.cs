@@ -15,11 +15,11 @@ namespace NuGet.Services.ServiceBus
 
         private const string SHARED_ACCESS_KEY_TOKEN = "SharedAccessKey=";
 
-        public SubscriptionClientWrapper(string connectionStringOrEndpointUrl, string topicPath, string name, ILogger<SubscriptionClientWrapper> logger)
+        public SubscriptionClientWrapper(string connectionString, string topicPath, string name, ILogger<SubscriptionClientWrapper> logger)
         {
-            _client = connectionStringOrEndpointUrl.Contains(SHARED_ACCESS_KEY_TOKEN)
-                ? SubscriptionClient.CreateFromConnectionString(connectionStringOrEndpointUrl, topicPath, name)
-                : SubscriptionClient.CreateWithManagedIdentity(new Uri(connectionStringOrEndpointUrl), topicPath, name);
+            _client = connectionString.Contains(SHARED_ACCESS_KEY_TOKEN)
+                ? SubscriptionClient.CreateFromConnectionString(connectionString, topicPath, name)
+                : SubscriptionClient.CreateWithManagedIdentity(new Uri(connectionString), topicPath, name);
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 

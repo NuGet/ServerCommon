@@ -15,11 +15,11 @@ namespace NuGet.Services.ServiceBus
         private readonly TopicClient _client;
         private const string SHARED_ACCESS_KEY_TOKEN = "SharedAccessKey=";
 
-        public TopicClientWrapper(string connectionStringOrEndpointUrl, string path)
+        public TopicClientWrapper(string connectionString, string path)
         {
-            _client = connectionStringOrEndpointUrl.Contains(SHARED_ACCESS_KEY_TOKEN)
-                ? TopicClient.CreateFromConnectionString(connectionStringOrEndpointUrl, path)
-                : TopicClient.CreateWithManagedIdentity(new Uri(connectionStringOrEndpointUrl), path);
+            _client = connectionString.Contains(SHARED_ACCESS_KEY_TOKEN)
+                ? TopicClient.CreateFromConnectionString(connectionString, path)
+                : TopicClient.CreateWithManagedIdentity(new Uri(connectionString), path);
         }
 
         public TopicClientWrapper(string clientId, string clientSecret, string tenantId, string serviceBusUrl, string path)
