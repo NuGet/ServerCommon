@@ -19,8 +19,10 @@ namespace NuGet.Services.ServiceBus
         /// </summary>
         /// <param name="connectionString">This can be a connection string with shared access key or a service bus endpoint URL string to be used with managed identities.
         /// The connection string examples:
-        /// 1. Using connection string: "Endpoint=sb://nugetdev.servicebus.windows.net/;SharedAccessKeyName=<access key name>;SharedAccessKey=<access key>"
-        /// 2. Using managed identitye: "sb://nugetdev.servicebus.windows.net/"
+        /// <list type="number">
+        /// <item>Using connection string: "Endpoint=sb://nugetdev.servicebus.windows.net/;SharedAccessKeyName=<access key name>;SharedAccessKey=<access key>" </item>
+        /// <item>Using managed identity: "sb://nugetdev.servicebus.windows.net/"</item>
+        /// </list>
         /// </param>
         /// <param name="path">Path of the topic name</param>
         public TopicClientWrapper(string connectionString, string path)
