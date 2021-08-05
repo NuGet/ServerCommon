@@ -17,6 +17,7 @@ namespace NuGet.Services.ServiceBus
 
         public TopicClientWrapper(string connectionString, string path)
         {
+            // Use managed identity for authentication if the connection string does not specify the `SharedAccessKey`.
             _client = connectionString.Contains(SHARED_ACCESS_KEY_TOKEN)
                 ? TopicClient.CreateFromConnectionString(connectionString, path)
                 : TopicClient.CreateWithManagedIdentity(new Uri(connectionString), path);

@@ -17,6 +17,7 @@ namespace NuGet.Services.ServiceBus
 
         public SubscriptionClientWrapper(string connectionString, string topicPath, string name, ILogger<SubscriptionClientWrapper> logger)
         {
+            // Use managed identity for authentication if the connection string does not specify the `SharedAccessKey`.
             _client = connectionString.Contains(SHARED_ACCESS_KEY_TOKEN)
                 ? SubscriptionClient.CreateFromConnectionString(connectionString, topicPath, name)
                 : SubscriptionClient.CreateWithManagedIdentity(new Uri(connectionString), topicPath, name);
