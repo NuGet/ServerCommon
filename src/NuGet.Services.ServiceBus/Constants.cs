@@ -3,7 +3,7 @@
 
 namespace NuGet.Services.ServiceBus
 {
-    public class Constants
+    internal static class Constants
     {
         public static string SharedAccessKeytoken = "SharedAccessKey=";
     }
