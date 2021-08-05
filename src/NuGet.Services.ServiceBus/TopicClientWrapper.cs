@@ -3,7 +3,6 @@
 
 using System;
 using System.Threading.Tasks;
-using System.Xml.Linq;
 using Microsoft.Identity.Client;
 using Microsoft.ServiceBus;
 using Microsoft.ServiceBus.Messaging;
@@ -13,12 +12,11 @@ namespace NuGet.Services.ServiceBus
     public class TopicClientWrapper : ITopicClient
     {
         private readonly TopicClient _client;
-        private const string SHARED_ACCESS_KEY_TOKEN = "SharedAccessKey=";
 
         public TopicClientWrapper(string connectionString, string path)
         {
             // Use managed identity for authentication if the connection string does not specify the `SharedAccessKey`.
-            _client = connectionString.Contains(SHARED_ACCESS_KEY_TOKEN)
+            _client = connectionString.Contains(Constants.SharedAccessKeytoken)
                 ? TopicClient.CreateFromConnectionString(connectionString, path)
                 : TopicClient.CreateWithManagedIdentity(new Uri(connectionString), path);
         }

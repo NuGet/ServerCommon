@@ -13,12 +13,10 @@ namespace NuGet.Services.ServiceBus
         private readonly SubscriptionClient _client;
         private readonly ILogger<SubscriptionClientWrapper> _logger;
 
-        private const string SHARED_ACCESS_KEY_TOKEN = "SharedAccessKey=";
-
         public SubscriptionClientWrapper(string connectionString, string topicPath, string name, ILogger<SubscriptionClientWrapper> logger)
         {
             // Use managed identity for authentication if the connection string does not specify the `SharedAccessKey`.
-            _client = connectionString.Contains(SHARED_ACCESS_KEY_TOKEN)
+            _client = connectionString.Contains(Constants.SharedAccessKeytoken)
                 ? SubscriptionClient.CreateFromConnectionString(connectionString, topicPath, name)
                 : SubscriptionClient.CreateWithManagedIdentity(new Uri(connectionString), topicPath, name);
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
