@@ -11,7 +11,7 @@ namespace NuGet.Services.Sql.Tests
 {
     public class MockFactory : AzureSqlConnectionFactory
     {
-        public Mock<ISecretReader> MockSecretReader { get; }
+        public Mock<ICachingSecretReader> MockSecretReader { get; }
 
         public bool Opened { get; private set; }
 
@@ -22,7 +22,7 @@ namespace NuGet.Services.Sql.Tests
         {
         }
 
-        public MockFactory(string connectionString, Mock<ISecretReader> mockSecretReader)
+        public MockFactory(string connectionString, Mock<ICachingSecretReader> mockSecretReader)
          : base(connectionString, new SecretInjector(mockSecretReader.Object))
         {
             MockSecretReader = mockSecretReader;
@@ -40,9 +40,15 @@ namespace NuGet.Services.Sql.Tests
             return Task.FromResult("accessToken");
         }
 
-        private static Mock<ISecretReader> CreateMockSecretReader()
+        protected override string TryAcquireAccessToken(string clientCertificateData)
         {
-            var mockSecretReader = new Mock<ISecretReader>();
+            AcquireAccessTokenCalls++;
+            return "accessToken";
+        }
+
+        private static Mock<ICachingSecretReader> CreateMockSecretReader()
+        {
+            var mockSecretReader = new Mock<ICachingSecretReader>();
 
             mockSecretReader.Setup(x => x.GetSecretAsync(It.IsAny<string>(), It.IsAny<ILogger>()))
                 .Returns<string, ILogger>((key, logger) =>
@@ -50,6 +56,12 @@ namespace NuGet.Services.Sql.Tests
                     return Task.FromResult(key.Replace("$$", string.Empty));
                 })
                 .Verifiable();
+
+            mockSecretReader.Setup(x => x.TryGetCachedSecret(It.IsAny<string>(), It.IsAny<ILogger>()))
+                .Returns<string, ILogger>((key, logger) =>
+                {
+                    return key.Replace("$$", string.Empty);
+                });
 
             return mockSecretReader;
         }

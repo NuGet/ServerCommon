@@ -22,7 +22,7 @@ namespace NuGet.Services.Sql.Tests
             {
                 Assert.Throws<ArgumentException>(() => new AzureSqlConnectionFactory(
                     connectionString,
-                    new Mock<ISecretInjector>().Object));
+                    Mock.Of<ICachingSecretInjector>()));
             }
 
             [Fact]
@@ -36,7 +36,7 @@ namespace NuGet.Services.Sql.Tests
             [Fact]
             public void WhenLoggerIsNull_DoesNotThrowArgumentException()
             {
-                new AzureSqlConnectionFactory(MockConnectionStrings.SqlConnectionString, new Mock<ISecretInjector>().Object);
+                new AzureSqlConnectionFactory(MockConnectionStrings.SqlConnectionString, Mock.Of<ICachingSecretInjector>());
             }
         }
 
@@ -123,6 +123,72 @@ namespace NuGet.Services.Sql.Tests
             private Task<SqlConnection> ConnectAsync(MockFactory factory, bool shouldOpen)
             {
                 return shouldOpen ? factory.OpenAsync() : factory.CreateAsync();
+            }
+        }
+
+        public class TheTryCreateMethod
+        {
+            [Fact]
+            public void WhenSqlConnectionString_InjectsSecrets()
+            {
+                // Arrange
+                var factory = new MockFactory(MockConnectionStrings.SqlConnectionString);
+
+                // Act
+                var connection = factory.TryCreate();
+
+                // Assert
+                factory.MockSecretReader.Verify(x => x.TryGetCachedSecret(It.IsAny<string>(), It.IsAny<ILogger>()), Times.Exactly(2));
+                factory.MockSecretReader.Verify(x => x.TryGetCachedSecret("user", It.IsAny<ILogger>()), Times.Once);
+                factory.MockSecretReader.Verify(x => x.TryGetCachedSecret("pass", It.IsAny<ILogger>()), Times.Once);
+
+                Assert.True(connection.ConnectionString.Equals(
+                    $"{MockConnectionStrings.BaseConnectionString};User ID=user;Password=pass", StringComparison.InvariantCultureIgnoreCase));
+            }
+
+            [Fact]
+            public void WhenAadConnectionString_InjectsSecrets()
+            {
+                // Arrange
+                var factory = new MockFactory(MockConnectionStrings.AadSqlConnectionString);
+
+                // Act
+                var connection = factory.TryCreate();
+
+                // Assert
+                factory.MockSecretReader.Verify(x => x.TryGetCachedSecret("cert", It.IsAny<ILogger>()), Times.Once);
+
+                // Note that AAD keys are extracted for internal use only
+                Assert.True(connection.ConnectionString.Equals(
+                    $"{MockConnectionStrings.BaseConnectionString}", StringComparison.InvariantCultureIgnoreCase));
+            }
+
+            [Fact]
+            public void WhenSqlConnectionString_DoesNotAcquireAccessToken()
+            {
+                // Arrange
+                var factory = new MockFactory(MockConnectionStrings.SqlConnectionString);
+
+                // Act
+                var connection = factory.TryCreate();
+
+                // Assert
+                Assert.True(string.IsNullOrEmpty(connection.AccessToken));
+                Assert.Equal(0, factory.AcquireAccessTokenCalls);
+            }
+
+            [Fact]
+            public void WhenAadConnectionString_AcquiresAccessToken()
+            {
+                // Arrange
+                var factory = new MockFactory(MockConnectionStrings.AadSqlConnectionString);
+
+                // Act
+                var connection = factory.TryCreate();
+
+                // Assert
+                Assert.Equal("accessToken", connection.AccessToken);
+                Assert.Equal(1, factory.AcquireAccessTokenCalls);
             }
         }
     }

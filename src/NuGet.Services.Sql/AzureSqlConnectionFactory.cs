@@ -15,7 +15,7 @@ namespace NuGet.Services.Sql
 
         private AzureSqlConnectionStringBuilder ConnectionString { get; }
 
-        private ISecretInjector SecretInjector { get; }
+        private ICachingSecretInjector SecretInjector { get; }
 
         private ILogger Logger { get; }
 
@@ -35,7 +35,7 @@ namespace NuGet.Services.Sql
 
         public AzureSqlConnectionFactory(
             AzureSqlConnectionStringBuilder connectionString,
-            ISecretInjector secretInjector,
+            ICachingSecretInjector secretInjector,
             ILogger logger = null)
         {
             ConnectionString = connectionString ?? throw new ArgumentNullException(nameof(connectionString));
@@ -43,7 +43,7 @@ namespace NuGet.Services.Sql
             Logger = logger;
         }
 
-        public AzureSqlConnectionFactory(string connectionString, ISecretInjector secretInjector, ILogger logger = null)
+        public AzureSqlConnectionFactory(string connectionString, ICachingSecretInjector secretInjector, ILogger logger = null)
         {
             if (string.IsNullOrEmpty(connectionString))
             {
@@ -53,6 +53,31 @@ namespace NuGet.Services.Sql
             ConnectionString = new AzureSqlConnectionStringBuilder(connectionString);
             SecretInjector = secretInjector ?? throw new ArgumentNullException(nameof(secretInjector));
             Logger = logger;
+        }
+
+        public SqlConnection TryCreate()
+        {
+            var connectionString = SecretInjector.TryInjectCached(ConnectionString.ConnectionString, Logger);
+            if (connectionString == null)
+            {
+                return null;
+            }
+            var connection = new SqlConnection(connectionString);
+
+            if (!string.IsNullOrWhiteSpace(ConnectionString.AadAuthority))
+            {
+                var clientCertificateData = SecretInjector.TryInjectCached(ConnectionString.AadCertificate, Logger);
+                if (!string.IsNullOrEmpty(clientCertificateData))
+                {
+                    connection.AccessToken = TryAcquireAccessToken(clientCertificateData);
+                    if (connection.AccessToken == null)
+                    {
+                        return null;
+                    }
+                }
+            }
+
+            return connection;
         }
 
         public Task<SqlConnection> CreateAsync()
@@ -96,6 +121,11 @@ namespace NuGet.Services.Sql
             var authResult = await AccessTokenCache.GetAsync(ConnectionString, clientCertificateData, Logger);
 
             return authResult.AccessToken;
+        }
+
+        protected virtual string TryAcquireAccessToken(string clientCertificateData)
+        {
+            return AccessTokenCache.TryGetCached(ConnectionString, clientCertificateData, Logger)?.AccessToken;
         }
     }
 }

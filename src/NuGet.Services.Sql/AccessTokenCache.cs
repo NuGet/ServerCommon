@@ -31,17 +31,9 @@ namespace NuGet.Services.Sql
             string clientCertificateData,
             ILogger logger = null)
         {
-            AccessTokenCacheValue accessToken;
-
-            if (TryGetValue(connectionString, out accessToken) && !IsExpired(accessToken))
+            AccessTokenCacheValue accessToken = TryGetCachedToken(connectionString, clientCertificateData, logger);
+            if (accessToken != null)
             {
-                // Refresh access token in background, if near expiry or client certificate has changed.
-                if (IsNearExpiry(accessToken) || ClientCertificateHasChanged(accessToken, clientCertificateData))
-                {
-                    TriggerBackgroundRefresh(connectionString, clientCertificateData, logger);
-                }
-
-                // Returned cached access token.
                 return accessToken.AuthenticationResult;
             }
 
@@ -55,6 +47,35 @@ namespace NuGet.Services.Sql
             }
 
             throw new InvalidOperationException($"Failed to acquire access token for {connectionString.Sql.InitialCatalog}.");
+        }
+
+        public IAuthenticationResult TryGetCached(
+            AzureSqlConnectionStringBuilder connectionString,
+            string clientCertificateData,
+            ILogger logger = null)
+        {
+            AccessTokenCacheValue accessToken = TryGetCachedToken(connectionString, clientCertificateData, logger);
+            return accessToken?.AuthenticationResult;
+        }
+
+        private AccessTokenCacheValue TryGetCachedToken(
+            AzureSqlConnectionStringBuilder connectionString,
+            string clientCertificateData,
+            ILogger logger = null)
+        {
+            if (TryGetValue(connectionString, out AccessTokenCacheValue accessToken) && !IsExpired(accessToken))
+            {
+                // Refresh access token in background, if near expiry or client certificate has changed.
+                if (IsNearExpiry(accessToken) || ClientCertificateHasChanged(accessToken, clientCertificateData))
+                {
+                    TriggerBackgroundRefresh(connectionString, clientCertificateData, logger);
+                }
+
+                // Returned cached access token.
+                return accessToken;
+            }
+
+            return null;
         }
 
         /// <summary>
