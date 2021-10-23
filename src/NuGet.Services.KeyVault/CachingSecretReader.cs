@@ -8,7 +8,7 @@ using Microsoft.Extensions.Logging;
 
 namespace NuGet.Services.KeyVault
 {
-    public class CachingSecretReader : ISecretReader
+    public class CachingSecretReader : ICachingSecretReader
     {
         public const int DefaultRefreshIntervalSec = 60 * 60 * 24; // 1 day
         public const int DefaultRefreshIntervalBeforeExpirySec = 60 * 30 ; // 30 minutes
@@ -52,10 +52,10 @@ namespace NuGet.Services.KeyVault
             }
 
             // If the cache contains the secret and it is not expired, return the cached value.
-            if (_cache.TryGetValue(secretName, out CachedSecret result)
-                && !IsSecretOutdated(result))
+            var cachedSecret = TryGetCachedSecretObject(secretName, logger);
+            if (cachedSecret != null)
             {
-                return result.Secret;
+                return cachedSecret;
             }
 
             var start = DateTimeOffset.UtcNow;
@@ -69,6 +69,32 @@ namespace NuGet.Services.KeyVault
                 (DateTimeOffset.UtcNow - start).TotalMilliseconds.ToString("F2"));
 
             return updatedSecret;
+        }
+
+        public string TryGetCachedSecret(string secretName)
+        {
+            return TryGetCachedSecret(secretName, logger: null);
+        }
+
+        public string TryGetCachedSecret(string secretName, ILogger logger)
+        {
+            return TryGetCachedSecretObject(secretName, logger)?.Value;
+        }
+
+        public ISecret TryGetCachedSecretObject(string secretName)
+        {
+            return TryGetCachedSecretObject(secretName, logger: null);
+        }
+
+        public ISecret TryGetCachedSecretObject(string secretName, ILogger logger)
+        {
+            if (_cache.TryGetValue(secretName, out CachedSecret result)
+                && !IsSecretOutdated(result))
+            {
+                return result.Secret;
+            }
+
+            return null;
         }
 
         private bool IsSecretOutdated(CachedSecret cachedSecret)

@@ -3,17 +3,19 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 
 namespace NuGet.Services.KeyVault
 {
-    public class SecretInjector : ISecretInjector
+    public class SecretInjector : ICachingSecretInjector
     {
         public const string DefaultFrame = "$$";
         private readonly string _frame;
         private readonly ISecretReader _secretReader;
+        private readonly ICachingSecretReader _cachingSecretReader = null;
 
         public SecretInjector(ISecretReader secretReader) : this(secretReader, DefaultFrame)
         {
@@ -33,6 +35,15 @@ namespace NuGet.Services.KeyVault
 
             _frame = frame;
             _secretReader = secretReader;
+        }
+
+        public SecretInjector(ICachingSecretReader cachingSecretReader) : this(cachingSecretReader, DefaultFrame)
+        {
+        }
+
+        public SecretInjector(ICachingSecretReader cachingSecretReader, string frame) : this((ISecretReader)cachingSecretReader, frame)
+        {
+            _cachingSecretReader = cachingSecretReader;
         }
 
         public Task<string> InjectAsync(string input)
@@ -59,7 +70,40 @@ namespace NuGet.Services.KeyVault
             return output.ToString();
         }
 
-        private IEnumerable<string> GetSecretNames(string input)
+        public string TryInjectCached(string input)
+        {
+            return TryInjectCached(input, logger: null);
+        }
+
+        public string TryInjectCached(string input, ILogger logger)
+        {
+            if (string.IsNullOrEmpty(input))
+            {
+                return input;
+            }
+
+            var output = new StringBuilder(input);
+            var secretNames = GetSecretNames(input);
+
+            if (secretNames.Count > 0 && _cachingSecretReader == null)
+            {
+                return null;
+            }
+
+            foreach (var secretName in secretNames)
+            {
+                var secretValue = _cachingSecretReader?.TryGetCachedSecret(secretName, logger);
+                if (secretValue == null)
+                {
+                    return null;
+                }
+                output.Replace($"{_frame}{secretName}{_frame}", secretValue);
+            }
+
+            return output.ToString();
+        }
+
+        private ICollection<string> GetSecretNames(string input)
         {
             var secretNames = new HashSet<string>();
 

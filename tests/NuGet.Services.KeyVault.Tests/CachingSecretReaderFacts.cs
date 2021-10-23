@@ -42,6 +42,31 @@ namespace NuGet.Services.KeyVault.Tests
         }
 
         [Fact]
+        public async Task WhenSecretIsFreshTryGetCachedSecretReturnsIt()
+        {
+            // Arrange
+            const string secretName = "secretname";
+            const string secretValue = "testValue";
+            KeyVaultSecret secret = new KeyVaultSecret(secretName, secretValue, null);
+
+            var mockSecretReader = new Mock<ISecretReader>();
+            mockSecretReader
+                .Setup(x => x.GetSecretObjectAsync(It.IsAny<string>()))
+                .Returns(Task.FromResult((ISecret)secret));
+            var mockLogger = new Mock<ILogger>();
+
+            var cachingSecretReader = new CachingSecretReader(mockSecretReader.Object, int.MaxValue);
+
+            // Act
+            var value1 = await cachingSecretReader.GetSecretAsync("secretname", mockLogger.Object);
+            var value2 = cachingSecretReader.TryGetCachedSecret("secretname", mockLogger.Object);
+
+            // Assert
+            Assert.Equal(secretValue, value1);
+            Assert.Equal(secretValue, value2);
+        }
+
+        [Fact]
         public async Task WhenGetSecretIsCalledCacheIsUsedWithoutLogger()
         {
             // Arrange
@@ -68,6 +93,30 @@ namespace NuGet.Services.KeyVault.Tests
                 It.IsAny<FormattedLogValues>(),
                 It.IsAny<Exception>(),
                 It.IsAny<Func<object, Exception, string>>()), Times.Never);
+        }
+
+        [Fact]
+        public async Task WhenSecretIsFreshTryGetCachedSecretReturnsItWithoutLogger()
+        {
+            // Arrange
+            const string secretName = "secretname";
+            const string secretValue = "testValue";
+            KeyVaultSecret secret = new KeyVaultSecret(secretName, secretValue, null);
+
+            var mockSecretReader = new Mock<ISecretReader>();
+            mockSecretReader
+                .Setup(x => x.GetSecretObjectAsync(It.IsAny<string>()))
+                .Returns(Task.FromResult((ISecret)secret));
+
+            var cachingSecretReader = new CachingSecretReader(mockSecretReader.Object, int.MaxValue);
+
+            // Act
+            var value1 = await cachingSecretReader.GetSecretAsync("secretname");
+            var value2 = cachingSecretReader.TryGetCachedSecret("secretname");
+
+            // Assert
+            Assert.Equal(secretValue, value1);
+            Assert.Equal(secretValue, value2);
         }
 
         [Fact]
@@ -164,6 +213,55 @@ namespace NuGet.Services.KeyVault.Tests
             Assert.Equal(secretObject2.Expiration, secondSecretExpiration);
             Assert.Equal(secretObject3.Value, secondSecretValue);
             Assert.Equal(secretObject3.Expiration, secondSecretExpiration);
+        }
+
+        [Fact]
+        public async Task WhenSecretIsStaleTryGetCachedSecretReturnsNull()
+        {
+            // Arrange
+            const string secretName = "secretname";
+            const string secretValue = "testValue";
+            KeyVaultSecret secret = new KeyVaultSecret(secretName, secretValue, null);
+
+            var mockSecretReader = new Mock<ISecretReader>();
+            mockSecretReader
+                .Setup(x => x.GetSecretObjectAsync(It.IsAny<string>()))
+                .Returns(Task.FromResult((ISecret)secret));
+            var mockLogger = new Mock<ILogger>();
+
+            var cachingSecretReader = new CachingSecretReader(mockSecretReader.Object, refreshIntervalSec: 0);
+
+            // Act
+            var value1 = await cachingSecretReader.GetSecretAsync("secretname", mockLogger.Object);
+            var value2 = cachingSecretReader.TryGetCachedSecret("secretname", mockLogger.Object);
+
+            // Assert
+            Assert.Equal(secretValue, value1);
+            Assert.Null(value2);
+        }
+
+        [Fact]
+        public async Task WhenSecretIsStaleTryGetCachedSecretReturnsNullWithoutLogger()
+        {
+            // Arrange
+            const string secretName = "secretname";
+            const string secretValue = "testValue";
+            KeyVaultSecret secret = new KeyVaultSecret(secretName, secretValue, null);
+
+            var mockSecretReader = new Mock<ISecretReader>();
+            mockSecretReader
+                .Setup(x => x.GetSecretObjectAsync(It.IsAny<string>()))
+                .Returns(Task.FromResult((ISecret)secret));
+
+            var cachingSecretReader = new CachingSecretReader(mockSecretReader.Object, refreshIntervalSec: 0);
+
+            // Act
+            var value1 = await cachingSecretReader.GetSecretAsync("secretname");
+            var value2 = cachingSecretReader.TryGetCachedSecret("secretname");
+
+            // Assert
+            Assert.Equal(secretValue, value1);
+            Assert.Null(value2);
         }
     }
 }
