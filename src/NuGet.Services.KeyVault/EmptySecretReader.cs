@@ -8,10 +8,7 @@ namespace NuGet.Services.KeyVault
 {
     public class EmptySecretReader : ICachingSecretReader
     {
-        public Task<string> GetSecretAsync(string secretName)
-        {
-            return GetSecretAsync(secretName, logger: null);
-        }
+        public Task<string> GetSecretAsync(string secretName) => GetSecretAsync(secretName, logger: null);
 
         public Task<string> GetSecretAsync(string secretName, ILogger logger)
         {
@@ -25,21 +22,20 @@ namespace NuGet.Services.KeyVault
             return Task.FromResult((ISecret)new KeyVaultSecret(secretName, secretName, null));
         }
 
-        public string TryGetCachedSecret(string secretName) => TryGetCachedSecret(secretName, logger: null);
+        public bool TryGetCachedSecret(string secretName, out string secretValue) => TryGetCachedSecret(secretName, logger: null, out secretValue);
 
-        public string TryGetCachedSecret(string secretName, ILogger logger)
+        public bool TryGetCachedSecret(string secretName, ILogger logger, out string secretValue)
         {
-            return secretName;
+            secretValue = secretName;
+            return true;
         }
 
-        public ISecret TryGetCachedSecretObject(string secretName)
-        {
-            return TryGetCachedSecretObject(secretName, logger: null);
-        }
+        public bool TryGetCachedSecretObject(string secretName, out ISecret secretObject) => TryGetCachedSecretObject(secretName, logger: null, out secretObject);
 
-        public ISecret TryGetCachedSecretObject(string secretName, ILogger logger)
+        public bool TryGetCachedSecretObject(string secretName, ILogger logger, out ISecret secretObject)
         {
-            return new KeyVaultSecret(secretName, secretName, null);
+            secretObject = new KeyVaultSecret(secretName, secretName, null);
+            return true;
         }
     }
 }

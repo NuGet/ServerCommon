@@ -7,7 +7,7 @@ namespace NuGet.Services.KeyVault
 {
     public interface ICachingSecretInjector : ISecretInjector
     {
-        string TryInjectCached(string input);
-        string TryInjectCached(string input, ILogger logger);
+        bool TryInjectCached(string input, out string injectedString);
+        bool TryInjectCached(string input, ILogger logger, out string injectedString);
     }
 }

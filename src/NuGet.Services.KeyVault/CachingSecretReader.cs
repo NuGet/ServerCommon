@@ -52,8 +52,7 @@ namespace NuGet.Services.KeyVault
             }
 
             // If the cache contains the secret and it is not expired, return the cached value.
-            var cachedSecret = TryGetCachedSecretObject(secretName, logger);
-            if (cachedSecret != null)
+            if (TryGetCachedSecretObject(secretName, logger, out var cachedSecret))
             {
                 return cachedSecret;
             }
@@ -71,24 +70,32 @@ namespace NuGet.Services.KeyVault
             return updatedSecret;
         }
 
-        public string TryGetCachedSecret(string secretName) => TryGetCachedSecret(secretName, logger: null);
+        public bool TryGetCachedSecret(string secretName, out string secretValue) => TryGetCachedSecret(secretName, logger: null, out secretValue);
 
-        public string TryGetCachedSecret(string secretName, ILogger logger)
+        public bool TryGetCachedSecret(string secretName, ILogger logger, out string secretValue)
         {
-            return TryGetCachedSecretObject(secretName, logger)?.Value;
+            secretValue = null;
+            if (TryGetCachedSecretObject(secretName, logger, out var secretObject))
+            {
+                secretValue = secretObject.Value;
+                return true;
+            }
+            return false;
         }
 
-        public ISecret TryGetCachedSecretObject(string secretName) => TryGetCachedSecretObject(secretName, logger: null);
+        public bool TryGetCachedSecretObject(string secretName, out ISecret secretObject) => TryGetCachedSecretObject(secretName, logger: null, out secretObject);
 
-        public ISecret TryGetCachedSecretObject(string secretName, ILogger logger)
+        public bool TryGetCachedSecretObject(string secretName, ILogger logger, out ISecret secretObject)
         {
+            secretObject = null;
             if (_cache.TryGetValue(secretName, out CachedSecret result)
                 && !IsSecretOutdated(result))
             {
-                return result.Secret;
+                secretObject = result.Secret;
+                return true;
             }
 
-            return null;
+            return false;
         }
 
         private bool IsSecretOutdated(CachedSecret cachedSecret)

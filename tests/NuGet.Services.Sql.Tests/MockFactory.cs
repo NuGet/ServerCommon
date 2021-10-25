@@ -40,11 +40,14 @@ namespace NuGet.Services.Sql.Tests
             return Task.FromResult("accessToken");
         }
 
-        protected override string TryAcquireAccessToken(string clientCertificateData)
+        protected override bool TryAcquireAccessToken(string clientCertificateData, out string accessToken)
         {
             AcquireAccessTokenCalls++;
-            return "accessToken";
+            accessToken = "accessToken";
+            return true;
         }
+
+        delegate bool TryGetCachedSecretReturns(string secretName, ILogger logger, out string secretValue);
 
         private static Mock<ICachingSecretReader> CreateMockSecretReader()
         {
@@ -57,11 +60,12 @@ namespace NuGet.Services.Sql.Tests
                 })
                 .Verifiable();
 
-            mockSecretReader.Setup(x => x.TryGetCachedSecret(It.IsAny<string>(), It.IsAny<ILogger>()))
-                .Returns<string, ILogger>((key, logger) =>
+            mockSecretReader.Setup(x => x.TryGetCachedSecret(It.IsAny<string>(), It.IsAny<ILogger>(), out It.Ref<string>.IsAny))
+                .Returns(new TryGetCachedSecretReturns((string key, ILogger logger, out string secretValue) =>
                 {
-                    return key.Replace("$$", string.Empty);
-                });
+                    secretValue = key.Replace("$$", string.Empty);
+                    return true;
+                }));
 
             return mockSecretReader;
         }

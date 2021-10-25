@@ -75,29 +75,22 @@ namespace NuGet.Services.KeyVault
             return UncachedGetSecretObjectAsync(secretName);
         }
 
-        public string TryGetCachedSecret(string secretName) => TryGetCachedSecret(secretName, logger: null);
+        public bool TryGetCachedSecret(string secretName, out string secretValue) => TryGetCachedSecret(secretName, logger: null, out secretValue);
 
-        public string TryGetCachedSecret(string secretName, ILogger logger)
+        public bool TryGetCachedSecret(string secretName, ILogger logger, out string secretValue)
         {
+            secretValue = null;
             if (TryGetCachedSecretObject(secretName, out var secret))
             {
-                return secret.Value;
+                secretValue = secret.Value;
+                return true;
             }
 
-            return null;
+            return false;
         }
 
-        public ISecret TryGetCachedSecretObject(string secretName) => TryGetCachedSecretObject(secretName, logger: null);
-
-        public ISecret TryGetCachedSecretObject(string secretName, ILogger logger)
-        {
-            if (TryGetCachedSecretObject(secretName, out var secret))
-            {
-                return secret;
-            }
-
-            return null;
-        }
+        public bool TryGetCachedSecretObject(string secretName, ILogger logger, out ISecret secretObject) 
+            => TryGetCachedSecretObject(secretName, out secretObject);
 
         private async Task<string> UncachedGetSecretAsync(string secretName)
         {
@@ -112,7 +105,7 @@ namespace NuGet.Services.KeyVault
             return secretObject;
         }
 
-        private bool TryGetCachedSecretObject(string secretName, out ISecret secret)
+        public bool TryGetCachedSecretObject(string secretName, out ISecret secret)
         {
             if (_cache.TryGetValue(secretName, out secret))
             {

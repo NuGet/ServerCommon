@@ -137,11 +137,13 @@ namespace NuGet.Services.Sql.Tests
                 var tokenCache = new MockAccessTokenCache(mockTokens: token1);
 
                 // Act.
-                var result = tokenCache.TryGetCached(
+                var success = tokenCache.TryGetCached(
                     MockConnectionString,
-                    MockAccessTokenCache.DefaultCertificateData);
+                    MockAccessTokenCache.DefaultCertificateData,
+                    out var result);
 
                 // Assert.
+                Assert.False(success);
                 Assert.Equal(0, tokenCache.AcquireTokenCount);
                 Assert.Null(result);
             }
@@ -155,11 +157,13 @@ namespace NuGet.Services.Sql.Tests
                 var tokenCache = new MockAccessTokenCache(initialValue: token0, mockTokens: token1);
 
                 // Act.
-                var result = tokenCache.TryGetCached(
+                var success = tokenCache.TryGetCached(
                     MockConnectionString,
-                    MockAccessTokenCache.DefaultCertificateData);
+                    MockAccessTokenCache.DefaultCertificateData,
+                    out var result);
 
                 // Assert.
+                Assert.False(success);
                 Assert.Equal(0, tokenCache.AcquireTokenCount);
                 Assert.Null(result);
             }
@@ -173,11 +177,13 @@ namespace NuGet.Services.Sql.Tests
                 var tokenCache = new MockAccessTokenCache(initialValue: token0, mockTokens: token1);
 
                 // Act.
-                var result = tokenCache.TryGetCached(
+                var success = tokenCache.TryGetCached(
                     MockConnectionString,
-                    MockAccessTokenCache.DefaultCertificateData);
+                    MockAccessTokenCache.DefaultCertificateData,
+                    out var result);
 
                 // Assert.
+                Assert.True(success);
                 Assert.Equal("nearExpired", result.AccessToken);
 
                 await Task.Delay(500);
@@ -194,11 +200,13 @@ namespace NuGet.Services.Sql.Tests
                 var tokenCache = new MockAccessTokenCache(initialCertData: certData0, initialValue: token0, mockTokens: token1);
 
                 // Act.
-                var result = tokenCache.TryGetCached(
+                var success = tokenCache.TryGetCached(
                     MockConnectionString,
-                    MockAccessTokenCache.DefaultCertificateData);
+                    MockAccessTokenCache.DefaultCertificateData,
+                    out var result);
 
                 // Assert.
+                Assert.True(success);
                 Assert.Equal("valid0", result.AccessToken);
 
                 await Task.Delay(500);
@@ -214,11 +222,13 @@ namespace NuGet.Services.Sql.Tests
                 var tokenCache = new MockAccessTokenCache(initialValue: token0, mockTokens: token1);
 
                 // Act.
-                var result = tokenCache.TryGetCached(
+                var success = tokenCache.TryGetCached(
                     MockConnectionString,
-                    MockAccessTokenCache.DefaultCertificateData);
+                    MockAccessTokenCache.DefaultCertificateData,
+                    out var result);
 
                 // Assert.
+                Assert.True(success);
                 Assert.Equal(0, tokenCache.AcquireTokenCount);
                 Assert.Equal("valid", result.AccessToken);
             }

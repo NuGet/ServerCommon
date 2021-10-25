@@ -135,13 +135,14 @@ namespace NuGet.Services.Sql.Tests
                 var factory = new MockFactory(MockConnectionStrings.SqlConnectionString);
 
                 // Act
-                var connection = factory.TryCreate();
+                var success = factory.TryCreate(out var connection);
 
                 // Assert
-                factory.MockSecretReader.Verify(x => x.TryGetCachedSecret(It.IsAny<string>(), It.IsAny<ILogger>()), Times.Exactly(2));
-                factory.MockSecretReader.Verify(x => x.TryGetCachedSecret("user", It.IsAny<ILogger>()), Times.Once);
-                factory.MockSecretReader.Verify(x => x.TryGetCachedSecret("pass", It.IsAny<ILogger>()), Times.Once);
+                factory.MockSecretReader.Verify(x => x.TryGetCachedSecret(It.IsAny<string>(), It.IsAny<ILogger>(), out It.Ref<string>.IsAny), Times.Exactly(2));
+                factory.MockSecretReader.Verify(x => x.TryGetCachedSecret("user", It.IsAny<ILogger>(), out It.Ref<string>.IsAny), Times.Once);
+                factory.MockSecretReader.Verify(x => x.TryGetCachedSecret("pass", It.IsAny<ILogger>(), out It.Ref<string>.IsAny), Times.Once);
 
+                Assert.True(success);
                 Assert.True(connection.ConnectionString.Equals(
                     $"{MockConnectionStrings.BaseConnectionString};User ID=user;Password=pass", StringComparison.InvariantCultureIgnoreCase));
             }
@@ -153,11 +154,12 @@ namespace NuGet.Services.Sql.Tests
                 var factory = new MockFactory(MockConnectionStrings.AadSqlConnectionString);
 
                 // Act
-                var connection = factory.TryCreate();
+                var success = factory.TryCreate(out var connection);
 
                 // Assert
-                factory.MockSecretReader.Verify(x => x.TryGetCachedSecret("cert", It.IsAny<ILogger>()), Times.Once);
+                factory.MockSecretReader.Verify(x => x.TryGetCachedSecret("cert", It.IsAny<ILogger>(), out It.Ref<string>.IsAny), Times.Once);
 
+                Assert.True(success);
                 // Note that AAD keys are extracted for internal use only
                 Assert.True(connection.ConnectionString.Equals(
                     $"{MockConnectionStrings.BaseConnectionString}", StringComparison.InvariantCultureIgnoreCase));
@@ -170,9 +172,10 @@ namespace NuGet.Services.Sql.Tests
                 var factory = new MockFactory(MockConnectionStrings.SqlConnectionString);
 
                 // Act
-                var connection = factory.TryCreate();
+                var success = factory.TryCreate(out var connection);
 
                 // Assert
+                Assert.True(success);
                 Assert.True(string.IsNullOrEmpty(connection.AccessToken));
                 Assert.Equal(0, factory.AcquireAccessTokenCalls);
             }
@@ -184,9 +187,10 @@ namespace NuGet.Services.Sql.Tests
                 var factory = new MockFactory(MockConnectionStrings.AadSqlConnectionString);
 
                 // Act
-                var connection = factory.TryCreate();
+                var success = factory.TryCreate(out var connection);
 
                 // Assert
+                Assert.True(success);
                 Assert.Equal("accessToken", connection.AccessToken);
                 Assert.Equal(1, factory.AcquireAccessTokenCalls);
             }

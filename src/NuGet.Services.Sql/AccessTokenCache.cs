@@ -31,8 +31,7 @@ namespace NuGet.Services.Sql
             string clientCertificateData,
             ILogger logger = null)
         {
-            AccessTokenCacheValue accessToken = TryGetCachedToken(connectionString, clientCertificateData, logger);
-            if (accessToken != null)
+            if (TryGetCachedToken(connectionString, clientCertificateData, out var accessToken, logger))
             {
                 return accessToken.AuthenticationResult;
             }
@@ -49,21 +48,29 @@ namespace NuGet.Services.Sql
             throw new InvalidOperationException($"Failed to acquire access token for {connectionString.Sql.InitialCatalog}.");
         }
 
-        public IAuthenticationResult TryGetCached(
+        public bool TryGetCached(
             AzureSqlConnectionStringBuilder connectionString,
             string clientCertificateData,
+            out IAuthenticationResult authenticationResult,
             ILogger logger = null)
         {
-            AccessTokenCacheValue accessToken = TryGetCachedToken(connectionString, clientCertificateData, logger);
-            return accessToken?.AuthenticationResult;
+            if (TryGetCachedToken(connectionString, clientCertificateData, out var accessToken, logger))
+            {
+                authenticationResult = accessToken.AuthenticationResult;
+                return true;
+            }
+
+            authenticationResult = null;
+            return false;
         }
 
-        private AccessTokenCacheValue TryGetCachedToken(
+        private bool TryGetCachedToken(
             AzureSqlConnectionStringBuilder connectionString,
             string clientCertificateData,
+            out AccessTokenCacheValue accessToken,
             ILogger logger = null)
         {
-            if (TryGetValue(connectionString, out AccessTokenCacheValue accessToken) && !IsExpired(accessToken))
+            if (TryGetValue(connectionString, out accessToken) && !IsExpired(accessToken))
             {
                 // Refresh access token in background, if near expiry or client certificate has changed.
                 if (IsNearExpiry(accessToken) || ClientCertificateHasChanged(accessToken, clientCertificateData))
@@ -72,10 +79,10 @@ namespace NuGet.Services.Sql
                 }
 
                 // Returned cached access token.
-                return accessToken;
+                return true;
             }
 
-            return null;
+            return false;
         }
 
         /// <summary>

@@ -55,29 +55,28 @@ namespace NuGet.Services.Sql
             Logger = logger;
         }
 
-        public SqlConnection TryCreate()
+        public bool TryCreate(out SqlConnection sqlConnection)
         {
-            var connectionString = SecretInjector.TryInjectCached(ConnectionString.ConnectionString, Logger);
-            if (connectionString == null)
+            sqlConnection = null;
+            if (!SecretInjector.TryInjectCached(ConnectionString.ConnectionString, Logger, out var connectionString))
             {
-                return null;
+                return false;
             }
-            var connection = new SqlConnection(connectionString);
+            sqlConnection = new SqlConnection(connectionString);
 
             if (!string.IsNullOrWhiteSpace(ConnectionString.AadAuthority))
             {
-                var clientCertificateData = SecretInjector.TryInjectCached(ConnectionString.AadCertificate, Logger);
-                if (!string.IsNullOrEmpty(clientCertificateData))
+                if (SecretInjector.TryInjectCached(ConnectionString.AadCertificate, Logger, out var clientCertificateData) && !string.IsNullOrEmpty(clientCertificateData))
                 {
-                    connection.AccessToken = TryAcquireAccessToken(clientCertificateData);
-                    if (connection.AccessToken == null)
+                    if (!TryAcquireAccessToken(clientCertificateData, out var accessToken))
                     {
-                        return null;
+                        return false;
                     }
+                    sqlConnection.AccessToken = accessToken;
                 }
             }
 
-            return connection;
+            return true;
         }
 
         public Task<SqlConnection> CreateAsync()
@@ -123,9 +122,16 @@ namespace NuGet.Services.Sql
             return authResult.AccessToken;
         }
 
-        protected virtual string TryAcquireAccessToken(string clientCertificateData)
+        protected virtual bool TryAcquireAccessToken(string clientCertificateData, out string accessToken)
         {
-            return AccessTokenCache.TryGetCached(ConnectionString, clientCertificateData, Logger)?.AccessToken;
+            accessToken = null;
+            if (AccessTokenCache.TryGetCached(ConnectionString, clientCertificateData, out var authenticationResult, Logger))
+            {
+                accessToken = authenticationResult.AccessToken;
+                return true;
+            }
+
+            return false;
         }
     }
 }

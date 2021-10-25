@@ -62,37 +62,38 @@ namespace NuGet.Services.KeyVault
             return output.ToString();
         }
 
-        public string TryInjectCached(string input)
-        {
-            return TryInjectCached(input, logger: null);
-        }
+        public bool TryInjectCached(string input, out string injectedString) => TryInjectCached(input, logger: null, out injectedString);
 
-        public string TryInjectCached(string input, ILogger logger)
+        public bool TryInjectCached(string input, ILogger logger, out string injectedString)
         {
             if (string.IsNullOrEmpty(input))
             {
-                return input;
+                injectedString = input;
+                return true;
             }
 
             var output = new StringBuilder(input);
             var secretNames = GetSecretNames(input);
+            injectedString = null;
 
             if (secretNames.Count > 0 && _cachingSecretReader == null)
             {
-                return null;
+                // we have secrets to inject, but no caching secret reader to read them from
+                return false;
             }
 
             foreach (var secretName in secretNames)
             {
-                var secretValue = _cachingSecretReader?.TryGetCachedSecret(secretName, logger);
-                if (secretValue == null)
+                if (_cachingSecretReader?.TryGetCachedSecret(secretName, logger, out var secretValue) != true)
                 {
-                    return null;
+                    // current secret is not available in cache or no caching secret reader
+                    return false;
                 }
                 output.Replace($"{_frame}{secretName}{_frame}", secretValue);
             }
 
-            return output.ToString();
+            injectedString = output.ToString();
+            return true;
         }
 
         private ICollection<string> GetSecretNames(string input)

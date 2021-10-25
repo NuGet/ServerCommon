@@ -7,9 +7,9 @@ namespace NuGet.Services.KeyVault
 {
     public interface ICachingSecretReader : ISecretReader
     {
-        string TryGetCachedSecret(string secretName);
-        string TryGetCachedSecret(string secretName, ILogger logger);
-        ISecret TryGetCachedSecretObject(string secretName);
-        ISecret TryGetCachedSecretObject(string secretName, ILogger logger);
+        bool TryGetCachedSecret(string secretName, out string secretValue);
+        bool TryGetCachedSecret(string secretName, ILogger logger, out string secretValue);
+        bool TryGetCachedSecretObject(string secretName, out ISecret secretObject);
+        bool TryGetCachedSecretObject(string secretName, ILogger logger, out ISecret secretObject);
     }
 }

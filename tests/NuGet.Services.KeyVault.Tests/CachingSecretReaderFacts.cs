@@ -59,10 +59,11 @@ namespace NuGet.Services.KeyVault.Tests
 
             // Act
             var value1 = await cachingSecretReader.GetSecretAsync("secretname", mockLogger.Object);
-            var value2 = cachingSecretReader.TryGetCachedSecret("secretname", mockLogger.Object);
+            var success = cachingSecretReader.TryGetCachedSecret("secretname", mockLogger.Object, out var value2);
 
             // Assert
             Assert.Equal(secretValue, value1);
+            Assert.True(success);
             Assert.Equal(secretValue, value2);
         }
 
@@ -112,10 +113,11 @@ namespace NuGet.Services.KeyVault.Tests
 
             // Act
             var value1 = await cachingSecretReader.GetSecretAsync("secretname");
-            var value2 = cachingSecretReader.TryGetCachedSecret("secretname");
+            var success = cachingSecretReader.TryGetCachedSecret("secretname", out var value2);
 
             // Assert
             Assert.Equal(secretValue, value1);
+            Assert.True(success);
             Assert.Equal(secretValue, value2);
         }
 
@@ -233,10 +235,11 @@ namespace NuGet.Services.KeyVault.Tests
 
             // Act
             var value1 = await cachingSecretReader.GetSecretAsync("secretname", mockLogger.Object);
-            var value2 = cachingSecretReader.TryGetCachedSecret("secretname", mockLogger.Object);
+            var success = cachingSecretReader.TryGetCachedSecret("secretname", mockLogger.Object, out var value2);
 
             // Assert
             Assert.Equal(secretValue, value1);
+            Assert.False(success);
             Assert.Null(value2);
         }
 
@@ -257,10 +260,11 @@ namespace NuGet.Services.KeyVault.Tests
 
             // Act
             var value1 = await cachingSecretReader.GetSecretAsync("secretname");
-            var value2 = cachingSecretReader.TryGetCachedSecret("secretname");
+            var success = cachingSecretReader.TryGetCachedSecret("secretname", out var value2);
 
             // Assert
             Assert.Equal(secretValue, value1);
+            Assert.False(success);
             Assert.Null(value2);
         }
     }

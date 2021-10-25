@@ -20,8 +20,9 @@ namespace NuGet.Services.KeyVault.Tests
             var readerMock = new Mock<ISecretReader>();
             var injector = new SecretInjector(readerMock.Object);
 
-            var result = injector.TryInjectCached("$$secretname$$");
+            var success = injector.TryInjectCached("$$secretname$$", out var result);
 
+            Assert.False(success);
             Assert.Null(result);
         }
 
@@ -31,8 +32,9 @@ namespace NuGet.Services.KeyVault.Tests
             var readerMock = new Mock<ISecretReader>();
             var injector = new SecretInjector(readerMock.Object);
 
-            var result = injector.TryInjectCached("$$secretname$$", Mock.Of<ILogger>());
+            var success = injector.TryInjectCached("$$secretname$$", Mock.Of<ILogger>(), out var result);
 
+            Assert.False(success);
             Assert.Null(result);
         }
 
@@ -43,8 +45,9 @@ namespace NuGet.Services.KeyVault.Tests
             var readerMock = new Mock<ISecretReader>();
             var injector = new SecretInjector(readerMock.Object);
 
-            var result = injector.TryInjectCached(inputString);
+            var success = injector.TryInjectCached(inputString, out var result);
 
+            Assert.True(success);
             Assert.Equal(inputString, result);
         }
 
@@ -55,8 +58,9 @@ namespace NuGet.Services.KeyVault.Tests
             var readerMock = new Mock<ISecretReader>();
             var injector = new SecretInjector(readerMock.Object);
 
-            var result = injector.TryInjectCached(inputString, Mock.Of<ILogger>());
+            var success = injector.TryInjectCached(inputString, Mock.Of<ILogger>(), out var result);
 
+            Assert.True(success);
             Assert.Equal(inputString, result);
         }
 
@@ -65,14 +69,16 @@ namespace NuGet.Services.KeyVault.Tests
         {
             const string secretName = "secretName";
             const string inputString = "$$" + secretName + "$$";
+            string nothing = null;
             var readerMock = new Mock<ICachingSecretReader>();
             readerMock
-                .Setup(r => r.TryGetCachedSecret(secretName))
-                .Returns((string)null);
+                .Setup(r => r.TryGetCachedSecret(secretName, out nothing))
+                .Returns(false);
             var injector = new SecretInjector(readerMock.Object);
 
-            var result = injector.TryInjectCached(inputString);
+            var success = injector.TryInjectCached(inputString, out var result);
 
+            Assert.False(success);
             Assert.Null(result);
         }
         
@@ -81,14 +87,16 @@ namespace NuGet.Services.KeyVault.Tests
         {
             const string secretName = "secretName";
             const string inputString = "$$" + secretName + "$$";
+            string nothing = null;
             var readerMock = new Mock<ICachingSecretReader>();
             readerMock
-                .Setup(r => r.TryGetCachedSecret(secretName, It.IsAny<ILogger>()))
-                .Returns((string)null);
+                .Setup(r => r.TryGetCachedSecret(secretName, It.IsAny<ILogger>(), out nothing))
+                .Returns(false);
             var injector = new SecretInjector(readerMock.Object);
 
-            var result = injector.TryInjectCached(inputString, Mock.Of<ILogger>());
+            var success = injector.TryInjectCached(inputString, Mock.Of<ILogger>(), out var result);
 
+            Assert.False(success);
             Assert.Null(result);
         }
 
@@ -97,15 +105,16 @@ namespace NuGet.Services.KeyVault.Tests
         {
             const string secretName = "secretName";
             const string inputString = "$$" + secretName + "$$";
-            const string secretValue = "secretValue";
+            string secretValue = "secretValue";
             var readerMock = new Mock<ICachingSecretReader>();
             readerMock
-                .Setup(r => r.TryGetCachedSecret(secretName, It.IsAny<ILogger>()))
-                .Returns(secretValue);
+                .Setup(r => r.TryGetCachedSecret(secretName, It.IsAny<ILogger>(), out secretValue))
+                .Returns(true);
             var injector = new SecretInjector(readerMock.Object);
 
-            var result = injector.TryInjectCached(inputString);
+            var success = injector.TryInjectCached(inputString, out var result);
 
+            Assert.True(success);
             Assert.Equal(secretValue, result);
         }
 
@@ -114,15 +123,16 @@ namespace NuGet.Services.KeyVault.Tests
         {
             const string secretName = "secretName";
             const string inputString = "$$" + secretName + "$$";
-            const string secretValue = "secretValue";
+            string secretValue = "secretValue";
             var readerMock = new Mock<ICachingSecretReader>();
             readerMock
-                .Setup(r => r.TryGetCachedSecret(secretName, It.IsAny<ILogger>()))
-                .Returns(secretValue);
+                .Setup(r => r.TryGetCachedSecret(secretName, It.IsAny<ILogger>(), out secretValue))
+                .Returns(true);
             var injector = new SecretInjector(readerMock.Object);
 
-            var result = injector.TryInjectCached(inputString, Mock.Of<ILogger>());
+            var success = injector.TryInjectCached(inputString, Mock.Of<ILogger>(), out var result);
 
+            Assert.True(success);
             Assert.Equal(secretValue, result);
         }
     }
