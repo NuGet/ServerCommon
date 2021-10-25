@@ -71,20 +71,14 @@ namespace NuGet.Services.KeyVault
             return updatedSecret;
         }
 
-        public string TryGetCachedSecret(string secretName)
-        {
-            return TryGetCachedSecret(secretName, logger: null);
-        }
+        public string TryGetCachedSecret(string secretName) => TryGetCachedSecret(secretName, logger: null);
 
         public string TryGetCachedSecret(string secretName, ILogger logger)
         {
             return TryGetCachedSecretObject(secretName, logger)?.Value;
         }
 
-        public ISecret TryGetCachedSecretObject(string secretName)
-        {
-            return TryGetCachedSecretObject(secretName, logger: null);
-        }
+        public ISecret TryGetCachedSecretObject(string secretName) => TryGetCachedSecretObject(secretName, logger: null);
 
         public ISecret TryGetCachedSecretObject(string secretName, ILogger logger)
         {

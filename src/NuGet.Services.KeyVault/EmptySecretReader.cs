@@ -18,20 +18,14 @@ namespace NuGet.Services.KeyVault
             return Task.FromResult(secretName);
         }
 
-        public Task<ISecret> GetSecretObjectAsync(string secretName)
-        {
-            return GetSecretObjectAsync(secretName, logger: null);
-        }
+        public Task<ISecret> GetSecretObjectAsync(string secretName) => GetSecretObjectAsync(secretName, logger: null);
 
         public Task<ISecret> GetSecretObjectAsync(string secretName, ILogger logger)
         {
             return Task.FromResult((ISecret)new KeyVaultSecret(secretName, secretName, null));
         }
 
-        public string TryGetCachedSecret(string secretName)
-        {
-            return TryGetCachedSecret(secretName, logger: null);
-        }
+        public string TryGetCachedSecret(string secretName) => TryGetCachedSecret(secretName, logger: null);
 
         public string TryGetCachedSecret(string secretName, ILogger logger)
         {

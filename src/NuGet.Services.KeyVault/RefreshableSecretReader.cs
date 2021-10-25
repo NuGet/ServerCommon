@@ -16,7 +16,7 @@ namespace NuGet.Services.KeyVault
     /// cached with a previous invocation. The <see cref="RefreshAsync"/> method is used to refresh the values of
     /// secrets that have already been cached.
     /// </summary>
-    public class RefreshableSecretReader : ISecretReader
+    public class RefreshableSecretReader : ICachingSecretReader
     {
         private readonly ISecretReader _secretReader;
         private readonly ConcurrentDictionary<string, ISecret> _cache;
@@ -73,6 +73,30 @@ namespace NuGet.Services.KeyVault
             }
 
             return UncachedGetSecretObjectAsync(secretName);
+        }
+
+        public string TryGetCachedSecret(string secretName) => TryGetCachedSecret(secretName, logger: null);
+
+        public string TryGetCachedSecret(string secretName, ILogger logger)
+        {
+            if (TryGetCachedSecretObject(secretName, out var secret))
+            {
+                return secret.Value;
+            }
+
+            return null;
+        }
+
+        public ISecret TryGetCachedSecretObject(string secretName) => TryGetCachedSecretObject(secretName, logger: null);
+
+        public ISecret TryGetCachedSecretObject(string secretName, ILogger logger)
+        {
+            if (TryGetCachedSecretObject(secretName, out var secret))
+            {
+                return secret;
+            }
+
+            return null;
         }
 
         private async Task<string> UncachedGetSecretAsync(string secretName)
