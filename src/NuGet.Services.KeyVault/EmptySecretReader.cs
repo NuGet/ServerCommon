@@ -6,7 +6,7 @@ using Microsoft.Extensions.Logging;
 
 namespace NuGet.Services.KeyVault
 {
-    public class EmptySecretReader : ISecretReader
+    public class EmptySecretReader : ICachingSecretReader
     {
         public Task<string> GetSecretAsync(string secretName)
         {
@@ -26,6 +26,26 @@ namespace NuGet.Services.KeyVault
         public Task<ISecret> GetSecretObjectAsync(string secretName, ILogger logger)
         {
             return Task.FromResult((ISecret)new KeyVaultSecret(secretName, secretName, null));
+        }
+
+        public string TryGetCachedSecret(string secretName)
+        {
+            return TryGetCachedSecret(secretName, logger: null);
+        }
+
+        public string TryGetCachedSecret(string secretName, ILogger logger)
+        {
+            return secretName;
+        }
+
+        public ISecret TryGetCachedSecretObject(string secretName)
+        {
+            return TryGetCachedSecretObject(secretName, logger: null);
+        }
+
+        public ISecret TryGetCachedSecretObject(string secretName, ILogger logger)
+        {
+            return new KeyVaultSecret(secretName, secretName, null);
         }
     }
 }
