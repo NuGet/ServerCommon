@@ -35,15 +35,7 @@ namespace NuGet.Services.KeyVault
 
             _frame = frame;
             _secretReader = secretReader;
-        }
-
-        public SecretInjector(ICachingSecretReader cachingSecretReader) : this(cachingSecretReader, DefaultFrame)
-        {
-        }
-
-        public SecretInjector(ICachingSecretReader cachingSecretReader, string frame) : this((ISecretReader)cachingSecretReader, frame)
-        {
-            _cachingSecretReader = cachingSecretReader;
+            _cachingSecretReader = secretReader as ICachingSecretReader;
         }
 
         public Task<string> InjectAsync(string input)
