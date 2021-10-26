@@ -194,6 +194,28 @@ namespace NuGet.Services.Sql.Tests
                 Assert.Equal("accessToken", connection.AccessToken);
                 Assert.Equal(1, factory.AcquireAccessTokenCalls);
             }
+
+            [Fact]
+            public void WhenAadConnectionStringAndNoCachedCert_ReturnsFalse()
+            {
+                // Arrange
+                var factory = new MockFactory(MockConnectionStrings.AadSqlConnectionString);
+                factory.MockSecretReader
+                    .Setup(sr => sr.TryGetCachedSecret("cert", It.IsAny<ILogger>(), out It.Ref<string>.IsAny))
+                    .Returns(new MockFactory.TryGetCachedSecretReturns((string key, ILogger logger, out string secretValue) =>
+                    {
+                        secretValue = key.Replace("$$", string.Empty);
+                        return false;
+                    }));
+
+                // Act
+                var success = factory.TryCreate(out var connection);
+
+                // Assert
+                Assert.False(success);
+                Assert.Null(connection.AccessToken);
+                Assert.Equal(0, factory.AcquireAccessTokenCalls);
+            }
         }
     }
 }

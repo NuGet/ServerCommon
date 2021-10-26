@@ -47,7 +47,7 @@ namespace NuGet.Services.Sql.Tests
             return true;
         }
 
-        delegate bool TryGetCachedSecretReturns(string secretName, ILogger logger, out string secretValue);
+        public delegate bool TryGetCachedSecretReturns(string secretName, ILogger logger, out string secretValue);
 
         private static Mock<ICachingSecretReader> CreateMockSecretReader()
         {
