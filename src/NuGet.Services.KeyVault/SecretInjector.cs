@@ -84,7 +84,8 @@ namespace NuGet.Services.KeyVault
 
             foreach (var secretName in secretNames)
             {
-                if (_cachingSecretReader?.TryGetCachedSecret(secretName, logger, out var secretValue) != true)
+                string secretValue = null;
+                if (_cachingSecretReader?.TryGetCachedSecret(secretName, logger, out secretValue) != true)
                 {
                     // current secret is not available in cache or no caching secret reader
                     return false;
