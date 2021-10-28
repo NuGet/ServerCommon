@@ -17,7 +17,7 @@ namespace NuGet.Services.Sql
         /// <summary>
         /// Attempts to create SQL connection synchronously. The call may fail (return null) if async operation is required to complete operation.
         /// </summary>
-        /// <returns>Null if unable to create connection (most likely secrets need refreshing).</returns>
+        /// <returns>False if unable to create connection (most likely secrets need refreshing).</returns>
         bool TryCreate(out SqlConnection sqlConnection);
 
         /// <summary>
