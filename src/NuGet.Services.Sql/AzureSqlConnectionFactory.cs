@@ -62,7 +62,7 @@ namespace NuGet.Services.Sql
             {
                 return false;
             }
-            sqlConnection = new SqlConnection(connectionString);
+            string accessToken = null;
 
             if (!string.IsNullOrWhiteSpace(ConnectionString.AadAuthority))
             {
@@ -70,11 +70,11 @@ namespace NuGet.Services.Sql
                 {
                     if (!string.IsNullOrEmpty(clientCertificateData))
                     {
-                        if (!TryAcquireAccessToken(clientCertificateData, out var accessToken))
+                        if (!TryAcquireAccessToken(clientCertificateData, out var token))
                         {
                             return false;
                         }
-                        sqlConnection.AccessToken = accessToken;
+                        accessToken = token;
                     }
                 }
                 else
@@ -83,6 +83,11 @@ namespace NuGet.Services.Sql
                 }
             }
 
+            sqlConnection = new SqlConnection(connectionString);
+            if (accessToken != null)
+            {
+                sqlConnection.AccessToken = accessToken;
+            }
             return true;
         }
 
@@ -103,17 +108,22 @@ namespace NuGet.Services.Sql
         private async Task<SqlConnection> ConnectAsync()
         {
             var connectionString = await SecretInjector.InjectAsync(ConnectionString.ConnectionString, Logger);
-            var connection = new SqlConnection(connectionString);
+            string accessToken = null;
 
             if (!string.IsNullOrWhiteSpace(ConnectionString.AadAuthority))
             {
                 var clientCertificateData = await SecretInjector.InjectAsync(ConnectionString.AadCertificate, Logger);
                 if (!string.IsNullOrEmpty(clientCertificateData))
                 {
-                    connection.AccessToken = await AcquireAccessTokenAsync(clientCertificateData);
+                    accessToken = await AcquireAccessTokenAsync(clientCertificateData);
                 }
             }
 
+            var connection = new SqlConnection(connectionString);
+            if (accessToken != null)
+            {
+                connection.AccessToken = accessToken;
+            }
             return connection;
         }
 
