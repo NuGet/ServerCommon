@@ -66,20 +66,17 @@ namespace NuGet.Services.Sql
 
             if (!string.IsNullOrWhiteSpace(ConnectionString.AadAuthority))
             {
-                if (SecretInjector.TryInjectCached(ConnectionString.AadCertificate, Logger, out var clientCertificateData))
-                {
-                    if (!string.IsNullOrEmpty(clientCertificateData))
-                    {
-                        if (!TryAcquireAccessToken(clientCertificateData, out var token))
-                        {
-                            return false;
-                        }
-                        accessToken = token;
-                    }
-                }
-                else
+                if (!SecretInjector.TryInjectCached(ConnectionString.AadCertificate, Logger, out var clientCertificateData))
                 {
                     return false;
+                }
+                if (!string.IsNullOrEmpty(clientCertificateData))
+                {
+                    if (!TryAcquireAccessToken(clientCertificateData, out var token))
+                    {
+                        return false;
+                    }
+                    accessToken = token;
                 }
             }
 
