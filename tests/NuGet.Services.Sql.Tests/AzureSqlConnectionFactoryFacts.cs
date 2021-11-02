@@ -213,7 +213,7 @@ namespace NuGet.Services.Sql.Tests
 
                 // Assert
                 Assert.False(success);
-                Assert.Null(connection.AccessToken);
+                Assert.Null(connection);
                 Assert.Equal(0, factory.AcquireAccessTokenCalls);
             }
         }
