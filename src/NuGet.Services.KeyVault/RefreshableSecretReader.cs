@@ -89,8 +89,24 @@ namespace NuGet.Services.KeyVault
             return false;
         }
 
-        public bool TryGetCachedSecretObject(string secretName, ILogger logger, out ISecret secretObject) 
-            => TryGetCachedSecretObject(secretName, out secretObject);
+        public bool TryGetCachedSecretObject(string secretName, ILogger logger, out ISecret secretObject)
+        {
+            if (_cache.TryGetValue(secretName, out secretObject))
+            {
+                return true;
+            }
+
+            if (_settings.BlockUncachedReads)
+            {
+                throw new InvalidOperationException($"The secret '{secretName}' is not cached.");
+            }
+
+            secretObject = null;
+            return false;
+        }
+
+        public bool TryGetCachedSecretObject(string secretName, out ISecret secretObject)
+            => TryGetCachedSecretObject(secretName, logger: null, secretObject: out secretObject);
 
         private async Task<string> UncachedGetSecretAsync(string secretName)
         {
@@ -103,22 +119,6 @@ namespace NuGet.Services.KeyVault
             var secretObject = await _secretReader.GetSecretObjectAsync(secretName);
             _cache.AddOrUpdate(secretName, secretObject, (_, __) => secretObject);
             return secretObject;
-        }
-
-        public bool TryGetCachedSecretObject(string secretName, out ISecret secret)
-        {
-            if (_cache.TryGetValue(secretName, out secret))
-            {
-                return true;
-            }
-
-            if (_settings.BlockUncachedReads)
-            {
-                throw new InvalidOperationException($"The secret '{secretName}' is not cached.");
-            }
-
-            secret = null;
-            return false;
         }
     }
 }
