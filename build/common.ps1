@@ -983,7 +983,7 @@ Function Remove-EditorconfigFile() {
 
     $editorconfigFilePath = Join-Path $Directory ".editorconfig"
     if (-Not (Test-Path $editorconfigFilePath)) {
-        Trace-Log "Editorconfig file at $editorconfigFilePath was not found"
+        Trace-Log ".editorconfig file at $editorconfigFilePath was not found"
         return
     }
 
