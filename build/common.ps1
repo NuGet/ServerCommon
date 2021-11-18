@@ -968,3 +968,22 @@ Function Install-PrivateBuildTools() {
     git -C $PrivateRoot fetch *>&1 | Out-Null
     git -C $PrivateRoot reset --hard $commit
 }
+
+Function Remove-EditorconfigFile() {
+    [CmdletBinding()]
+    param(
+        [string] $Directory
+    )
+
+    $editorconfigFilePath = Join-Path $Directory ".editorconfig"
+    if (-not (Test-Path $editorconfigFilePath)) {
+        Trace-Log "Editorconfig file at $editorconfigFilePath was not found"
+        return
+    }
+
+    # Remove .editorconfig because the precedence rule for conflicting severity entries from a ruleset file (SDL) and an EditorConfig is undefined.
+    # SDL rulesets should be applied for build pipelines.
+    # See https://docs.microsoft.com/en-us/dotnet/fundamentals/code-analysis/configuration-files#severity-options
+    Remove-Item $editorconfigFilePath
+    Trace-Log "Removed $editorconfigFilePath"
+}
