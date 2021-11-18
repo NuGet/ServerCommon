@@ -975,8 +975,14 @@ Function Remove-EditorconfigFile() {
         [string] $Directory
     )
 
+    $NuGetCodeAnalyzerExtensions = $env:NuGetCodeAnalyzerExtensions
+    if (-Not $NuGetCodeAnalyzerExtensions) {
+        Trace-Log "No NuGet code analyzers are configured. Use the 'NuGetCodeAnalyzerExtensions' environment variable."
+        return
+    }
+
     $editorconfigFilePath = Join-Path $Directory ".editorconfig"
-    if (-not (Test-Path $editorconfigFilePath)) {
+    if (-Not (Test-Path $editorconfigFilePath)) {
         Trace-Log "Editorconfig file at $editorconfigFilePath was not found"
         return
     }
