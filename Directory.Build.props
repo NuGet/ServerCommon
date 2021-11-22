@@ -42,4 +42,5 @@
   </PropertyGroup>
   <Import Project="build\sign.targets" />
   <Import Project="build\sign.microbuild.targets" />
+  <Import Project="$(NuGetCodeAnalyzerExtensions)" Condition="'$(NuGetCodeAnalyzerExtensions)' != '' And Exists('$(NuGetCodeAnalyzerExtensions)')" />
 </Project>
