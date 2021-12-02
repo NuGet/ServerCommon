@@ -531,7 +531,7 @@ Function Install-DotnetCLI {
 
     $installDotnet = Join-Path $CLIRoot "dotnet-install.ps1"
 
-    wget -UseBasicParsing 'https://raw.githubusercontent.com/dotnet/cli/release/3.1.4xx/scripts/obtain/dotnet-install.ps1' -OutFile $installDotnet
+    Invoke-WebRequest -UseBasicParsing 'https://raw.githubusercontent.com/dotnet/cli/release/3.1.4xx/scripts/obtain/dotnet-install.ps1' -OutFile $installDotnet
 
     & $installDotnet -Channel 3.1 -i $CLIRoot -Version latest
 
