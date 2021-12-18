@@ -57,8 +57,17 @@ namespace NuGet.Services.Storage
             set;
         }
 
-        //  save
+        protected override Task OnCopyAsync(
+            Uri sourceUri,
+            IStorage destinationStorage,
+            Uri destinationUri,
+            IReadOnlyDictionary<string, string> destinationProperties,
+            CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
 
+        //  save
         protected override async Task OnSave(Uri resourceUri, StorageContent content, bool overwrite, CancellationToken cancellationToken)
         {
             SaveCount++;

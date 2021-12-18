@@ -33,7 +33,18 @@ namespace NuGet.Services.Storage
         
             BaseAddress = _primaryStorage.BaseAddress;
         }
-        
+
+        protected override Task OnCopyAsync(
+            Uri sourceUri,
+            IStorage destinationStorage,
+            Uri destinationUri,
+            IReadOnlyDictionary<string, string> destinationProperties,
+            CancellationToken cancellationToken)
+        {
+            throw new NotImplementedException();
+        }
+
+
         protected override Task OnSave(Uri resourceUri, StorageContent content, bool overwrite, CancellationToken cancellationToken)
         {
             var tasks = new List<Task>();

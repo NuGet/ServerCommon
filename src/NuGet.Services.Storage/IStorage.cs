@@ -19,5 +19,11 @@ namespace NuGet.Services.Storage
         Uri BaseAddress { get; }
         Uri ResolveUri(string relativeUri);
         Task<IEnumerable<StorageListItem>> List(CancellationToken cancellationToken);
+        Task CopyAsync(
+            Uri sourceUri,
+            IStorage destinationStorage,
+            Uri destinationUri,
+            IReadOnlyDictionary<string, string> destinationProperties,
+            CancellationToken cancellation);
     }
 }
