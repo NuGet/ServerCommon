@@ -102,9 +102,9 @@ namespace NuGet.Services.Storage
             return _primaryStorage.ExistsAsync(fileName, cancellationToken);
         }
 
-        public override Task<IEnumerable<StorageListItem>> List(CancellationToken cancellationToken)
+        public override Task<IEnumerable<StorageListItem>> List(bool getMetadata, CancellationToken cancellationToken)
         {
-            return _primaryStorage.List(cancellationToken);
+            return _primaryStorage.List(getMetadata, cancellationToken);
         }
     }
 }

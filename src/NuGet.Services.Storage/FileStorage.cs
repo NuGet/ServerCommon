@@ -41,7 +41,7 @@ namespace NuGet.Services.Storage
             return Task.FromResult(Exists(fileName));
         }
 
-        public override Task<IEnumerable<StorageListItem>> List(CancellationToken cancellationToken)
+        public override Task<IEnumerable<StorageListItem>> List(bool getMetadata, CancellationToken cancellationToken)
         {
             DirectoryInfo directoryInfo = new DirectoryInfo(Path);
             var files = directoryInfo.GetFiles("*", SearchOption.AllDirectories)

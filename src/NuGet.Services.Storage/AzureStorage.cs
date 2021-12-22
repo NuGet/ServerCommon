@@ -118,18 +118,19 @@ namespace NuGet.Services.Storage
             return false;
         }
 
-        public override async Task<IEnumerable<StorageListItem>> List(CancellationToken cancellationToken)
+        public override async Task<IEnumerable<StorageListItem>> List(bool getMetadata, CancellationToken cancellationToken)
         {
-            var files = await _directory.ListBlobsAsync(cancellationToken);
+            var files = await _directory.ListBlobsAsync(getMetadata, cancellationToken);
 
             return files.Select(GetStorageListItem).AsEnumerable();
         }
 
         private StorageListItem GetStorageListItem(IListBlobItem listBlobItem)
         {
-            var lastModified = (listBlobItem as CloudBlockBlob)?.Properties.LastModified?.UtcDateTime;
+            var cloudBlockBlob = (listBlobItem as CloudBlockBlob);
+            var lastModified = cloudBlockBlob?.Properties.LastModified?.UtcDateTime;
 
-            return new StorageListItem(listBlobItem.Uri, lastModified);
+            return new StorageListItem(listBlobItem.Uri, lastModified, cloudBlockBlob?.Metadata);
         }
 
         protected override async Task OnCopyAsync(
