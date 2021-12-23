@@ -234,7 +234,10 @@ namespace NuGet.Services.Storage
                         operationContext: null,
                         cancellationToken: cancellationToken);
 
-                    _logger.LogInformation("Saved compressed blob {BlobUri} to container {ContainerName}", blob.Uri.ToString(), _directory.Container.Name);
+                    if (Verbose)
+                    {
+                        _logger.LogInformation("Saved compressed blob {BlobUri} to container {ContainerName}", blob.Uri.ToString(), _directory.Container.Name);
+                    }
                 }
             }
             else
@@ -248,7 +251,10 @@ namespace NuGet.Services.Storage
                         operationContext: null,
                         cancellationToken: cancellationToken);
 
-                    _logger.LogInformation("Saved uncompressed blob {BlobUri} to container {ContainerName}", blob.Uri.ToString(), _directory.Container.Name);
+                    if (Verbose)
+                    {
+                        _logger.LogInformation("Saved uncompressed blob {BlobUri} to container {ContainerName}", blob.Uri.ToString(), _directory.Container.Name);
+                    }
                 }
             }
         }
