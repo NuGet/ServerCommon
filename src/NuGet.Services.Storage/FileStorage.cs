@@ -172,5 +172,10 @@ namespace NuGet.Services.Storage
                 await Task.Run(() => { fileInfo.Delete(); },cancellationToken);
             }
         }
+
+        public override Task SetMetadataAsync(Uri resourceUri, IDictionary<string, string> metadata)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

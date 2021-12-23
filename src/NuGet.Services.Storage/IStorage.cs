@@ -25,5 +25,6 @@ namespace NuGet.Services.Storage
             Uri destinationUri,
             IReadOnlyDictionary<string, string> destinationProperties,
             CancellationToken cancellation);
+        Task SetMetadataAsync(Uri resourceUri, IDictionary<string, string> metadata);
     }
 }

@@ -106,5 +106,10 @@ namespace NuGet.Services.Storage
         {
             return _primaryStorage.List(getMetadata, cancellationToken);
         }
+
+        public override Task SetMetadataAsync(Uri resourceUri, IDictionary<string, string> metadata)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

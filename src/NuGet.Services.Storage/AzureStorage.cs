@@ -125,6 +125,18 @@ namespace NuGet.Services.Storage
             return files.Select(GetStorageListItem).AsEnumerable();
         }
 
+        public override async Task SetMetadataAsync(Uri resourceUri, IDictionary<string, string> metadata)
+        {
+            var blob = GetBlockBlobReference(GetName(resourceUri));
+
+            foreach (var kvp in metadata)
+            {
+                blob.Metadata[kvp.Key] = kvp.Value;
+            }
+
+            await blob.SetMetadataAsync();
+        }
+
         private StorageListItem GetStorageListItem(IListBlobItem listBlobItem)
         {
             var cloudBlockBlob = (listBlobItem as CloudBlockBlob);

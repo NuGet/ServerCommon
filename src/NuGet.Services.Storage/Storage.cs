@@ -245,5 +245,7 @@ namespace NuGet.Services.Storage
                 ExecutionTimeInMilliseconds = executionTimeInMilliseconds
             });
         }
+
+        public abstract Task SetMetadataAsync(Uri resourceUri, IDictionary<string, string> metadata);
     }
 }
