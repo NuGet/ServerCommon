@@ -29,7 +29,6 @@ namespace NuGet.Services.Storage
             bool useServerSideCopy,
             bool initializeContainer,
             ILogger<AzureStorage> logger)
-            
             : this(
                   account.CreateCloudBlobClient().GetContainerReference(containerName).GetDirectoryReference(path),
                   baseAddress,

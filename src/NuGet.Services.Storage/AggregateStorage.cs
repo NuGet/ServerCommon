@@ -44,7 +44,6 @@ namespace NuGet.Services.Storage
             throw new NotImplementedException();
         }
 
-
         protected override Task OnSave(Uri resourceUri, StorageContent content, bool overwrite, CancellationToken cancellationToken)
         {
             var tasks = new List<Task>();
