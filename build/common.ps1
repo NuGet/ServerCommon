@@ -423,7 +423,7 @@ Function Install-NuGet {
     
             Trace-Log 'Downloading Azure Artifacts Credential Provider'
             Invoke-WebRequest `
-                https://github.com/microsoft/artifacts-credprovider/releases/download/0.1.18/Microsoft.NuGet.CredentialProvider.zip `
+                https://github.com/microsoft/artifacts-credprovider/releases/download/1.0.0/Microsoft.NuGet.CredentialProvider.zip `
                 -UseBasicParsing `
                 -OutFile $CredentialProviderBundle
     
@@ -441,7 +441,7 @@ Function Install-NuGet {
 
             Trace-Log 'Downloading nuget.exe'
             Invoke-WebRequest `
-                https://dist.nuget.org/win-x86-commandline/v6.0.0-preview4/nuget.exe `
+                https://dist.nuget.org/win-x86-commandline/v6.2.1/nuget.exe `
                 -UseBasicParsing `
                 -OutFile $NuGetExe
             
