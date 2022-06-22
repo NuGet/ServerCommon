@@ -65,7 +65,7 @@
       there is a project reference pointing to the current project and there is a copy of this output assembly in the
       bin directory of another project. That assembly also needs to be signed.
       -->
-      <_OutputToSign Include="$(RepositoryRootDirectory)**\$(TargetFileName)" Condition="'$(BatchSign)' == 'true'" />
+      <_OutputToSign Include="$(RepositoryRootDirectory)**\$(TargetFileName)" Condition="'$(BatchSign)' == 'true' AND '$(TargetFileName)' != ''" />
       <UnfilteredFilesToSign
         Include="$([System.IO.Path]::GetFullPath('%(_OutputToSign.Identity)'))"
         Condition="Exists('%(_OutputToSign.Identity)')"
