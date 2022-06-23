@@ -66,7 +66,7 @@
       bin directory of another project. That assembly also needs to be signed.
       -->
       <_ManagedOutputToSign Include="$(RepositoryRootDirectory)**\$(TargetFileName)" Condition="'$(BatchSign)' == 'true' AND '$(TargetFileName)' != ''" />
-      <_ManagedOutputToSign Exclude="$(RunCommand)" Condition="'$(RunCommand)' != ''" />
+      <_ManagedOutputToSign Remove="$(RunCommand)" Condition="'$(RunCommand)' != ''" />
       <UnfilteredFilesToSign
         Include="$([System.IO.Path]::GetFullPath('%(_ManagedOutputToSign.Identity)'))"
         Condition="Exists('%(_ManagedOutputToSign.Identity)')"
