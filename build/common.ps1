@@ -95,7 +95,7 @@ Function Get-LatestVisualStudioRoot {
 
 Function Get-MSBuildExe {
     param(
-        [ValidateSet("15", "16", $null)]
+        [ValidateSet("15", "16", "17", $null)]
         [string]$MSBuildVersion
     )
 
