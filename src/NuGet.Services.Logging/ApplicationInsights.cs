@@ -30,9 +30,9 @@ namespace NuGet.Services.Logging
         /// <paramref name="instrumentationKey"/>, taking into account the <c>ApplicationInsights.config</c> file if present.
         /// </summary>
         /// <param name="instrumentationKey">The instrumentation key to use.</param>
-        public static ApplicationInsightsConfiguration Initialize(string instrumentationKey)
+        public static ApplicationInsightsConfiguration Initialize(string instrumentationKey, bool isConnectionString = false)
         {
-            return InitializeApplicationInsightsConfiguration(instrumentationKey, heartbeatInterval: null);
+            return InitializeApplicationInsightsConfiguration(instrumentationKey, isConnectionString, heartbeatInterval: null);
         }
 
         /// <summary>
@@ -44,13 +44,15 @@ namespace NuGet.Services.Logging
         /// <param name="heartbeatInterval">The heartbeat interval to use.</param>
         public static ApplicationInsightsConfiguration Initialize(
             string instrumentationKey,
-            TimeSpan heartbeatInterval)
+            TimeSpan heartbeatInterval,
+            bool isConnectionString = false)
         {
-            return InitializeApplicationInsightsConfiguration(instrumentationKey, heartbeatInterval);
+            return InitializeApplicationInsightsConfiguration(instrumentationKey, isConnectionString, heartbeatInterval);
         }
 
         private static ApplicationInsightsConfiguration InitializeApplicationInsightsConfiguration(
             string instrumentationKey,
+            bool isConnectionString,
             TimeSpan? heartbeatInterval)
         {
             // Note: TelemetryConfiguration.Active is being deprecated
@@ -58,6 +60,16 @@ namespace NuGet.Services.Logging
             // We use TelemetryConfiguration.CreateDefault() as opposed to instantiating a new TelemetryConfiguration()
             // to take into account the ApplicationInsights.config file (if detected).
             var telemetryConfiguration = TelemetryConfiguration.CreateDefault();
+
+            // If instrumentationKey was passed as a connection string, we'll strip out the "InstrumentationKey=" portion here
+            if (isConnectionString)
+            {
+                var equalPos = instrumentationKey?.IndexOf('=') ?? -1;
+                if (equalPos != -1)
+                {
+                    instrumentationKey = instrumentationKey.Remove(0, equalPos + 1);
+                }
+            }
 
             if (!string.IsNullOrWhiteSpace(instrumentationKey))
             {
