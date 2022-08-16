@@ -50,9 +50,17 @@ namespace NuGet.Services.Storage
             _directory = directory;
             _useServerSideCopy = useServerSideCopy;
 
+#if NETFRAMEWORK
             if (initializeContainer && _directory.Container.CreateIfNotExists())
+#else
+            if (initializeContainer && _directory.Container.CreateIfNotExistsAsync().Result) // the framework code blocks the thread similarly
+#endif
             {
+#if NETFRAMEWORK
                 _directory.Container.SetPermissions(new BlobContainerPermissions { PublicAccess = BlobContainerPublicAccessType.Blob });
+#else
+                Task.Run(() => _directory.Container.SetPermissionsAsync(new BlobContainerPermissions { PublicAccess = BlobContainerPublicAccessType.Blob })).Wait();  // the framework code blocks the thread similarly
+#endif
 
                 if (Verbose)
                 {
@@ -88,7 +96,11 @@ namespace NuGet.Services.Storage
 
             var blob = _directory.GetBlockBlobReference(blobName);
 
+#if NETFRAMEWORK
             if (blob.Exists())
+#else
+            if (blob.ExistsAsync().Result) // the framework code blocks the thread similarly
+#endif
             {
                 return true;
             }
@@ -106,7 +118,11 @@ namespace NuGet.Services.Storage
 
             var blob = _directory.GetBlockBlobReference(blobName);
 
+#if NETFRAMEWORK
             if (await blob.ExistsAsync(cancellationToken))
+#else
+            if (await blob.ExistsAsync(options: null, operationContext: null, cancellationToken)) // this is the same call
+#endif
             {
                 return true;
             }
@@ -268,10 +284,18 @@ namespace NuGet.Services.Storage
 
             CloudBlockBlob blob = _directory.GetBlockBlobReference(name);
 
+#if NETFRAMEWORK
             if (blob.Exists())
+#else
+            if (await blob.ExistsAsync())
+#endif
             {
                 MemoryStream originalStream = new MemoryStream();
+#if NETFRAMEWORK
                 await blob.DownloadToStreamAsync(originalStream, cancellationToken);
+#else
+                await blob.DownloadToStreamAsync(originalStream, accessCondition: null, options: null, operationContext: null, progressHandler: null, cancellationToken); // this is the same call
+#endif
 
                 originalStream.Position = 0;
                 
@@ -311,7 +335,11 @@ namespace NuGet.Services.Storage
 
             CloudBlockBlob blob = _directory.GetBlockBlobReference(name);
 
+#if NETFRAMEWORK
             await blob.DeleteAsync(cancellationToken);
+#else
+            await blob.DeleteAsync(DeleteSnapshotsOption.None, accessCondition: null, options: null, operationContext: null, cancellationToken); // this is the same call
+#endif
         }
 
         private CloudBlockBlob GetBlockBlobReference(string blobName)

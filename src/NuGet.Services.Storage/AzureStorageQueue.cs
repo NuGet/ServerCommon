@@ -36,7 +36,11 @@ namespace NuGet.Services.Storage
         public async Task AddAsync(string contents, CancellationToken token)
         {
             var azureMessage = new AzureStorageQueueMessage(contents, dequeueCount: 0);
+#if NETFRAMEWORK
             await (await _queueTask.Value).AddMessageAsync(azureMessage.Message, token);
+#else
+            await (await _queueTask.Value).AddMessageAsync(azureMessage.Message, timeToLive: null, initialVisibilityDelay: null, options: null, operationContext: null, token); // this is the same call
+#endif
         }
 
         public async Task<StorageQueueMessage> GetNextAsync(CancellationToken token)
@@ -62,13 +66,22 @@ namespace NuGet.Services.Storage
                 throw new ArgumentException("This message was not returned from this queue!", nameof(message));
             }
 
+#if NETFRAMEWORK
             await (await _queueTask.Value).DeleteMessageAsync((message as AzureStorageQueueMessage).Message, token);
+#else
+            var cloudQueueMessage = (message as AzureStorageQueueMessage).Message;
+            await (await _queueTask.Value).DeleteMessageAsync(cloudQueueMessage.Id, cloudQueueMessage.PopReceipt, options: null, operationContext: null, token); // this is the same call
+#endif
         }
 
         public async Task<int?> GetMessageCount(CancellationToken token)
         {
             var queue = await _queueTask.Value;
+#if NETFRAMEWORK
             await queue.FetchAttributesAsync(token);
+#else
+            await queue.FetchAttributesAsync(options: null, operationContext: null, token); // this is the same call
+#endif
             return queue.ApproximateMessageCount;
         }
     }
