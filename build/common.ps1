@@ -903,18 +903,18 @@ Function Set-VersionInfo {
 
 Function Install-PrivateBuildTools() {
     $repository = $env:PRIVATE_BUILD_TOOLS_REPO
+    $branch = $env:PRIVATE_BUILD_TOOL_BRANCH
     $commit = $env:PRIVATE_BUILD_TOOLS_COMMIT
+    $UseCommit = -Not $branch
 
-    if (-Not $commit) {
+    if ($UseCommit -And -Not $commit) {
         $commit = '4b7460b2e08249e4c65307e5383dfba7fe4da8b7'
     }
 
     if (-Not $repository) {
-        Trace-Log "No private build tools are configured. Use the 'PRIVATE_BUILD_TOOLS_REPO' and 'PRIVATE_BUILD_TOOLS_COMMIT' environment variables."
+        Trace-Log "No private build tools are configured. Use the 'PRIVATE_BUILD_TOOLS_REPO', 'PRIVATE_BUILD_TOOLS_COMMIT', and 'PRIVATE_BUILD_TOOL_BRANCH' environment variables."
         return
     }
-
-    Trace-Log "Getting commit $commit from repository $repository"
 
     if (-Not (Test-Path $PrivateRoot)) {
         git init $PrivateRoot
@@ -922,7 +922,17 @@ Function Install-PrivateBuildTools() {
     }
 
     git -C $PrivateRoot fetch *>&1 | Out-Null
-    git -C $PrivateRoot reset --hard $commit
+
+    if ($UseCommit)
+    {
+        Trace-Log "Getting commit $commit from repository $repository"
+        git -C $PrivateRoot reset --hard $commit
+    }
+    else
+    {
+        Trace-Log "Getting branch $branch from repository $repository"
+        git -C $PrivateRoot reset --hard origin/$branch
+    }
 }
 
 Function Remove-EditorconfigFile() {
