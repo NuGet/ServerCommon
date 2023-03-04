@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace NuGet.Services.KeyVault
 {
-    public interface ISecretWriter
+    public interface ISecretWriter : ISecretReader
     {
         Task SetSecretAsync(string secretName, string secretValue, DateTimeOffset? expiration = null);
     }
