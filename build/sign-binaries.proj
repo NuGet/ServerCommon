@@ -20,6 +20,7 @@
       <SignTargetFramework Include="net472" />
       <SignTargetFramework Include="netstandard2.0" />
       <SignTargetFramework Include="netstandard2.1" />
+      <SignTargetFramework Include="net6.0" />
     </ItemGroup>
     <MSBuild
       Projects="@(_ProjectsToSign)"
