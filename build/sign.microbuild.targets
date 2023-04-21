@@ -159,7 +159,8 @@
 
   <Target Name="CopySignedFiles"
     AfterTargets="SignFiles"
-    DependsOnTargets="SignFiles">
+    DependsOnTargets="SignFiles"
+    Condition="'$(WebPublishMethod)' != 'Package'">
     <Copy
       SourceFiles="@(DuplicateFilesToSign->'%(DuplicateOf)')"
       DestinationFiles="@(DuplicateFilesToSign)" />
