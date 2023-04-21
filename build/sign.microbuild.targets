@@ -34,7 +34,7 @@
   is created.
   -->
   <PropertyGroup Condition="'$(WebPublishMethod)' == 'Package'">
-    <EnumerateFilesToSignAfterTargets>PipelineCopyAllFilesToOneFolderForMsdeploy</EnumerateFilesToSignAfterTargets>
+    <EnumerateFilesToSignAfterTargets>Publish</EnumerateFilesToSignAfterTargets>
     <PackageUsingManifestDependsOn>CopySignedFiles</PackageUsingManifestDependsOn>
   </PropertyGroup>
 
