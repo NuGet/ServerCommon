@@ -45,7 +45,7 @@
   Cloud Service builds do a solution build then a "Publish" on the .ccproj. Only that "Publish" step needs to sign
   things.
   -->
-  <ItemGroup Condition="'$(BatchSign)' == 'false'">
+  <ItemGroup Condition="'$(BatchSign)' == 'false' AND '$(WebPublishMethod)' != 'Package'">
     <SignFilesDependsOn Include="DedupeFilesToSign" />
   </ItemGroup>
   <Target
