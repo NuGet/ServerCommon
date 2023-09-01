@@ -4,9 +4,7 @@
 using System;
 using System.Threading.Tasks;
 using Microsoft.Azure.KeyVault;
-using Microsoft.Azure.Services.AppAuthentication;
 using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Clients.ActiveDirectory;
 
 namespace NuGet.Services.KeyVault
 {
@@ -19,7 +17,6 @@ namespace NuGet.Services.KeyVault
         private readonly KeyVaultConfiguration _configuration;
         private readonly string _vault;
         private readonly Lazy<KeyVaultClient> _keyVaultClient;
-        private ClientAssertionCertificate _clientAssertionCertificate;
 
         protected string VaultBaseUrl => _vault;
         protected KeyVaultClient KeyVaultClient => _keyVaultClient.Value;
@@ -60,6 +57,8 @@ namespace NuGet.Services.KeyVault
 
         private KeyVaultClient InitializeClient()
         {
+            throw new NotImplementedException();
+            /*
             if (_configuration.UseManagedIdentity)
             {
                 var azureServiceTokenProvider = new AzureServiceTokenProvider();
@@ -70,10 +69,13 @@ namespace NuGet.Services.KeyVault
                 _clientAssertionCertificate = new ClientAssertionCertificate(_configuration.ClientId, _configuration.Certificate);
                 return new KeyVaultClient(GetTokenAsync);
             }
+            */
         }
 
         private async Task<string> GetTokenAsync(string authority, string resource, string scope)
         {
+            throw new NotImplementedException();
+            /*
             var authContext = new AuthenticationContext(authority);
             var result = await authContext.AcquireTokenAsync(resource, _clientAssertionCertificate, _configuration.SendX5c);
 
@@ -83,6 +85,7 @@ namespace NuGet.Services.KeyVault
             }
 
             return result.AccessToken;
+            */
         }
     }
 
