@@ -5,6 +5,6 @@ namespace NuGet.Services.ServiceBus
 {
     internal static class Constants
     {
-        public static string SharedAccessKeytoken = "SharedAccessKey=";
+        public const string SharedAccessKeytoken = "SharedAccessKey=";
     }
 }
