@@ -25,22 +25,15 @@ namespace NuGet.Services.ServiceBus
             {
                 return new ServiceBusClient(connectionString);
             }
-            else if (Uri.TryCreate(connectionString, UriKind.Absolute, out var uri) && uri.Scheme == "sb")
+            
+            if (Uri.TryCreate(connectionString, UriKind.Absolute, out var uri) && uri.Scheme == "sb")
             {
                 // The old Azure Service Bus SDK handled a format like "sb://mytestnamespace.servicebus.windows.net/"
                 // for the connection string. We'll also support it to ease migration.
-                return new ServiceBusClient(uri.Host, new DefaultAzureCredential(new DefaultAzureCredentialOptions
-                {
-                    ManagedIdentityClientId = managedIdentityClientId
-                }));
+                return new ServiceBusClient(uri.Host, new ManagedIdentityCredential(managedIdentityClientId));
             }
-            else
-            {
-                return new ServiceBusClient(connectionString, new DefaultAzureCredential(new DefaultAzureCredentialOptions
-                {
-                    ManagedIdentityClientId = managedIdentityClientId
-                }));
-            }
+
+            return new ServiceBusClient(connectionString, new ManagedIdentityCredential(managedIdentityClientId));
         }
 
         /// <summary>
