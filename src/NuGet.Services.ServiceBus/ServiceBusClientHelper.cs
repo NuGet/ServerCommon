@@ -27,9 +27,9 @@ namespace NuGet.Services.ServiceBus
                 return new ServiceBusClient(connectionString);
             }
 
-            var credential = managedIdentityClientId != null
-                ? (TokenCredential)new ManagedIdentityCredential(managedIdentityClientId)
-                : new DefaultAzureCredential();
+            var credential = string.IsNullOrEmpty(managedIdentityClientId) 
+                ? (TokenCredential)new DefaultAzureCredential()
+                : new ManagedIdentityCredential(managedIdentityClientId);
 
             if (Uri.TryCreate(connectionString, UriKind.Absolute, out var uri) && uri.Scheme == "sb")
             {
