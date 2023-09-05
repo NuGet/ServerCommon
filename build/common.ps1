@@ -956,3 +956,25 @@ Function Remove-EditorconfigFile() {
     Remove-Item $editorconfigFilePath
     Trace-Log "Removed $editorconfigFilePath"
 }
+
+Function Add-PackageSourceMapping(
+    [Parameter(Mandatory=$True)]$NuGetConfigPath,
+    [Parameter(Mandatory=$True)]$SourceKey,
+    [Parameter(Mandatory=$True)]$Pattern) {
+    if (-not [System.IO.Path]::IsPathRooted($NuGetConfigPath)) {
+        Error-Log "NuGetConfigPath must be absolute"
+        return
+    }
+
+    $config = [xml](Get-Content -Raw $NuGetConfigPath)
+    $packageSourceNode = $config.configuration.packageSourceMapping.packageSource | Where-Object { $_.key -eq $SourceKey }
+    if (-not $packageSourceNode) {
+        $packageSourceNode = $config.CreateElement("packageSource")
+        $packageSourceNode.SetAttribute("key", $SourceKey)
+        $config.configuration.packageSourceMapping.AppendChild($packageSourceNode) | Out-Null
+    }
+    $package = $config.CreateElement("package")
+    $package.SetAttribute("pattern", $Pattern)
+    $packageSourceNode.AppendChild($package) | Out-Null
+    $config.Save($NuGetConfigPath)
+}
