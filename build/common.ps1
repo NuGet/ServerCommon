@@ -962,8 +962,7 @@ Function Add-PackageSourceMapping(
     [Parameter(Mandatory=$True)]$SourceKey,
     [Parameter(Mandatory=$True)]$Pattern) {
     if (-not [System.IO.Path]::IsPathRooted($NuGetConfigPath)) {
-        Error-Log "NuGetConfigPath must be absolute"
-        return
+        $NuGetConfigPath = Join-Path $PWD $NuGetConfigPath
     }
 
     $config = [xml](Get-Content -Raw $NuGetConfigPath)
