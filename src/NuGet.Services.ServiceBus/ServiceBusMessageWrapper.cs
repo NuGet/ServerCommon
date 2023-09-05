@@ -13,7 +13,12 @@ namespace NuGet.Services.ServiceBus
     {
         public ServiceBusMessageWrapper(string data)
         {
-            ServiceBusMessage = new ServiceBusMessage(ServiceBusClientHelper.SerializeXmlDataContract(data));
+            // Default to a random message ID. This is a behavior from the legacy Service Bus SDK. A message ID is
+            // required on a topic with partitioning enabled.
+            ServiceBusMessage = new ServiceBusMessage(ServiceBusClientHelper.SerializeXmlDataContract(data))
+            {
+                MessageId = Guid.NewGuid().ToString("N"),
+            };
         }
 
         public ServiceBusMessageWrapper(ServiceBusMessage brokeredMessage)
