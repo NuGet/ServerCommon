@@ -33,7 +33,12 @@ namespace NuGet.Services.ServiceBus
                 return new ServiceBusClient(uri.Host, new ManagedIdentityCredential(managedIdentityClientId));
             }
 
-            return new ServiceBusClient(connectionString, new ManagedIdentityCredential(managedIdentityClientId));
+            if (managedIdentityClientId != null)
+            {
+                return new ServiceBusClient(connectionString, new ManagedIdentityCredential(managedIdentityClientId));
+            }
+
+            return new ServiceBusClient(connectionString, new DefaultAzureCredential());
         }
 
         /// <summary>
