@@ -1,6 +1,7 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
+using Azure.Core;
 using Azure.Identity;
 using Azure.Messaging.ServiceBus;
 using System;
@@ -25,20 +26,19 @@ namespace NuGet.Services.ServiceBus
             {
                 return new ServiceBusClient(connectionString);
             }
-            
+
+            var credential = managedIdentityClientId != null
+                ? (TokenCredential)new ManagedIdentityCredential(managedIdentityClientId)
+                : new DefaultAzureCredential();
+
             if (Uri.TryCreate(connectionString, UriKind.Absolute, out var uri) && uri.Scheme == "sb")
             {
                 // The old Azure Service Bus SDK handled a format like "sb://mytestnamespace.servicebus.windows.net/"
                 // for the connection string. We'll also support it to ease migration.
-                return new ServiceBusClient(uri.Host, new ManagedIdentityCredential(managedIdentityClientId));
+                return new ServiceBusClient(uri.Host, credential);
             }
 
-            if (managedIdentityClientId != null)
-            {
-                return new ServiceBusClient(connectionString, new ManagedIdentityCredential(managedIdentityClientId));
-            }
-
-            return new ServiceBusClient(connectionString, new DefaultAzureCredential());
+            return new ServiceBusClient(connectionString, credential);
         }
 
         /// <summary>
