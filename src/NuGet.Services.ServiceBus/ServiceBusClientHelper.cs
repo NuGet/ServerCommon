@@ -12,6 +12,8 @@ namespace NuGet.Services.ServiceBus
 {
     internal static class ServiceBusClientHelper
     {
+        private const string SharedAccessKeyToken = "SharedAccessKey=";
+
         public static ServiceBusClient GetServiceBusClient(string connectionString, string managedIdentityClientId)
         {
             if (connectionString == null)
@@ -19,12 +21,26 @@ namespace NuGet.Services.ServiceBus
                 throw new ArgumentNullException(nameof(connectionString));
             }
 
-            return connectionString.Contains(Constants.SharedAccessKeytoken)
-                ? new ServiceBusClient(connectionString)
-                : new ServiceBusClient(connectionString, new DefaultAzureCredential(new DefaultAzureCredentialOptions
+            if (connectionString.Contains(SharedAccessKeyToken))
+            {
+                return new ServiceBusClient(connectionString);
+            }
+            else if (Uri.TryCreate(connectionString, UriKind.Absolute, out var uri) && uri.Scheme == "sb")
+            {
+                // The old Azure Service Bus SDK handled a format like "sb://mytestnamespace.servicebus.windows.net/"
+                // for the connection string. We'll also support it to ease migration.
+                return new ServiceBusClient(uri.Host, new DefaultAzureCredential(new DefaultAzureCredentialOptions
                 {
                     ManagedIdentityClientId = managedIdentityClientId
                 }));
+            }
+            else
+            {
+                return new ServiceBusClient(connectionString, new DefaultAzureCredential(new DefaultAzureCredentialOptions
+                {
+                    ManagedIdentityClientId = managedIdentityClientId
+                }));
+            }
         }
 
         /// <summary>
