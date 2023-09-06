@@ -958,22 +958,31 @@ Function Remove-EditorconfigFile() {
 }
 
 Function Add-PackageSourceMapping(
-    [Parameter(Mandatory=$True)]$NuGetConfigPath,
-    [Parameter(Mandatory=$True)]$SourceKey,
-    [Parameter(Mandatory=$True)]$Pattern) {
+    [Parameter(Mandatory=$True)][string]$NuGetConfigPath,
+    [Parameter(Mandatory=$True)][string]$SourceKey,
+    [Parameter(Mandatory=$True)][string[]]$Patterns) {
     if (-not [System.IO.Path]::IsPathRooted($NuGetConfigPath)) {
         $NuGetConfigPath = Join-Path $PWD $NuGetConfigPath
     }
 
     $config = [xml](Get-Content -Raw $NuGetConfigPath)
+    if (-not $config.configuration.packageSourceMapping) {
+        Write-Host "No package source mapping section. Not doing anything."
+        return
+    }
+
     $packageSourceNode = $config.configuration.packageSourceMapping.packageSource | Where-Object { $_.key -eq $SourceKey }
     if (-not $packageSourceNode) {
         $packageSourceNode = $config.CreateElement("packageSource")
         $packageSourceNode.SetAttribute("key", $SourceKey)
         $config.configuration.packageSourceMapping.AppendChild($packageSourceNode) | Out-Null
     }
-    $package = $config.CreateElement("package")
-    $package.SetAttribute("pattern", $Pattern)
-    $packageSourceNode.AppendChild($package) | Out-Null
+
+    foreach ($pattern in $Patterns)
+    {
+        $package = $config.CreateElement("package")
+        $package.SetAttribute("pattern", $pattern)
+        $packageSourceNode.AppendChild($package) | Out-Null
+    }
     $config.Save($NuGetConfigPath)
 }
