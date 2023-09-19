@@ -25,7 +25,7 @@
     <ProjectReference Include="..\NuGet.Services.Messaging\NuGet.Services.Messaging.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
+  <ItemGroup Condition="'$(TargetFramework)' == 'net472'">
     <Reference Include="System.Web" />
   </ItemGroup>
 
