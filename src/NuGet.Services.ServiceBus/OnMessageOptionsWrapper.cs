@@ -24,7 +24,7 @@ namespace NuGet.Services.ServiceBus
         /// </remarks>
         public int MaxConcurrentCalls { get; set; } = 1;
 
-        public ServiceBusProcessorOptions GetOptions()
+        internal ServiceBusProcessorOptions GetOptions()
         {
             return new ServiceBusProcessorOptions
             {
