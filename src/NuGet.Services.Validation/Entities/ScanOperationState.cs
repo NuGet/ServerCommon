@@ -72,7 +72,7 @@ namespace NuGet.Services.Validation
         public string ErrorCode { get; set; }
 
         /// <summary>
-        /// Any applicable operation details in text/json format.
+        /// Any applicable operation details in text format.
         /// </summary>
         public string OperationDetails { get; set; }
 
