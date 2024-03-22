@@ -67,7 +67,7 @@ namespace NuGet.Services.Validation
         public string OperationId { get; set; }
 
         /// <summary>
-        /// Operation errors code.
+        /// Operation error code.
         /// </summary>
         public string ErrorCode { get; set; }
 
