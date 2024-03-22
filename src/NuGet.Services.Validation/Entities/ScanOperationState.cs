@@ -67,6 +67,16 @@ namespace NuGet.Services.Validation
         public string OperationId { get; set; }
 
         /// <summary>
+        /// Operation errors code.
+        /// </summary>
+        public string ErrorCode { get; set; }
+
+        /// <summary>
+        /// Any applicable operation details in text/json format.
+        /// </summary>
+        public string OperationDetails { get; set; }
+
+        /// <summary>
         /// Used for optimistic concurrency when updating statuses.
         /// </summary>
         public byte[] RowVersion { get; set; }
