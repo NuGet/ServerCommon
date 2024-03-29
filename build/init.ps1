@@ -7,16 +7,27 @@ param(
 $NuGetClientRoot = Split-Path -Path $PSScriptRoot -Parent
 $ServerCommonRoot = Join-Path $NuGetClientRoot "\ServerCommon";
 
-Function Get-BuildTools {
-    param(
-        [string]$BuildBranchCommit
-    )
+Function Invoke-CloneServerCommon {
+    if ($UseExistingBuildTools) {
+        return
+    }
+
+    if (-not (Test-Path $ServerCommonRoot)) {
+        New-Item -ItemType directory -Path $ServerCommonRoot
+    }
+    Set-Location $ServerCommonRoot
+
     Write-Host "Getting ServerCommon repository..."
     & cmd /c "git init && git remote add origin https://github.com/NuGet/ServerCommon.git 2>&1"
     & cmd /c "git fetch origin $BuildBranchCommit 2>&1"
     & cmd /c "git reset --hard FETCH_HEAD 2>&1"
     Write-Host "ServerCommon repository retrieved on $BuildBranchCommit commit."
+}
 
+Function Get-BuildTools {
+    param(
+        [string]$BuildBranchCommit
+    )
     Function Get-Folder {
         [CmdletBinding()]
         param(
@@ -37,6 +48,9 @@ Function Get-BuildTools {
                 return;
             }
         }
+
+        # Clone the ServerCommon repo, if needed
+        Invoke-CloneServerCommon
         
         # Recursively creates the inner directories
         $FolderUri = Join-Path $ServerCommonRoot $Path
@@ -72,14 +86,11 @@ Function Get-BuildTools {
     }
 }
 
-if (-not (Test-Path $ServerCommonRoot))
-{
-    New-Item -ItemType directory -Path $ServerCommonRoot
-}
-Set-Location $ServerCommonRoot
 Get-BuildTools -BuildBranchCommit $BuildBranchCommit
 Set-Location $NuGetClientRoot
-Remove-Item -Path $ServerCommonRoot -Recurse -Force
+if (Test-Path $ServerCommonRoot) {
+    Remove-Item -Path $ServerCommonRoot -Recurse -Force
+}
 
 # Run common.ps1
 . "$NuGetClientRoot\build\common.ps1"
