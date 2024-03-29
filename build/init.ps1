@@ -8,7 +8,8 @@ $NuGetClientRoot = Split-Path -Path $PSScriptRoot -Parent
 $ServerCommonRoot = Join-Path $NuGetClientRoot "\ServerCommon";
 
 Function Invoke-CloneServerCommon {
-    if ($UseExistingBuildTools) {
+    $currentCommit = git -C $ServerCommonRoot rev-parse HEAD 2>&1
+    if ($currentCommit.ToString().Trim() -eq $BuildBranchCommit) {
         return
     }
 
