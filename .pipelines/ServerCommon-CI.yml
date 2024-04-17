@@ -32,7 +32,7 @@ variables:
 - name: ServerCommonBranch
   value: $(Build.SourceBranchName)
 - name: ArtifactsFolder
-  value: $(ServerCommonDirectory)\artifacts
+  value: $(ServerCommonPath)\artifacts
 
 resources:
   repositories:
