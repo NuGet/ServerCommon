@@ -101,9 +101,9 @@ namespace NuGet.Services.Storage
             return _primaryStorage.ExistsAsync(fileName, cancellationToken);
         }
 
-        public override Task<IEnumerable<StorageListItem>> List(bool getMetadata, CancellationToken cancellationToken)
+        public override IEnumerable<StorageListItem> List(bool getMetadata)
         {
-            return _primaryStorage.List(getMetadata, cancellationToken);
+            return _primaryStorage.List(getMetadata);
         }
 
         public override Task SetMetadataAsync(Uri resourceUri, IDictionary<string, string> metadata)

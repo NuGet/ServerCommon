@@ -8,7 +8,9 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Azure;
 using Azure.Storage;
+using Azure.Storage.Blobs;
 using Microsoft.Extensions.Logging;
 
 namespace NuGet.Services.Storage
@@ -110,7 +112,7 @@ namespace NuGet.Services.Storage
             {
                 await OnDelete(resourceUri, cancellationToken);
             }
-            catch (StorageException e)
+            catch (RequestFailedException e)
             {
                 WebException webException = e.InnerException as WebException;
                 if (webException != null)
@@ -154,7 +156,7 @@ namespace NuGet.Services.Storage
         public Uri BaseAddress { get; protected set; }
         public abstract bool Exists(string fileName);
         public abstract Task<bool> ExistsAsync(string fileName, CancellationToken cancellationToken);
-        public abstract Task<IEnumerable<StorageListItem>> List(bool getMetadata, CancellationToken cancellationToken);
+        public abstract IEnumerable<StorageListItem> List(bool getMetadata);
 
         public bool Verbose
         {
