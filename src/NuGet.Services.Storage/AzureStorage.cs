@@ -13,6 +13,7 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
 using Azure.Storage.DataMovement;
+using Azure.Storage.DataMovement.Blobs;
 using Microsoft.Extensions.Logging;
 
 namespace NuGet.Services.Storage
@@ -21,10 +22,13 @@ namespace NuGet.Services.Storage
     {
         private readonly ILogger<AzureStorage> _logger;
         private readonly BlobContainerClient _directory;
+        private readonly TransferManager _transferManager;
+        private readonly BlobsStorageResourceProvider _storageResourceProvider;
         private readonly bool _useServerSideCopy;
 
         public AzureStorage(
             BlobServiceClient account,
+            BlobsStorageResourceProvider blobsStorageResourceProvider,
             string containerName,
             string path,
             Uri baseAddress,
@@ -33,6 +37,7 @@ namespace NuGet.Services.Storage
             ILogger<AzureStorage> logger)
             : this(
                   account.GetBlobContainerClient(Path.Combine(containerName, path)),
+                  blobsStorageResourceProvider,
                   baseAddress,
                   useServerSideCopy,
                   initializeContainer,
@@ -42,6 +47,7 @@ namespace NuGet.Services.Storage
 
         private AzureStorage(
             BlobContainerClient directory,
+            BlobsStorageResourceProvider blobsStorageResourceProvider,
             Uri baseAddress,
             bool useServerSideCopy,
             bool initializeContainer,
@@ -51,6 +57,8 @@ namespace NuGet.Services.Storage
             _logger = logger;
             _directory = directory;
             _useServerSideCopy = useServerSideCopy;
+            _transferManager = new TransferManager();
+            _storageResourceProvider = blobsStorageResourceProvider;
 
             if (initializeContainer)
             {
@@ -156,47 +164,35 @@ namespace NuGet.Services.Storage
                 throw new NotImplementedException("Copying is only supported from Azure storage to Azure storage.");
             }
 
-            string sourceName = GetName(sourceUri);
-            string destinationName = azureDestinationStorage.GetName(destinationUri);
-
-            var sourceBlob = GetBlockBlobReference(sourceName);
-            var destinationBlob = azureDestinationStorage.GetBlockBlobReference(destinationName);
-
-            var context = new SingleTransferContext();
+            var destinationOptions = new BlobStorageResourceOptions();
 
             if (destinationProperties?.Count > 0)
             {
-                context.SetAttributesCallbackAsync = new SetAttributesCallbackAsync((destination) =>
+                foreach (var property in destinationProperties)
                 {
-                    var blob = (CloudBlockBlob)destination;
-
-                    // The copy statement copied all properties from the source blob to the destination blob; however,
-                    // there may be required properties on destination blob, all of which may have not already existed
-                    // on the source blob at the time of copy.
-                    foreach (var property in destinationProperties)
+                    switch (property.Key)
                     {
-                        switch (property.Key)
-                        {
-                            case StorageConstants.CacheControl:
-                                blob.Properties.CacheControl = property.Value;
-                                break;
+                        case StorageConstants.CacheControl:
+                            destinationOptions.HttpHeaders.CacheControl = property.Value;
+                            break;
 
-                            case StorageConstants.ContentType:
-                                blob.Properties.ContentType = property.Value;
-                                break;
+                        case StorageConstants.ContentType:
+                            destinationOptions.HttpHeaders.ContentType = property.Value;
+                            break;
 
-                            default:
-                                throw new NotImplementedException($"Storage property '{property.Value}' is not supported.");
-                        }
+                        default:
+                            throw new NotImplementedException($"Storage property '{property.Value}' is not supported.");
                     }
-
-                    return Task.CompletedTask;
-                });
+                }
             }
 
-            context.ShouldOverwriteCallbackAsync = new ShouldOverwriteCallbackAsync((source, destination) => Task.FromResult(true));
+            var sourceStorageResource = _storageResourceProvider.FromBlob(sourceUri.ToString());
+            var destinationStorageResource = _storageResourceProvider.FromBlob(destinationUri.ToString(), new AppendBlobStorageResourceOptions());
 
-            await TransferManager.CopyAsync(sourceBlob, destinationBlob, _useServerSideCopy, options: null, context: context);
+            var transferOptions = new DataTransferOptions();
+
+            var transfer = await _transferManager.StartTransferAsync(sourceStorageResource, destinationStorageResource, transferOptions: transferOptions, cancellationToken: cancellationToken);
+            await transfer.WaitForCompletionAsync();
         }
 
         //  save
