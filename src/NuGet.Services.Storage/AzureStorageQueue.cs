@@ -6,28 +6,29 @@ using System.Threading;
 using System.Threading.Tasks;
 using Azure.Storage;
 using Azure.Storage.Queues;
+using Azure.Storage.Queues.Models;
 
 namespace NuGet.Services.Storage
 {
     public class AzureStorageQueue : IStorageQueue
     {
-        private Lazy<Task<CloudQueue>> _queueTask;
+        private Lazy<Task<QueueClient>> _queueTask;
 
         /// <summary>
         /// After calling <see cref="GetNextAsync(CancellationToken)"/>, this is the duration of time that the message is invisible to other users for.
         /// </summary>
         private static readonly TimeSpan _visibilityTimeout = TimeSpan.FromMinutes(5);
 
-        public AzureStorageQueue(CloudStorageAccount account, string queueName)
+        public AzureStorageQueue(QueueServiceClient account, string queueName)
         {
             if (account == null)
             {
                 throw new ArgumentNullException(nameof(account));
             }
 
-            _queueTask = new Lazy<Task<CloudQueue>>(async () =>
+            _queueTask = new Lazy<Task<QueueClient>>(async () =>
             {
-                var queue = account.CreateCloudQueueClient().GetQueueReference(queueName);
+                var queue = account.GetQueueClient(queueName);
                 await queue.CreateIfNotExistsAsync();
                 return queue;
             });
@@ -35,17 +36,20 @@ namespace NuGet.Services.Storage
 
         public async Task AddAsync(string contents, CancellationToken token)
         {
-            var azureMessage = new AzureStorageQueueMessage(contents, dequeueCount: 0);
-            await (await _queueTask.Value).AddMessageAsync(azureMessage.Message, token);
+            //var azureMessage = new AzureStorageQueueMessage(contents, dequeueCount: 0);
+            await (await _queueTask.Value).SendMessageAsync(contents, token);
         }
 
         public async Task<StorageQueueMessage> GetNextAsync(CancellationToken token)
         {
-            var nextMessage = await (await _queueTask.Value).GetMessageAsync(
-                visibilityTimeout: _visibilityTimeout, 
-                options: null, 
-                operationContext: null, 
-                cancellationToken: token);
+            var queueClient = await _queueTask.Value;
+            QueueMessage nextMessage = null;
+
+            QueueProperties queueProperties = await queueClient.GetPropertiesAsync();
+            if(queueProperties.ApproximateMessagesCount > 0)
+            {
+                nextMessage = await queueClient.ReceiveMessageAsync(visibilityTimeout: _visibilityTimeout, cancellationToken: token);
+            }
 
             if (nextMessage == null)
             {
@@ -62,14 +66,21 @@ namespace NuGet.Services.Storage
                 throw new ArgumentException("This message was not returned from this queue!", nameof(message));
             }
 
-            await (await _queueTask.Value).DeleteMessageAsync((message as AzureStorageQueueMessage).Message, token);
+            var queueClient = await _queueTask.Value;
+            if (await queueClient.ExistsAsync())
+            {
+                AzureStorageQueueMessage queueMessage = message as AzureStorageQueueMessage;
+                await queueClient.DeleteMessageAsync(queueMessage.MessageId, queueMessage.PopReceipt, token);
+            }
+
+            return;
         }
 
         public async Task<int?> GetMessageCount(CancellationToken token)
         {
-            var queue = await _queueTask.Value;
-            await queue.FetchAttributesAsync(token);
-            return queue.ApproximateMessageCount;
+            var queueClient = await _queueTask.Value;
+            QueueProperties queueProperties = await queueClient.GetPropertiesAsync(token);
+            return queueProperties.ApproximateMessagesCount;
         }
     }
 }
