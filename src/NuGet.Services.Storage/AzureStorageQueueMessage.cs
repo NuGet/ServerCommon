@@ -8,12 +8,17 @@ namespace NuGet.Services.Storage
 {
     internal class AzureStorageQueueMessage : StorageQueueMessage
     {
+        public string MessageId { get; set; }
+        public string PopReceipt { get; set; }
+
         internal QueueMessage Message { get; }
 
         internal AzureStorageQueueMessage(QueueMessage message)
             : base(message.Body.ToString(), message.DequeueCount)
         {
             Message = message;
+            MessageId = message.MessageId;
+            PopReceipt = message.PopReceipt;
         }
 
         internal AzureStorageQueueMessage(string contents, int dequeueCount)
