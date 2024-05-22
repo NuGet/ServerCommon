@@ -5,33 +5,52 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 
 namespace NuGet.Services.Storage
 {
     internal static class CloudBlobStorageExtensions
     {
-        public static async Task<IEnumerable<IListBlobItem>> ListBlobsAsync(
-            this CloudBlobDirectory directory,
+        public static async Task<IEnumerable<BlobItem>> ListBlobsAsync(
+            this BlobContainerClient directory,
             bool getMetadata,
             CancellationToken cancellationToken)
         {
-            var items = new List<IListBlobItem>();
-            BlobContinuationToken continuationToken = null;
-            do
-            {
-                var segment = await directory.ListBlobsSegmentedAsync(
-                    useFlatBlobListing: true,
-                    blobListingDetails: getMetadata ? BlobListingDetails.Metadata : BlobListingDetails.None,
-                    maxResults: null,
-                    currentToken:  continuationToken,
-                    options: null,
-                    operationContext: null,
-                    cancellationToken: cancellationToken);
+            var items = new List<BlobItem>();
+            //var segment = await directory.GetBlobsAsync(
+            //    useFlatBlobListing: true,
+            //    blobListingDetails: getMetadata ? BlobListingDetails.Metadata : BlobListingDetails.None,
+            //    maxResults: null,
+            //    currentToken:  continuationToken,
+            //    options: null,
+            //    operationContext: null,
+            //    cancellationToken: cancellationToken);
+            var segment = directory.GetBlobsAsync(
+                traits:
+                    BlobTraits.CopyStatus
+                    | BlobTraits.ImmutabilityPolicy
+                    | BlobTraits.LegalHold
+                    | (getMetadata ? BlobTraits.None : BlobTraits.Metadata)
+                    | BlobTraits.Tags,
+                states:
+                    BlobStates.Deleted
+                    | BlobStates.DeletedWithVersions
+                    | BlobStates.Snapshots
+                    | BlobStates.Uncommitted
+                    | BlobStates.Version);
 
-                continuationToken = segment.ContinuationToken;
-                items.AddRange(segment.Results);
+            IAsyncEnumerator<BlobItem> asyncEnumerator = segment.GetAsyncEnumerator();
+            try
+            {
+                while (await asyncEnumerator.MoveNextAsync())
+                {
+                    items.Add(asyncEnumerator.Current);
+                }
             }
-            while (continuationToken != null && !cancellationToken.IsCancellationRequested);
+            finally
+            {
+                await asyncEnumerator.DisposeAsync();
+            }
 
             return items;
         }
