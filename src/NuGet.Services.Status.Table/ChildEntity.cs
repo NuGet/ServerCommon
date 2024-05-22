@@ -1,27 +1,36 @@
 ﻿// Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using Microsoft.WindowsAzure.Storage.Table;
+using Azure;
+
+// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using Azure.Data.Tables;
+using System;
 
 namespace NuGet.Services.Status.Table
 {
     /// <summary>
     /// Base implementation of <see cref="IChildEntity{T}"/>.
     /// </summary>
-    public class ChildEntity<TParent> : TableEntity, IChildEntity<TParent>
-        where TParent : TableEntity
+    public class ChildEntity<TParent> : ITableEntity, IChildEntity<TParent>
+        where TParent : ITableEntity
     {
+        private ITableEntity _tableEntity;
+
         public ChildEntity()
         {
+            _tableEntity = new TableEntity();
         }
 
         public ChildEntity(
             string partitionKey,
             string rowKey,
             string parentRowKey)
-            : base(partitionKey, rowKey)
         {
             ParentRowKey = parentRowKey;
+            _tableEntity = new TableEntity(partitionKey, rowKey);
         }
 
         public ChildEntity(
@@ -33,6 +42,10 @@ namespace NuGet.Services.Status.Table
         }
 
         public string ParentRowKey { get; set; }
+        public string PartitionKey { get => _tableEntity.PartitionKey; set => _tableEntity.PartitionKey = value; }
+        public string RowKey { get => _tableEntity.RowKey; set => _tableEntity.RowKey = value; }
+        public DateTimeOffset? Timestamp { get => _tableEntity.Timestamp; set => _tableEntity.Timestamp = value; }
+        public ETag ETag { get => _tableEntity.ETag; set => _tableEntity.ETag = value; }
 
         /// <remarks>
         /// This is a readonly property we would like to serialize.
@@ -45,5 +58,6 @@ namespace NuGet.Services.Status.Table
             get { return !string.IsNullOrEmpty(ParentRowKey); }
             set { }
         }
+
     }
 }
