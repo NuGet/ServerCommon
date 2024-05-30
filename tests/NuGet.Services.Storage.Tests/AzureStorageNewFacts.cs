@@ -4,11 +4,13 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
 using Azure.Storage.DataMovement.Blobs;
 using Microsoft.Extensions.Logging;
@@ -57,6 +59,35 @@ namespace NuGet.Services.Storage.Tests
             var azureStorage = new AzureStorage(_blobServiceClientMock.Object, _blobStorageResourceProviderMock.Object, "containerName", "path", new Uri("http://baseAddress"), useServerSideCopy: true, initializeContainer: true, _loggerMock.Object);
 
             Assert.Equal(await azureStorage.ExistsAsync("file", CancellationToken.None), expected);
+        }
+
+        [Theory]
+        [InlineData(true, true, 1)]
+        [InlineData(true, false, 1)]
+        [InlineData(false, true, 0)]
+        [InlineData(false, false, 1)]
+        public async Task Save(bool overwrite, bool exists, int calledTimes)
+        {
+            var azureResponse = new Mock<Azure.Response>();
+            var blobInfoMock = new Mock<BlobInfo>();
+            var blobContentInfoMock = new Mock<BlobContentInfo>();
+
+            _blobClientMock.Setup(c => c.SetHttpHeadersAsync(It.IsAny<BlobHttpHeaders>(), It.IsAny<BlobRequestConditions>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(Azure.Response.FromValue(blobInfoMock.Object, azureResponse.Object)));
+            _blobClientMock.Setup(c => c.UploadAsync(It.IsAny<Stream>(), It.IsAny<BlobUploadOptions>(), It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(Azure.Response.FromValue(blobContentInfoMock.Object, azureResponse.Object)));
+            _blobClientMock.Setup(c => c.ExistsAsync(It.IsAny<CancellationToken>()))
+                .Returns(Task.FromResult(Azure.Response.FromValue(exists, azureResponse.Object)));
+
+            _blobContainerClientMock.Setup(bsc => bsc.GetBlobClient(It.IsAny<string>()))
+                .Returns(_blobClientMock.Object);
+            _blobServiceClientMock.Setup(bsc => bsc.GetBlobContainerClient(It.IsAny<string>())).Returns(_blobContainerClientMock.Object);
+            var azureStorage = new AzureStorage(_blobServiceClientMock.Object, _blobStorageResourceProviderMock.Object, "containerName", "path", new Uri("http://baseAddress"), useServerSideCopy: true, initializeContainer: true, _loggerMock.Object);
+
+            await azureStorage.Save(new Uri("http://testUri.com/blob.json"), new StringStorageContent("content"), overwrite: overwrite, CancellationToken.None);
+
+            _blobClientMock.Verify(bcm => bcm.SetHttpHeadersAsync(It.IsAny<BlobHttpHeaders>(), It.IsAny<BlobRequestConditions>(), It.IsAny<CancellationToken>()), Times.Exactly(calledTimes));
+            _blobClientMock.Verify(bcm => bcm.UploadAsync(It.IsAny<Stream>(), It.IsAny<BlobUploadOptions>(), It.IsAny<CancellationToken>()), Times.Exactly(calledTimes));
         }
     }
 }
