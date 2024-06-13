@@ -57,7 +57,10 @@ namespace NuGet.Services.Storage
             _logger = logger;
             _directory = directory;
             _useServerSideCopy = useServerSideCopy;
-            _transferManager = new TransferManager();
+            var checkpointerOptions = new TransferCheckpointStoreOptions(Path.GetTempPath());
+            var transferManagerOptions = new TransferManagerOptions();
+            transferManagerOptions.CheckpointerOptions = checkpointerOptions;
+            _transferManager = new TransferManager(transferManagerOptions);
             _storageResourceProvider = blobsStorageResourceProvider;
 
             if (initializeContainer)
