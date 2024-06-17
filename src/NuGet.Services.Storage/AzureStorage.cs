@@ -25,6 +25,7 @@ namespace NuGet.Services.Storage
         private readonly TransferManager _transferManager;
         private readonly BlobsStorageResourceProvider _storageResourceProvider;
         private readonly bool _useServerSideCopy;
+        private readonly string _path;
 
         public AzureStorage(
             BlobServiceClient account,
@@ -36,13 +37,14 @@ namespace NuGet.Services.Storage
             bool initializeContainer,
             ILogger<AzureStorage> logger)
             : this(
-                  account.GetBlobContainerClient(Path.Combine(containerName, path)),
+                  account.GetBlobContainerClient(containerName),
                   blobsStorageResourceProvider,
                   baseAddress,
                   useServerSideCopy,
                   initializeContainer,
                   logger)
         {
+            _path = path;
         }
 
         private AzureStorage(
@@ -96,7 +98,7 @@ namespace NuGet.Services.Storage
         //Blob exists
         public override bool Exists(string fileName)
         {
-            var packageRegistrationUri = ResolveUri(fileName);
+            var packageRegistrationUri = ResolvePathedUri(fileName);
             var blobName = GetName(packageRegistrationUri);
 
             var blob = _directory.GetBlobClient(blobName);
@@ -114,7 +116,7 @@ namespace NuGet.Services.Storage
 
         public override async Task<bool> ExistsAsync(string fileName, CancellationToken cancellationToken)
         {
-            var packageRegistrationUri = ResolveUri(fileName);
+            var packageRegistrationUri = ResolvePathedUri(fileName);
             var blobName = GetName(packageRegistrationUri);
 
             var blob = _directory.GetBlobClient(blobName);
@@ -132,7 +134,7 @@ namespace NuGet.Services.Storage
 
         public override IEnumerable<StorageListItem> List(bool getMetadata)
         {
-            foreach (BlobItem blob in _directory.GetBlobs())
+            foreach (BlobItem blob in _directory.GetBlobs(prefix: _path))
             {
                 yield return GetStorageListItem(_directory.GetBlobClient(blob.Name));
             }
@@ -324,6 +326,11 @@ namespace NuGet.Services.Storage
             // This means that we no longer need to explicitly apply the default options like we used to.
 
             return blob;
+        }
+
+        private Uri ResolvePathedUri(string filename)
+        {
+            return ResolveUri(Path.Combine(_path, filename));
         }
     }
 }
