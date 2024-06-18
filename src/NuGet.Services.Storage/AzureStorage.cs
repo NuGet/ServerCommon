@@ -173,7 +173,7 @@ namespace NuGet.Services.Storage
 
             if (destinationProperties?.Count > 0)
             {
-                foreach (var property in destinationProperties)
+                foreach (KeyValuePair<string,string> property in destinationProperties)
                 {
                     switch (property.Key)
                     {
@@ -191,12 +191,12 @@ namespace NuGet.Services.Storage
                 }
             }
 
-            var sourceStorageResource = _storageResourceProvider.FromBlob(sourceUri.ToString());
-            var destinationStorageResource = _storageResourceProvider.FromBlob(destinationUri.ToString(), new AppendBlobStorageResourceOptions());
+            StorageResource sourceStorageResource = _storageResourceProvider.FromBlob(sourceUri.ToString());
+            StorageResource destinationStorageResource = _storageResourceProvider.FromBlob(destinationUri.ToString(), new AppendBlobStorageResourceOptions());
 
             var transferOptions = new DataTransferOptions();
 
-            var transfer = await _transferManager.StartTransferAsync(sourceStorageResource, destinationStorageResource, transferOptions: transferOptions, cancellationToken: cancellationToken);
+            DataTransfer transfer = await _transferManager.StartTransferAsync(sourceStorageResource, destinationStorageResource, transferOptions: transferOptions, cancellationToken: cancellationToken);
             await transfer.WaitForCompletionAsync();
         }
 
