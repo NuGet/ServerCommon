@@ -22,6 +22,8 @@ namespace NuGet.Services.Validation
             { 7, ValidationIssueCode.AuthorCounterSignaturesNotSupported },
             { 8, ValidationIssueCode.PackageIsNotSigned },
             { 9, ValidationIssueCode.PackageIsSignedWithUnauthorizedCertificate },
+            { 10, ValidationIssueCode.PackageIsSignedWithUnauthorizedCertificateSha256 },
+            { 11, ValidationIssueCode.PackageIsSignedWithUnauthorizedAzureTrustedSigningCertificate },
             { 250, ValidationIssueCode.SymbolErrorCode_ChecksumDoesNotMatch },
             { 251, ValidationIssueCode.SymbolErrorCode_MatchingAssemblyNotFound},
             { 252, ValidationIssueCode.SymbolErrorCode_PdbIsNotPortable},
