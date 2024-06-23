@@ -127,12 +127,12 @@
     <value>{"A":"Hello","B":123}</value>
   </data>
   <data name="UnauthorizedAzureTrustedSigningCertificateFailureIssueJson" xml:space="preserve">
-    <value>{"t":"thumbprint-sha256","o":"1.2.3.4.5.6"}</value>
+    <value>{"t":"thumbprint-sha1","s":"thumbprint-sha256","o":"1.2.3.4.5.6"}</value>
   </data>
   <data name="UnauthorizedCertificateFailureIssueJson" xml:space="preserve">
     <value>{"t":"thumbprint"}</value>
   </data>
   <data name="UnauthorizedCertificateSha256FailureIssueJson" xml:space="preserve">
-    <value>{"t":"thumbprint-sha256"}</value>
+    <value>{"t":"thumbprint-sha1","s":"thumbprint-sha256"}</value>
   </data>
 </root>

@@ -93,7 +93,7 @@ namespace NuGet.Services.Validation.Issues.Tests
             public void UnauthorizedCertificateSha256FailureSerialization()
             {
                 // Arrange
-                var issue = new UnauthorizedCertificateSha256Failure("thumbprint-sha256");
+                var issue = new UnauthorizedCertificateSha256Failure("thumbprint-sha1", "thumbprint-sha256");
 
                 // Act
                 var result = issue.Serialize();
@@ -106,7 +106,7 @@ namespace NuGet.Services.Validation.Issues.Tests
             public void UnauthorizedAzureTrustedSigningCertificateFailureSerialization()
             {
                 // Arrange
-                var issue = new UnauthorizedAzureTrustedSigningCertificateFailure("thumbprint-sha256", "1.2.3.4.5.6");
+                var issue = new UnauthorizedAzureTrustedSigningCertificateFailure("thumbprint-sha1", "thumbprint-sha256", "1.2.3.4.5.6");
 
                 // Act
                 var result = issue.Serialize();

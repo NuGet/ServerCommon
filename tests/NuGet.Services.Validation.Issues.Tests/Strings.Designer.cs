@@ -88,7 +88,7 @@ namespace NuGet.Services.Validation.Issues.Tests {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {&quot;t&quot;:&quot;thumbprint-sha256&quot;,&quot;o&quot;:&quot;1.2.3.4.5.6&quot;}.
+        ///   Looks up a localized string similar to {&quot;t&quot;:&quot;thumbprint-sha1&quot;,&quot;s&quot;:&quot;thumbprint-sha256&quot;,&quot;o&quot;:&quot;1.2.3.4.5.6&quot;}.
         /// </summary>
         internal static string UnauthorizedAzureTrustedSigningCertificateFailureIssueJson {
             get {
@@ -106,7 +106,7 @@ namespace NuGet.Services.Validation.Issues.Tests {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {&quot;t&quot;:&quot;thumbprint-sha256&quot;}.
+        ///   Looks up a localized string similar to {&quot;t&quot;:&quot;thumbprint-sha1&quot;,&quot;s&quot;:&quot;thumbprint-sha256&quot;}.
         /// </summary>
         internal static string UnauthorizedCertificateSha256FailureIssueJson {
             get {
