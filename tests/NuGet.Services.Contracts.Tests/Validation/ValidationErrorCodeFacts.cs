@@ -21,7 +21,9 @@ namespace NuGet.Services.Validation
             { 6, ValidationIssueCode.OnlySignatureFormatVersion1Supported },
             { 7, ValidationIssueCode.AuthorCounterSignaturesNotSupported },
             { 8, ValidationIssueCode.PackageIsNotSigned },
+#pragma warning disable 618
             { 9, ValidationIssueCode.PackageIsSignedWithUnauthorizedCertificate },
+#pragma warning restore 618
             { 10, ValidationIssueCode.PackageIsSignedWithUnauthorizedCertificateSha256 },
             { 11, ValidationIssueCode.PackageIsSignedWithUnauthorizedAzureTrustedSigningCertificate },
             { 250, ValidationIssueCode.SymbolErrorCode_ChecksumDoesNotMatch },

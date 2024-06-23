@@ -29,7 +29,9 @@ namespace NuGet.Services.Validation.Issues
         internal static readonly IReadOnlyDictionary<ValidationIssueCode, Type> IssueCodeTypes = new Dictionary<ValidationIssueCode, Type>
         {
             { ValidationIssueCode.ClientSigningVerificationFailure, GetIssueType<ClientSigningVerificationFailure>() },
+#pragma warning disable 618
             { ValidationIssueCode.PackageIsSignedWithUnauthorizedCertificate, GetIssueType<UnauthorizedCertificateFailure>() },
+#pragma warning restore 618
             { ValidationIssueCode.PackageIsSignedWithUnauthorizedCertificateSha256, GetIssueType<UnauthorizedCertificateSha256Failure>() },
             { ValidationIssueCode.PackageIsSignedWithUnauthorizedAzureTrustedSigningCertificate, GetIssueType<UnauthorizedAzureTrustedSigningCertificateFailure>() },
 #pragma warning disable 618

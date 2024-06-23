@@ -78,13 +78,41 @@ namespace NuGet.Services.Validation.Issues.Tests
             public void UnauthorizedCertificateFailureSerialization()
             {
                 // Arrange
-                var signedError = new UnauthorizedCertificateFailure("thumbprint");
+#pragma warning disable 618
+                var issue = new UnauthorizedCertificateFailure("thumbprint");
+#pragma warning restore 618
 
                 // Act
-                var result = signedError.Serialize();
+                var result = issue.Serialize();
 
                 // Assert
                 Assert.Equal(Strings.UnauthorizedCertificateFailureIssueJson, result);
+            }
+
+            [Fact]
+            public void UnauthorizedCertificateSha256FailureSerialization()
+            {
+                // Arrange
+                var issue = new UnauthorizedCertificateSha256Failure("thumbprint-sha256");
+
+                // Act
+                var result = issue.Serialize();
+
+                // Assert
+                Assert.Equal(Strings.UnauthorizedCertificateSha256FailureIssueJson, result);
+            }
+
+            [Fact]
+            public void UnauthorizedAzureTrustedSigningCertificateFailureSerialization()
+            {
+                // Arrange
+                var issue = new UnauthorizedAzureTrustedSigningCertificateFailure("thumbprint-sha256", "1.2.3.4.5.6");
+
+                // Act
+                var result = issue.Serialize();
+
+                // Assert
+                Assert.Equal(Strings.UnauthorizedAzureTrustedSigningCertificateFailureIssueJson, result);
             }
         }
 
@@ -209,6 +237,7 @@ namespace NuGet.Services.Validation.Issues.Tests
             public void UnauthorizedCertificateFailureDeserialization()
             {
                 // Arrange
+#pragma warning disable 618
                 var validationIssue = CreatePackageValidationIssue(ValidationIssueCode.PackageIsSignedWithUnauthorizedCertificate, Strings.UnauthorizedCertificateFailureIssueJson);
 
                 // Act
@@ -217,6 +246,7 @@ namespace NuGet.Services.Validation.Issues.Tests
                 // Assert
                 Assert.NotNull(result);
                 Assert.Equal(ValidationIssueCode.PackageIsSignedWithUnauthorizedCertificate, result.IssueCode);
+#pragma warning restore 618
                 Assert.Equal("thumbprint", result.Sha1Thumbprint);
             }
 

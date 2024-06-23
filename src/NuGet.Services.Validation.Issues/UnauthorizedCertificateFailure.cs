@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 
 namespace NuGet.Services.Validation.Issues
 {
+    [Obsolete("This issue uses SHA-1. Use " + nameof(UnauthorizedCertificateSha256Failure) + " instead.")]
     public sealed class UnauthorizedCertificateFailure : ValidationIssue
     {
         [JsonConstructor]

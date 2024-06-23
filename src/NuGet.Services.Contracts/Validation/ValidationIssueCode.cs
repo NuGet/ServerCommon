@@ -60,6 +60,7 @@ namespace NuGet.Services.Validation
         /// <summary>
         /// A package is signed with an unauthorized certificate.
         /// </summary>
+        [Obsolete("This issue code uses SHA-1. Use " + nameof(PackageIsSignedWithUnauthorizedCertificateSha256) + " instead.")]
         PackageIsSignedWithUnauthorizedCertificate = 9,
 
         /// <summary>
