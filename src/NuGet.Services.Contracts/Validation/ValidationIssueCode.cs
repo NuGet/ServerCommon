@@ -62,6 +62,16 @@ namespace NuGet.Services.Validation
         /// </summary>
         PackageIsSignedWithUnauthorizedCertificate = 9,
 
+        /// <summary>
+        /// A package is signed with an unauthorized certificate. Show a SHA-256 fingerprint.
+        /// </summary>
+        PackageIsSignedWithUnauthorizedCertificateSha256 = 10,
+
+        /// <summary>
+        /// A package is signed with an unauthorized Azure Trusted Signing certificate.
+        /// </summary>
+        PackageIsSignedWithUnauthorizedAzureTrustedSigningCertificate = 11,
+
         #region SymbolErrorCodes - reserved 200 - 299 segment
         /// <summary>
         /// Symbol checksum does not match with the binary assembly.

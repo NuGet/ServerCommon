@@ -220,6 +220,37 @@ namespace NuGet.Services.Validation.Issues.Tests
                 Assert.Equal("thumbprint", result.Sha1Thumbprint);
             }
 
+            [Fact]
+            public void UnauthorizedCertificateSha256FailureDeserialization()
+            {
+                // Arrange
+                var validationIssue = CreatePackageValidationIssue(ValidationIssueCode.PackageIsSignedWithUnauthorizedCertificateSha256, Strings.UnauthorizedCertificateSha256FailureIssueJson);
+
+                // Act
+                var result = ValidationIssue.Deserialize(validationIssue.IssueCode, validationIssue.Data) as UnauthorizedCertificateFailureSha256;
+
+                // Assert
+                Assert.NotNull(result);
+                Assert.Equal(ValidationIssueCode.PackageIsSignedWithUnauthorizedCertificateSha256, result.IssueCode);
+                Assert.Equal("thumbprint-sha256", result.Sha256Thumbprint);
+            }
+
+            [Fact]
+            public void UnauthorizedAzureTrustedSigningCertificateFailureDeserialization()
+            {
+                // Arrange
+                var validationIssue = CreatePackageValidationIssue(ValidationIssueCode.PackageIsSignedWithUnauthorizedAzureTrustedSigningCertificate, Strings.UnauthorizedAzureTrustedSigningCertificateFailureIssueJson);
+
+                // Act
+                var result = ValidationIssue.Deserialize(validationIssue.IssueCode, validationIssue.Data) as UnauthorizedAzureTrustedSigningCertificate;
+
+                // Assert
+                Assert.NotNull(result);
+                Assert.Equal(ValidationIssueCode.PackageIsSignedWithUnauthorizedAzureTrustedSigningCertificate, result.IssueCode);
+                Assert.Equal("thumbprint-sha256", result.Sha256Thumbprint);
+                Assert.Equal("1.2.3.4.5.6", result.EnhancedKeyUsageOid);
+            }
+
             private PackageValidationIssue CreatePackageValidationIssue(ValidationIssueCode issueCode, string data)
             {
                 return new PackageValidationIssue

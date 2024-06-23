@@ -19,7 +19,7 @@ namespace NuGet.Services.Validation.Issues.Tests {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Strings {
@@ -88,11 +88,29 @@ namespace NuGet.Services.Validation.Issues.Tests {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {&quot;t&quot;:&quot;thumbprint-sha256&quot;,&quot;o&quot;:&quot;1.2.3.4.5.6&quot;}.
+        /// </summary>
+        internal static string UnauthorizedAzureTrustedSigningCertificateFailureIssueJson {
+            get {
+                return ResourceManager.GetString("UnauthorizedAzureTrustedSigningCertificateFailureIssueJson", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to {&quot;t&quot;:&quot;thumbprint&quot;}.
         /// </summary>
         internal static string UnauthorizedCertificateFailureIssueJson {
             get {
                 return ResourceManager.GetString("UnauthorizedCertificateFailureIssueJson", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {&quot;t&quot;:&quot;thumbprint-sha256&quot;}.
+        /// </summary>
+        internal static string UnauthorizedCertificateSha256FailureIssueJson {
+            get {
+                return ResourceManager.GetString("UnauthorizedCertificateSha256FailureIssueJson", resourceCulture);
             }
         }
     }
