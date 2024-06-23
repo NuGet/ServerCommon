@@ -30,8 +30,8 @@ namespace NuGet.Services.Validation.Issues
         {
             { ValidationIssueCode.ClientSigningVerificationFailure, GetIssueType<ClientSigningVerificationFailure>() },
             { ValidationIssueCode.PackageIsSignedWithUnauthorizedCertificate, GetIssueType<UnauthorizedCertificateFailure>() },
-            { ValidationIssueCode.PackageIsSignedWithUnauthorizedCertificateSha256, GetIssueType<UnauthorizedCertificateFailureSha256>() },
-            { ValidationIssueCode.PackageIsSignedWithUnauthorizedAzureTrustedSigningCertificate, GetIssueType<UnauthorizedAzureTrustedSigningCertificate>() },
+            { ValidationIssueCode.PackageIsSignedWithUnauthorizedCertificateSha256, GetIssueType<UnauthorizedCertificateSha256Failure>() },
+            { ValidationIssueCode.PackageIsSignedWithUnauthorizedAzureTrustedSigningCertificate, GetIssueType<UnauthorizedAzureTrustedSigningCertificateFailure>() },
 #pragma warning disable 618
             { ValidationIssueCode.ObsoleteTesting, GetIssueType<ObsoleteTestingIssue>() }
 #pragma warning restore 618

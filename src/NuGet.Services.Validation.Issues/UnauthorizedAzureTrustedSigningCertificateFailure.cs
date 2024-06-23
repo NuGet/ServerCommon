@@ -6,10 +6,10 @@ using Newtonsoft.Json;
 
 namespace NuGet.Services.Validation.Issues
 {
-    public sealed class UnauthorizedAzureTrustedSigningCertificate : ValidationIssue
+    public sealed class UnauthorizedAzureTrustedSigningCertificateFailure : ValidationIssue
     {
         [JsonConstructor]
-        public UnauthorizedAzureTrustedSigningCertificate(string sha256Thumbprint, string enhancedKeyUsageOid)
+        public UnauthorizedAzureTrustedSigningCertificateFailure(string sha256Thumbprint, string enhancedKeyUsageOid)
         {
             Sha256Thumbprint = sha256Thumbprint ?? throw new ArgumentNullException(nameof(sha256Thumbprint));
             EnhancedKeyUsageOid = enhancedKeyUsageOid ?? throw new ArgumentNullException(nameof(enhancedKeyUsageOid));

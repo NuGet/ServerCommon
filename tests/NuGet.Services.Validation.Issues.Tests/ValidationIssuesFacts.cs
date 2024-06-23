@@ -227,7 +227,7 @@ namespace NuGet.Services.Validation.Issues.Tests
                 var validationIssue = CreatePackageValidationIssue(ValidationIssueCode.PackageIsSignedWithUnauthorizedCertificateSha256, Strings.UnauthorizedCertificateSha256FailureIssueJson);
 
                 // Act
-                var result = ValidationIssue.Deserialize(validationIssue.IssueCode, validationIssue.Data) as UnauthorizedCertificateFailureSha256;
+                var result = ValidationIssue.Deserialize(validationIssue.IssueCode, validationIssue.Data) as UnauthorizedCertificateSha256Failure;
 
                 // Assert
                 Assert.NotNull(result);
@@ -242,7 +242,7 @@ namespace NuGet.Services.Validation.Issues.Tests
                 var validationIssue = CreatePackageValidationIssue(ValidationIssueCode.PackageIsSignedWithUnauthorizedAzureTrustedSigningCertificate, Strings.UnauthorizedAzureTrustedSigningCertificateFailureIssueJson);
 
                 // Act
-                var result = ValidationIssue.Deserialize(validationIssue.IssueCode, validationIssue.Data) as UnauthorizedAzureTrustedSigningCertificate;
+                var result = ValidationIssue.Deserialize(validationIssue.IssueCode, validationIssue.Data) as UnauthorizedAzureTrustedSigningCertificateFailure;
 
                 // Assert
                 Assert.NotNull(result);

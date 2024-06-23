@@ -6,10 +6,10 @@ using Newtonsoft.Json;
 
 namespace NuGet.Services.Validation.Issues
 {
-    public sealed class UnauthorizedCertificateFailureSha256 : ValidationIssue
+    public sealed class UnauthorizedCertificateSha256Failure : ValidationIssue
     {
         [JsonConstructor]
-        public UnauthorizedCertificateFailureSha256(string sha256Thumbprint)
+        public UnauthorizedCertificateSha256Failure(string sha256Thumbprint)
         {
             Sha256Thumbprint = sha256Thumbprint ?? throw new ArgumentNullException(nameof(sha256Thumbprint));
         }
