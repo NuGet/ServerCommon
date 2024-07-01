@@ -41,14 +41,14 @@ namespace NuGet.Services.Storage
             return Task.FromResult(Exists(fileName));
         }
 
-        public override Task<IEnumerable<StorageListItem>> List(bool getMetadata, CancellationToken cancellationToken)
+        public override IEnumerable<StorageListItem> List(bool getMetadata)
         {
             DirectoryInfo directoryInfo = new DirectoryInfo(Path);
             var files = directoryInfo.GetFiles("*", SearchOption.AllDirectories)
                 .Select(file => 
                     new StorageListItem(GetUri(file.FullName.Replace(Path, string.Empty)), file.LastWriteTimeUtc));
 
-            return Task.FromResult(files.AsEnumerable());
+            return files.AsEnumerable();
         }
 
         public string Path
