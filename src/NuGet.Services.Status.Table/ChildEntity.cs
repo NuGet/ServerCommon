@@ -57,7 +57,6 @@ namespace NuGet.Services.Status.Table
         {
             get { return !string.IsNullOrEmpty(ParentRowKey); }
             set { }
-        }
-
+        }   
     }
 }
