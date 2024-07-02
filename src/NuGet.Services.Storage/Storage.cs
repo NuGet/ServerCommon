@@ -157,6 +157,7 @@ namespace NuGet.Services.Storage
         public abstract bool Exists(string fileName);
         public abstract Task<bool> ExistsAsync(string fileName, CancellationToken cancellationToken);
         public abstract IEnumerable<StorageListItem> List(bool getMetadata);
+        public abstract Task<IEnumerable<StorageListItem>> ListAsync(bool getMetadata, CancellationToken cancellationToken);
 
         public bool Verbose
         {

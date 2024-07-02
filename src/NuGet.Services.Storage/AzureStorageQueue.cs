@@ -60,7 +60,7 @@ namespace NuGet.Services.Storage
 
         public async Task RemoveAsync(StorageQueueMessage message, CancellationToken token)
         {
-            if (!(message is AzureStorageQueueMessage queueMessage))
+            if (message is not AzureStorageQueueMessage queueMessage)
             {
                 throw new ArgumentException("This message was not returned from this queue!", nameof(message));
             }
