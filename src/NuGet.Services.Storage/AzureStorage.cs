@@ -153,19 +153,46 @@ namespace NuGet.Services.Storage
             }
         }
 
+        public override async Task<IEnumerable<StorageListItem>> ListAsync(bool getMetadata, CancellationToken cancellationToken)
+        {
+            var blobTraits = new BlobTraits();
+            if (getMetadata)
+            {
+                blobTraits |= BlobTraits.Metadata;
+            }
+
+            var blobList = new List<StorageListItem>();
+
+            await foreach (BlobHierarchyItem blob in _directory.GetBlobsByHierarchyAsync(traits: blobTraits, prefix: _path))
+            {
+                blobList.Add(await GetStorageListItemAsync(_directory.GetBlobClient(blob.Blob.Name)));
+            }
+
+            return blobList;
+        }
+
         public override async Task SetMetadataAsync(Uri resourceUri, IDictionary<string, string> metadata)
         {
-            var blob = GetBlobReference(GetName(resourceUri));
+            BlobClient blob = GetBlobReference(GetName(resourceUri));
             await blob.SetMetadataAsync(metadata);
+        }
+
+        private async Task<StorageListItem> GetStorageListItemAsync(BlobClient listBlobItem)
+        {
+            var blobPropertiesResponse = await listBlobItem.GetPropertiesAsync();
+            var blobProperties = blobPropertiesResponse?.Value;
+            var lastModified = blobProperties?.LastModified;
+
+            return new StorageListItem(listBlobItem.Uri, lastModified, blobProperties?.Metadata);
         }
 
         private StorageListItem GetStorageListItem(BlobClient listBlobItem)
         {
             var blobPropertiesResponse = listBlobItem.GetProperties();
-            var blobProperties = blobPropertiesResponse.Value;
-            var lastModified = blobProperties.LastModified;
+            var blobProperties = blobPropertiesResponse?.Value;
+            var lastModified = blobProperties?.LastModified;
 
-            return new StorageListItem(listBlobItem.Uri, lastModified, blobProperties.Metadata);
+            return new StorageListItem(listBlobItem.Uri, lastModified, blobProperties?.Metadata);
         }
 
         protected override async Task OnCopyAsync(
