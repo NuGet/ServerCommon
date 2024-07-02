@@ -17,14 +17,6 @@ namespace NuGet.Services.Storage
             CancellationToken cancellationToken)
         {
             var items = new List<BlobItem>();
-            //var segment = await directory.GetBlobsAsync(
-            //    useFlatBlobListing: true,
-            //    blobListingDetails: getMetadata ? BlobListingDetails.Metadata : BlobListingDetails.None,
-            //    maxResults: null,
-            //    currentToken:  continuationToken,
-            //    options: null,
-            //    operationContext: null,
-            //    cancellationToken: cancellationToken);
             var segment = directory.GetBlobsAsync(
                 traits:
                     BlobTraits.CopyStatus

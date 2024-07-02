@@ -36,7 +36,6 @@ namespace NuGet.Services.Storage
 
         public async Task AddAsync(string contents, CancellationToken token)
         {
-            //var azureMessage = new AzureStorageQueueMessage(contents, dequeueCount: 0);
             await (await _queueTask.Value).SendMessageAsync(contents, token);
         }
 
@@ -61,7 +60,7 @@ namespace NuGet.Services.Storage
 
         public async Task RemoveAsync(StorageQueueMessage message, CancellationToken token)
         {
-            if (!(message is AzureStorageQueueMessage))
+            if (!(message is AzureStorageQueueMessage queueMessage))
             {
                 throw new ArgumentException("This message was not returned from this queue!", nameof(message));
             }
@@ -69,7 +68,6 @@ namespace NuGet.Services.Storage
             var queueClient = await _queueTask.Value;
             if (await queueClient.ExistsAsync())
             {
-                AzureStorageQueueMessage queueMessage = message as AzureStorageQueueMessage;
                 await queueClient.DeleteMessageAsync(queueMessage.MessageId, queueMessage.PopReceipt, token);
             }
 

@@ -67,11 +67,18 @@ namespace NuGet.Services.Storage
 
             if (initializeContainer)
             {
-                _directory.CreateIfNotExists(PublicAccessType.Blob);
+                var storageActionResult = _directory.CreateIfNotExists(PublicAccessType.Blob);
 
                 if (Verbose)
                 {
-                    _logger.LogInformation("Created {ContainerName} publish container", _directory.Name);
+                    if (storageActionResult != null)
+                    {
+                        _logger.LogInformation("Created {ContainerName} publish container", _directory.Name);
+                    }
+                    else
+                    {
+                        _logger.LogInformation("Container {ContainerName} already existed. Create was no-oped", _directory.Name);
+                    }
                 }
             }
 
@@ -134,9 +141,15 @@ namespace NuGet.Services.Storage
 
         public override IEnumerable<StorageListItem> List(bool getMetadata)
         {
-            foreach (BlobItem blob in _directory.GetBlobs(prefix: _path))
+            var blobTraits = new BlobTraits();
+            if (getMetadata)
             {
-                yield return GetStorageListItem(_directory.GetBlobClient(blob.Name));
+                blobTraits |= BlobTraits.Metadata;
+            }
+
+            foreach (BlobHierarchyItem blob in _directory.GetBlobsByHierarchy(traits: blobTraits, prefix: _path))
+            {
+                yield return GetStorageListItem(_directory.GetBlobClient(blob.Blob.Name));
             }
         }
 
@@ -328,6 +341,7 @@ namespace NuGet.Services.Storage
             return blob;
         }
 
+        // This method is a helper to insert the _path into the resolved Uri for the file so we get the correct full path.
         private Uri ResolvePathedUri(string filename)
         {
             return ResolveUri(Path.Combine(_path, filename));
