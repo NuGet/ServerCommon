@@ -105,10 +105,10 @@ namespace NuGet.Services.Storage
         //Blob exists
         public override bool Exists(string fileName)
         {
-            var packageRegistrationUri = ResolvePathedUri(fileName);
-            var blobName = GetName(packageRegistrationUri);
+            Uri packageRegistrationUri = ResolvePathedUri(fileName);
+            string blobName = GetName(packageRegistrationUri);
 
-            var blob = _directory.GetBlobClient(blobName);
+            BlobClient blob = _directory.GetBlobClient(blobName);
 
             if (blob.Exists())
             {
@@ -123,10 +123,10 @@ namespace NuGet.Services.Storage
 
         public override async Task<bool> ExistsAsync(string fileName, CancellationToken cancellationToken)
         {
-            var packageRegistrationUri = ResolvePathedUri(fileName);
-            var blobName = GetName(packageRegistrationUri);
+            Uri packageRegistrationUri = ResolvePathedUri(fileName);
+            string blobName = GetName(packageRegistrationUri);
 
-            var blob = _directory.GetBlobClient(blobName);
+            BlobClient blob = _directory.GetBlobClient(blobName);
 
             if (await blob.ExistsAsync(cancellationToken))
             {
