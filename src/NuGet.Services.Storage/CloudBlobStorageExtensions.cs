@@ -31,17 +31,9 @@ namespace NuGet.Services.Storage
                     | BlobStates.Uncommitted
                     | BlobStates.Version);
 
-            IAsyncEnumerator<BlobItem> asyncEnumerator = segment.GetAsyncEnumerator();
-            try
+            await foreach (var blob in segment)
             {
-                while (await asyncEnumerator.MoveNextAsync())
-                {
-                    items.Add(asyncEnumerator.Current);
-                }
-            }
-            finally
-            {
-                await asyncEnumerator.DisposeAsync();
+                items.Add(blob);
             }
 
             return items;
