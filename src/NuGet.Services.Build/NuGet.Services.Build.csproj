@@ -3,11 +3,6 @@
   <PropertyGroup>
     <TargetFramework>net472</TargetFramework>
     <Description>Shared component to assist NuGet build scripts.</Description>
-
-    <!--
-    We force C# 5 because the FindDuplicateFiles task is compiled using CodeTaskFactory, which only supports this C# version.
-    -->
-    <LangVersion>12</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
