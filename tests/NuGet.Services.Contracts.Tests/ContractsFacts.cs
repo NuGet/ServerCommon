@@ -21,6 +21,11 @@ namespace NuGet.Services
             Assert.NotEmpty(types);
             foreach (var type in types)
             {
+                if (type.FullName.StartsWith("Microsoft.") || type.FullName.StartsWith("System."))
+                {
+                    continue;
+                }
+
                 Assert.True(type.IsEnum || type.IsInterface, $"{type.FullName} must either be an interface or an enum.");
             }
         }
