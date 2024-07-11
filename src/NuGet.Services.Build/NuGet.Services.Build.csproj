@@ -7,7 +7,7 @@
     <!--
     We force C# 5 because the FindDuplicateFiles task is compiled using CodeTaskFactory, which only supports this C# version.
     -->
-    <LangVersion>5</LangVersion>
+    <LangVersion>12</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
