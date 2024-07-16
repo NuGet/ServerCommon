@@ -106,6 +106,11 @@ namespace NuGet.Services.Storage
             return _primaryStorage.List(getMetadata);
         }
 
+        public override async Task<IEnumerable<StorageListItem>> ListAsync(bool getMetadata, CancellationToken cancellationToken)
+        {
+            return await _primaryStorage.ListAsync(getMetadata, cancellationToken);
+        }
+
         public override Task SetMetadataAsync(Uri resourceUri, IDictionary<string, string> metadata)
         {
             throw new NotImplementedException();
