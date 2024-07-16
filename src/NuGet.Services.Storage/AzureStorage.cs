@@ -108,7 +108,7 @@ namespace NuGet.Services.Storage
             Uri packageRegistrationUri = ResolvePathedUri(fileName);
             string blobName = GetName(packageRegistrationUri);
 
-            BlobClient blob = _directory.GetBlobClient(blobName);
+            BlockBlobClient blob = _directory.GetBlockBlobClient(blobName);
 
             if (blob.Exists())
             {
@@ -126,7 +126,7 @@ namespace NuGet.Services.Storage
             Uri packageRegistrationUri = ResolvePathedUri(fileName);
             string blobName = GetName(packageRegistrationUri);
 
-            BlobClient blob = _directory.GetBlobClient(blobName);
+            BlockBlobClient blob = _directory.GetBlockBlobClient(blobName);
 
             if (await blob.ExistsAsync(cancellationToken))
             {
@@ -149,7 +149,7 @@ namespace NuGet.Services.Storage
 
             foreach (BlobHierarchyItem blob in _directory.GetBlobsByHierarchy(traits: blobTraits, prefix: _path))
             {
-                yield return GetStorageListItem(_directory.GetBlobClient(blob.Blob.Name));
+                yield return GetStorageListItem(_directory.GetBlockBlobClient(blob.Blob.Name));
             }
         }
 
@@ -165,7 +165,7 @@ namespace NuGet.Services.Storage
 
             await foreach (BlobHierarchyItem blob in _directory.GetBlobsByHierarchyAsync(traits: blobTraits, prefix: _path))
             {
-                blobList.Add(await GetStorageListItemAsync(_directory.GetBlobClient(blob.Blob.Name)));
+                blobList.Add(await GetStorageListItemAsync(_directory.GetBlockBlobClient(blob.Blob.Name)));
             }
 
             return blobList;
@@ -173,11 +173,11 @@ namespace NuGet.Services.Storage
 
         public override async Task SetMetadataAsync(Uri resourceUri, IDictionary<string, string> metadata)
         {
-            BlobClient blob = GetBlobReference(GetName(resourceUri));
+            BlockBlobClient blob = GetBlobReference(GetName(resourceUri));
             await blob.SetMetadataAsync(metadata);
         }
 
-        private async Task<StorageListItem> GetStorageListItemAsync(BlobClient listBlobItem)
+        private async Task<StorageListItem> GetStorageListItemAsync(BlockBlobClient listBlobItem)
         {
             var blobPropertiesResponse = await listBlobItem.GetPropertiesAsync();
             var blobProperties = blobPropertiesResponse?.Value;
@@ -186,7 +186,7 @@ namespace NuGet.Services.Storage
             return new StorageListItem(listBlobItem.Uri, lastModified, blobProperties?.Metadata);
         }
 
-        private StorageListItem GetStorageListItem(BlobClient listBlobItem)
+        private StorageListItem GetStorageListItem(BlockBlobClient listBlobItem)
         {
             var blobPropertiesResponse = listBlobItem.GetProperties();
             var blobProperties = blobPropertiesResponse?.Value;
@@ -245,7 +245,7 @@ namespace NuGet.Services.Storage
         {
             string name = GetName(resourceUri);
 
-            BlobClient blob = _directory.GetBlobClient(name);
+            BlockBlobClient blob = _directory.GetBlockBlobClient(name);
             BlobHttpHeaders headers = new BlobHttpHeaders();
             headers.ContentType = content.ContentType;
             headers.CacheControl = content.CacheControl;
@@ -308,7 +308,7 @@ namespace NuGet.Services.Storage
             // trim the starting slash to treat it as a relative path
             string name = GetName(resourceUri).TrimStart('/');
 
-            BlobClient blob = _directory.GetBlobClient(name);
+            BlockBlobClient blob = _directory.GetBlockBlobClient(name);
 
             if (blob.Exists())
             {
@@ -353,14 +353,14 @@ namespace NuGet.Services.Storage
         {
             string name = GetName(resourceUri);
 
-            BlobClient blob = _directory.GetBlobClient(name);
+            BlockBlobClient blob = _directory.GetBlockBlobClient(name);
 
             await blob.DeleteAsync(cancellationToken: cancellationToken);
         }
 
-        private BlobClient GetBlobReference(string blobName)
+        private BlockBlobClient GetBlobReference(string blobName)
         {
-            var blob = _directory.GetBlobClient(blobName);
+            var blob = _directory.GetBlockBlobClient(blobName);
 
             // The BlobClient should inherit the properties of the containerClient
             // This means that we no longer need to explicitly apply the default options like we used to.
