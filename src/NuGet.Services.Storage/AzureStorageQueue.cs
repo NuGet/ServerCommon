@@ -12,6 +12,7 @@ namespace NuGet.Services.Storage
 {
     public class AzureStorageQueue : IStorageQueue
     {
+        private const string MESSAGE_NOT_FROM_THIS_QUEUE_EXCEPTION = "This message was not returned from this queue!";
         private Lazy<Task<QueueClient>> _queueTask;
 
         /// <summary>
@@ -62,7 +63,7 @@ namespace NuGet.Services.Storage
         {
             if (message is not AzureStorageQueueMessage queueMessage)
             {
-                throw new ArgumentException("This message was not returned from this queue!", nameof(message));
+                throw new ArgumentException(MESSAGE_NOT_FROM_THIS_QUEUE_EXCEPTION, nameof(message));
             }
 
             var queueClient = await _queueTask.Value;

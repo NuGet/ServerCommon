@@ -209,7 +209,7 @@ namespace NuGet.Services.Storage
                 throw new NotImplementedException("Copying is only supported from Azure storage to Azure storage.");
             }
 
-            var destinationOptions = new BlobStorageResourceOptions();
+            var destinationOptions = new AppendBlobStorageResourceOptions();
 
             if (destinationProperties?.Count > 0)
             {
@@ -232,7 +232,7 @@ namespace NuGet.Services.Storage
             }
 
             StorageResource sourceStorageResource = _storageResourceProvider.FromBlob(sourceUri.ToString());
-            StorageResource destinationStorageResource = _storageResourceProvider.FromBlob(destinationUri.ToString(), new AppendBlobStorageResourceOptions());
+            StorageResource destinationStorageResource = _storageResourceProvider.FromBlob(destinationUri.ToString(), destinationOptions);
 
             var transferOptions = new DataTransferOptions();
 
@@ -270,11 +270,12 @@ namespace NuGet.Services.Storage
 
                     destinationStream.Seek(0, SeekOrigin.Begin);
 
-                    await blob.SetHttpHeadersAsync(headers);
                     await blob.UploadAsync(
                         destinationStream,
                         options: null,
                         cancellationToken: cancellationToken);
+
+                    await blob.SetHttpHeadersAsync(headers);
 
                     if (Verbose)
                     {
