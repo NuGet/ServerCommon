@@ -15,6 +15,7 @@ using Azure.Storage.Blobs.Specialized;
 using Azure.Storage.DataMovement.Blobs;
 using Microsoft.Extensions.Logging;
 using Moq;
+using Moq.Protected;
 using Xunit;
 
 namespace NuGet.Services.Storage.Tests
@@ -22,7 +23,7 @@ namespace NuGet.Services.Storage.Tests
     public class AzureStorageNewFacts
     {
         private AzureStorage storage;
-        private Mock<BlobClient> _blobClientMock = new Mock<BlobClient>();
+        private Mock<BlockBlobClient> _blobClientMock = new Mock<BlockBlobClient>();
         private Mock<BlobServiceClient> _blobServiceClientMock = new Mock<BlobServiceClient>();
         private Mock<BlobContainerClient> _blobContainerClientMock = new Mock<BlobContainerClient>();
         private Mock<BlobsStorageResourceProvider> _blobStorageResourceProviderMock = new Mock<BlobsStorageResourceProvider>();
@@ -38,7 +39,7 @@ namespace NuGet.Services.Storage.Tests
         {
             var azureResponse = new Mock<Azure.Response>();
             _blobClientMock.Setup(c => c.Exists(It.IsAny<CancellationToken>())).Returns(Azure.Response.FromValue(expected, azureResponse.Object));
-            _blobContainerClientMock.Setup(bsc => bsc.GetBlobClient(It.IsAny<string>()))
+            _blobContainerClientMock.Protected().Setup<BlockBlobClient>("GetBlockBlobClientCore",ItExpr.IsAny<string>())
                 .Returns(_blobClientMock.Object);
             _blobServiceClientMock.Setup(bsc => bsc.GetBlobContainerClient(It.IsAny<string>())).Returns(_blobContainerClientMock.Object);
             var azureStorage = new AzureStorage(_blobServiceClientMock.Object, _blobStorageResourceProviderMock.Object, "containerName", "path", new Uri("http://baseAddress"), useServerSideCopy: true, initializeContainer: true, _loggerMock.Object);
@@ -53,7 +54,7 @@ namespace NuGet.Services.Storage.Tests
         {
             var azureResponse = new Mock<Azure.Response>();
             _blobClientMock.Setup(c => c.ExistsAsync(It.IsAny<CancellationToken>())).Returns(Task.FromResult(Azure.Response.FromValue(expected, azureResponse.Object)));
-            _blobContainerClientMock.Setup(bsc => bsc.GetBlobClient(It.IsAny<string>()))
+            _blobContainerClientMock.Protected().Setup<BlockBlobClient>("GetBlockBlobClientCore", ItExpr.IsAny<string>())
                 .Returns(_blobClientMock.Object);
             _blobServiceClientMock.Setup(bsc => bsc.GetBlobContainerClient(It.IsAny<string>())).Returns(_blobContainerClientMock.Object);
             var azureStorage = new AzureStorage(_blobServiceClientMock.Object, _blobStorageResourceProviderMock.Object, "containerName", "path", new Uri("http://baseAddress"), useServerSideCopy: true, initializeContainer: true, _loggerMock.Object);
@@ -79,7 +80,7 @@ namespace NuGet.Services.Storage.Tests
             _blobClientMock.Setup(c => c.ExistsAsync(It.IsAny<CancellationToken>()))
                 .Returns(Task.FromResult(Azure.Response.FromValue(exists, azureResponse.Object)));
 
-            _blobContainerClientMock.Setup(bsc => bsc.GetBlobClient(It.IsAny<string>()))
+            _blobContainerClientMock.Protected().Setup<BlockBlobClient>("GetBlockBlobClientCore", ItExpr.IsAny<string>())
                 .Returns(_blobClientMock.Object);
             _blobServiceClientMock.Setup(bsc => bsc.GetBlobContainerClient(It.IsAny<string>())).Returns(_blobContainerClientMock.Object);
             var azureStorage = new AzureStorage(_blobServiceClientMock.Object, _blobStorageResourceProviderMock.Object, "containerName", "path", new Uri("http://baseAddress"), useServerSideCopy: true, initializeContainer: true, _loggerMock.Object);
