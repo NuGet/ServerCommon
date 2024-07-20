@@ -555,7 +555,7 @@ Function Install-SolutionPackages {
     $opts = , 'install'
     $InstallLocation = $NuGetClientRoot
     if (-not $SolutionPath) {
-        $opts += "${NuGetClientRoot}\.nuget\packages.config", '-SolutionDirectory', $NuGetClientRoot
+        $opts += "${NuGetClientRoot}\packages.config", '-SolutionDirectory', $NuGetClientRoot
     }
     else {
         $opts += $SolutionPath

@@ -400,7 +400,6 @@ FodyWeavers.xsd
 #######################
 # Repository specific #
 #######################
+.nuget/
 Results.*.xml
 AssemblyInfo.*.cs
-.nuget/.marker.v*
-nuget.exe

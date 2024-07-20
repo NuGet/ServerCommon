@@ -77,7 +77,7 @@ Invoke-BuildStep 'Set version metadata in AssemblyInfo.cs' { `
     -ev +BuildErrors
 
 Invoke-BuildStep 'Restoring solution packages' { `
-    Install-SolutionPackages -path (Join-Path $PSScriptRoot ".nuget\packages.config") -output (Join-Path $PSScriptRoot "packages") -excludeversion } `
+    Install-SolutionPackages -path (Join-Path $PSScriptRoot "packages.config") -output (Join-Path $PSScriptRoot "packages") -excludeversion } `
     -skip:$SkipRestore `
     -ev +BuildErrors
 
