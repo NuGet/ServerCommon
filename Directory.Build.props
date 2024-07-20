@@ -5,6 +5,7 @@
     <PackageProjectUrl>https://github.com/NuGet/ServerCommon</PackageProjectUrl>
     <Copyright>© .NET Foundation. All rights reserved.</Copyright>
     <Company>.NET Foundation</Company>
+    <NeutralLanguage>en-US</NeutralLanguage>
 
     <PublishRepositoryUrl>true</PublishRepositoryUrl>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
