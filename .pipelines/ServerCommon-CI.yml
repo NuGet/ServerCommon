@@ -20,7 +20,7 @@ variables:
 - name: NugetSecurityAnalysisWarningLevel
   value: none
 - name: CommonPackageVersion
-  value: $(CommonAssemblyVersion)$-$(ServerCommonBranch)-$(Build.BuildId)
+  value: $(CommonAssemblyVersion)-$(ServerCommonBranch)-$(Build.BuildId)
 - name: CommonAssemblyVersion
   value: 3.0.0
 - name: ServerCommonDirectory

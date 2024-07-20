@@ -401,9 +401,6 @@ FodyWeavers.xsd
 # Repository specific #
 #######################
 Results.*.xml
-build/private
 AssemblyInfo.*.cs
-.nuget/credprovider
 .nuget/.marker.v*
 nuget.exe
-build/packages/
