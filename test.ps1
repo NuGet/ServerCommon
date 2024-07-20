@@ -5,7 +5,6 @@ param (
     [int]$BuildNumber
 )
 
-# For TeamCity - If any issue occurs, this script fails the build. - By default, TeamCity returns an exit code of 0 for all powershell scripts, even if they fail
 trap {
     Write-Host "BUILD FAILED: $_" -ForegroundColor Red
     Write-Host "ERROR DETAILS:" -ForegroundColor Red
@@ -45,7 +44,7 @@ Function Invoke-Tests {
     $TestCount = 0
 
     $CommonTestAssemblies | ForEach-Object {
-        $TestResultFile = "Results.$TestCount.xml"
+        $TestResultFile = Join-Path $PSScriptRoot "Results.$TestCount.xml"
         & $xUnitExe (Join-Path $PSScriptRoot $_) -xml $TestResultFile
         if (-not (Test-Path $TestResultFile)) {
             Write-Error "The test run failed to produce a result file";
