@@ -875,38 +875,29 @@ Function Set-VersionInfo {
     $directory = Split-Path $_
     New-Item -ItemType Directory -Force -Path $directory | Out-Null
         
-    Trace-Log "Setting assembly info to ""$Path"""
+    Trace-Log "Setting assembly info in ""$Path"""
     
     if (-not $Commit) {
-        $Commit = git rev-parse --short HEAD
-    }
-    else {
-        if ($Commit.Length -gt 7) {
-            $Commit = $Commit.SubString(0, 7)
-        }
+        $Commit = git rev-parse HEAD
     }
     
     if (-not $Branch) {
         $Branch = git rev-parse --abbrev-ref HEAD
     }
-    
-    $BuildDateUtc = [DateTimeOffset]::UtcNow
 
     $Content = @"
 // Copyright (c) .NET Foundation. All rights reserved.
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
-using System;
+using System.Reflection;
 using System.Resources;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
 
-[assembly: AssemblyVersion(""$AssemblyVersion"")]
-[assembly: AssemblyInformationalVersion(""$PackageVersion"")]
+[assembly: AssemblyVersion("$AssemblyVersion")]
+[assembly: AssemblyInformationalVersion("$PackageVersion")]
 #if !PORTABLE
-[assembly: AssemblyMetadata(""Branch"", ""$Branch"")]
-[assembly: AssemblyMetadata(""CommitId"", ""$Commit"")]
-[assembly: AssemblyMetadata(""BuildDateUtc"", ""$BuildDateUtc"")]
+[assembly: AssemblyMetadata("Branch", "$Branch")]
+[assembly: AssemblyMetadata("CommitId", "$Commit")]
+[assembly: AssemblyMetadata("BuildDateUtc", "$([DateTime]::UtcNow.ToString("O"))")]
 #endif
 "@
 
