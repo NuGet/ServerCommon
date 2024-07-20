@@ -84,6 +84,15 @@ Function Clear-Artifacts {
     }
 }
 
+Function Clear-Tests {
+    [CmdletBinding()]
+    param()
+    
+    Trace-Log 'Cleaning test results'
+    
+    Remove-Item (Join-Path $PSScriptRoot "..\Results.*.xml")
+}
+
 Function Get-LatestVisualStudioRoot {
 
     if (Test-Path $BuiltInVsWhereExe) {
@@ -848,22 +857,25 @@ Function Set-VersionInfo {
     [CmdletBinding()]
     param(
         [string]$Path,
-        [string]$Version,
+        [string]$AssemblyVersion,
+        [string]$PackageVersion,
         [string]$Branch,
-        [string]$Commit,
-        [string]$AssemblyVersion = $null
+        [string]$Commit
     )
     
-    if (-not $Version) {
-        throw "No version info provided."
+    if (-not $AssemblyVersion) {
+        throw "No AssemblyVersion provided."
     }
     
-    if (Test-Path $Path) {
-        Remove-Item $Path
+    if (-not $PackageVersion) {
+        throw "No PackageVersion provided."
     }
-    New-Item $Path -ItemType File
-    
-    Trace-Log "Getting version info in @""$Path"""
+
+    # make sure the directory exists
+    $directory = Split-Path $_
+    New-Item -ItemType Directory -Force -Path $directory | Out-Null
+        
+    Trace-Log "Setting assembly info to ""$Path"""
     
     if (-not $Commit) {
         $Commit = git rev-parse --short HEAD
@@ -879,33 +891,26 @@ Function Set-VersionInfo {
     }
     
     $BuildDateUtc = [DateTimeOffset]::UtcNow
-    if (!$AssemblyVersion) {
-        $AssemblyVersion = $Version
-    }
-    $SemanticVersion = $Version + "-" + $Branch
-        
-    Trace-Log ("[assembly: AssemblyVersion(""" + $AssemblyVersion + """)]")
-    Trace-Log ("[assembly: AssemblyInformationalVersion(""" + $SemanticVersion + """)]")
-    Trace-Log ("[assembly: AssemblyMetadata(""Branch"", """ + $Branch + """)]")
-    Trace-Log ("[assembly: AssemblyMetadata(""CommitId"", """ + $Commit + """)]")
-    Trace-Log ("[assembly: AssemblyMetadata(""BuildDateUtc"", """ + $BuildDateUtc + """)]")
-    
-    Add-Content $Path ("// Copyright (c) .NET Foundation. All rights reserved.")
-    Add-Content $Path ("// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.")
-    
-    Add-Content $Path ("`r`nusing System;")
-    Add-Content $Path ("using System.Reflection;")
-    Add-Content $Path ("using System.Resources;")
-    Add-Content $Path ("using System.Runtime.CompilerServices;")
-    Add-Content $Path ("using System.Runtime.InteropServices;")
-    
-    Add-Content $Path ("`r`n[assembly: AssemblyVersion(""" + $AssemblyVersion + """)]")
-    Add-Content $Path ("[assembly: AssemblyInformationalVersion(""" + $SemanticVersion + """)]")
-    Add-Content $Path "#if !PORTABLE"
-    Add-Content $Path ("[assembly: AssemblyMetadata(""Branch"", """ + $Branch + """)]")
-    Add-Content $Path ("[assembly: AssemblyMetadata(""CommitId"", """ + $Commit + """)]")
-    Add-Content $Path ("[assembly: AssemblyMetadata(""BuildDateUtc"", """ + $BuildDateUtc + """)]")
-    Add-Content $Path "#endif"
+
+    $Content = @"
+// Copyright (c) .NET Foundation. All rights reserved.
+// Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
+
+using System;
+using System.Resources;
+using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
+
+[assembly: AssemblyVersion(""$AssemblyVersion"")]
+[assembly: AssemblyInformationalVersion(""$PackageVersion"")]
+#if !PORTABLE
+[assembly: AssemblyMetadata(""Branch"", ""$Branch"")]
+[assembly: AssemblyMetadata(""CommitId"", ""$Commit"")]
+[assembly: AssemblyMetadata(""BuildDateUtc"", ""$BuildDateUtc"")]
+#endif
+"@
+
+    $Content | Out-File $Path -Encoding utf8 -Force 
 }
 
 Function Install-PrivateBuildTools() {

@@ -24,9 +24,9 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers">
-        <Version>6.0.0</Version>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-        <PrivateAssets>all</PrivateAssets>
+      <Version>8.0.0</Version>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="MicroBuild.Core">
       <Version>0.3.0</Version>
