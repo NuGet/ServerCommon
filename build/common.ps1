@@ -909,7 +909,7 @@ Function Install-PrivateBuildTools() {
     $commit = $env:PRIVATE_BUILD_TOOLS_COMMIT
 
     if (-Not $commit) {
-        $commit = '4b7460b2e08249e4c65307e5383dfba7fe4da8b7' #DevSkim: ignore DS173237. Not a token/secret. It is a git commit hash.
+        $commit = '9f8cdc5d97905ebc7a6ade342b399678fb79af83' #DevSkim: ignore DS173237. Not a token/secret. It is a git commit hash.
     }
 
     if (-Not $repository) {
