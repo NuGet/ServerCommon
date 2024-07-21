@@ -1,6 +1,7 @@
 <Project>
   <PropertyGroup>
     <ManagePackageVersionsCentrally>true</ManagePackageVersionsCentrally>
+    <EnablePackageVersionOverride>false</EnablePackageVersionOverride>
     <CentralPackageTransitivePinningEnabled>false</CentralPackageTransitivePinningEnabled>
   </PropertyGroup>
   <ItemGroup>
@@ -15,24 +16,24 @@
     <PackageVersion Include="FluentAssertions" Version="5.4.2" />
     <PackageVersion Include="Markdig.Signed" Version="0.30.2" />
     <PackageVersion Include="MicroBuild.Core" Version="0.3.0" />
-    <PackageVersion Include="Microsoft.ApplicationInsights" Version="2.10.0" />
+    <PackageVersion Include="Microsoft.ApplicationInsights" Version="2.12.0" />
     <PackageVersion Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.CommandLineUtils" Version="1.1.1" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Abstractions" Version="2.2.0" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.EnvironmentVariables" Version="2.2.0" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.FileExtensions" Version="2.2.0" />
     <PackageVersion Include="Microsoft.Extensions.Configuration.Json" Version="2.2.0" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="2.2.0" />
-    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="8.0.0" />
+    <PackageVersion Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
     <PackageVersion Include="Microsoft.Extensions.Logging.Abstractions" Version="2.2.0" />
     <PackageVersion Include="Microsoft.Extensions.Logging" Version="2.2.0" />
     <PackageVersion Include="Microsoft.Extensions.Options.ConfigurationExtensions" Version="2.2.0" />
     <PackageVersion Include="Microsoft.Extensions.Options" Version="2.2.0" />
     <PackageVersion Include="Microsoft.Identity.Client" Version="4.61.3" />
     <PackageVersion Include="Microsoft.Owin" Version="4.2.2" />
-    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="1.0.0" />
+    <PackageVersion Include="Microsoft.SourceLink.GitHub" Version="8.0.0" />
     <PackageVersion Include="Microsoft.VisualStudio.Setup.Configuration.Interop" Version="1.8.24" />
-    <PackageVersion Include="Moq" Version="4.10.1" />
+    <PackageVersion Include="Moq" Version="4.20.70" />
     <PackageVersion Include="Newtonsoft.Json" Version="13.0.1" />
     <PackageVersion Include="NuGet.Packaging" Version="6.9.1" />
     <PackageVersion Include="NuGet.StrongName.AnglicanGeek.MarkdownMailer" Version="1.2.0" />
@@ -44,7 +45,7 @@
     <PackageVersion Include="Serilog.Sinks.Console" Version="3.1.1" />
     <PackageVersion Include="SerilogTraceListener" Version="3.2.0" />
     <PackageVersion Include="System.Data.SqlClient" Version="4.8.6" />
-    <PackageVersion Include="xunit.runner.visualstudio" Version="2.4.1" />
+    <PackageVersion Include="xunit.runner.visualstudio" Version="2.8.2" />
     <PackageVersion Include="xunit" Version="2.4.1" />
   </ItemGroup>
 </Project>

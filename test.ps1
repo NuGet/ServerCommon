@@ -24,7 +24,7 @@ Function Invoke-Tests {
 
     Trace-Log 'Running tests'
 
-    $xUnitExe = (Join-Path $PSScriptRoot "packages\xunit.runner.console\tools\xunit.console.exe")
+    $xUnitExe = (Join-Path $PSScriptRoot "packages\xunit.runner.console\tools\net472\xunit.console.exe")
 
     $CommonTestAssemblies =
         "tests\NuGet.Services.Configuration.Tests\bin\$Configuration\net472\NuGet.Services.Configuration.Tests.dll",
