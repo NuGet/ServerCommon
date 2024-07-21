@@ -114,7 +114,7 @@ namespace NuGet.Services.Messaging.Email.Tests
                     Mock.Of<ILogger<AsynchronousEmailMessageService>>(),
                     Mock.Of<IMessageServiceConfiguration>());
 
-                await Assert.ThrowsAsync<ArgumentException>(() => messageService.SendMessageAsync(emailBuilder.Object, false, false));
+                await Assert.ThrowsAsync<ArgumentNullException>(() => messageService.SendMessageAsync(emailBuilder.Object, false, false));
 
                 emailBuilder.Verify();
                 emailMessageEnqueuerMock.Verify(
