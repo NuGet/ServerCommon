@@ -48,7 +48,7 @@ Invoke-BuildStep 'Clearing package cache' { Clear-PackageCache } `
 Invoke-BuildStep 'Clearing artifacts' { Clear-Artifacts } `
     -ev +BuildErrors
 
-Invoke-BuildStep 'Set version metadata in AssemblyInfo.cs' { `
+Invoke-BuildStep 'Set version metadata in AssemblyInfo.cs' {
         $CommonAssemblyInfo =
             "src\NuGet.Services.Build\Properties\AssemblyInfo.g.cs",
             "src\NuGet.Services.Configuration\Properties\AssemblyInfo.g.cs",
