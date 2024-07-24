@@ -2,19 +2,18 @@
 // Licensed under the Apache License, Version 2.0. See License.txt in the project root for license information.
 
 using System;
-using Azure.Storage.Blobs.Models;
 
 namespace NuGet.Services.Storage
 {
     /// <summary>
-    /// This class represents the typical results of trying to acquire a lease from <see cref="IBlobLeaseService"/>.
+    /// This class represents the typical results of trying to acquire a lease from <see cref="ILeaseService"/>.
     /// </summary>
     public class BlobLeaseResult
     {
-        private BlobLeaseResult(bool isSuccess, BlobLease lease)
+        private BlobLeaseResult(bool isSuccess, string leaseId)
         {
             IsSuccess = isSuccess;
-            LeaseId = isSuccess ? lease.LeaseId : null;
+            LeaseId = leaseId;
         }
 
         /// <summary>
@@ -28,19 +27,19 @@ namespace NuGet.Services.Storage
         /// </summary>
         public string LeaseId { get; }
 
-        public static BlobLeaseResult Success(BlobLease lease)
+        public static BlobLeaseResult Success(string leaseId)
         {
-            if (lease == null)
+            if (leaseId == null)
             {
-                throw new ArgumentNullException(nameof(lease));
+                throw new ArgumentNullException(nameof(leaseId));
             }
 
-            return new BlobLeaseResult(isSuccess: true, lease: lease);
+            return new BlobLeaseResult(isSuccess: true, leaseId: leaseId);
         }
 
         public static BlobLeaseResult Failure()
         {
-            return new BlobLeaseResult(isSuccess: false, lease: null);
+            return new BlobLeaseResult(isSuccess: false, leaseId: null);
         }
     }
 }

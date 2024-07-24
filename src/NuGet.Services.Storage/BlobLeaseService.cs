@@ -95,7 +95,7 @@ namespace NuGet.Services.Storage
             try
             {
                 var lease = await leaseClient.RenewAsync(conditions: null, cancellationToken: cancellationToken);
-                return BlobLeaseResult.Success(lease);
+                return BlobLeaseResult.Success(leaseId);
             }
             catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.Conflict || ex.Status == (int)HttpStatusCode.PreconditionFailed)
             {
@@ -136,7 +136,7 @@ namespace NuGet.Services.Storage
             {
                 var leaseClient = blob.GetBlobLeaseClient();
                 var blobLease = await leaseClient.AcquireAsync(leaseTime, conditions: null, cancellationToken: cancellationToken);
-                return BlobLeaseResult.Success(blobLease);
+                return BlobLeaseResult.Success(leaseClient.LeaseId);
             }
             catch (RequestFailedException ex) when (ex.Status == (int)HttpStatusCode.Conflict)
             {
