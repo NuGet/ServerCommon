@@ -96,8 +96,8 @@ Function Clear-Tests {
 Function Get-LatestVisualStudioRoot {
 
     if (Test-Path $BuiltInVsWhereExe) {
-        $installationPath = & $BuiltInVsWhereExe -latest -property installationPath
-        $installationVersion = & $BuiltInVsWhereExe -latest -property installationVersion
+        $installationPath = & $BuiltInVsWhereExe -latest -prerelease -property installationPath
+        $installationVersion = & $BuiltInVsWhereExe -latest -prerelease -property installationVersion
         Verbose-Log "Found Visual Studio at '$installationPath' version '$installationVersion' with '$BuiltInVsWhereExe'"
         # Set the fallback version
         $majorVersion = "$installationVersion".Split('.')[0]
