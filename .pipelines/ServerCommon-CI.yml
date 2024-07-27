@@ -84,3 +84,4 @@ extends:
           inputs:
             testRunner: VSTest
             testResultsFiles: $(ServerCommonPath)\Results.*.xml
+            failTaskOnFailedTests: true
