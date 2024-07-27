@@ -22,14 +22,14 @@ namespace NuGet.Services.Configuration.Tests
             {
                 yield return new object[] {
                     new Dictionary<string, string> {
-                        { Constants.KeyVaultVaultNameKey, "KeyVaultName" },
-                        { Constants.KeyVaultUseManagedIdentity, "true" },
-                        { Constants.KeyVaultClientIdKey, "KeyVaultClientId" },
-                        { Constants.KeyVaultCertificateThumbprintKey, "KeyVaultThumbprint" },
-                        { Constants.KeyVaultStoreNameKey, "StoreName"},
-                        { Constants.KeyVaultStoreLocationKey, "StoreLocation" },
-                        { Constants.KeyVaultValidateCertificateKey, "true" },
-                        { Constants.KeyVaultSendX5c, "false" }
+                        { Constants.DefaultKeyVaultPrefix + Constants.KeyVaultVaultNameKey, "KeyVaultName" },
+                        { Constants.DefaultKeyVaultPrefix + Constants.KeyVaultUseManagedIdentity, "true" },
+                        { Constants.DefaultKeyVaultPrefix + Constants.KeyVaultClientIdKey, "KeyVaultClientId" },
+                        { Constants.DefaultKeyVaultPrefix + Constants.KeyVaultCertificateThumbprintKey, "KeyVaultThumbprint" },
+                        { Constants.DefaultKeyVaultPrefix + Constants.KeyVaultStoreNameKey, "StoreName"},
+                        { Constants.DefaultKeyVaultPrefix + Constants.KeyVaultStoreLocationKey, "StoreLocation" },
+                        { Constants.DefaultKeyVaultPrefix + Constants.KeyVaultValidateCertificateKey, "true" },
+                        { Constants.DefaultKeyVaultPrefix + Constants.KeyVaultSendX5c, "false" }
                     }
                 };
             }
@@ -41,45 +41,45 @@ namespace NuGet.Services.Configuration.Tests
             {
                 yield return new object[] {
                     new Dictionary<string, string> {
-                        { Constants.KeyVaultVaultNameKey, "KeyVaultName" },
-                        { Constants.KeyVaultUseManagedIdentity, "true" },
+                        { Constants.DefaultKeyVaultPrefix + Constants.KeyVaultVaultNameKey, "KeyVaultName" },
+                        { Constants.DefaultKeyVaultPrefix + Constants.KeyVaultUseManagedIdentity, "true" },
                     }
                 };
 
                 yield return new object[] {
                     new Dictionary<string, string> {
-                        { Constants.KeyVaultClientIdKey, "KeyVaultClientId" },
-                        { Constants.KeyVaultCertificateThumbprintKey, "KeyVaultThumbprint" },
-                        { Constants.KeyVaultStoreNameKey, "StoreName"},
-                        { Constants.KeyVaultStoreLocationKey, "StoreLocation" },
-                        { Constants.KeyVaultValidateCertificateKey, "true" },
-                        { Constants.KeyVaultSendX5c, "false" }
+                        { Constants.DefaultKeyVaultPrefix + Constants.KeyVaultClientIdKey, "KeyVaultClientId" },
+                        { Constants.DefaultKeyVaultPrefix + Constants.KeyVaultCertificateThumbprintKey, "KeyVaultThumbprint" },
+                        { Constants.DefaultKeyVaultPrefix + Constants.KeyVaultStoreNameKey, "StoreName"},
+                        { Constants.DefaultKeyVaultPrefix + Constants.KeyVaultStoreLocationKey, "StoreLocation" },
+                        { Constants.DefaultKeyVaultPrefix + Constants.KeyVaultValidateCertificateKey, "true" },
+                        { Constants.DefaultKeyVaultPrefix + Constants.KeyVaultSendX5c, "false" }
                     }
                 };
 
                 yield return new object[] {
                     new Dictionary<string, string> {
-                        { Constants.KeyVaultVaultNameKey, "KeyVaultName" },
-                        { Constants.KeyVaultUseManagedIdentity, "false" },
-                        { Constants.KeyVaultClientIdKey, "KeyVaultClientId" },
-                        { Constants.KeyVaultCertificateThumbprintKey, "KeyVaultThumbprint" },
-                        { Constants.KeyVaultStoreNameKey, "StoreName"},
-                        { Constants.KeyVaultStoreLocationKey, "StoreLocation" },
-                        { Constants.KeyVaultValidateCertificateKey, "true" },
-                        { Constants.KeyVaultSendX5c, "false" }
+                        { Constants.DefaultKeyVaultPrefix + Constants.KeyVaultVaultNameKey, "KeyVaultName" },
+                        { Constants.DefaultKeyVaultPrefix + Constants.KeyVaultUseManagedIdentity, "false" },
+                        { Constants.DefaultKeyVaultPrefix + Constants.KeyVaultClientIdKey, "KeyVaultClientId" },
+                        { Constants.DefaultKeyVaultPrefix + Constants.KeyVaultCertificateThumbprintKey, "KeyVaultThumbprint" },
+                        { Constants.DefaultKeyVaultPrefix + Constants.KeyVaultStoreNameKey, "StoreName"},
+                        { Constants.DefaultKeyVaultPrefix + Constants.KeyVaultStoreLocationKey, "StoreLocation" },
+                        { Constants.DefaultKeyVaultPrefix + Constants.KeyVaultValidateCertificateKey, "true" },
+                        { Constants.DefaultKeyVaultPrefix + Constants.KeyVaultSendX5c, "false" }
                     }
                 };
 
                 yield return new object[] {
                     new Dictionary<string, string> {
-                        { Constants.KeyVaultVaultNameKey, "KeyVaultName" },
-                        { Constants.KeyVaultUseManagedIdentity, "false" },
-                        { Constants.KeyVaultClientIdKey, "" },
-                        { Constants.KeyVaultCertificateThumbprintKey, "" },
-                        { Constants.KeyVaultStoreNameKey, ""},
-                        { Constants.KeyVaultStoreLocationKey, "" },
-                        { Constants.KeyVaultValidateCertificateKey, "" },
-                        { Constants.KeyVaultSendX5c, "" }
+                        { Constants.DefaultKeyVaultPrefix + Constants.KeyVaultVaultNameKey, "KeyVaultName" },
+                        { Constants.DefaultKeyVaultPrefix + Constants.KeyVaultUseManagedIdentity, "false" },
+                        { Constants.DefaultKeyVaultPrefix + Constants.KeyVaultClientIdKey, "" },
+                        { Constants.DefaultKeyVaultPrefix + Constants.KeyVaultCertificateThumbprintKey, "" },
+                        { Constants.DefaultKeyVaultPrefix + Constants.KeyVaultStoreNameKey, ""},
+                        { Constants.DefaultKeyVaultPrefix + Constants.KeyVaultStoreLocationKey, "" },
+                        { Constants.DefaultKeyVaultPrefix + Constants.KeyVaultValidateCertificateKey, "" },
+                        { Constants.DefaultKeyVaultPrefix + Constants.KeyVaultSendX5c, "" }
                     }
                 };
             }
@@ -96,8 +96,8 @@ namespace NuGet.Services.Configuration.Tests
         [MemberData(nameof(ValidConfigs))]
         public void CreatesSecretReaderFactoryForValidConfiguration(IDictionary<string, string> config)
         {
-            var secretReaderFacotry = new ConfigurationRootSecretReaderFactory(CreateTestConfiguration(config));
-            Assert.NotNull(secretReaderFacotry);
+            var secretReaderFactory = new ConfigurationRootSecretReaderFactory(CreateTestConfiguration(config));
+            Assert.NotNull(secretReaderFactory);
         }
 
 

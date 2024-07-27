@@ -5,14 +5,16 @@ namespace NuGet.Services.Configuration
 {
     public static class Constants
     {
-        public static string KeyVaultVaultNameKey = "KeyVault_VaultName";
-        public static string KeyVaultUseManagedIdentity = "KeyVault_UseManagedIdentity";
-        public static string KeyVaultTenantIdKey = "KeyVault_TenantId";
-        public static string KeyVaultClientIdKey = "KeyVault_ClientId";
-        public static string KeyVaultCertificateThumbprintKey = "KeyVault_CertificateThumbprint";
-        public static string KeyVaultValidateCertificateKey = "KeyVault_ValidateCertificate";
-        public static string KeyVaultStoreNameKey = "KeyVault_StoreName";
-        public static string KeyVaultStoreLocationKey = "KeyVault_StoreLocation";
-        public static string KeyVaultSendX5c = "KeyVault_SendX5c";
+        public const string DefaultKeyVaultPrefix = "KeyVault_";
+
+        public const string KeyVaultVaultNameKey = "VaultName";
+        public const string KeyVaultUseManagedIdentity = "UseManagedIdentity";
+        public const string KeyVaultTenantIdKey = "TenantId";
+        public const string KeyVaultClientIdKey = "ClientId";
+        public const string KeyVaultCertificateThumbprintKey = "CertificateThumbprint";
+        public const string KeyVaultValidateCertificateKey = "ValidateCertificate";
+        public const string KeyVaultStoreNameKey = "StoreName";
+        public const string KeyVaultStoreLocationKey = "StoreLocation";
+        public const string KeyVaultSendX5c = "SendX5c";
     }
 }

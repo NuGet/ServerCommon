@@ -20,39 +20,39 @@ namespace NuGet.Services.Configuration
         private bool _validateCertificate;
         private bool _sendX5c;
 
-        public ConfigurationRootSecretReaderFactory(IConfigurationRoot config)
+        public ConfigurationRootSecretReaderFactory(IConfigurationRoot config, string configurationItemPrefix = Constants.DefaultKeyVaultPrefix)
         {
             if (config == null)
             {
                 throw new ArgumentNullException($"{nameof(config)}");
             }
 
-            _vaultName = config[Constants.KeyVaultVaultNameKey];
+            _vaultName = config[configurationItemPrefix + Constants.KeyVaultVaultNameKey];
 
-            string useManagedIdentity = config[Constants.KeyVaultUseManagedIdentity];
+            string useManagedIdentity = config[configurationItemPrefix + Constants.KeyVaultUseManagedIdentity];
             if (!string.IsNullOrEmpty(useManagedIdentity))
             {
                 _useManagedIdentity = bool.Parse(useManagedIdentity);
             }
 
-            _tenantId = config[Constants.KeyVaultTenantIdKey];
-            _clientId = config[Constants.KeyVaultClientIdKey];
-            _certificateThumbprint = config[Constants.KeyVaultCertificateThumbprintKey];
+            _tenantId = config[configurationItemPrefix + Constants.KeyVaultTenantIdKey];
+            _clientId = config[configurationItemPrefix + Constants.KeyVaultClientIdKey];
+            _certificateThumbprint = config[configurationItemPrefix + Constants.KeyVaultCertificateThumbprintKey];
             if (_useManagedIdentity && IsCertificateConfigurationProvided())
             {
                 throw new ArgumentException($"The KeyVault configuration specifies usage of both, the managed identity and certificate for accessing KeyVault resource. Please specify only one configuration to be used.");
             }
 
-            _storeName = config[Constants.KeyVaultStoreNameKey];
-            _storeLocation = config[Constants.KeyVaultStoreLocationKey];
+            _storeName = config[configurationItemPrefix + Constants.KeyVaultStoreNameKey];
+            _storeLocation = config[configurationItemPrefix + Constants.KeyVaultStoreLocationKey];
             
-            string validateCertificate = config[Constants.KeyVaultValidateCertificateKey];
+            string validateCertificate = config[configurationItemPrefix + Constants.KeyVaultValidateCertificateKey];
             if (!string.IsNullOrEmpty(validateCertificate))
             {
                 _validateCertificate = bool.Parse(validateCertificate);
             }
 
-            string sendX5c = config[Constants.KeyVaultSendX5c];
+            string sendX5c = config[configurationItemPrefix + Constants.KeyVaultSendX5c];
             if (!string.IsNullOrEmpty(sendX5c))
             {
                 _sendX5c = bool.Parse(sendX5c);
