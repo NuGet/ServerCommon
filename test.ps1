@@ -29,7 +29,7 @@ $CommonSolution = Join-Path $PSScriptRoot "NuGet.Server.Common.sln"
 $CommonProjects = Get-SolutionProjects $CommonSolution
     
 Invoke-BuildStep 'Cleaning test results' { Clear-Tests } `
-    -ev +BuildErrors
+    -ev +TestErrors
 
 Invoke-BuildStep 'Running tests' {
         $CommonTestProjects = $CommonProjects | Where-Object { $_.IsTest }
