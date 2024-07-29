@@ -4,7 +4,6 @@ param (
     [string]$Configuration = 'debug',
     [int]$BuildNumber,
     [switch]$SkipRestore,
-    [switch]$CleanCache,
     [string]$CommonAssemblyVersion = '3.0.0',
     [string]$CommonPackageVersion = '3.0.0-zlocal',
     [string]$Branch,
