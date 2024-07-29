@@ -40,19 +40,7 @@ Invoke-BuildStep 'Getting private build tools' { Install-PrivateBuildTools } `
 Invoke-BuildStep 'Installing NuGet.exe' { Install-NuGet } `
     -ev +BuildErrors
 
-Invoke-BuildStep 'Clearing package cache' { Clear-PackageCache } `
-    -skip:(-not $CleanCache) `
-    -ev +BuildErrors
-
 Invoke-BuildStep 'Clearing artifacts' { Clear-Artifacts } `
-    -ev +BuildErrors
-
-Invoke-BuildStep 'Setting common version metadata in AssemblyInfo.cs' {
-        $CommonProjects | Where-Object { !$_.IsTest } | ForEach-Object {
-            $Path = Join-Path $_.Directory "Properties\AssemblyInfo.g.cs"
-            Set-VersionInfo $Path -AssemblyVersion $CommonAssemblyVersion -PackageVersion $CommonPackageVersion -Branch $Branch -Commit $CommitSHA
-        }
-    } `
     -ev +BuildErrors
 
 Invoke-BuildStep 'Restoring solution packages' {
@@ -61,6 +49,14 @@ Invoke-BuildStep 'Restoring solution packages' {
         Install-SolutionPackages -path $SolutionPath -output $PackagesDir -ExcludeVersion
     } `
     -skip:$SkipRestore `
+    -ev +BuildErrors
+
+Invoke-BuildStep 'Setting common version metadata in AssemblyInfo.cs' {
+        $CommonProjects | Where-Object { !$_.IsTest } | ForEach-Object {
+            $Path = Join-Path $_.Directory "Properties\AssemblyInfo.g.cs"
+            Set-VersionInfo $Path -AssemblyVersion $CommonAssemblyVersion -PackageVersion $CommonPackageVersion -Branch $Branch -Commit $CommitSHA
+        }
+    } `
     -ev +BuildErrors
 
 Invoke-BuildStep 'Building common solution' {
