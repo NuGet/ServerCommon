@@ -205,7 +205,18 @@ namespace NuGet.Services.Storage
             // Set destination properties if provided
             if (destinationProperties?.Count > 0)
             {
-                BlobHttpHeaders headers = await GetExistingHttpHeadersAsync(destinationBlockBlob);
+                // Use the existing properties of the destination blob to ensure that all properties are copied
+                // Source: https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-properties-metadata#set-and-retrieve-properties
+                BlobProperties properties = await destinationBlockBlob.GetPropertiesAsync();
+                var headers = new BlobHttpHeaders
+                {
+                    CacheControl = properties.CacheControl,
+                    ContentType = properties.ContentType,
+                    ContentDisposition = properties.ContentDisposition,
+                    ContentEncoding = properties.ContentEncoding,
+                    ContentLanguage = properties.ContentLanguage,
+                    ContentHash = properties.ContentHash,
+                };
 
                 // The copy statement copied all properties from the source blob to the destination blob; however,
                 // there may be required properties on destination blob, all of which may have not already existed
@@ -229,22 +240,6 @@ namespace NuGet.Services.Storage
 
                 await destinationBlockBlob.SetHttpHeadersAsync(headers, cancellationToken: cancellationToken);
             }
-        }
-
-        private static async Task<BlobHttpHeaders> GetExistingHttpHeadersAsync(BlockBlobClient blob)
-        {
-            // Source: https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-properties-metadata#set-and-retrieve-properties
-            BlobProperties properties = await blob.GetPropertiesAsync();
-
-            return new BlobHttpHeaders
-            {
-                CacheControl = properties.CacheControl,
-                ContentType = properties.ContentType,
-                ContentDisposition = properties.ContentDisposition,
-                ContentEncoding = properties.ContentEncoding,
-                ContentLanguage = properties.ContentLanguage,
-                ContentHash = properties.ContentHash,
-            };
         }
 
         //  save
