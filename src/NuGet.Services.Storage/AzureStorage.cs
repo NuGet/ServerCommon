@@ -205,7 +205,7 @@ namespace NuGet.Services.Storage
             // Set destination properties if provided
             if (destinationProperties?.Count > 0)
             {
-                BlobHttpHeaders headers = new BlobHttpHeaders();
+                BlobHttpHeaders headers = await GetExistingHttpHeadersAsync(destinationBlockBlob);
 
                 // The copy statement copied all properties from the source blob to the destination blob; however,
                 // there may be required properties on destination blob, all of which may have not already existed
@@ -231,13 +231,29 @@ namespace NuGet.Services.Storage
             }
         }
 
+        private static async Task<BlobHttpHeaders> GetExistingHttpHeadersAsync(BlockBlobClient blob)
+        {
+            // Source: https://learn.microsoft.com/en-us/azure/storage/blobs/storage-blob-properties-metadata#set-and-retrieve-properties
+            BlobProperties properties = await blob.GetPropertiesAsync();
+
+            return new BlobHttpHeaders
+            {
+                CacheControl = properties.CacheControl,
+                ContentType = properties.ContentType,
+                ContentDisposition = properties.ContentDisposition,
+                ContentEncoding = properties.ContentEncoding,
+                ContentLanguage = properties.ContentLanguage,
+                ContentHash = properties.ContentHash,
+            };
+        }
+
         //  save
         protected override async Task OnSave(Uri resourceUri, StorageContent content, bool overwrite, CancellationToken cancellationToken)
         {
             string name = GetName(resourceUri);
 
             BlockBlobClient blob = _directory.GetBlockBlobClient(name);
-            BlobHttpHeaders headers = new BlobHttpHeaders();
+            BlobHttpHeaders headers = await GetExistingHttpHeadersAsync(blob);
             headers.ContentType = content.ContentType;
             headers.CacheControl = content.CacheControl;
 
