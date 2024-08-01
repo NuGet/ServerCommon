@@ -253,7 +253,7 @@ namespace NuGet.Services.Storage
             string name = GetName(resourceUri);
 
             BlockBlobClient blob = _directory.GetBlockBlobClient(name);
-            BlobHttpHeaders headers = await GetExistingHttpHeadersAsync(blob);
+            BlobHttpHeaders headers = new BlobHttpHeaders();
             headers.ContentType = content.ContentType;
             headers.CacheControl = content.CacheControl;
 
