@@ -1,35 +1,30 @@
-# Common libraries used across the NuGet server repositories
+# This repository has moved!
 
-This repository contains shared libraries used across the NuGet server repositories, including:
-* NuGet.Services.Configuration
-* NuGet.Services.KeyVault
-* NuGet.Services.Logging
-* NuGet.Services.Owin
-* NuGet.Services.Cursor
-* NuGet.Services.Storage
+This repository has been merged into https://github.com/NuGet/NuGetGallery. All changes to the NuGet.Services.* shared package should be made to the NuGetGallery repository.
 
-## Getting started
+As of NuGetGallery commit
+[`968432180cad66123c6541ba89b562e0cbb22a8d`](https://github.com/NuGet/NuGetGallery/commit/968432180cad66123c6541ba89b562e0cbb22a8d)
+all projects, files, and Git history of the ServerCommon repository have been merged into the NuGetGallery
+repository. This merge was done to reduce the amount of overhead needed to maintain the back-end of nuget.org.
 
-First install prerequisites:
+If you have a broken link found in documentation, please let us know by opening a bug on that documentation page.
 
-1. Visual Studio 2022 - Install the following [`Workloads`](https://docs.microsoft.com/visualstudio/install/modify-visual-studio) and individual components:
-    * Azure development
+If you'd like to try to work around the broken link, try changing the "ServerCommon" part of the URL to
+"NuGetGallery". This is not guaranteed to work as the code changes, but it may help. For example:
 
-The "Azure development" workload installs SQL Server Express LocalDB which is the database configured for local development.
+<pre>
+BEFORE: https://github.com/NuGet/<b>ServerCommon</b>/blob/main/build.ps1
+ AFTER: https://github.com/NuGet/<b>NuGetGallery</b>/blob/dev/build.ps1
+</pre>
 
-Now run the NuGet ServerCommon:
+## Perhaps you're looking for...
 
-1. Clone the repository with `git clone https://github.com/NuGet/ServerCommon.git`
-2. Navigate to `.\servercommon`
-3. Build with `.\build.ps1`
-4. Create the database:
-    Open Package Manager Console, set `NuGet.Services.Validation` as default project, then run `Update-Database`.
-5. Open `.\NuGet.Server.Common.sln` using Visual Studio
+- [NuGet/NuGetGallery](https://github.com/NuGet/NuGetGallery) -  the destination for this repository move, the code that runs the www.nuget.org website and the issue tracker for all nuget.org issues
+- [NuGet/Home](https://github.com/NuGet/Home) - the issue tracker for NuGet client
+- [NuGet/NuGet.Client](https://github.com/NuGet/NuGet.Client) - the code for NuGet client, i.e. Visual Studio
+  integration, .NET CLI integration, MSBuild integration, nuget.exe, etc. 
 
-## Trademarks
+## Still confused?
 
-This project may contain trademarks or logos for projects, products, or services. Authorized use of Microsoft trademarks or logos is subject to and must follow Microsoft’s Trademark & Brand Guidelines. Use of Microsoft trademarks or logos in modified versions of this project must not cause confusion or imply Microsoft sponsorship. Any use of third-party trademarks or logos are subject to those third-party’s policies.
-
-## Reporting issues
-
-Please report issues to the [NuGet/NuGetGallery](https://github.com/NuGet/NuGetGallery/issues) repository, the home of all NuGet server-related issues.
+Feel free to open an issue at [NuGet/NuGetGallery](https://github.com/NuGet/NuGetGallery/issues) and someone will help
+you out.
