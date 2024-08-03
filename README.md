@@ -1,6 +1,6 @@
 # This repository has moved!
 
-This repository has been merged into https://github.com/NuGet/NuGetGallery. All changes to the NuGet.Services.* shared packaged should be made to the NuGetGallery repository.
+This repository has been merged into https://github.com/NuGet/NuGetGallery. All changes to the NuGet.Services.* shared package should be made to the NuGetGallery repository.
 
 As of NuGetGallery commit
 [`968432180cad66123c6541ba89b562e0cbb22a8d`](https://github.com/NuGet/NuGetGallery/commit/968432180cad66123c6541ba89b562e0cbb22a8d)
